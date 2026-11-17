@@ -83,9 +83,10 @@ export function drawTileMap(state,host) {
   host.replaceChildren();
   if(!state.run)return;
   const run=state.run;
-  host.style.gridTemplateColumns="repeat("+MAP[0].length+", minmax(0, 1fr))";
+  const map=run.map||MAP;
+  host.style.gridTemplateColumns="repeat("+map[0].length+", minmax(0, 1fr))";
   const fragment=document.createDocumentFragment();
-  MAP.forEach((line,y)=>line.split("").forEach((tile,x)=>{
+  map.forEach((line,y)=>line.split("").forEach((tile,x)=>{
     const cell=document.createElement("div");
     cell.className="pixel-tile";
     cell.dataset.x=String(x);cell.dataset.y=String(y);

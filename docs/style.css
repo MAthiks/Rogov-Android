@@ -230,3 +230,6 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 #combat-intent[data-intent="guardian_heavy"]{color:#ffc699}
 #combat-intent[data-intent="guardian_prepare"]{color:#ebd4a4}
 #combat-intent[data-intent="guardian_guard"]{color:#b1d5db}
+
+/* VAR-077 — clear, non-punitive route contract in the exploration panel. */
+.route-hint{margin:10px 0 8px;padding:9px 10px;border-left:3px solid #9bb7a1;background:#182d2e;border-radius:5px;font-size:11px;line-height:1.5;color:#c6d6c8}

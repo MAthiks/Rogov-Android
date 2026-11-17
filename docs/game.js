@@ -4,6 +4,7 @@ import { DEFAULT_HERO_STATS, ENEMY_STATS, migrateHero, migrateEnemy, migrateRunS
 import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDefense,
   regenEndurance } from "./combat-rules.js";
 import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS} from "./enemy-ai.js";
+import {BASE_MAP,BASE_LOOT,generateLayout,validateLayout} from "./dungeon.js";
 export const SAVE_KEY = "rogov-web-v1";
 export const SCHEMA_VERSION = 1;
 export const INVENTORY_LIMIT = 8;
@@ -76,17 +77,8 @@ export const ITEMS = Object.freeze({
   "relic.ashen_fragment": { name: "Fragment de cendre", type: "Relique", symbol: "*" },
   "consumable.dusk_tonic": { name: "Tonique du crépuscule", type: "Potion", symbol: "!" }
 });
-export const MAP = Object.freeze([
-  "###############",
-  "#.............#",
-  "#.......$.....#",
-  "#....###......#",
-  "#........^....#",
-  "#.............#",
-  "#..$..........#",
-  "#S.^..#.....E.#",
-  "###############"
-]);
+/** Legacy exported reference remains unchanged for old saved descents. */
+export const MAP=BASE_MAP;
 
 /** v0.6 Creature bible: low / tall / anomalous silhouettes; all original to ROGOV. */
 export const ENEMY_TYPES = Object.freeze({
@@ -118,12 +110,12 @@ export function inspectTile(state, x, y) {
     return { kind:"enemy", name:creature.name,
       description:creature.family+" · PV "+enemy.hp+"/"+creature.hp+" · "+creature.description };
   }
-  const tile = tileAt(x,y);
+  const tile = tileAt(x,y,state.run);
   if (tile==="#") return { kind:"wall", name:"Mur de pierre", description:"Obstacle infranchissable." };
   if (tile==="^") return { kind:"danger", name:"Faille mortelle", description:"La traverser déclenche le Rappel. Le sac sera perdu." };
   if (tile==="E") return { kind:"extraction", name:"Arche d'extraction", description:"Atteins-la pour sécuriser ton équipement." };
   if (tile==="$" && !state.run.collected.includes(positionKey(x,y))) {
-    const id=LOOT[positionKey(x,y)];
+    const id=lootAt(state.run,positionKey(x,y));
     return { kind:"loot", name:ITEMS[id].name, description:"Butin récupérable. Tu dois te déplacer sur cette case." };
   }
   if (tile==="#") return null;
@@ -133,7 +125,7 @@ export function inspectTile(state, x, y) {
 function canRiftPulse(enemy, run) {
   if (distance(enemy,run)!==2) return false;
   if (enemy.x!==run.x && enemy.y!==run.y) return false;
-  return tileAt((enemy.x+run.x)/2,(enemy.y+run.y)/2)!=="#";
+  return tileAt((enemy.x+run.x)/2,(enemy.y+run.y)/2,run)!=="#";
 }
 
 /**
@@ -235,7 +227,7 @@ function enemyPhase(s) {
       for(const [ox,oy] of options) {
         if (!ox&&!oy)continue;
         const nx=enemy.x+ox,ny=enemy.y+oy;
-        const tile=tileAt(nx,ny);
+        const tile=tileAt(nx,ny,run);
         if((tile==="."||tile==="S") && !(nx===run.x&&ny===run.y) &&
            !enemyAt(run,nx,ny)) {
           enemy.x=nx;enemy.y=ny;
@@ -250,7 +242,7 @@ function enemyPhase(s) {
   return s;
 }
 
-const LOOT = Object.freeze({ "3,6": "relic.ashen_fragment", "8,2": "consumable.dusk_tonic" });
+const LOOT=BASE_LOOT;
 export const DIRECTIONS = Object.freeze({
   up: [0,-1], down: [0,1], left: [-1,0], right: [1,0]
 });
@@ -271,7 +263,8 @@ export function newGame() {
 const copy = (state) => JSON.parse(JSON.stringify(state));
 const quantity = (items) => Object.values(items).reduce((sum, count) => sum + count, 0);
 const positionKey = (x,y) => x + "," + y;
-const tileAt = (x,y) => MAP[y]?.[x] || "#";
+const tileAt = (x,y,run=null) => (run?.map || MAP)[y]?.[x] || "#";
+const lootAt=(run,key)=> (run?.loot || LOOT)[key];
 const info = (state, message, changed=true, type="system", turn=state.run?.turns ?? null) => {
   if (changed) recordEvent(state, type, message, turn);
   return { state, message, changed };
@@ -294,7 +287,9 @@ export function validateSave(s) {
   }
   if (s.run !== null) {
     const r = s.run;
-    if (!r || !Number.isInteger(r.x) || !Number.isInteger(r.y) || tileAt(r.x,r.y) === "#") return false;
+    if (!r || !Number.isInteger(r.x) || !Number.isInteger(r.y)) return false;
+    if (r.map!==undefined && !validateLayout(r.map,r.loot)) return false;
+    if (tileAt(r.x,r.y,r) === "#") return false;
     if (!r.carried || !Array.isArray(r.collected) || !Number.isSafeInteger(r.turns)) return false;
     if (!Number.isInteger(r.hp) || r.hp < 1 || r.hp > MAX_HP) return false;
     for (const [id,count] of Object.entries(r.carried)) {
@@ -316,7 +311,7 @@ export function validateSave(s) {
         if (!enemy || typeof enemy.id!=="string" || !(enemy.kind in ENEMY_TYPES) ||
           !Number.isInteger(enemy.x) || !Number.isInteger(enemy.y) ||
           !Number.isInteger(enemy.hp) || enemy.hp<1 || enemy.hp>ENEMY_TYPES[enemy.kind].hp ||
-          tileAt(enemy.x,enemy.y)==="#") return false;
+          tileAt(enemy.x,enemy.y,r)==="#") return false;
         if (enemy.attributes!==undefined && !validAttributes(enemy.attributes)) return false;
         if (enemy.loadout!==undefined && !validLoadout(enemy.loadout)) return false;
         if (!validEnemyTactic(enemy)) return false;
@@ -341,9 +336,13 @@ export function beginRun(state, equipment=[]) {
     carried[id] = 1;
   }
   s.meta.descents += 1;
-  s.run = migrateCombatRun({ x: 1, y: 7, hp: MAX_HP, turns: 0, carried,
-    collected: [], enemies: ENEMY_START.map(e=>({...e})) },s.meta);
-  return info(s, "Descente " + s.meta.descents + " : les profondeurs de Nhal s'ouvrent.");
+  const layout=generateLayout(s.meta.descents);
+  s.run = migrateCombatRun({ x:layout.start.x, y:layout.start.y, hp:MAX_HP,
+    turns:0,carried,collected:[],enemies:layout.enemies,
+    map:layout.map,loot:layout.loot,layoutId:layout.layoutId },s.meta);
+  return info(s,"Descente "+s.meta.descents+
+    (s.meta.descents===1?" : les profondeurs de Nhal s'ouvrent.":
+    " : Nhal a changé. Deux voies de retour restent ouvertes, mais les dangers se déplacent."));
 }
 export function recall(state) {
   if (!state.run) return info(state, "Tu es déjà à Veyr.", false);
@@ -355,7 +354,7 @@ export function recall(state) {
 }
 export function extract(state) {
   if (!state.run) return info(state, "Aucune descente active.", false);
-  if (tileAt(state.run.x, state.run.y) !== "E") {
+  if (tileAt(state.run.x, state.run.y,state.run) !== "E") {
     return info(state, "Tu dois atteindre un point d'extraction E.", false);
   }
   const s = copy(state);
@@ -374,7 +373,7 @@ export function move(state, direction, context="move") {
   if (!vector) return info(state, "Déplacement inconnu.", false);
   const x = state.run.x + vector[0];
   const y = state.run.y + vector[1];
-  const tile = tileAt(x,y);
+  const tile = tileAt(x,y,state.run);
   if (tile === "#") return info(state, "Un mur barre le passage.", false);
   const blocking=enemyAt(state.run,x,y);
   if (blocking) {
@@ -397,7 +396,7 @@ export function move(state, direction, context="move") {
     if(quantity(s.run.carried)>=INVENTORY_LIMIT) {
       message="Sac plein : laisse le butin pour le moment.";type="danger";
     } else {
-      const id=LOOT[positionKey(x,y)];
+      const id=lootAt(s.run,positionKey(x,y));
       s.run.carried[id]=(s.run.carried[id]||0)+1;
       s.run.collected.push(positionKey(x,y));
       gainXp(s,1);
@@ -492,7 +491,7 @@ export function retreat(state) {
   const previous=distance(state.run,enemy);
   const moves=Object.entries(DIRECTIONS).map(([direction,[dx,dy]])=>{
     const x=state.run.x+dx,y=state.run.y+dy;
-    return {direction,x,y,range:distance({x,y},enemy),tile:tileAt(x,y)};
+    return {direction,x,y,range:distance({x,y},enemy),tile:tileAt(x,y,state.run)};
   }).filter(m=>m.tile!=="#" && m.tile!=="^" &&
     !enemyAt(state.run,m.x,m.y) && m.range>previous);
   if(!moves.length) return info(state,"Repli impossible : aucune case libre pour s'éloigner.",false);
@@ -538,7 +537,7 @@ export function waitTurn(state) {
 export function mapText(state) {
   if (!state.run) return "";
   const {x: px,y: py,collected} = state.run;
-  return MAP.map((row,y) => row.split("").map((tile,x) => {
+  return (state.run.map||MAP).map((row,y) => row.split("").map((tile,x) => {
     if (x === px && y === py) return "@";
     const enemy=enemyAt(state.run,x,y);
     if(enemy) return ENEMY_TYPES[enemy.kind].symbol;

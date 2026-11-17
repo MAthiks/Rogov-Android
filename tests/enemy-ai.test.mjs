@@ -233,6 +233,6 @@ test("DEV-073C: Android UI exposes imminent warnings, guard and charge colors",(
   assert.match(html,/aria-live="polite"/);
   assert.match(css,/guardian_heavy/);
   assert.match(css,/target-choice\.threat-imminent/);
-  assert.match(sw,/rogov-v0\.7d/);
+  assert.match(sw,/rogov-v0\.7e/);
   assert.match(sw,/"\.\/enemy-ai\.js"/);
 });

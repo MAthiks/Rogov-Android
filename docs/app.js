@@ -315,6 +315,9 @@ function render() {
     $("use-tonic").textContent = "Tonique +6 PV (" + (run.carried["consumable.dusk_tonic"] || 0) + ")";
     $("turns").textContent = String(run.turns);
     $("bag-count").textContent = inventoryCount(state) + " / 8";
+    $("route-hint").textContent = run.layoutId==="nhal-introduction"
+      ? "Première descente : repère les dangers et l'Arche d'extraction. Tu peux éviter le combat."
+      : "Secteur "+state.meta.descents+" : routes et positions modifiées. Deux voies de retour restent possibles : observe avant de t'engager.";
     $("dungeon-map").textContent = mapText(state);
     $("dungeon-map").hidden = renderMode !== "ascii";
     $("tile-map").hidden = renderMode !== "tiles";

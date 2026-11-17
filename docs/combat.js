@@ -41,6 +41,7 @@ export function currentEnemyIntent(run, enemy, map = MAP) {
   if (!run || !enemy || !ENEMY_TYPES[enemy.kind] || enemy.hp <= 0) return null;
   const d = tileDistance(run, enemy);
   if (d === null) return null;
+  map=run.map||map;
   const nextTurn = run.turns + 1;
   const intent = (kind, label) => Object.freeze({ kind, label, nextTurn });
   if (enemy.kind === "rift_larva") {

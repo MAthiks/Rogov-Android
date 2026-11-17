@@ -163,6 +163,6 @@ test("QA-074: PWA has explicit touch controls and a cached game engine",()=>{
   assert.match(app,/touchstart/);
   assert.match(app,/touchend/);
   assert.match(sw,/"\.\/enemy-ai\.js"/);
-  assert.match(sw,/rogov-v0\.7d/);
+  assert.match(sw,/rogov-v0\.7e/);
   // Presence of elements is NOT a viewport/ergonomic test on a real Samsung.
 });

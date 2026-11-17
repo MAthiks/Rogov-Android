@@ -1,6 +1,6 @@
 # Backlog de production — ROGOV (WIP maximal = 1)
 
-**Version Web : Alpha v0.7d — télégraphie et garde du Gardien (DEV-073C).**  
+**Version Web : Alpha v0.7e — Nhal procédural (VAR-077, premier lot).**  
 **Décision actée : Combat hybride v0.7.**  
 **État actuel : DEV-070 à DEV-073C développés ; intentions et garde du Gardien, avertissements Charognard/Larve. Les tests Android et l'équilibrage restent ouverts.**
 
@@ -17,10 +17,10 @@
 - [ ] **DEV-075 — Premier kit de classe** : Mercenaire (Garde, Frappe lourde) et moteur d'aptitudes, après stabilisation du combat
 - [ ] **DEV-076 — Sorts low magic** : un prototype avec coût/risque, pas onze classes livrées d'un coup
 - [ ] **QA-074 — Compatibilité et livraison** : 129 tests automatisés réussis, mais recettes Android et testeurs réels à réaliser
-- [ ] **VAR-077 — Variété des descentes (bloquant Alpha 8/10)** : agencements/rencontres/risques différents, chemins d'extraction pas toujours identiques
+- [x] **VAR-077 — Variété des descentes (prototype)** : carte de tutoriel stable, secteurs variables ensuite, ennemis/objets/Arche déplacés, chemins alternatifs vérifiés
 - [ ] **ECO-078 — Valeur du butin (bloquant Alpha 8/10)** : usage concret du Fragment de cendre au refuge et arbitrage d'extraction
 
-**Audit QA-074 effectué pour le moteur :** [bilan Alpha 8/10](docs/QA074_ALPHA_8_ASSESSMENT.md) — **129 tests réussis**, mais **objectif 8/10 refusé**. Trois descentes identiques terminées sans dégâts, même carte/ennemis/butin, Fragment de cendre sans utilité actuelle. **Prochain lot actif : VAR-077 (variété significative des descentes)**. Ensuite ECO-078 (usage du butin) et vérification Android + 5 testeurs × 2 runs. Pas de nouvelles classes avant validation de la boucle.
+**Audit QA-074 effectué pour le moteur :** [bilan Alpha 8/10](docs/QA074_ALPHA_8_ASSESSMENT.md) — **129 tests réussis**, mais **objectif 8/10 refusé**. Trois descentes identiques terminées sans dégâts, même carte/ennemis/butin, Fragment de cendre sans utilité actuelle. **VAR-077 livré en prototype** : [détails des garanties de parcours](docs/VAR077_PROCEDURAL_NHAL.md). Les descentes 2+ varient et le moteur refuse les plans sans retour alternatif. **Prochain lot actif : ECO-078 — donner un usage au Fragment de cendre à Veyr**, puis QA Android et 5 testeurs × 2 runs. Pas de nouvelle classe avant validation de la boucle.
 
 **Objectif de qualité :** [bilan 6/10 → 8/10](docs/QUALITY_REVIEW_6_TO_8.md) ; aucune note de 8/10 ne sera attribuée sans tests sur téléphone et retours de joueurs.
 

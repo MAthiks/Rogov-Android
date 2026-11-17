@@ -1,3 +1,12 @@
+## Web Alpha v0.7e — VAR-077 : descentes procédurales équitables (2026-11-18)
+
+- Première descente d'introduction historique conservée ; les suivantes varient selon leur graine et numéro.
+- Murs, failles, Arche d'extraction, deux sources de butin et positions des trois ennemis générés puis sauvegardés.
+- Contrôle automatique : au moins deux chemins de retour possibles depuis l'Arche/les objets, un chemin sans monstre et sans faille mortelle, aucun ennemi au point d'entrée.
+- Le Charognard peut approcher les reliques précieuses ; le joueur reste libre de l'éviter ou de se replier.
+- Toutes les nouvelles variantes affichables en mode graphique/ASCII, avec inspection des véritables cases ; anciens runs sans carte persistée inchangés.
+- **La variation n'est pas encore une économie de butin ni une validation humaine de l'Alpha 8/10.** ECO-078 et tests Android prioritaires.
+
 ## Web Alpha v0.7d — DEV-073C : Gardien et intentions ennemies (2026-11-17)
 
 - Gardien déchu : préparation annoncée sur un tour, coup lourd au tour suivant, garde haute après la frappe et interruption en cas de repli hors CONTACT.

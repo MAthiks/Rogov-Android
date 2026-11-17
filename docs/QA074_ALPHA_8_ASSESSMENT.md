@@ -54,3 +54,7 @@
 ### Décision finale
 
 **Ne pas annoncer “Alpha 8/10”** sur la base de la quantité de tests ou des seules fonctions livrées. Maintenir la PWA publique comme prototype jouable ; privilégier variété et valeur du butin, puis les tests utilisateurs avant nouvelles classes ou nouveaux sorts.
+
+## Évolution après l'audit — VAR-077 (18 novembre 2026)
+
+Le constat de trois descentes identiques concernait la v0.7d. **La v0.7e corrige ce point en ajoutant des dispositions variables dès la deuxième descente** et en contrôlant les itinéraires d'extraction et de retour des zones de butin. Voir [VAR077_PROCEDURAL_NHAL.md](VAR077_PROCEDURAL_NHAL.md). Ce premier lot ne change pas le verdict historique sur l'économie insuffisante, la validation Android ou les essais joueurs : **8/10 toujours non homologué**.

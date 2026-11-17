@@ -36,3 +36,12 @@ L'audit du moteur et de la boucle figure dans [docs/QA074_ALPHA_8_ASSESSMENT.md]
 Sur Android, réaliser **deux sessions portrait réelles** : lancer le jeu, prendre ou laisser l'épée, se déplacer, provoquer et interrompre le coup lourd du Gardien, s'extraire, fermer puis rouvrir la page, basculer ASCII/graphique, vérifier le mode hors ligne et qu'aucune sauvegarde n'est perdue. Noter tout débordement, texte ambigu ou bouton difficile à toucher.
 
 Faire ensuite tester **cinq personnes, deux descentes chacune sans aide**, en notant : compréhension des intentions, clarté du risque, utilité perçue du butin, frustration/bugs et envie d'une troisième descente. Cible : **au moins quatre sur cinq** veulent rejouer.
+
+## Tests VAR-077 : géographie variable
+
+1. La première descente doit être familière, puis la deuxième doit déplacer murs, dangers, butin, ennemis ou Arche.
+2. La troisième descente doit présenter un nouveau choix de parcours et une autre situation autour du butin.
+3. Chercher deux trajets de retour depuis une relique vers l'extraction ; aucun ne doit imposer une faille mortelle ou un combat faute d'alternative.
+4. Fermer puis rouvrir Chrome en pleine deuxième descente : la carte doit rester identique, tout comme le sac et les PV.
+5. Vérifier que les cases en mode graphique et ASCII correspondent et que les attaques de Charognard proches des objets précieux restent annoncées.
+6. Signaler tout verrouillage de sortie, récompense trop facile ou détour excessif. Les 8/10 demeurent conditionnés à la validation de vrais joueurs.

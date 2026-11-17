@@ -2,11 +2,15 @@
 
 **Dernière mise à jour : 17 novembre 2026.**  
 **Canal prioritaire : HTML5/CSS/JavaScript/PWA jouable sur Android.**  
-**Version Web : v0.7d (combat statistique, intentions annoncées et garde du Gardien), cible v0.7 : équilibrage et recette Android validés.**
+**Version Web : v0.7e (combat statistique et cartes variables dès la deuxième descente), cible 8/10 : économie du butin et recette Android validées.**
 
 ## Vision
 
 Développer rapidement un roguelike d'extraction tactique, solo, hors ligne, lisible au téléphone et facile à mettre à jour. Monde low fantasy et horreur cosmique originale : **Veyr** (refuge) et **Nhal** (profondeurs).
+
+## Règle procédurale VAR-077
+
+Après une descente d'introduction stable, Nhal change de tracé, d'Arche, de dangers, d'ennemis et de récompenses via un générateur déterministe. Les cartes sont sauvegardées **par descente**, jamais régénérées au rechargement. Tout plan doit disposer d'au moins deux itinéraires de retour topologiquement indépendants entre zones de butin et extraction, et d'au moins une sortie atteignable sans combat imposé. Pas d'effondrement ou de verrouillage de sortie soudain. **Source de vérité : [VAR077_PROCEDURAL_NHAL.md](VAR077_PROCEDURAL_NHAL.md)**. Ne pas prétendre que le système de récompense et les tests humains sont déjà validés.
 
 ## Boucle de jeu non négociable
 

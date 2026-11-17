@@ -112,3 +112,9 @@ Les jets utilisent une graine persistante dans la sauvegarde : quitter/revenir n
 Le Gardien déchu **prépare un coup lourd pendant un tour**. Le joueur peut ensuite esquiver, parer, bloquer, attaquer ou rompre le contact. S'éloigner interrompt la préparation. Après sa frappe, le Gardien tient une garde haute, pouvant bloquer le premier coup réussi du joueur selon ses statistiques et son équipement. Les menaces imminentes sont désormais présentées dans une bande d'alerte, même quand aucune cible n'est sélectionnée. Charognard et Larve conservent leur IA actuelle, mais leurs intentions correspondent à la phase ennemie suivante.
 
 **Vérification nécessaire sur Samsung** : éviter tout débordement, tester la compréhension des avertissements, une défense pendant la préparation, le repli et une partie complète avec extraction. La clé et le schéma de sauvegarde restent inchangés ; le Rappel conserve héros et coffre, mais détruit le sac.
+
+## Web Alpha v0.7e — Nhal varie après la première descente
+
+La première expédition conserve le parcours connu. Dès la deuxième, les murs, les dangers, l'Arche, le butin et les ennemis varient de façon reproductible. Les cartes sont enregistrées dans la descente ; une reprise conserve l'exact même secteur. Le moteur refuse les plans qui ne laissent pas deux voies de retour au butin/extraction et vérifie qu'on peut rejoindre l'Arche sans affronter obligatoirement une créature. Il n'existe pas d'effondrement soudain ou de porte à sens unique. Le Charognard rôde près du Fragment de cendre, créant un choix de risque facultatif. Lire [VAR077_PROCEDURAL_NHAL.md](docs/VAR077_PROCEDURAL_NHAL.md).
+
+Les anciennes sauvegardes actives conservent leur ancienne géographie. ECO-078 doit encore donner une utilité aux ressources rapportées, et le fonctionnement sur Samsung doit être vérifié.

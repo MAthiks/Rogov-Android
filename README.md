@@ -1,11 +1,15 @@
 # ROGOV — Roguelike d'extraction tactique
 
-**Version Web : v0.7d — combat tactique avec intentions ennemies annoncées (HTML/PWA).**  
+**Version Web : v0.7e — descentes variables à partir de la seconde entrée dans Nhal (HTML/PWA).**  
 **Prochaine version en développement : v0.7 — combat tactique hybride (non jouable intégralement).**
 
 Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-Android/**
 
 ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il conjugue exploration au tour par tour, combat, équipement à risque, extraction et horreur cosmique originale.
+
+## Descentes variables dès la deuxième expédition
+
+La première descente reste une initiation au combat et à l'extraction. Dès la deuxième, les murs, les failles, le butin, les positions des créatures et l'emplacement de l'Arche changent selon une graine propre à la descente. Le générateur vérifie la présence de routes de retour alternatives et d'une extraction atteignable sans combattre. Les anciennes sauvegardes en cours utilisent toujours leur carte historique. **La variété géographique ne remplace pas encore une vraie économie du butin : ECO-078 reste prioritaire.**
 
 ## Boucle fondamentale
 
@@ -20,7 +24,7 @@ ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il
 
 | Branche produit | État | Sources |
 |---|---|---|
-| **Web HTML/PWA** | **Jouable v0.7d** : carte, sprites, trois ennemis, combat tactique explicite, statistiques, intentions, soins, Rappel et extraction | `docs/` |
+| **Web HTML/PWA** | **Jouable v0.7e** : carte, sprites, trois ennemis, combat tactique explicite, statistiques, intentions, soins, Rappel et extraction | `docs/` |
 | **Android natif Kotlin** | Prototype de compatibilité APK **v0.1.3** ; installation sur Samsung non confirmée | `app/` |
 | **Combat hybride v0.7** | **DEV-070 à 073C développés : duel tactique, statistiques, garde et coup lourd télégraphié ; validation Android/équilibrage à compléter** | documents de conception v0.7 |
 
@@ -40,6 +44,7 @@ Cette orientation reprend des principes fonctionnels de combat tactique, sans re
 - [DEV-073A — Modèle héros/PNJ et équipement](docs/DEV073A_ACTOR_STATS.md) — six caractéristiques et équipement.
 - [DEV-073B — Résolution statistique](docs/DEV073B_COMBAT_RULES.md) — précision, critique, défense, Endurance et graine de jets persistante.
 - [DEV-073C — IA et intentions ennemies](docs/DEV073C_ENEMY_AI.md) — coup lourd télégraphié, garde haute et alertes Android.
+- [VAR-077 — Génération contrôlée de Nhal](docs/VAR077_PROCEDURAL_NHAL.md) — chemins, butin et ennemis variables ; extraction et deux voies de retour garanties par les tests.
 
 - [Bilan du studio et objectif Alpha 8/10](docs/QUALITY_REVIEW_6_TO_8.md) — points faibles, critères qualité et tests joueurs
 - [GDD de combat hybride v0.7](docs/COMBAT_DESIGN_V0.7.md) — règles, flux de tour, UI, sauvegardes, tests

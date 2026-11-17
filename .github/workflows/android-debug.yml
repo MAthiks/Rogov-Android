@@ -58,17 +58,7 @@ jobs:
           api-level: 33
           arch: x86_64
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: |
-            adb install app/build/outputs/apk/debug/app-debug.apk
-            adb shell am start -W -n com.rogov.android.installtest/com.rogov.android.MainActivity
-            sleep 5
-            if ! adb shell pidof com.rogov.android.installtest; then
-              echo "ROGOV did not remain running after launch"
-              adb logcat -d -s AndroidRuntime:E
-              exit 1
-            fi
-            adb shell screencap -p /sdcard/rogov-screen.png
-            adb pull /sdcard/rogov-screen.png rogov-screen.png
+          script: bash tools/smoke-android.sh
       - name: Publish install-tested APK
         if: success()
         uses: actions/upload-artifact@v4

@@ -80,3 +80,9 @@
 | Validation utilisateurs | Non réalisée | 5 testeurs × 2 descentes, 4/5 veulent rejouer |
 
 **Décision de studio : rester lucides et mesurer le plaisir de jouer, pas seulement le nombre de tests réussis.**
+
+## Campagne QA-074 du 17 novembre 2026 — verdict provisoire
+
+L'audit de la v0.7d figure dans [QA074_ALPHA_8_ASSESSMENT.md](QA074_ALPHA_8_ASSESSMENT.md). **129 tests automatisés réussis**, mais la cible 8/10 **n'est pas atteinte** : trois descentes ont reproduit une route d'extraction identique, sans dégâts, avec un Fragment de cendre supplémentaire à chaque fois. Le terrain est fixe, le fragment n'a pas encore d'utilité jouable, et les deux sessions Android ainsi que les 5 testeurs × 2 runs manquent.
+
+**Estimation éditoriale actuelle : environ 6,6/10, non certifiée.** Les critères A/B/C/D ci-dessus restent obligatoires ; la quantité de tests ne saurait les remplacer.

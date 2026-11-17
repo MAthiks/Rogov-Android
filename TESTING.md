@@ -28,3 +28,11 @@ Les bugs peuvent aussi être publiés dans Issues sur GitHub :
 https://github.com/MAthiks/Rogov-Android/issues
 
 Ne pas partager des informations personnelles, captures de documents, codes ou identifiants de connexion.
+
+## Audit Alpha 8/10 — protocole QA-074 (17 novembre 2026)
+
+L'audit du moteur et de la boucle figure dans [docs/QA074_ALPHA_8_ASSESSMENT.md](docs/QA074_ALPHA_8_ASSESSMENT.md). Les 129 tests automatisés incluent la répétition de trois descentes avec un trajet sûr vers l'extraction, la conservation des sauvegardes, la télégraphie du Gardien et le Rappel. **La cible 8/10 n'est pas validée.**
+
+Sur Android, réaliser **deux sessions portrait réelles** : lancer le jeu, prendre ou laisser l'épée, se déplacer, provoquer et interrompre le coup lourd du Gardien, s'extraire, fermer puis rouvrir la page, basculer ASCII/graphique, vérifier le mode hors ligne et qu'aucune sauvegarde n'est perdue. Noter tout débordement, texte ambigu ou bouton difficile à toucher.
+
+Faire ensuite tester **cinq personnes, deux descentes chacune sans aide**, en notant : compréhension des intentions, clarté du risque, utilité perçue du butin, frustration/bugs et envie d'une troisième descente. Cible : **au moins quatre sur cinq** veulent rejouer.

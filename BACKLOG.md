@@ -16,9 +16,11 @@
 - [x] **DEV-073C — IA et annonces (prototype)** : Charognard, Gardien déchu, Larve de faille ; contre-jeu lisible
 - [ ] **DEV-075 — Premier kit de classe** : Mercenaire (Garde, Frappe lourde) et moteur d'aptitudes, après stabilisation du combat
 - [ ] **DEV-076 — Sorts low magic** : un prototype avec coût/risque, pas onze classes livrées d'un coup
-- [ ] **QA-074 — Compatibilité et livraison** : tests combat/Rappel/extraction/sauvegarde, ASCII, PWA, Android, GitHub Pages
+- [ ] **QA-074 — Compatibilité et livraison** : 129 tests automatisés réussis, mais recettes Android et testeurs réels à réaliser
+- [ ] **VAR-077 — Variété des descentes (bloquant Alpha 8/10)** : agencements/rencontres/risques différents, chemins d'extraction pas toujours identiques
+- [ ] **ECO-078 — Valeur du butin (bloquant Alpha 8/10)** : usage concret du Fragment de cendre au refuge et arbitrage d'extraction
 
-**Prochain lot actif : QA-074 — recette sur Android et équilibrage du combat.** Le Gardien télégraphie une attaque lourde, perd sa préparation si le héros s'écarte et peut bloquer après une frappe. Les autres ennemis signalent leurs menaces réelles. Il faut maintenant tester lisibilité, rythme, sauvegardes et sessions d'extraction sur Samsung avant de développer les kits de classe.
+**Audit QA-074 effectué pour le moteur :** [bilan Alpha 8/10](docs/QA074_ALPHA_8_ASSESSMENT.md) — **129 tests réussis**, mais **objectif 8/10 refusé**. Trois descentes identiques terminées sans dégâts, même carte/ennemis/butin, Fragment de cendre sans utilité actuelle. **Prochain lot actif : VAR-077 (variété significative des descentes)**. Ensuite ECO-078 (usage du butin) et vérification Android + 5 testeurs × 2 runs. Pas de nouvelles classes avant validation de la boucle.
 
 **Objectif de qualité :** [bilan 6/10 → 8/10](docs/QUALITY_REVIEW_6_TO_8.md) ; aucune note de 8/10 ne sera attribuée sans tests sur téléphone et retours de joueurs.
 

@@ -28,3 +28,9 @@ Les fichiers de l'application web se trouvent dans /docs. Le moteur pur JavaScri
 Le workflow « ROGOV Web — Tests and GitHub Pages » vérifie le moteur, génère les icônes PWA et déploie sur GitHub Pages. Si Pages n'est pas encore autorisé, le propriétaire peut l'activer dans Settings → Pages → Build and deployment → Source = GitHub Actions.
 
 Le code est public ; la licence de réutilisation doit encore être définie. Les créations originales ne sont pas issues d'autres œuvres.
+
+## Pack graphique original v0.2
+
+Six sprites SVG embarqués dans `docs/tiles.js` : sol, mur, héros, butin, danger et sortie. Un bouton bascule entre rendu graphique et ASCII sans changer le moteur, le personnage ou les sauvegardes. Aucun asset sous licence tierce.
+
+Pour envoyer un lien de jeu au testeur, activer GitHub Pages dans **Settings → Pages → Source : GitHub Actions**. L'URL sera `https://mathiks.github.io/Rogov-Android/` une fois le déploiement réussi. Les sauvegardes de chacun restent locales à son navigateur.

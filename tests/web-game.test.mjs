@@ -66,3 +66,12 @@ test("extraction away from E is not allowed", () => {
   assert.equal(extract(s).changed, false);
   assert.ok(s.run);
 });
+
+import { TILE_SPRITES } from "../docs/tiles.js";
+
+test("six original scalable graphical sprites are included", () => {
+  for (const name of ["floor", "wall", "hero", "loot", "hazard", "exit"]) {
+    assert.ok(TILE_SPRITES[name].startsWith("data:image/svg+xml;charset=UTF-8,"));
+    assert.ok(decodeURIComponent(TILE_SPRITES[name].split(",")[1]).includes("shape-rendering"));
+  }
+});

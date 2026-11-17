@@ -1,4 +1,5 @@
 import { SAVE_KEY, SCHEMA_VERSION, ITEMS, newGame, validateSave, beginRun, move, mapText, inventoryCount } from "./game.js";
+import { drawTileMap } from "./tiles.js";
 
 const $ = (id) => document.getElementById(id);
 let state = newGame();
@@ -6,6 +7,10 @@ let selected = new Set();
 let storageLocked = false;
 let installPrompt = null;
 let registration = null;
+const VIEW_KEY = "rogov-renderer-v1";
+let renderMode = "tiles";
+try { renderMode = localStorage.getItem(VIEW_KEY) === "ascii" ? "ascii" : "tiles"; }
+catch { /* Default to graphic display without storage. */ }
 
 try {
   const saved = localStorage.getItem(SAVE_KEY);
@@ -93,6 +98,11 @@ function render() {
     $("turns").textContent = String(run.turns);
     $("bag-count").textContent = inventoryCount(state) + " / 8";
     $("dungeon-map").textContent = mapText(state);
+    $("dungeon-map").hidden = renderMode !== "ascii";
+    $("tile-map").hidden = renderMode !== "tiles";
+    $("renderer-toggle").textContent = renderMode === "tiles" ? "Passer en ASCII" : "Activer les graphismes";
+    $("renderer-toggle").setAttribute("aria-pressed", renderMode === "tiles" ? "true" : "false");
+    if (renderMode === "tiles") drawTileMap(state, $("tile-map"));
     renderInventory($("bag-items"), run.carried);
   } else {
     const available = new Set(Object.keys(state.meta.stash).filter((id) => state.meta.stash[id] > 0));
@@ -127,12 +137,18 @@ window.addEventListener("keydown", (event) => {
     act(move(state,direction));
   }
 });
+$("renderer-toggle").addEventListener("click", () => {
+  renderMode = renderMode === "tiles" ? "ascii" : "tiles";
+  try { localStorage.setItem(VIEW_KEY, renderMode); } catch { /* Preference remains temporary. */ }
+  render();
+});
 let touchStart = null;
-$("dungeon-map").addEventListener("touchstart", (event) => {
+for (const surface of [$("dungeon-map"), $("tile-map")]) {
+surface.addEventListener("touchstart", (event) => {
   const t = event.changedTouches[0];
   touchStart = { x:t.clientX,y:t.clientY };
 },{passive:true});
-$("dungeon-map").addEventListener("touchend", (event) => {
+surface.addEventListener("touchend", (event) => {
   if (!touchStart || !state.run) return;
   const t = event.changedTouches[0];
   const dx = t.clientX - touchStart.x;
@@ -141,6 +157,7 @@ $("dungeon-map").addEventListener("touchend", (event) => {
   if (Math.max(Math.abs(dx),Math.abs(dy)) < 25) return;
   act(move(state,Math.abs(dx)>Math.abs(dy) ? (dx>0?"right":"left") : (dy>0?"down":"up")));
 },{passive:true});
+}
 $("reset-btn").addEventListener("click", () => {
   if (!window.confirm("Effacer le héros, le coffre et toutes les expéditions de ROGOV sur cet appareil ?")) return;
   try { localStorage.removeItem(SAVE_KEY); storageLocked = false; }

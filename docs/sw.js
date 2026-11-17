@@ -1,6 +1,6 @@
-const CACHE_NAME = "rogov-v0.1.0";
+const CACHE_NAME = "rogov-v0.2.0";
 const CORE = [
-  "./", "./index.html", "./style.css", "./app.js", "./game.js",
+  "./", "./index.html", "./style.css", "./app.js", "./game.js", "./tiles.js",
   "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png"
 ];
 self.addEventListener("install", (event) => {

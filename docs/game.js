@@ -2,6 +2,49 @@
 export const SAVE_KEY = "rogov-web-v1";
 export const SCHEMA_VERSION = 1;
 export const INVENTORY_LIMIT = 8;
+export const JOURNAL_LIMIT = 30;
+export const EVENT_TYPES = Object.freeze(["system", "action", "loot", "danger", "extraction", "recall", "combat", "heal"]);
+const MOVEMENT_CODE = "move";
+
+/** Accept older saved string messages and structured v0.3 messages. */
+function validJournalEntry(entry) {
+  if (typeof entry === "string") return true;
+  return entry !== null && typeof entry === "object" &&
+    EVENT_TYPES.includes(entry.type) && typeof entry.text === "string" &&
+    (entry.turn === null || (Number.isSafeInteger(entry.turn) && entry.turn >= 0));
+}
+
+/** Preserve all existing save fields while upgrading the old journal format in memory. */
+export function normalizeJournal(state) {
+  return {
+    ...state,
+    journal: state.journal.slice(0, JOURNAL_LIMIT).map(entry =>
+      typeof entry === "string"
+        ? { type:"system", turn:null, text:entry }
+        : { ...entry })
+  };
+}
+
+function recordEvent(state, type, message, turn) {
+  const previous = state.journal[0];
+  if (type === "action" && previous && typeof previous === "object" &&
+      previous.code === MOVEMENT_CODE) {
+    const count = (previous.count || 1) + 1;
+    state.journal[0] = {
+      type, turn, text: count + " déplacements dans Nhal.",
+      code: MOVEMENT_CODE, count
+    };
+    return;
+  }
+  const entry = { type, turn, text: message };
+  if (type === "action") {
+    entry.code = MOVEMENT_CODE;
+    entry.count = 1;
+  }
+  state.journal.unshift(entry);
+  if (state.journal.length > JOURNAL_LIMIT) state.journal.length = JOURNAL_LIMIT;
+}
+
 export const ITEMS = Object.freeze({
   "weapon.rusty_sword": { name: "Épée usée", type: "Arme", symbol: "/" },
   "consumable.bandage": { name: "Bandage", type: "Soin", symbol: "+" },
@@ -33,15 +76,15 @@ export function newGame() {
       descents: 0, extractions: 0, recalls: 0
     },
     run: null,
-    journal: ["Bienvenue au refuge de Veyr. Prépare une descente dans Nhal."]
+    journal: [{ type:"system", turn:null, text:"Bienvenue au refuge de Veyr. Prépare une descente dans Nhal." }]
   };
 }
 const copy = (state) => JSON.parse(JSON.stringify(state));
 const quantity = (items) => Object.values(items).reduce((sum, count) => sum + count, 0);
 const positionKey = (x,y) => x + "," + y;
 const tileAt = (x,y) => MAP[y]?.[x] || "#";
-const info = (state, message, changed=true) => {
-  if (changed) state.journal = [message, ...state.journal].slice(0, 6);
+const info = (state, message, changed=true, type="system", turn=state.run?.turns ?? null) => {
+  if (changed) recordEvent(state, type, message, turn);
   return { state, message, changed };
 };
 function gainXp(s, amount) {
@@ -51,6 +94,7 @@ function gainXp(s, amount) {
 export function validateSave(s) {
   if (!s || s.schemaVersion !== SCHEMA_VERSION) return false;
   if (!s.meta || !s.meta.hero || !s.meta.stash || !Array.isArray(s.journal)) return false;
+  if (!s.journal.every(validJournalEntry)) return false;
   if (!Number.isSafeInteger(s.meta.hero.xp) || s.meta.hero.xp < 0) return false;
   if (!Number.isSafeInteger(s.meta.hero.level) || s.meta.hero.level !== 1 + Math.floor(s.meta.hero.xp / 5)) return false;
   for (const [id,count] of Object.entries(s.meta.stash)) {
@@ -88,9 +132,10 @@ export function beginRun(state, equipment=[]) {
 export function recall(state) {
   if (!state.run) return info(state, "Tu es déjà à Veyr.", false);
   const s = copy(state);
+  const finalTurn = s.run.turns;
   s.meta.recalls += 1;
   s.run = null;
-  return info(s, "LE RAPPEL — Tu renais à Veyr. Tout ton équipement transporté est perdu.");
+  return info(s, "LE RAPPEL — Tu renais à Veyr. Tout ton équipement transporté est perdu.", true, "recall", finalTurn);
 }
 export function extract(state) {
   if (!state.run) return info(state, "Aucune descente active.", false);
@@ -98,13 +143,14 @@ export function extract(state) {
     return info(state, "Tu dois atteindre un point d'extraction E.", false);
   }
   const s = copy(state);
+  const finalTurn = s.run.turns;
   for (const [id,count] of Object.entries(s.run.carried)) {
     s.meta.stash[id] = (s.meta.stash[id] || 0) + count;
   }
   s.run = null;
   s.meta.extractions += 1;
   gainXp(s, 2);
-  return info(s, "EXTRACTION RÉUSSIE — Ton butin rejoint le coffre. +2 XP.");
+  return info(s, "EXTRACTION RÉUSSIE — Ton butin rejoint le coffre. +2 XP.", true, "extraction", finalTurn);
 }
 export function move(state, direction) {
   if (!state.run) return info(state, "Commence une descente depuis Veyr.", false);
@@ -122,15 +168,15 @@ export function move(state, direction) {
   if (tile === "E") return extract(s);
   if (tile === "$" && !s.run.collected.includes(positionKey(x,y))) {
     if (quantity(s.run.carried) >= INVENTORY_LIMIT) {
-      return info(s, "Sac plein : laisse le butin pour le moment.");
+      return info(s, "Sac plein : laisse le butin pour le moment.", true, "danger");
     }
     const id = LOOT[positionKey(x,y)];
     s.run.carried[id] = (s.run.carried[id] || 0) + 1;
     s.run.collected.push(positionKey(x,y));
     gainXp(s, 1);
-    return info(s, "Butin : " + ITEMS[id].name + ". +1 XP.");
+    return info(s, "Butin : " + ITEMS[id].name + ". +1 XP.", true, "loot");
   }
-  return info(s, "Tu avances dans Nhal. Le silence reste menaçant.");
+  return info(s, "Déplacement dans Nhal.", true, "action");
 }
 export function mapText(state) {
   if (!state.run) return "";

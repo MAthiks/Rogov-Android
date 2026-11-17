@@ -17,7 +17,7 @@
       <div class="masthead-left">
         <span class="eyebrow">Nhal / Protocole du Rappel</span>
         <h1>ROGOV<span class="glow">.</span></h1>
-        <p class="subtitle">EXTRACTION ROGUELIKE — WEB ALPHA 0.2</p>
+        <p class="subtitle">EXTRACTION ROGUELIKE — WEB ALPHA 0.3</p>
       </div>
       <div class="masthead-right"><span class="status-dot"></span><span id="mode-status">REFUGE</span></div>
     </header>
@@ -40,6 +40,7 @@
         <div id="stash-items" class="item-list"></div>
         <button id="start-btn" class="primary full" type="button">COMMENCER UNE DESCENTE <span aria-hidden="true">↗</span></button>
         <p class="notice">L'expérience et le personnage restent permanents, même après une mort.</p>
+        <div id="refuge-log-slot" class="log-slot"></div>
       </section>
 
       <section id="expedition" class="panel" hidden aria-labelledby="exp-title">
@@ -51,6 +52,7 @@
           <pre id="dungeon-map" aria-label="Carte ASCII du donjon" tabindex="0" hidden></pre>
           <div class="legend">@ Joueur &nbsp; $ Butin &nbsp; ^ Mort &nbsp; E Extraction &nbsp; # Mur</div>
         </div>
+        <div id="run-log-slot" class="log-slot"></div>
         <div class="dpad" role="group" aria-label="Déplacements">
           <button type="button" data-direction="up" class="up" aria-label="Monter">↑</button>
           <button type="button" data-direction="left" class="left" aria-label="Aller à gauche">←</button>
@@ -63,10 +65,8 @@
         <p class="notice danger-text">Le symbole ^ provoque le Rappel : retour vivant à Veyr, perte du sac. Rejoins E pour sécuriser le butin.</p>
       </section>
 
-      <aside class="panel panel-aside" aria-labelledby="journal-title">
-        <div class="section-head"><span class="eyebrow">Journal</span><h2 id="journal-title">Échos de Nhal</h2></div>
-        <ol id="journal" class="journal" aria-live="polite"></ol>
-        <div class="rule"></div>
+      <aside class="panel panel-aside" aria-labelledby="options-title">
+        <div class="section-head"><span class="eyebrow">Configuration</span><h2 id="options-title">Options de jeu</h2></div>
         <h3>Jouer sur Android</h3>
         <p class="copy">Aucun APK requis : ce jeu s'ouvre dans Chrome et peut être ajouté à l'écran d'accueil.</p>
         <button type="button" id="install-btn" class="secondary full">Ajouter à l'écran d'accueil</button>
@@ -75,6 +75,20 @@
         <button type="button" id="reset-btn" class="subtle">Réinitialiser la partie</button>
       </aside>
     </main>
+    <section id="action-panel" class="action-panel" aria-labelledby="latest-heading">
+      <div id="last-action" class="last-action event-system" role="status" aria-live="polite" aria-atomic="true">
+        <div class="last-action-top">
+          <strong id="latest-heading">Dernière action</strong>
+          <span id="latest-type" class="event-tag">SYSTÈME</span>
+          <span id="latest-turn" class="event-turn"></span>
+        </div>
+        <p id="latest-message">Bienvenue à Veyr.</p>
+      </div>
+      <details id="history-details" class="history-panel">
+        <summary><span>Journal d'action <small>Échos de Nhal</small></span><span class="history-count"><span id="journal-count">0</span> événements <span aria-hidden="true">▾</span></span></summary>
+        <ol id="journal" class="journal" aria-label="Historique des actions"></ol>
+      </details>
+    </section>
     <footer>ROGOV · Veyr / Nhal · Jeu original · <a href="https://github.com/MAthiks/Rogov-Android" rel="noopener noreferrer">Code source sur GitHub</a></footer>
   </div>
 </body>

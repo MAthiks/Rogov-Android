@@ -1,4 +1,4 @@
-import { SAVE_KEY, SCHEMA_VERSION, ITEMS, newGame, validateSave, beginRun, move, mapText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, newGame, validateSave, normalizeJournal, beginRun, move, mapText, inventoryCount } from "./game.js";
 import { drawTileMap } from "./tiles.js";
 
 const $ = (id) => document.getElementById(id);
@@ -7,6 +7,11 @@ let selected = new Set();
 let storageLocked = false;
 let installPrompt = null;
 let registration = null;
+let transientMessage = null;
+const EVENT_LABELS = Object.freeze({
+  system:"SYSTÈME", action:"ACTION", loot:"BUTIN", danger:"DANGER",
+  extraction:"EXTRACTION", recall:"RAPPEL", combat:"COMBAT", heal:"SOIN"
+});
 const VIEW_KEY = "rogov-renderer-v1";
 let renderMode = "tiles";
 try { renderMode = localStorage.getItem(VIEW_KEY) === "ascii" ? "ascii" : "tiles"; }
@@ -20,7 +25,7 @@ try {
       storageLocked = true;
       showWarning("Sauvegarde incompatible : elle n'a pas été effacée. Choisis « Réinitialiser » si tu veux recommencer.");
     } else {
-      state = decoded;
+      state = normalizeJournal(decoded);
     }
   }
 } catch (error) {
@@ -78,6 +83,35 @@ function renderInventory(container, items, selectable=false) {
     if (ITEMS[id]) container.append(infoItem(id,count,selectable));
   }
 }
+function eventRow(entry) {
+  const event = typeof entry === "string"
+    ? { type:"system", turn:null, text:entry }
+    : entry;
+  const row = document.createElement("li");
+  row.className = "journal-entry event-" + event.type;
+  const category = document.createElement("span");
+  category.className = "journal-entry-meta";
+  category.textContent = (event.turn === null ? "—" : "T" + event.turn) + " · " + (EVENT_LABELS[event.type] || "SYSTÈME");
+  const message = document.createElement("span");
+  message.className = "journal-entry-text";
+  message.textContent = event.text;
+  row.append(category, message);
+  return row;
+}
+function renderJournal() {
+  // One movable panel; its <details> open state survives rendering and returning to Veyr.
+  const target = state.run ? $("run-log-slot") : $("refuge-log-slot");
+  if ($("action-panel").parentNode !== target) target.append($("action-panel"));
+  const event = transientMessage || state.journal[0] || { type:"system", turn:null, text:"Aucun événement." };
+  $("last-action").className = "last-action event-" + event.type;
+  $("latest-type").textContent = EVENT_LABELS[event.type] || "SYSTÈME";
+  $("latest-turn").textContent = event.turn === null ? "" : "T" + event.turn;
+  $("latest-message").textContent = event.text;
+  $("journal-count").textContent = String(state.journal.length);
+  const fragment = document.createDocumentFragment();
+  for (const entry of state.journal) fragment.append(eventRow(entry));
+  $("journal").replaceChildren(fragment);
+}
 function render() {
   const run = state.run;
   $("mode-status").textContent = run ? "DESCENTE" : "REFUGE";
@@ -87,12 +121,7 @@ function render() {
   $("run-stats").textContent = state.meta.extractions + " / " + state.meta.recalls;
   $("refuge").hidden = Boolean(run);
   $("expedition").hidden = !run;
-  $("journal").replaceChildren();
-  for (const entry of state.journal) {
-    const li = document.createElement("li");
-    li.textContent = entry;
-    $("journal").append(li);
-  }
+  renderJournal();
   if (run) {
     $("hp").textContent = run.hp + " / 12";
     $("turns").textContent = String(run.turns);
@@ -112,9 +141,11 @@ function render() {
 }
 function act(result) {
   if (!result.changed) {
-    $("network-note").textContent = result.message;
+    transientMessage = { type:"action", turn:state.run?.turns ?? null, text:result.message };
+    renderJournal();
     return;
   }
+  transientMessage = null;
   state = result.state;
   if (!state.run) selected.clear();
   persist();

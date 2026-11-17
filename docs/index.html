@@ -17,7 +17,7 @@
       <div class="masthead-left">
         <span class="eyebrow">Nhal / Protocole du Rappel</span>
         <h1>ROGOV<span class="glow">.</span></h1>
-        <p class="subtitle">EXTRACTION ROGUELIKE — WEB ALPHA 0.4</p>
+        <p class="subtitle">EXTRACTION ROGUELIKE — WEB ALPHA 0.5</p>
       </div>
       <div class="masthead-right"><span class="status-dot"></span><span id="mode-status">REFUGE</span></div>
     </header>
@@ -46,6 +46,10 @@
       <section id="expedition" class="panel" hidden aria-labelledby="exp-title">
         <div class="section-head"><span class="eyebrow">02 — Territoire hostile</span><h2 id="exp-title">Profondeurs de Nhal</h2></div>
         <div class="run-bar"><span>VIE <strong id="hp">12 / 12</strong></span><span>TOURS <strong id="turns">0</strong></span><span>SAC <strong id="bag-count">0 / 8</strong></span></div>
+        <div class="survival-hud" aria-label="État de santé et danger">
+          <div class="health-header"><span>SANTÉ <strong id="health-state" data-health="healthy">STABLE</strong></span><span id="threat-state" data-threat="danger">2 HOSTILES</span></div>
+          <progress id="health-meter" aria-label="Points de vie" max="12" value="12">12/12</progress>
+        </div>
         <div class="dungeon-wrap">
           <div class="render-controls"><span>PACK VISUEL / NHAL</span><button type="button" id="renderer-toggle" class="secondary" aria-pressed="true">Passer en ASCII</button></div>
           <div id="tile-map" class="pixel-map" role="img" aria-label="Carte graphique du donjon" tabindex="0"></div>
@@ -65,6 +69,12 @@
           <button type="button" data-direction="right" class="right" aria-label="Aller à droite">→</button>
         </div>
         <p class="hint center">Marche vers un ennemi pour l'attaquer. Touchez une case pour l'identifier. Déplacement : flèches ou glissement.</p>
+        <div class="survival-actions" role="group" aria-label="Actions de survie">
+          <button id="wait-btn" type="button" class="survival-action">Attendre <small>1 tour</small></button>
+          <button id="use-bandage" type="button" class="survival-action" disabled>Bandage +4 PV (0)</button>
+          <button id="use-tonic" type="button" class="survival-action" disabled>Tonique +6 PV (0)</button>
+        </div>
+        <p class="hint center">Attendre et se soigner consomment un tour : les ennemis peuvent en profiter.</p>
         <h3>Sac de descente</h3>
         <div id="bag-items" class="item-list"></div>
         <p class="notice danger-text">La faille rouge provoque le Rappel. Les ennemis infligent des dégâts en combat. Rejoins l'arche verte pour sécuriser ton butin.</p>

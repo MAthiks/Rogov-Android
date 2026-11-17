@@ -1,4 +1,4 @@
-import { SAVE_KEY, ITEMS, ENEMY_TYPES, newGame, validateSave, normalizeJournal, inspectTile, beginRun, move, mapText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, move, useItem, waitTurn, mapText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 
 const $ = (id) => document.getElementById(id);
@@ -144,7 +144,20 @@ function render() {
   $("expedition").hidden = !run;
   renderJournal();
   if (run) {
-    $("hp").textContent = run.hp + " / 12";
+    $("hp").textContent = run.hp + " / " + MAX_HP;
+    $("health-meter").value = run.hp;
+    $("health-meter").max = MAX_HP;
+    $("health-meter").setAttribute("aria-valuetext", run.hp + " points de vie sur " + MAX_HP);
+    $("health-meter").dataset.health = run.hp <= 4 ? "critical" : run.hp <= 8 ? "caution" : "healthy";
+    $("health-state").textContent = run.hp <= 4 ? "DANGER" : run.hp <= 8 ? "BLESSE" : "STABLE";
+    $("health-state").dataset.health = $("health-meter").dataset.health;
+    const enemyCount = run.enemies?.length ?? 0;
+    $("threat-state").textContent = enemyCount > 0 ? enemyCount + " HOSTILE" + (enemyCount > 1 ? "S" : "") : "ZONE CALME";
+    $("threat-state").dataset.threat = enemyCount > 0 ? "danger" : "clear";
+    $("use-bandage").disabled = (run.carried["consumable.bandage"] || 0) === 0 || run.hp >= MAX_HP;
+    $("use-tonic").disabled = (run.carried["consumable.dusk_tonic"] || 0) === 0 || run.hp >= MAX_HP;
+    $("use-bandage").textContent = "Bandage +4 PV (" + (run.carried["consumable.bandage"] || 0) + ")";
+    $("use-tonic").textContent = "Tonique +6 PV (" + (run.carried["consumable.dusk_tonic"] || 0) + ")";
     $("turns").textContent = String(run.turns);
     $("bag-count").textContent = inventoryCount(state) + " / 8";
     $("dungeon-map").textContent = mapText(state);
@@ -189,11 +202,25 @@ $("start-btn").addEventListener("click", () => {
 for (const button of document.querySelectorAll("[data-direction]")) {
   button.addEventListener("click", () => act(move(state,button.dataset.direction)));
 }
+$("wait-btn").addEventListener("click", () => act(waitTurn(state)));
+$("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.bandage")));
+$("use-tonic").addEventListener("click", () => act(useItem(state, "consumable.dusk_tonic")));
 window.addEventListener("keydown", (event) => {
+  if (!state.run) return;
+  const target = event.target;
+  if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
   const direction = { ArrowUp:"up", ArrowDown:"down", ArrowLeft:"left", ArrowRight:"right", w:"up", s:"down", a:"left", d:"right" }[event.key];
-  if (direction && state.run) {
+  if (direction) {
     event.preventDefault();
     act(move(state,direction));
+    return;
+  }
+  const action = { " ":"wait", "1":"bandage", "2":"tonic" }[event.key];
+  if (action && target?.tagName !== "BUTTON") {
+    event.preventDefault();
+    if (action === "wait") act(waitTurn(state));
+    if (action === "bandage") act(useItem(state, "consumable.bandage"));
+    if (action === "tonic") act(useItem(state, "consumable.dusk_tonic"));
   }
 });
 renderLegend();

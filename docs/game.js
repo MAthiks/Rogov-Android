@@ -2,6 +2,11 @@
 export const SAVE_KEY = "rogov-web-v1";
 export const SCHEMA_VERSION = 1;
 export const INVENTORY_LIMIT = 8;
+export const MAX_HP = 12;
+export const HEALING_ITEMS = Object.freeze({
+  "consumable.bandage": 4,
+  "consumable.dusk_tonic": 6
+});
 export const JOURNAL_LIMIT = 30;
 export const EVENT_TYPES = Object.freeze(["system", "action", "loot", "danger", "extraction", "recall", "combat", "heal"]);
 const MOVEMENT_CODE = "move";
@@ -81,7 +86,7 @@ export function enemyAt(run, x, y) {
 }
 export function inspectTile(state, x, y) {
   if (!state.run || !Number.isInteger(x) || !Number.isInteger(y)) return null;
-  if (x === state.run.x && y === state.run.y) return { kind:"hero", name:"L'Égaré", description:"Ton personnage. PV : "+state.run.hp+"/12." };
+  if (x === state.run.x && y === state.run.y) return { kind:"hero", name:"L'Égaré", description:"Ton personnage. PV : "+state.run.hp+"/"+MAX_HP+"." };
   const enemy = enemyAt(state.run,x,y);
   if (enemy) return { kind:"enemy", name:ENEMY_TYPES[enemy.kind].name, description:"PV "+enemy.hp+"/"+ENEMY_TYPES[enemy.kind].hp+" · "+ENEMY_TYPES[enemy.kind].description };
   const tile = tileAt(x,y);
@@ -103,7 +108,7 @@ function enemyPhase(s) {
     const d=distance(enemy,{x:run.x,y:run.y});
     if (d===1) {
       run.hp = Math.max(0,run.hp-type.damage);
-      recordEvent(s,"combat",type.name+" te touche : -"+type.damage+" PV. ("+run.hp+"/12)",run.turns);
+      recordEvent(s,"combat",type.name+" te touche : -"+type.damage+" PV. ("+run.hp+"/"+MAX_HP+")",run.turns);
       if(run.hp<=0) {
         return recall(s).state;
       }
@@ -169,6 +174,7 @@ export function validateSave(s) {
     const r = s.run;
     if (!r || !Number.isInteger(r.x) || !Number.isInteger(r.y) || tileAt(r.x,r.y) === "#") return false;
     if (!r.carried || !Array.isArray(r.collected) || !Number.isSafeInteger(r.turns)) return false;
+    if (!Number.isInteger(r.hp) || r.hp < 1 || r.hp > MAX_HP) return false;
     for (const [id,count] of Object.entries(r.carried)) {
       if (!ITEMS[id] || !Number.isSafeInteger(count) || count < 0) return false;
     }
@@ -200,7 +206,7 @@ export function beginRun(state, equipment=[]) {
     carried[id] = 1;
   }
   s.meta.descents += 1;
-  s.run = { x: 1, y: 7, hp: 12, turns: 0, carried, collected: [], enemies: ENEMY_START.map(e=>({...e})) };
+  s.run = { x: 1, y: 7, hp: MAX_HP, turns: 0, carried, collected: [], enemies: ENEMY_START.map(e=>({...e})) };
   return info(s, "Descente " + s.meta.descents + " : les profondeurs de Nhal s'ouvrent.");
 }
 export function recall(state) {
@@ -270,6 +276,39 @@ export function move(state, direction) {
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||message,changed:true};
 }
+/** Spend a carried healing item. Consuming it costs one turn and triggers enemy reactions. */
+export function useItem(state, itemId) {
+  if (!state.run) return info(state, "Prépare d'abord une descente.", false);
+  const healing = HEALING_ITEMS[itemId];
+  if (!healing) return info(state, "Cet objet ne peut pas être utilisé.", false);
+  if ((state.run.carried[itemId] || 0) < 1) {
+    return info(state, ITEMS[itemId].name + " absent de ton sac.", false);
+  }
+  if (state.run.hp >= MAX_HP) {
+    return info(state, "Tes points de vie sont déjà au maximum.", false);
+  }
+  const s = copy(state);
+  const run = s.run;
+  const healed = Math.min(healing, MAX_HP - run.hp);
+  run.hp += healed;
+  run.carried[itemId] -= 1;
+  if (run.carried[itemId] === 0) delete run.carried[itemId];
+  run.turns += 1;
+  recordEvent(s, "heal", ITEMS[itemId].name + " utilisé : +" + healed + " PV. (" + run.hp + "/" + MAX_HP + ")", run.turns);
+  const after = enemyPhase(s);
+  return { state:after, message:after.journal[0]?.text || "Soin effectué.", changed:true };
+}
+
+/** Waiting costs one turn; nearby enemies can still move or attack. */
+export function waitTurn(state) {
+  if (!state.run) return info(state, "Tu es au refuge.", false);
+  const s = copy(state);
+  s.run.turns += 1;
+  recordEvent(s, "system", "Tu attends et observes les profondeurs.", s.run.turns);
+  const after = enemyPhase(s);
+  return { state:after, message:after.journal[0]?.text || "Tour passé.", changed:true };
+}
+
 export function mapText(state) {
   if (!state.run) return "";
   const {x: px,y: py,collected} = state.run;

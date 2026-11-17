@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {newGame, validateSave, normalizeJournal, JOURNAL_LIMIT, ENEMY_TYPES, enemyAt, inspectTile, beginRun, move, recall, extract, inventoryCount, mapText} from "../docs/game.js";
+import {newGame, validateSave, normalizeJournal, JOURNAL_LIMIT, MAX_HP, HEALING_ITEMS, ENEMY_TYPES, enemyAt, inspectTile, beginRun, move, useItem, waitTurn, recall, extract, inventoryCount, mapText} from "../docs/game.js";
 
 test("fresh refuge is stable", () => {
   const s = newGame();
@@ -208,4 +208,76 @@ test("graphic pack offers original sprites for both enemies and important tiles"
   const first=decodeURIComponent(TILE_SPRITES.hero.split(",")[1]);
   const second=decodeURIComponent(TILE_SPRITES.charognard.split(",")[1]);
   assert.notEqual(first,second);
+});
+
+test("bandage heals four, costs one turn, and adjacent enemy can counterattack", () => {
+  let s=beginRun(newGame(),["consumable.bandage"]).state;
+  s.run.hp=6;
+  s.run.enemies=[{id:"close-guard",kind:"guardian",x:2,y:7,hp:5}];
+  const result=useItem(s,"consumable.bandage");
+  assert.equal(result.changed,true);
+  s=result.state;
+  assert.equal(s.run.hp,8); // 6 + 4 healing - 2 guard damage
+  assert.equal(s.run.turns,1);
+  assert.equal(s.run.carried["consumable.bandage"] || 0,0);
+  assert.equal(s.meta.stash["consumable.bandage"],1); // the other bandage is safe at Veyr
+  assert.ok(s.journal.some(event=>event.type==="heal"));
+  assert.ok(s.journal.some(event=>event.type==="combat"));
+  assert.ok(validateSave(s));
+});
+test("healing at full health does not consume items or time", () => {
+  const s=beginRun(newGame(),["consumable.bandage"]).state;
+  const result=useItem(s,"consumable.bandage");
+  assert.equal(result.changed,false);
+  assert.equal(s.run.hp,MAX_HP);
+  assert.equal(s.run.turns,0);
+  assert.equal(s.run.carried["consumable.bandage"],1);
+});
+test("healing cannot pull objects from the safe stash", () => {
+  const s=beginRun(newGame(),[]).state;
+  s.run.hp=4;
+  assert.equal(useItem(s,"consumable.bandage").changed,false);
+  assert.equal(s.run.hp,4);
+  assert.equal(s.meta.stash["consumable.bandage"],2);
+  assert.equal(s.run.turns,0);
+});
+test("tonic heals six without overflowing health and remains a usable loot item", () => {
+  const s=beginRun(newGame(),[]).state;
+  s.run.hp=9;
+  s.run.carried["consumable.dusk_tonic"]=1;
+  const result=useItem(s,"consumable.dusk_tonic");
+  assert.equal(result.changed,true);
+  assert.equal(result.state.run.hp,12);
+  assert.equal(result.state.run.turns,1);
+  assert.equal(result.state.run.carried["consumable.dusk_tonic"] || 0,0);
+  assert.equal(HEALING_ITEMS["consumable.dusk_tonic"],6);
+  assert.ok(validateSave(result.state));
+});
+test("waiting advances one turn and may provoke an enemy", () => {
+  let s=beginRun(newGame(),[]).state;
+  s.run.enemies=[{id:"close-guard",kind:"guardian",x:2,y:7,hp:5}];
+  s=waitTurn(s).state;
+  assert.equal(s.run.turns,1);
+  assert.equal(s.run.hp,10);
+  assert.ok(s.journal.some(e=>e.type==="combat"));
+});
+test("waiting and item use are disabled at the refuge", () => {
+  const initial=newGame();
+  assert.equal(waitTurn(initial).changed,false);
+  assert.equal(useItem(initial,"consumable.bandage").changed,false);
+  assert.equal(initial.meta.stash["consumable.bandage"],2);
+});
+test("healing followed by lethal attack still triggers Rappel and loses carried gear", () => {
+  let s=beginRun(newGame(),["consumable.bandage"]).state;
+  s.run.hp=1;
+  s.run.enemies=[
+    {id:"g1",kind:"guardian",x:2,y:7,hp:5},
+    {id:"g2",kind:"guardian",x:1,y:6,hp:5},
+    {id:"g3",kind:"guardian",x:1,y:8,hp:5}
+  ];
+  s=useItem(s,"consumable.bandage").state;
+  assert.equal(s.run,null);
+  assert.equal(s.meta.recalls,1);
+  assert.equal(s.meta.stash["consumable.bandage"],1);
+  assert.equal(s.journal[0].type,"recall");
 });

@@ -45,3 +45,14 @@ Pour envoyer un lien de jeu au testeur, activer GitHub Pages dans **Settings →
 - En cas de mort au combat : Rappel et perte de tout le sac, personnage et coffre conservés.
 - Chargement des sauvegardes précédentes : les descentes déjà commencées conservent leur carte et leur inventaire, sans ajouter rétroactivement les nouveaux ennemis.
 - Compatibilité avec les modes HTML/PWA, ASCII et pixel art.
+
+## Web Alpha v0.5 — Survie tactique
+
+- Bandage consommable en descente : +4 PV, sans dépasser 12 PV.
+- Tonique du crépuscule consommable : +6 PV ; il peut être récupéré sur la carte.
+- Une utilisation de soin coûte un tour et déclenche la phase ennemie.
+- Attendre coûte également un tour et déclenche les ennemis proches.
+- Bande de santé et indicateur de hostiles, avec libellés textuels.
+- Contrôles tactiles pour l'attente et les soins ; raccourcis clavier Espace / 1 / 2.
+- Sauvegarde locale toujours compatible avec v0.4 ; coffre et perte des objets au Rappel inchangés.
+

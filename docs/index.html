@@ -8,7 +8,7 @@
   <title>ROGOV — Veyr / Nhal</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css?v=0.7e">
+  <link rel="stylesheet" href="./style.css?v=0.7f">
   <!-- Critical responsive shell: renders correctly even if Chrome serves an older PWA stylesheet. -->
   <style id="title-critical-style">
     html,body{max-width:100%;overflow-x:hidden}
@@ -32,7 +32,7 @@
     .title-screen .title-footer a,.title-screen .title-footer button{color:#cce2d3;font:inherit}
     @media(max-width:360px){.title-screen{padding:8px 6px}.title-screen .title-shell{padding:12px}.title-screen .title-brand h1{letter-spacing:.07em}}
   </style>
-  <script type="module" src="./app.js?v=0.7e"></script>
+  <script type="module" src="./app.js?v=0.7f"></script>
 </head>
 <body>
   <section id="title-screen" class="title-screen" aria-labelledby="title-logo">
@@ -40,7 +40,7 @@
       <header class="title-top">
         <span>VEYR / NHAL</span>
         <span class="title-sigil" aria-hidden="true">◈</span>
-        <span>WEB ALPHA 0.7e</span>
+        <span>WEB ALPHA 0.7f</span>
       </header>
       <div class="title-brand">
         <h1 id="title-logo">ROGOV</h1>
@@ -94,6 +94,26 @@
         <h3>Coffre sécurisé</h3>
         <p class="hint">Coche le matériel à emporter. Tu peux aussi partir sans équipement.</p>
         <div id="stash-items" class="item-list"></div>
+        <section id="veyr-forge" class="veyr-forge" aria-labelledby="forge-title">
+          <div class="forge-heading">
+            <div><span class="eyebrow">ATELIER DE VEYR</span><h3 id="forge-title">La forge des cendres</h3></div>
+            <strong id="forge-fragments" class="forge-balance">0 Fragment de cendre</strong>
+          </div>
+          <p class="hint">Les Fragments de cendre extraits peuvent être investis au refuge. Les objets fabriqués restent au coffre jusqu'à leur départ en expédition.</p>
+          <div class="forge-options">
+            <div class="forge-recipe">
+              <strong>Lame cendrée <span>Arme +1</span></strong>
+              <p>4 dégâts de base, précision, critique et parade améliorés. Elle sera perdue au Rappel si tu l'emportes.</p>
+              <button id="forge-blade" data-recipe="forge.ashen_blade" type="button" class="secondary full">Forger — 2 Fragments</button>
+            </div>
+            <div class="forge-recipe">
+              <strong>Réserve de soins <span>Consommables</span></strong>
+              <p>Prépare 2 bandages pour une prochaine descente. Plus prudent, mais moins puissant qu'une nouvelle lame.</p>
+              <button id="forge-bandages" data-recipe="supply.bandages" type="button" class="secondary full">Préparer — 1 Fragment</button>
+            </div>
+          </div>
+          <p class="forge-warning">La fabrication dépense uniquement les fragments du coffre. Elle est impossible durant une descente et ne coûte aucun tour.</p>
+        </section>
         <button id="start-btn" class="primary full" type="button">COMMENCER UNE DESCENTE <span aria-hidden="true">↗</span></button>
         <p class="notice">L'expérience et le personnage restent permanents, même après une mort.</p>
         <div id="refuge-log-slot" class="log-slot"></div>

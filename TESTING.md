@@ -45,3 +45,12 @@ Faire ensuite tester **cinq personnes, deux descentes chacune sans aide**, en no
 4. Fermer puis rouvrir Chrome en pleine deuxième descente : la carte doit rester identique, tout comme le sac et les PV.
 5. Vérifier que les cases en mode graphique et ASCII correspondent et que les attaques de Charognard proches des objets précieux restent annoncées.
 6. Signaler tout verrouillage de sortie, récompense trop facile ou détour excessif. Les 8/10 demeurent conditionnés à la validation de vrais joueurs.
+
+## Tests ECO-078 — forge et arbitrage au refuge
+
+1. Après une première extraction avec Fragment de cendre, ouvrir la Forge des cendres : les 2 Bandages sont disponibles à 1 Fragment ; la Lame cendrée exige 2 Fragments.
+2. Sécuriser un deuxième Fragment dans une autre descente, forger une Lame cendrée : le coffre doit perdre exactement 2 Fragments et gagner une seule lame.
+3. Emporter la lame, constater ses dégâts et sa parade, puis subir un Rappel : la lame portée disparaît du coffre et du sac ; celle qui n'a pas été emportée reste en sécurité.
+4. Extraire avec une lame : elle retourne au coffre. Fermer/recharger le jeu pour vérifier qu'aucun double objet n'est créé.
+5. Tester les boutons sur Samsung portrait (appuis confortables, description du coût, état désactivé) et vérifier les anciennes sauvegardes.
+6. Faire tester à 5 personnes × 2 descentes : demander si le choix entre lame et soins est significatif, si le prix de la lame est raisonnable, et si 4/5 ont envie de rejouer.

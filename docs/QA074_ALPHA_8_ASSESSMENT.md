@@ -58,3 +58,7 @@
 ## Évolution après l'audit — VAR-077 (18 novembre 2026)
 
 Le constat de trois descentes identiques concernait la v0.7d. **La v0.7e corrige ce point en ajoutant des dispositions variables dès la deuxième descente** et en contrôlant les itinéraires d'extraction et de retour des zones de butin. Voir [VAR077_PROCEDURAL_NHAL.md](VAR077_PROCEDURAL_NHAL.md). Ce premier lot ne change pas le verdict historique sur l'économie insuffisante, la validation Android ou les essais joueurs : **8/10 toujours non homologué**.
+
+## Évolution après l'audit — ECO-078 (18 novembre 2026)
+
+La v0.7f ajoute enfin une utilité au Fragment de cendre : choix à Veyr entre une Lame cendrée pour 2 Fragments et 2 Bandages pour 1 Fragment. Voir [ECO078_REFUGE_ECONOMY.md](ECO078_REFUGE_ECONOMY.md). **Le problème historique de « butin inutilisable » est corrigé au niveau fonctionnel**, mais sa valeur réelle, son prix et le plaisir de refaire une descente sont encore à valider auprès de joueurs. L'estimation historique de 6,6/10 ne doit pas être transformée automatiquement en 8/10.

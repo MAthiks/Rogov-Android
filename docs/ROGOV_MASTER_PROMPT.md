@@ -2,11 +2,15 @@
 
 **Dernière mise à jour : 17 novembre 2026.**  
 **Canal prioritaire : HTML5/CSS/JavaScript/PWA jouable sur Android.**  
-**Version Web : v0.7e (combat statistique et cartes variables dès la deuxième descente), cible 8/10 : économie du butin et recette Android validées.**
+**Version Web : v0.7f (combat statistique, cartes variables et forge de Veyr), cible 8/10 : équilibrage économique et recette Android/humaine validés.**
 
 ## Vision
 
 Développer rapidement un roguelike d'extraction tactique, solo, hors ligne, lisible au téléphone et facile à mettre à jour. Monde low fantasy et horreur cosmique originale : **Veyr** (refuge) et **Nhal** (profondeurs).
+
+## Règle économique ECO-078
+
+Les Fragments de cendre n'ont de valeur artisanale **qu'une fois sécurisés au coffre**. À Veyr, choisir entre **forger une Lame cendrée pour 2 Fragments** et **préparer 2 Bandages pour 1 Fragment** ; aucun objet n'est fabriqué en descente. La Lame cendrée (base 4, précision et parade améliorées) se perd si transportée puis perdue au Rappel ; elle reste sécurisée quand elle n'est pas emportée. La recette de lame n'exige pas de posséder l'ancienne épée pour ne pas bloquer un joueur sans matériel. Source de vérité : [ECO078_REFUGE_ECONOMY.md](ECO078_REFUGE_ECONOMY.md). Les coûts et l'utilité perçue exigent encore des tests humains avant de revendiquer 8/10.
 
 ## Règle procédurale VAR-077
 

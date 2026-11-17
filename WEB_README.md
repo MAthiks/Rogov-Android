@@ -6,7 +6,7 @@ Les APK ROGOV ont été bloqués sur un Samsung par Google Play Protect. Le proj
 
 ## Jouer
 
-Site public : https://mathiks.github.io/Rogov-Android/ — version Web Alpha v0.7d après déploiement GitHub Pages réussi.
+Site public : https://mathiks.github.io/Rogov-Android/ — version Web Alpha v0.7f après déploiement GitHub Pages réussi.
 
 Sur le téléphone : ouvrir l'URL dans Chrome. Pour ajouter l'application à l'écran d'accueil : Chrome → menu ⋮ → « Ajouter à l'écran d'accueil » ou « Installer l'application ».
 
@@ -118,3 +118,9 @@ Le Gardien déchu **prépare un coup lourd pendant un tour**. Le joueur peut ens
 La première expédition conserve le parcours connu. Dès la deuxième, les murs, les dangers, l'Arche, le butin et les ennemis varient de façon reproductible. Les cartes sont enregistrées dans la descente ; une reprise conserve l'exact même secteur. Le moteur refuse les plans qui ne laissent pas deux voies de retour au butin/extraction et vérifie qu'on peut rejoindre l'Arche sans affronter obligatoirement une créature. Il n'existe pas d'effondrement soudain ou de porte à sens unique. Le Charognard rôde près du Fragment de cendre, créant un choix de risque facultatif. Lire [VAR077_PROCEDURAL_NHAL.md](docs/VAR077_PROCEDURAL_NHAL.md).
 
 Les anciennes sauvegardes actives conservent leur ancienne géographie. ECO-078 doit encore donner une utilité aux ressources rapportées, et le fonctionnement sur Samsung doit être vérifié.
+
+## Web Alpha v0.7f — ECO-078, forge de Veyr
+
+Au refuge, sous le coffre sécurisé, la **Forge des cendres** propose deux transformations : **2 Fragments de cendre** pour une **Lame cendrée (+1)**, ou **1 Fragment** pour **2 Bandages**. Les ressources doivent avoir été ramenées par extraction ; on ne peut pas utiliser le sac d'une descente en cours. Une lame forgée reste dans le coffre jusqu'à ce qu'elle soit sélectionnée pour une nouvelle expédition. Elle apporte de meilleurs dégâts et des bonus de précision/parade/critique, mais sera perdue si le personnage subit un Rappel alors qu'il la transporte.
+
+**L'économie, comme le procédural, reste à tester sur Samsung et avec de vrais joueurs.** Les sauvegardes `rogov-web-v1` ne changent pas de schéma. [Détails ECO-078](docs/ECO078_REFUGE_ECONOMY.md).

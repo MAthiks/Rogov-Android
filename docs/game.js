@@ -5,6 +5,8 @@ import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDef
   regenEndurance } from "./combat-rules.js";
 import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS} from "./enemy-ai.js";
 import {BASE_MAP,BASE_LOOT,generateLayout,validateLayout} from "./dungeon.js";
+import {RECIPES,canCraft} from "./economy.js";
+import {EQUIPMENT_CATALOG} from "./stats.js";
 export const SAVE_KEY = "rogov-web-v1";
 export const SCHEMA_VERSION = 1;
 export const INVENTORY_LIMIT = 8;
@@ -73,6 +75,7 @@ function recordEvent(state, type, message, turn) {
 
 export const ITEMS = Object.freeze({
   "weapon.rusty_sword": { name: "Épée usée", type: "Arme", symbol: "/" },
+  "weapon.ashen_blade": { name: "Lame cendrée", type: "Arme +1", symbol: "†" },
   "consumable.bandage": { name: "Bandage", type: "Soin", symbol: "+" },
   "relic.ashen_fragment": { name: "Fragment de cendre", type: "Relique", symbol: "*" },
   "consumable.dusk_tonic": { name: "Tonique du crépuscule", type: "Potion", symbol: "!" }
@@ -320,6 +323,26 @@ export function validateSave(s) {
   }
   return true;
 }
+/** Forging is done at Veyr using ONLY secured stash resources.
+ * Never consumes a combat turn, never mutates input, and never crafts while
+ * the player is in Nhal. Recipes require no legacy sword so recovery is possible.
+ */
+export function craftAtRefuge(state,recipeId) {
+  if(state.run) return info(state,"La forge se trouve au refuge de Veyr.",false);
+  const recipe=Object.hasOwn(RECIPES,recipeId)?RECIPES[recipeId]:null;
+  if(!recipe)return info(state,"Fabrication inconnue.",false);
+  if(!canCraft(state.meta.stash,recipeId))
+    return info(state,"Fragments sécurisés insuffisants.",false);
+  const s=copy(state);
+  for(const [id,cost] of Object.entries(recipe.costs))
+    s.meta.stash[id]-=cost;
+  for(const [id,count] of Object.entries(recipe.yields))
+    s.meta.stash[id]=(s.meta.stash[id]||0)+count;
+  recordEvent(s,"loot",recipe.title+
+    " : ressources dépensées au coffre de Veyr.",null);
+  return {state:s,changed:true,message:s.journal[0].text};
+}
+
 export function beginRun(state, equipment=[]) {
   if (state.run) return info(state, "Une descente est déjà en cours.", false);
   if (equipment.length > INVENTORY_LIMIT || new Set(equipment).size !== equipment.length) {
@@ -420,7 +443,8 @@ export function attackTarget(state) {
   const s=copy(state);
   const target=s.run.enemies.find(e=>e.id===enemy.id);
   const type=ENEMY_TYPES[target.kind];
-  const base=(s.run.carried["weapon.rusty_sword"]||0)>0?3:2;
+  const equipped=s.run.loadout?.mainHand;
+  const base=EQUIPMENT_CATALOG[equipped]?.baseDamage??2;
   s.run.endurance-=TACTICAL_COSTS.attack;
   s.run.turns+=1;
   const attacker=heroDerivedStats(s);
@@ -466,7 +490,8 @@ export function defend(state, mode) {
   if (!state.run) return info(state,"Prépare une descente.",false);
   if (!["dodge","parry","block"].includes(mode))
     return info(state,"Défense inconnue.",false);
-  if (mode==="parry" && (state.run.carried["weapon.rusty_sword"]||0)<1)
+  const equipped=EQUIPMENT_CATALOG[state.run.loadout?.mainHand];
+  if (mode==="parry" && (!equipped || equipped.kind!=="weapon"))
     return info(state,"Parade impossible sans une arme de mêlée.",false);
   if ((state.run.endurance??0)<TACTICAL_COSTS[mode])
     return info(state,"Endurance insuffisante : attends pour récupérer.",false);

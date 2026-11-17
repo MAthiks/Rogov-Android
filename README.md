@@ -1,6 +1,6 @@
 # ROGOV — Roguelike d'extraction tactique
 
-**Version Web : v0.7e — descentes variables à partir de la seconde entrée dans Nhal (HTML/PWA).**  
+**Version Web : v0.7f — forge de Veyr et valeur du butin (HTML/PWA).**  
 **Prochaine version en développement : v0.7 — combat tactique hybride (non jouable intégralement).**
 
 Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-Android/**
@@ -9,7 +9,11 @@ ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il
 
 ## Descentes variables dès la deuxième expédition
 
-La première descente reste une initiation au combat et à l'extraction. Dès la deuxième, les murs, les failles, le butin, les positions des créatures et l'emplacement de l'Arche changent selon une graine propre à la descente. Le générateur vérifie la présence de routes de retour alternatives et d'une extraction atteignable sans combattre. Les anciennes sauvegardes en cours utilisent toujours leur carte historique. **La variété géographique ne remplace pas encore une vraie économie du butin : ECO-078 reste prioritaire.**
+La première descente reste une initiation au combat et à l'extraction. Dès la deuxième, les murs, les failles, le butin, les positions des créatures et l'emplacement de l'Arche changent selon une graine propre à la descente. Le générateur vérifie la présence de routes de retour alternatives et d'une extraction atteignable sans combattre. Les anciennes sauvegardes en cours utilisent toujours leur carte historique. **ECO-078 ajoute désormais une première économie au refuge : les Fragments de cendre servent à fabriquer une arme ou des soins. Les coûts doivent encore être équilibrés avec des testeurs.**
+
+## Forge de Veyr — premier choix de butin
+
+Le Fragment de cendre extrait devient une ressource : **2 Fragments permettent de forger une Lame cendrée (Arme +1)** ; **1 Fragment peut être converti en 2 Bandages**. Les objets restent sécurisés au coffre jusqu'à leur départ en expédition. La Lame cendrée inflige davantage de dégâts et améliore la parade et les critiques, mais elle est perdue au Rappel si elle est emportée. La forge ne fonctionne qu'au refuge. Voir [ECO-078 — Forge et économie](docs/ECO078_REFUGE_ECONOMY.md).
 
 ## Boucle fondamentale
 
@@ -24,7 +28,7 @@ La première descente reste une initiation au combat et à l'extraction. Dès la
 
 | Branche produit | État | Sources |
 |---|---|---|
-| **Web HTML/PWA** | **Jouable v0.7e** : carte, sprites, trois ennemis, combat tactique explicite, statistiques, intentions, soins, Rappel et extraction | `docs/` |
+| **Web HTML/PWA** | **Jouable v0.7f** : carte, sprites, trois ennemis, combat tactique explicite, statistiques, intentions, soins, Rappel et extraction | `docs/` |
 | **Android natif Kotlin** | Prototype de compatibilité APK **v0.1.3** ; installation sur Samsung non confirmée | `app/` |
 | **Combat hybride v0.7** | **DEV-070 à 073C développés : duel tactique, statistiques, garde et coup lourd télégraphié ; validation Android/équilibrage à compléter** | documents de conception v0.7 |
 

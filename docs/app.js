@@ -1,5 +1,6 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, move, attackTarget, defend, retreat, useItem, waitTurn, mapText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, attackTarget, defend, retreat, useItem, waitTurn, mapText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
+import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
   heroDerivedStats, enemyDerivedStats } from "./stats.js";
 import {TACTICAL_COSTS, hitChance, defenseChance} from "./combat-rules.js";
@@ -272,13 +273,13 @@ function renderCombatPreview() {
     : "";
   $("combat-intent").textContent=snapshot.intent?.label || "Intention inconnue";
   $("combat-intent").dataset.intent=snapshot.intent?.kind || "idle";
-  $("combat-weapon").textContent=(state.run.carried["weapon.rusty_sword"]||0)>0
-    ? "Épée usée" : "Sans arme";
+  $("combat-weapon").textContent=EQUIPMENT_CATALOG[state.run.loadout?.mainHand]?.name || "Sans arme";
   $("combat-defense").textContent=snapshot.defense==="none" ? "Aucune" : snapshot.defense;
   const stamina=state.run.endurance??0;
   $("combat-attack").disabled=!snapshot.meleeAvailable || stamina<TACTICAL_COSTS.attack;
   $("combat-dodge").disabled=stamina<TACTICAL_COSTS.dodge;
-  $("combat-parry").disabled=(state.run.carried["weapon.rusty_sword"]||0)<1 || stamina<TACTICAL_COSTS.parry;
+  $("combat-parry").disabled=
+    EQUIPMENT_CATALOG[state.run.loadout?.mainHand]?.kind!=="weapon" || stamina<TACTICAL_COSTS.parry;
   $("combat-block").disabled=stamina<TACTICAL_COSTS.block;
   $("combat-range-note").textContent=snapshot.meleeAvailable
     ? "Cible au CONTACT : tu peux attaquer. Chaque action valide consomme un tour."
@@ -335,6 +336,14 @@ function render() {
     const available = new Set(Object.keys(state.meta.stash).filter((id) => state.meta.stash[id] > 0));
     selected = new Set([...selected].filter((id) => available.has(id)));
     renderInventory($("stash-items"), state.meta.stash, true);
+    const fragments=state.meta.stash[RESOURCE_ID]||0;
+    $("forge-fragments").textContent=fragments+" Fragment"+(fragments>1?"s":"")+" de cendre";
+    for(const button of document.querySelectorAll("[data-recipe]")){
+      const id=button.dataset.recipe;
+      button.disabled=!canCraft(state.meta.stash,id);
+      const recipe=RECIPES[id];
+      button.title=recipe.description;
+    }
   }
 }
 function act(result) {
@@ -416,6 +425,9 @@ $("title-render-mode").addEventListener("click", () => {
 });
 $("back-to-title").addEventListener("click", returnToTitle);
 
+for(const button of document.querySelectorAll("[data-recipe]")){
+  button.addEventListener("click",()=>act(craftAtRefuge(state,button.dataset.recipe)));
+}
 $("start-btn").addEventListener("click", () => {
   if (storageLocked) {
     showWarning("La sauvegarde actuelle n'est pas accessible. Réinitialise d'abord ou accepte de jouer sans sauvegarde.");

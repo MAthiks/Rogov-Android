@@ -1,4 +1,4 @@
-# Roadmap ROGOV — état du 17 novembre 2026
+# Roadmap ROGOV — état du 18 novembre 2026
 
 ## Produit prioritaire : Web HTML/PWA pour Android
 
@@ -15,7 +15,8 @@
 | 0.7b | Livré | Six attributs héros/ennemis, équipement, migration et fiche repliable |
 | 0.7c | Livré | Jets de toucher/critiques, défense active influencée par équipement, Endurance et RNG sauvegardé |
 | 0.7d | Livré | Gardien : préparation/coup lourd/garde haute ; intentions du Charognard et de la Larve |
-| **0.7e** | **Descentes variables (prototype)** | Carte, dangers, reliques, ennemis, extraction variables après l'introduction ; voies de retour contrôlées ; recette Android à faire |
+| 0.7e | Livré | Carte, dangers, reliques, ennemis, extraction variables après l'introduction ; voies de retour contrôlées |
+| **0.7f** | **Économie de refuge (prototype)** | Fragment de cendre convertible en Lame cendrée ou Bandages ; investissement risqué et forge de Veyr ; QA Android à faire |
 | **0.7** | **Combat hybride en prototype ; équilibrage et validation humaine à faire** | **Combat hybride sur carte + panneau contextuel, cibles explicites, distances, défenses actives, intentions et repli** |
 | 0.8 | À cadrer | Équilibrage combat / économie d'extraction / ergonomie |
 | 1.0 | À cadrer | Version testable élargie, progression et contenu stabilisés |
@@ -26,7 +27,7 @@
 
 **Critères de la cible Alpha 8/10 :** [bilan de studio et scorecard](docs/QUALITY_REVIEW_6_TO_8.md). DEV-070 (contrat), DEV-071 (panneau) et DEV-072 (actions tactiques) sont développés. DEV-073A (attributs) et DEV-073B (jets statistiques reproductibles) sont développés ; DEV-073C (intentions avancées et garde du Gardien) est développé ; **QA-074 sur Android et équilibrage** sont les prochains jalons.
 
-**Audit Alpha 8/10 (QA-074, 17/11/2026) :** [résultats détaillés](docs/QA074_ALPHA_8_ASSESSMENT.md). Les 129 tests sont verts mais **la note 8/10 n'est pas validée** : variété insuffisante (trois extractions identiques sans dégâts), Fragment de cendre non utilisé, absence de validation mobile et de 5 testeurs. VAR-077 (premier lot procédural livré) puis ECO-078 (valeur du butin encore à faire) priment sur les nouvelles classes/sorts.
+**Audit Alpha 8/10 (QA-074, 17/11/2026) :** [résultats détaillés](docs/QA074_ALPHA_8_ASSESSMENT.md). Les 129 tests sont verts mais **la note 8/10 n'est pas validée** : variété insuffisante (trois extractions identiques sans dégâts), Fragment de cendre non utilisé, absence de validation mobile et de 5 testeurs. VAR-077 et ECO-078 sont implémentés en prototypes. La **recette Android réelle**, l'équilibrage des coûts et les retours de **5 testeurs × 2 descentes** priment sur les nouvelles classes/sorts.
 
 ## Principes de production
 

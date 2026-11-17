@@ -1,3 +1,11 @@
+## Web Alpha v0.7f — ECO-078 : économie de Veyr (2026-11-18)
+
+- Le Fragment de cendre a désormais deux usages à la forge du refuge : 2 Fragments -> 1 Lame cendrée, ou 1 Fragment -> 2 Bandages.
+- Lame cendrée (Arme +1) : attaque de base 4, meilleure précision, parade et chance critique. L'équipement est utilisable dans le même moteur tactique/statistique.
+- La fabrication consomme exclusivement le coffre sécurisé, pas le sac ; impossible en expédition. Les coûts, la disponibilité et le risque de perte sont explicités sur Android.
+- Le Rappel détruit la lame emportée, mais pas celle restée au coffre ; l'extraction la restitue sans duplication. Les anciennes sauvegardes restent compatibles.
+- **Économie encore en prototype** : coûts et rythme à tester en conditions réelles, objectif Alpha 8/10 non encore certifié.
+
 ## Web Alpha v0.7e — VAR-077 : descentes procédurales équitables (2026-11-18)
 
 - Première descente d'introduction historique conservée ; les suivantes varient selon leur graine et numéro.

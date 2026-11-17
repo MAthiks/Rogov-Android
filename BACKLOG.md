@@ -1,6 +1,6 @@
 # Backlog de production — ROGOV (WIP maximal = 1)
 
-**Version Web : Alpha v0.7e — Nhal procédural (VAR-077, premier lot).**  
+**Version Web : Alpha v0.7f — forge de Veyr (ECO-078, premier lot).**  
 **Décision actée : Combat hybride v0.7.**  
 **État actuel : DEV-070 à DEV-073C développés ; intentions et garde du Gardien, avertissements Charognard/Larve. Les tests Android et l'équilibrage restent ouverts.**
 
@@ -18,9 +18,9 @@
 - [ ] **DEV-076 — Sorts low magic** : un prototype avec coût/risque, pas onze classes livrées d'un coup
 - [ ] **QA-074 — Compatibilité et livraison** : 129 tests automatisés réussis, mais recettes Android et testeurs réels à réaliser
 - [x] **VAR-077 — Variété des descentes (prototype)** : carte de tutoriel stable, secteurs variables ensuite, ennemis/objets/Arche déplacés, chemins alternatifs vérifiés
-- [ ] **ECO-078 — Valeur du butin (bloquant Alpha 8/10)** : usage concret du Fragment de cendre au refuge et arbitrage d'extraction
+- [x] **ECO-078 — Valeur du butin (prototype)** : Lame cendrée pour 2 Fragments ou 2 Bandages pour 1 Fragment, forge au refuge, perte d'objet emporté au Rappel
 
-**Audit QA-074 effectué pour le moteur :** [bilan Alpha 8/10](docs/QA074_ALPHA_8_ASSESSMENT.md) — **129 tests réussis**, mais **objectif 8/10 refusé**. Trois descentes identiques terminées sans dégâts, même carte/ennemis/butin, Fragment de cendre sans utilité actuelle. **VAR-077 livré en prototype** : [détails des garanties de parcours](docs/VAR077_PROCEDURAL_NHAL.md). Les descentes 2+ varient et le moteur refuse les plans sans retour alternatif. **Prochain lot actif : ECO-078 — donner un usage au Fragment de cendre à Veyr**, puis QA Android et 5 testeurs × 2 runs. Pas de nouvelle classe avant validation de la boucle.
+**Audit QA-074 effectué pour le moteur :** [bilan Alpha 8/10](docs/QA074_ALPHA_8_ASSESSMENT.md) — **129 tests réussis**, mais **objectif 8/10 refusé**. Trois descentes identiques terminées sans dégâts, même carte/ennemis/butin, Fragment de cendre sans utilité actuelle. **VAR-077 livré en prototype** : [détails des garanties de parcours](docs/VAR077_PROCEDURAL_NHAL.md). Les descentes 2+ varient et le moteur refuse les plans sans retour alternatif. **VAR-077 et ECO-078 livrés en prototype.** [Documentation de la forge](docs/ECO078_REFUGE_ECONOMY.md). **Prochain lot actif : QA-074 — recette manuelle Android et équilibrage de la boucle**, puis 5 testeurs × 2 descentes. Pas de nouvelle classe avant validation du plaisir de rejouer.
 
 **Objectif de qualité :** [bilan 6/10 → 8/10](docs/QUALITY_REVIEW_6_TO_8.md) ; aucune note de 8/10 ne sera attribuée sans tests sur téléphone et retours de joueurs.
 

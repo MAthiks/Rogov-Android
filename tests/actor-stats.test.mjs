@@ -192,9 +192,9 @@ test("DEV-073A: UI shows actor stats and enemy stats as previews, cache includes
   assert.match(app,/heroDerivedStats\(state\)/);
   assert.match(app,/enemyDerivedStats\(enemy\)/);
   assert.match(app,/renderActorStats\(\)/);
-  assert.match(sw,/rogov-v0\.7e/);
+  assert.match(sw,/rogov-v0\.7f/);
   assert.match(sw,/"\.\/stats\.js"/);
-  assert.match(html,/app\.js\?v=0\.7e/);
-  assert.match(html,/style\.css\?v=0\.7e/);
+  assert.match(html,/app\.js\?v=0\.7f/);
+  assert.match(html,/style\.css\?v=0\.7f/);
   assert.match(pkg.scripts["test:web"],/actor-stats\.test\.mjs/);
 });

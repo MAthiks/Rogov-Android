@@ -25,8 +25,12 @@ export const ENEMY_STATS=Object.freeze({
  */
 export const EQUIPMENT_CATALOG=Object.freeze({
   "weapon.rusty_sword":Object.freeze({
-    name:"Épée usée",slot:"mainHand",kind:"weapon",quality:0,
+    name:"Épée usée",slot:"mainHand",kind:"weapon",quality:0,baseDamage:3,
     bonuses:Object.freeze({attack:1,accuracy:1,parry:4,critical:1})
+  }),
+  "weapon.ashen_blade":Object.freeze({
+    name:"Lame cendrée",slot:"mainHand",kind:"weapon",quality:1,baseDamage:4,
+    bonuses:Object.freeze({attack:2,accuracy:3,parry:7,critical:4})
   }),
   "natural.charognard_claws":Object.freeze({
     name:"Serres caveuses",slot:"mainHand",kind:"natural",quality:0,
@@ -83,7 +87,8 @@ export function validLoadout(loadout,carried=null){
 export function playerLoadout(carried={}){
   return {
     ...EMPTY_LOADOUT,
-    mainHand:(carried["weapon.rusty_sword"]||0)>0?"weapon.rusty_sword":null
+    mainHand:(carried["weapon.ashen_blade"]||0)>0?"weapon.ashen_blade":
+      (carried["weapon.rusty_sword"]||0)>0?"weapon.rusty_sword":null
   };
 }
 export function migrateHero(hero){

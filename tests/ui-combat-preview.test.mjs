@@ -19,7 +19,7 @@ test("DEV-071 mobile target panel is inside the expedition below the map", () =>
   const dpad=html.indexOf('class="dpad"');
   assert.ok(map>=0 && map<targets && targets<panel && panel<dpad);
   assert.match(html,/id="combat-panel"[^>]*hidden/);
-  assert.match(html,/COMBAT STATISTIQUE/);
+  assert.match(html,/COMBAT TACTIQUE/);
 });
 
 test("DEV-071 touch target selection and keyboard cycle use pure no-turn contract", () => {
@@ -60,7 +60,7 @@ test("DEV-072 tactical actions are buttons attached to the engine", () => {
   assert.match(app,/act\(attackTarget\(state\)\)/);
   assert.match(app,/act\(defend\(state,"dodge"\)\)/);
   assert.match(app,/act\(retreat\(state\)\)/);
-  assert.match(html,/La précision, les critiques et les défenses dépendent/);
+  assert.match(html,/les intentions indiquent le danger du tour suivant/i);
 
 });
 

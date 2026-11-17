@@ -12,12 +12,45 @@
   <script type="module" src="./app.js"></script>
 </head>
 <body>
-  <div class="frame">
+  <section id="title-screen" class="title-screen" aria-labelledby="title-logo">
+    <div class="title-shell">
+      <header class="title-top">
+        <span>VEYR / NHAL</span>
+        <span class="title-sigil" aria-hidden="true">◈</span>
+        <span>WEB ALPHA 0.5.1</span>
+      </header>
+      <div class="title-brand">
+        <h1 id="title-logo">ROGOV</h1>
+        <p>EXTRACTION ROGUELIKE</p>
+      </div>
+      <div class="title-scene">
+        <img src="./title-scene.webp" width="620" height="342" alt="L'Égaré, vêtu d'une cape sombre et sans arme, observe une arche de pierre menant à Nhal dans une brume surnaturelle.">
+      </div>
+      <p class="title-tagline">Les profondeurs n'oublient personne.</p>
+      <div class="title-menu">
+        <button id="title-continue" class="title-button title-primary" type="button">CONTINUER</button>
+        <p id="title-save-info" class="title-save-info">Aucune sauvegarde — commence une nouvelle aventure.</p>
+        <button id="title-new" class="title-button title-secondary" type="button">+ NOUVELLE PARTIE</button>
+      </div>
+      <div id="title-options-panel" class="title-options-panel" hidden>
+        <p><strong>Options</strong> · Accessibilité et affichage</p>
+        <button id="title-render-mode" type="button" class="title-option">Rendu actuel : graphique</button>
+        <p>Les parties et le coffre restent sauvegardés localement sur cet appareil et dans ce navigateur.</p>
+      </div>
+      <footer class="title-footer">
+        <span>◫ SAUVEGARDE LOCALE</span>
+        <button id="title-options" type="button" aria-expanded="false" aria-controls="title-options-panel">⚙ OPTIONS</button>
+        <a href="https://github.com/MAthiks/Rogov-Android" target="_blank" rel="noopener noreferrer">⌘ CODE SOURCE</a>
+      </footer>
+    </div>
+  </section>
+
+  <div class="frame" id="game-shell" hidden>
     <header class="masthead">
       <div class="masthead-left">
         <span class="eyebrow">Nhal / Protocole du Rappel</span>
         <h1>ROGOV<span class="glow">.</span></h1>
-        <p class="subtitle">EXTRACTION ROGUELIKE — WEB ALPHA 0.5</p>
+        <p class="subtitle">EXTRACTION ROGUELIKE — WEB ALPHA 0.5.1</p>
       </div>
       <div class="masthead-right"><span class="status-dot"></span><span id="mode-status">REFUGE</span></div>
     </header>
@@ -87,6 +120,7 @@
         <button type="button" id="install-btn" class="secondary full">Ajouter à l'écran d'accueil</button>
         <button type="button" id="update-btn" class="secondary full" hidden>Actualiser le jeu</button>
         <p class="hint" id="network-note">La sauvegarde reste sur cet appareil et dans ce navigateur.</p>
+        <button type="button" id="back-to-title" class="secondary full">Retour à l'écran titre</button>
         <button type="button" id="reset-btn" class="subtle">Réinitialiser la partie</button>
       </aside>
     </main>

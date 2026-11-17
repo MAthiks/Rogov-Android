@@ -8,6 +8,7 @@ let storageLocked = false;
 let installPrompt = null;
 let registration = null;
 let transientMessage = null;
+let hasStoredGame = false;
 const EVENT_LABELS = Object.freeze({
   system:"SYSTÈME", action:"ACTION", loot:"BUTIN", danger:"DANGER",
   extraction:"EXTRACTION", recall:"RAPPEL", combat:"COMBAT", heal:"SOIN"
@@ -26,6 +27,7 @@ try {
       showWarning("Sauvegarde incompatible : elle n'a pas été effacée. Choisis « Réinitialiser » si tu veux recommencer.");
     } else {
       state = normalizeJournal(decoded);
+      hasStoredGame = true;
     }
   }
 } catch (error) {
@@ -38,7 +40,11 @@ function showWarning(message) {
 }
 function persist() {
   if (storageLocked) return;
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    hasStoredGame = true;
+    updateTitle();
+  }
   catch { showWarning("La sauvegarde locale est indisponible (stockage ou navigation privée)."); }
 }
 function infoItem(id, count, checkable=false) {
@@ -192,6 +198,64 @@ function act(result) {
   persist();
   render();
 }
+function updateTitle() {
+  const primary = $("title-continue");
+  primary.textContent = hasStoredGame ? "CONTINUER" : "COMMENCER";
+  $("title-save-info").textContent = hasStoredGame
+    ? state.meta.hero.title + " · Niveau " + state.meta.hero.level + " · " + state.meta.hero.xp + " XP" +
+      (state.run ? " · Descente en cours" : " · Refuge de Veyr")
+    : storageLocked
+      ? "Sauvegarde incompatible : nouvelle partie possible après confirmation."
+      : "Aucune sauvegarde — commence une nouvelle aventure.";
+  $("title-render-mode").textContent = "Rendu actuel : " + (renderMode === "tiles" ? "graphique" : "ASCII");
+}
+function enterGame() {
+  $("title-screen").hidden = true;
+  $("game-shell").hidden = false;
+  render();
+  window.scrollTo(0,0);
+  const target = state.run ? $("exp-title") : $("refuge-title");
+  target.setAttribute("tabindex","-1");
+  target.focus({preventScroll:true});
+}
+function returnToTitle() {
+  $("game-shell").hidden = true;
+  $("title-screen").hidden = false;
+  updateTitle();
+  window.scrollTo(0,0);
+  $("title-continue").focus({preventScroll:true});
+}
+$("title-continue").addEventListener("click", enterGame);
+$("title-new").addEventListener("click", () => {
+  if ((hasStoredGame || storageLocked) &&
+      !window.confirm("Effacer définitivement le héros, son coffre et la descente en cours sur cet appareil ?")) return;
+  try {
+    localStorage.removeItem(SAVE_KEY);
+  } catch {
+    showWarning("Impossible de supprimer la sauvegarde : aucun changement n'a été effectué.");
+    return;
+  }
+  storageLocked = false;
+  hasStoredGame = false;
+  state = newGame();
+  selected.clear();
+  transientMessage = null;
+  $("warning").hidden = true;
+  persist();
+  enterGame();
+});
+$("title-options").addEventListener("click", () => {
+  const panel = $("title-options-panel");
+  panel.hidden = !panel.hidden;
+  $("title-options").setAttribute("aria-expanded", String(!panel.hidden));
+});
+$("title-render-mode").addEventListener("click", () => {
+  renderMode = renderMode === "tiles" ? "ascii" : "tiles";
+  try { localStorage.setItem(VIEW_KEY,renderMode); } catch { /* Keep current preference in memory. */ }
+  updateTitle();
+});
+$("back-to-title").addEventListener("click", returnToTitle);
+
 $("start-btn").addEventListener("click", () => {
   if (storageLocked) {
     showWarning("La sauvegarde actuelle n'est pas accessible. Réinitialise d'abord ou accepte de jouer sans sauvegarde.");
@@ -293,4 +357,5 @@ if ("serviceWorker" in navigator) {
     $("network-note").textContent = "Le jeu fonctionne en ligne ; le mode hors ligne n'a pas pu être activé.";
   });
 }
+updateTitle();
 render();

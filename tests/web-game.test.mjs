@@ -281,3 +281,24 @@ test("healing followed by lethal attack still triggers Rappel and loses carried 
   assert.equal(s.meta.stash["consumable.bandage"],1);
   assert.equal(s.journal[0].type,"recall");
 });
+
+
+test("title screen contains functional controls and separate game shell", async () => {
+  const {readFileSync} = await import("node:fs");
+  const html=readFileSync(new URL("../docs/index.html", import.meta.url),"utf8");
+  const app=readFileSync(new URL("../docs/app.js", import.meta.url),"utf8");
+  for(const id of ["title-screen","title-continue","title-new","title-options","title-options-panel","title-render-mode","game-shell","back-to-title"]) {
+    assert.ok(html.includes('id="'+id+'"'),id+" absent");
+  }
+  assert.ok(html.includes('id="game-shell" hidden'));
+  assert.ok(app.includes('state = normalizeJournal(decoded)'));
+  assert.ok(app.includes('hasStoredGame = true'));
+  assert.ok(app.includes('localStorage.removeItem(SAVE_KEY)'));
+  assert.ok(app.includes('window.confirm('));
+});
+test("title scene is included in PWA cache manifest", async () => {
+  const {readFileSync} = await import("node:fs");
+  const sw=readFileSync(new URL("../docs/sw.js", import.meta.url),"utf8");
+  assert.match(sw,/rogov-v0\.5\.1/);
+  assert.match(sw,/title-scene\.webp/);
+});

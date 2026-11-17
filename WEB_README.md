@@ -56,3 +56,7 @@ Pour envoyer un lien de jeu au testeur, activer GitHub Pages dans **Settings →
 - Contrôles tactiles pour l'attente et les soins ; raccourcis clavier Espace / 1 / 2.
 - Sauvegarde locale toujours compatible avec v0.4 ; coffre et perte des objets au Rappel inchangés.
 
+
+## v0.5.1 — Écran titre validé
+
+Un écran d'accueil original et sombre présente ROGOV, l'Arche de Nhal et l'Égaré (sans croix). Les boutons Commencer/Continuer et Nouvelle partie sont fonctionnels. « Continuer » reprend l'état sauvegardé en conservant les règles actuelles et les paramètres d'affichage. « Nouvelle partie » demande confirmation avant d'effacer une progression existante. Un bouton « Retour à l'écran titre » est disponible depuis les options en jeu. La scène a été recadrée à partir de la maquette approuvée et optimisée pour une PWA.

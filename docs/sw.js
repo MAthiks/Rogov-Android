@@ -1,7 +1,7 @@
-const CACHE_NAME = "rogov-v0.5.0";
+const CACHE_NAME = "rogov-v0.5.1";
 const CORE = [
   "./", "./index.html", "./style.css", "./app.js", "./game.js", "./tiles.js",
-  "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png"
+  "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./title-scene.webp"
 ];
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE)));

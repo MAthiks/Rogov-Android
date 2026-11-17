@@ -1,8 +1,8 @@
 # ROGOV — Système caractéristiques, équipement, classes et magie
 
 **Décision de direction : 17 novembre 2026.**  
-**Statut : DEV-073A et DEV-073B développés (profils et jets de combat), mais classes actives, magie, intentions ennemies avancées et équilibrage non implémentés.**  
-**Version jouable : Web Alpha v0.7c ; toucher, critique, esquive, parade, blocage et Endurance utilisent désormais les profils et le matériel. Valeurs provisoires.**
+**Statut : DEV-073A/B/C développés (profils, jets et intentions ennemies), mais classes actives, magie et équilibrage humain non finalisés.**  
+**Version jouable : Web Alpha v0.7d ; combats statistiques et garde du Gardien pilotée par le modèle. Valeurs provisoires.**
 
 ## Vision
 

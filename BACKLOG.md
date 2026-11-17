@@ -1,8 +1,8 @@
 # Backlog de production — ROGOV (WIP maximal = 1)
 
-**Version Web : Alpha v0.7c — combats statistiques (DEV-073B).**  
+**Version Web : Alpha v0.7d — télégraphie et garde du Gardien (DEV-073C).**  
 **Décision actée : Combat hybride v0.7.**  
-**État actuel : DEV-070 à DEV-073B développés ; jets, critiques, défenses et Endurance utilisent désormais les profils et l'équipement. Équilibrage et IA avancée à tester en DEV-073C.**
+**État actuel : DEV-070 à DEV-073C développés ; intentions et garde du Gardien, avertissements Charognard/Larve. Les tests Android et l'équilibrage restent ouverts.**
 
 ## Priorité P0 — v0.7, un lot à la fois
 
@@ -13,12 +13,12 @@
 - [x] **DEV-072 — Actions tactiques** : attaque explicite (sans attaque par déplacement), esquive, parade, blocage, repli
 - [x] **DEV-073A — Statistiques et équipement** : six attributs PJ/PNJ, Endurance, emplacements et bonus, anciennes sauvegardes
 - [x] **DEV-073B — Résolution des coups** : précision, critique, parade, blocage, esquive selon caractéristiques/équipement ; RNG reproductible
-- [ ] **DEV-073C — IA et annonces** : Charognard, Gardien déchu, Larve de faille ; contre-jeu lisible
+- [x] **DEV-073C — IA et annonces (prototype)** : Charognard, Gardien déchu, Larve de faille ; contre-jeu lisible
 - [ ] **DEV-075 — Premier kit de classe** : Mercenaire (Garde, Frappe lourde) et moteur d'aptitudes, après stabilisation du combat
 - [ ] **DEV-076 — Sorts low magic** : un prototype avec coût/risque, pas onze classes livrées d'un coup
 - [ ] **QA-074 — Compatibilité et livraison** : tests combat/Rappel/extraction/sauvegarde, ASCII, PWA, Android, GitHub Pages
 
-**Prochain lot actif : DEV-073C — intentions et réactions ennemies.** Les jets statistiques, critiques, blocages, parades et esquives utilisent les deux profils, et chaque descente possède une graine de RNG persistante. Il faut maintenant télégraphier l'attaque du Gardien, donner des défenses compréhensibles aux adversaires et valider le rythme sur Samsung.
+**Prochain lot actif : QA-074 — recette sur Android et équilibrage du combat.** Le Gardien télégraphie une attaque lourde, perd sa préparation si le héros s'écarte et peut bloquer après une frappe. Les autres ennemis signalent leurs menaces réelles. Il faut maintenant tester lisibilité, rythme, sauvegardes et sessions d'extraction sur Samsung avant de développer les kits de classe.
 
 **Objectif de qualité :** [bilan 6/10 → 8/10](docs/QUALITY_REVIEW_6_TO_8.md) ; aucune note de 8/10 ne sera attribuée sans tests sur téléphone et retours de joueurs.
 

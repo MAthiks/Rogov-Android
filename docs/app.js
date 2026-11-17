@@ -3,7 +3,8 @@ import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
   heroDerivedStats, enemyDerivedStats } from "./stats.js";
 import {TACTICAL_COSTS, hitChance, defenseChance} from "./combat-rules.js";
-import { selectTarget, clearTarget, combatSnapshot, rangeBand, tileDistance } from "./combat.js";
+import { selectTarget, clearTarget, combatSnapshot, currentEnemyIntent,
+  rangeBand, tileDistance } from "./combat.js";
 
 const $ = (id) => document.getElementById(id);
 let state = newGame();
@@ -187,12 +188,38 @@ function renderTargetChoices() {
     const label=document.createElement("strong");
     label.textContent=enemy.kind==="rift_larva"?"Larve":enemy.kind==="guardian"?"Gardien":"Charognard";
     const details=document.createElement("small");
+    const intent=currentEnemyIntent(state.run,enemy);
     details.textContent=rangeBand(tileDistance(state.run,enemy))+" · "+enemy.hp+" PV";
+    if(intent?.kind==="guardian_heavy" || intent?.kind==="rift_pulse"){
+      choice.classList.add("threat-imminent");
+      details.textContent+=" · ⚠";
+      choice.setAttribute("aria-label",label.textContent+" : "+intent.label);
+    } else if(intent?.kind==="guardian_guard"){
+      choice.classList.add("threat-guarded");
+      details.textContent+=" · garde";
+    }
     copy.append(label,details);
     choice.append(portrait,copy);
     choice.addEventListener("click",()=>chooseTarget(enemy.id));
     host.append(choice);
   }
+}
+function renderThreatForecast(){
+  const box=$("threat-forecast");
+  const run=state.run;
+  if(!run){box.hidden=true;return;}
+  const warnings=[];
+  for(const enemy of run.enemies||[]){
+    const intent=currentEnemyIntent(run,enemy);
+    if(!intent)continue;
+    if(["guardian_heavy","rift_pulse","melee"].includes(intent.kind)){
+      const name=enemy.kind==="guardian"?"Gardien":
+        enemy.kind==="rift_larva"?"Larve":"Charognard";
+      warnings.push(name+" : "+intent.label);
+    }
+  }
+  box.hidden=warnings.length===0;
+  box.textContent=warnings.length?"⚠ MENACES AU PROCHAIN TOUR — "+warnings.join(" | "):"";
 }
 function renderActorStats() {
   const profile=heroDerivedStats(state);
@@ -298,6 +325,7 @@ function render() {
     if (renderMode === "tiles") drawTileMap(state, $("tile-map"));
     renderActorStats();
     renderTargetChoices();
+    renderThreatForecast();
     renderCombatPreview();
     renderInventory($("bag-items"), run.carried);
   } else {

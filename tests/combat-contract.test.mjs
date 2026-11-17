@@ -88,7 +88,7 @@ test("DEV-070: removing a target makes an old selection harmless", () => {
   assert.equal(validateSave(withGone),true);
 });
 
-test("DEV-070: adjacent target preview shows CONTACT and an attack", () => {
+test("DEV-073C: adjacent guardian preview shows CONTACT and an announced windup", () => {
   const s=expedition();
   s.run.x=10;s.run.y=2;
   const selected=selectTarget(s,"nhal-guardian-01").state;
@@ -96,7 +96,7 @@ test("DEV-070: adjacent target preview shows CONTACT and an attack", () => {
   assert.equal(snapshot.distance,1);
   assert.equal(snapshot.band,RANGES.CONTACT);
   assert.equal(snapshot.meleeAvailable,true);
-  assert.equal(snapshot.intent.kind,"melee");
+  assert.equal(snapshot.intent.kind,"guardian_prepare");
 });
 
 test("DEV-070: the Larva charge and pulse reflect the CURRENT enemy rhythm", () => {

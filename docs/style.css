@@ -222,3 +222,11 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 .endurance-header small{font-size:10px;color:#91b9b2}
 #endurance-meter{width:100%;height:7px;accent-color:#afc3a4}
 @media(max-width:370px){.endurance-header small{font-size:9px}}
+
+/* DEV-073C — visible tactical tells across selected and non-selected threats. */
+.threat-forecast{margin:9px 0 0;padding:10px 11px;border-left:4px solid #e7b38a;border-radius:7px;background:#30251f;color:#f2d7b6;font:700 11px/1.55 ui-monospace,monospace;overflow-wrap:anywhere}
+.target-choice.threat-imminent{border-color:#d79e70;background:#40322e}
+.target-choice.threat-guarded{border-color:#8eabc2;background:#2b3c47}
+#combat-intent[data-intent="guardian_heavy"]{color:#ffc699}
+#combat-intent[data-intent="guardian_prepare"]{color:#ebd4a4}
+#combat-intent[data-intent="guardian_guard"]{color:#b1d5db}

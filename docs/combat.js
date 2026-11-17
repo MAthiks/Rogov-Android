@@ -1,11 +1,13 @@
 // ROGOV v0.7 DEV-070 — pure combat contract; no UI or change to v0.6 gameplay.
 // Future combat actions will use this contract, while v0.6 remains playable.
 import { MAP, ENEMY_TYPES, enemyAt } from "./game.js";
+import {guardianIntent} from "./enemy-ai.js";
 
 export const RANGES = Object.freeze({ CONTACT: "CONTACT", PROCHE: "PROCHE", LOIN: "LOIN" });
 export const COMBAT_ACTIONS = Object.freeze(["attack", "dodge", "parry", "block", "retreat"]);
 export const DEFENSE_MODES = Object.freeze(["none", "dodge", "parry", "block"]);
-export const INTENT_KINDS = Object.freeze(["idle", "approach", "melee", "rift_charge", "rift_pulse"]);
+export const INTENT_KINDS = Object.freeze(["idle", "approach", "melee", "rift_charge", "rift_pulse",
+  "guardian_prepare","guardian_heavy","guardian_guard"]);
 
 /** Manhattan distance on the orthogonal roguelike grid. */
 export function tileDistance(a, b) {
@@ -34,7 +36,7 @@ export function straightLineClear(a, b, map = MAP) {
   return true;
 }
 
-/** v0.6 enemy behavior preview — does NOT change any existing AI. */
+/** DEV-073C: deterministic next-phase enemy forecast (shares AI state with engine). */
 export function currentEnemyIntent(run, enemy, map = MAP) {
   if (!run || !enemy || !ENEMY_TYPES[enemy.kind] || enemy.hp <= 0) return null;
   const d = tileDistance(run, enemy);
@@ -50,11 +52,15 @@ export function currentEnemyIntent(run, enemy, map = MAP) {
     if (d === 1) return intent("melee", "Attaque de contact");
     return intent("idle", "Présence immobile");
   }
-  if (d === 1) return intent("melee", "Attaque de contact");
-  if (enemy.kind === "charognard" && d <= ENEMY_TYPES.charognard.aggro) {
-    return intent("approach", "Approche probable");
+  if (enemy.kind==="guardian"){
+    const next=guardianIntent(enemy,d);
+    return Object.freeze({...next,nextTurn});
   }
-  return intent("idle", enemy.kind === "guardian" ? "Garde sa position" : "À l'affût");
+  if (d === 1) return intent("melee", "Attaque de contact imminente");
+  if (enemy.kind === "charognard" && d <= ENEMY_TYPES.charognard.aggro) {
+    return intent("approach", "Le Charognard se rapproche");
+  }
+  return intent("idle","À l'affût");
 }
 
 /**

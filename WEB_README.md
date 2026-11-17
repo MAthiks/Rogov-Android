@@ -6,7 +6,7 @@ Les APK ROGOV ont été bloqués sur un Samsung par Google Play Protect. Le proj
 
 ## Jouer
 
-Site public : https://mathiks.github.io/Rogov-Android/ — version Web Alpha v0.6.1 publiée.
+Site public : https://mathiks.github.io/Rogov-Android/ — version Web Alpha v0.7d après déploiement GitHub Pages réussi.
 
 Sur le téléphone : ouvrir l'URL dans Chrome. Pour ajouter l'application à l'écran d'accueil : Chrome → menu ⋮ → « Ajouter à l'écran d'accueil » ou « Installer l'application ».
 
@@ -106,3 +106,9 @@ En descente, ouvrir **« Fiche de l'Égaré »** pour consulter les six attribut
 Les attaques du héros et des ennemis peuvent maintenant manquer ou être critiques selon leur précision, leurs attributs, leur matériel et les résistances de la cible. Les préparations d'esquive, parade et blocage ont des chances de réussite et consomment **2 Endurance**, l'attaque consomme **1 Endurance**, attendre rend **3 Endurance** et se déplacer/soigner en rend **1**. Une barre d'Endurance apparaît sous la vie, tandis que le panneau de cible affiche les chances calculées pour cet affrontement.
 
 Les jets utilisent une graine persistante dans la sauvegarde : quitter/revenir n'autorise pas un nouveau tirage sur la même action. Le Rappel, l'extraction et les anciennes sauvegardes restent compatibles. Les chiffres sont expérimentaux et demandent des essais Android, et l'IA ennemie ne choisit pas encore sa propre posture défensive.
+
+## Web Alpha v0.7d — DEV-073C : intentions et contre-jeu
+
+Le Gardien déchu **prépare un coup lourd pendant un tour**. Le joueur peut ensuite esquiver, parer, bloquer, attaquer ou rompre le contact. S'éloigner interrompt la préparation. Après sa frappe, le Gardien tient une garde haute, pouvant bloquer le premier coup réussi du joueur selon ses statistiques et son équipement. Les menaces imminentes sont désormais présentées dans une bande d'alerte, même quand aucune cible n'est sélectionnée. Charognard et Larve conservent leur IA actuelle, mais leurs intentions correspondent à la phase ennemie suivante.
+
+**Vérification nécessaire sur Samsung** : éviter tout débordement, tester la compréhension des avertissements, une défense pendant la préparation, le repli et une partie complète avec extraction. La clé et le schéma de sauvegarde restent inchangés ; le Rappel conserve héros et coffre, mais détruit le sac.

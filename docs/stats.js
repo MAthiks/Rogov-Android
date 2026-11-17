@@ -97,7 +97,9 @@ export function migrateEnemy(enemy){
   return {
     ...enemy,
     attributes:enemy.attributes===undefined?{...ENEMY_STATS[enemy.kind]}:enemy.attributes,
-    loadout:enemy.loadout===undefined?{...ENEMY_LOADOUTS[enemy.kind]}:enemy.loadout
+    loadout:enemy.loadout===undefined?{...ENEMY_LOADOUTS[enemy.kind]}:enemy.loadout,
+    // Missing field in older saves: the guardian starts in its normal readiness.
+    ...(enemy.kind==="guardian" && enemy.tactic===undefined ? {tactic:"ready"} : {})
   };
 }
 export function migrateRunStats(run){

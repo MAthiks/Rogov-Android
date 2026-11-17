@@ -3,6 +3,7 @@ import { DEFAULT_HERO_STATS, ENEMY_STATS, migrateHero, migrateEnemy, migrateRunS
   validAttributes, validClassId, validLoadout, heroDerivedStats, enemyDerivedStats } from "./stats.js";
 import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDefense,
   regenEndurance } from "./combat-rules.js";
+import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS} from "./enemy-ai.js";
 export const SAVE_KEY = "rogov-web-v1";
 export const SCHEMA_VERSION = 1;
 export const INVENTORY_LIMIT = 8;
@@ -200,6 +201,30 @@ function enemyPhase(s) {
       if(!s.run) return s;
       continue;
     }
+    // Sentinel: windup -> heavy attack -> visible high guard -> windup.
+    // Moving out of CONTACT cancels the queued heavy attack without a hit.
+    if(enemy.kind==="guardian"){
+      const decision=guardianDecision(enemy,d);
+      if(decision==="interrupt"){
+        enemy.tactic="ready";
+        recordEvent(s,"danger",type.name+" perd la cible : son coup lourd est interrompu.",run.turns);
+      } else if(decision==="hold"){
+        if(guardianTactic(enemy)==="guarding")enemy.tactic="ready";
+      } else if(decision==="prepare"){
+        enemy.tactic="winding";
+        recordEvent(s,"danger",type.name+" arme un COUP LOURD. Éloigne-toi ou prépare une défense !",run.turns);
+      } else if(decision==="heavy"){
+        enemy.tactic="guarding";
+        s=receiveEnemyAttack(s,enemy,type,type.damage+GUARDIAN_HEAVY_BONUS,"melee");
+        if(!s.run)return s;
+      } else if(decision==="legacy_attack"){
+        // Unmigrated direct-state compatibility. Normalized saved encounters
+        // and every new run use "ready" and announce their heavy attack.
+        s=receiveEnemyAttack(s,enemy,type,type.damage,"melee");
+        if(!s.run)return s;
+      }
+      continue;
+    }
     if (d===1) {
       s=receiveEnemyAttack(s,enemy,type,type.damage,"melee");
       if(!s.run) return s;
@@ -294,6 +319,7 @@ export function validateSave(s) {
           tileAt(enemy.x,enemy.y)==="#") return false;
         if (enemy.attributes!==undefined && !validAttributes(enemy.attributes)) return false;
         if (enemy.loadout!==undefined && !validLoadout(enemy.loadout)) return false;
+        if (!validEnemyTactic(enemy)) return false;
       }
     }
   }
@@ -405,11 +431,25 @@ export function attackTarget(state) {
     recordEvent(s,"combat","Tu manques "+type.name+
       " ("+result.accuracy+" % de précision).",s.run.turns);
   } else {
-    target.hp-=result.damage;
+    let damage=result.damage;
+    // The Guardian's high guard is an announced, stat/equipment-based defense.
+    // Same seeded defense resolver as the player's shield action.
+    if(target.kind==="guardian" && guardianTactic(target)==="guarding"){
+      const guard=resolveActiveDefense(s,"block",defender,attacker,"melee");
+      target.tactic="ready"; // High guard is spent on the first landed attack.
+      if(guard.success){
+        damage=Math.max(0,damage-defender.blockAbsorb);
+        recordEvent(s,"defense","Garde du Gardien réussie ("+guard.chance+
+          " %) : "+(result.damage-damage)+" dégât(s) absorbé(s).",s.run.turns);
+      } else {
+        recordEvent(s,"defense","Garde du Gardien échouée ("+guard.chance+" %).",s.run.turns);
+      }
+    }
+    target.hp-=damage;
     const killed=target.hp<=0;
     recordEvent(s,"combat","Tu frappes "+type.name+
       (result.critical?" — COUP CRITIQUE !":"")+
-      " : "+result.damage+" dégât"+(result.damage>1?"s":"")+
+      " : "+damage+" dégât"+(damage>1?"s":"")+
       (killed?" (vaincu).":"."),s.run.turns);
     if(killed) {
       s.run.enemies=s.run.enemies.filter(e=>e.id!==target.id);

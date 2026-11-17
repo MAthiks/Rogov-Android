@@ -1,3 +1,12 @@
+## Web Alpha v0.7d — DEV-073C : Gardien et intentions ennemies (2026-11-17)
+
+- Gardien déchu : préparation annoncée sur un tour, coup lourd au tour suivant, garde haute après la frappe et interruption en cas de repli hors CONTACT.
+- Défense de garde du Gardien : jet statistique de blocage avec la graine persistante ; les coups ratés ne la déclenchent pas.
+- Intentions du Charognard et de la Larve alignées sur leurs déplacements et leurs attaques réelles.
+- Bannière de danger même sans cible sélectionnée, cartes de cible avertissant de l'imminence et styles accessibles sur mobile.
+- Compatibilité des anciennes sauvegardes et des anciennes rencontres, RNG de combat persistante, Rappel/extraction inchangés.
+- **À faire :** équilibrage et validation manuelle Samsung, puis test de la boucle par plusieurs joueurs.
+
 ## Web Alpha v0.7c — DEV-073B : combat statistique (2026-11-17)
 
 - Jets reproductibles de précision et de critique pour les deux camps ; RNG persistante dans la sauvegarde.

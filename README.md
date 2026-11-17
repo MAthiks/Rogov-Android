@@ -1,6 +1,6 @@
 # ROGOV — Roguelike d'extraction tactique
 
-**Version Web : v0.7c — résolution de combat statistique et Endurance (HTML/PWA).**  
+**Version Web : v0.7d — combat tactique avec intentions ennemies annoncées (HTML/PWA).**  
 **Prochaine version en développement : v0.7 — combat tactique hybride (non jouable intégralement).**
 
 Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-Android/**
@@ -20,9 +20,9 @@ ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il
 
 | Branche produit | État | Sources |
 |---|---|---|
-| **Web HTML/PWA** | **Jouable v0.7c** : carte, sprites, trois ennemis, combat de collision simple, journal, soins, Rappel et extraction | `docs/` |
+| **Web HTML/PWA** | **Jouable v0.7d** : carte, sprites, trois ennemis, combat tactique explicite, statistiques, intentions, soins, Rappel et extraction | `docs/` |
 | **Android natif Kotlin** | Prototype de compatibilité APK **v0.1.3** ; installation sur Samsung non confirmée | `app/` |
-| **Combat hybride v0.7** | **DEV-070 à 073B réalisés : statistiques et équipement dans les jets de combat ; IA avancée DEV-073C à venir**, pas encore présent sur le site | documents de conception v0.7 |
+| **Combat hybride v0.7** | **DEV-070 à 073C développés : duel tactique, statistiques, garde et coup lourd télégraphié ; validation Android/équilibrage à compléter** | documents de conception v0.7 |
 
 Le déploiement public Web passe par GitHub Pages et le workflow « ROGOV Web — Tests and GitHub Pages ». Chaque navigateur garde sa propre sauvegarde locale. Le mode PWA permet une utilisation hors ligne après chargement initial.
 
@@ -30,7 +30,7 @@ Le déploiement public Web passe par GitHub Pages et le workflow « ROGOV Web �
 
 Rester sur **la carte**, avec un **panneau tactique contextuel** plutôt qu'une arène séparée. Choisir explicitement une cible et une action : **Attaquer**, **Esquiver**, **Parer/Bloquer**, **Reculer**. Tenir compte des distances CONTACT / PROCHE / LOIN, des intentions ennemies et du risque de perdre le sac. Le simple déplacement vers un ennemi ne provoque plus d'attaque automatique dans la v0.7a.
 
-**DEV-070 à DEV-072 réalisés :** module `docs/combat.js` (distance, sélection, intentions), panneau contextuel en jeu, attaque explicite et défenses différenciées. **Le combat par collision a été supprimé**. Les intentions avancées, l'équilibrage et la vérification sur Samsung sont encore à faire.
+**DEV-070 à DEV-073C développés :** module de combat, panneau contextuel, attaques et défenses statistiques. Le Gardien prépare son coup lourd et peut adopter une garde haute ; les menaces imminentes s'affichent même sans cible verrouillée. **L'équilibrage et la vérification réelle sur Samsung restent à faire.**
 
 Cette orientation reprend des principes fonctionnels de combat tactique, sans reproduire visuellement Darkest Dungeon ni emprunter des ressources à des jeux tiers.
 
@@ -38,7 +38,8 @@ Cette orientation reprend des principes fonctionnels de combat tactique, sans re
 
 - [Caractéristiques, équipement, classes et magie (conception)](docs/STATS_EQUIPMENT_CLASSES_V0.7.md) — architecture cible : critiques et défenses dépendant des statistiques.
 - [DEV-073A — Modèle héros/PNJ et équipement](docs/DEV073A_ACTOR_STATS.md) — six caractéristiques et équipement.
-- [DEV-073B — Résolution statistique](docs/DEV073B_COMBAT_RULES.md) — précision, critique, défense, Endurance et graine de jets persistante ; chiffres encore à équilibrer.
+- [DEV-073B — Résolution statistique](docs/DEV073B_COMBAT_RULES.md) — précision, critique, défense, Endurance et graine de jets persistante.
+- [DEV-073C — IA et intentions ennemies](docs/DEV073C_ENEMY_AI.md) — coup lourd télégraphié, garde haute et alertes Android.
 
 - [Bilan du studio et objectif Alpha 8/10](docs/QUALITY_REVIEW_6_TO_8.md) — points faibles, critères qualité et tests joueurs
 - [GDD de combat hybride v0.7](docs/COMBAT_DESIGN_V0.7.md) — règles, flux de tour, UI, sauvegardes, tests

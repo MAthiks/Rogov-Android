@@ -6,6 +6,7 @@ plugins {
 android {
     namespace = "com.rogov.android"
     compileSdk = 36
+
     defaultConfig {
         applicationId = "com.rogov.android"
         minSdk = 26
@@ -14,11 +15,19 @@ android {
         versionName = "0.1.1"
         testInstrumentationRunner = "android.test.InstrumentationTestRunner"
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
 }
 
-dependencies { testImplementation("junit:junit:4.13.2") }
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+dependencies {
+    testImplementation("junit:junit:4.13.2")
+}

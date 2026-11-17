@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "items": [
+    { "id": "weapon.rusty_sword", "name": "Épée usée", "kind": "weapon", "description": "Lame modeste trouvée à Veyr." },
+    { "id": "consumable.bandage", "name": "Bandage", "kind": "consumable", "description": "Provision pour une future mécanique de soins." },
+    { "id": "relic.ashen_fragment", "name": "Fragment de cendre", "kind": "relic", "description": "Relique des profondeurs." },
+    { "id": "consumable.dusk_tonic", "name": "Tonique du crépuscule", "kind": "consumable", "description": "Potion rare, pas encore utilisable en v0.1." }
+  ]
+}

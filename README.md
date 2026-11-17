@@ -36,6 +36,8 @@ Cette orientation reprend des principes fonctionnels de combat tactique, sans re
 
 ### Documents de référence
 
+- [Caractéristiques, équipement, classes et magie (conception)](docs/STATS_EQUIPMENT_CLASSES_V0.7.md) — extension du combat hybride : probabilités et équipement propres à chaque acteur, sorts rares liés aux classes. **Non encore jouable.**
+
 - [Bilan du studio et objectif Alpha 8/10](docs/QUALITY_REVIEW_6_TO_8.md) — points faibles, critères qualité et tests joueurs
 - [GDD de combat hybride v0.7](docs/COMBAT_DESIGN_V0.7.md) — règles, flux de tour, UI, sauvegardes, tests
 - [Prompt de développement v0.7](docs/DEV_PROMPT_V0.7.md) — étapes d'implémentation

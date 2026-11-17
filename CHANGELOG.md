@@ -1,3 +1,10 @@
+## Conception évolutive — statistiques de combat et archétypes (2026-11-17)
+
+- Décision de design : parade, blocage, esquive, toucher et coups critiques devront dépendre des statistiques du PJ/PNJ, de l'équipement, de l'Endurance et des talents de classe.
+- Conservation des six caractéristiques du GDD et des onze archétypes définis précédemment ; magie low magic à coût/risque.
+- Nouveau dossier de conception : docs/STATS_EQUIPMENT_CLASSES_V0.7.md et découpage DEV-073A/B/C, DEV-075/076.
+- **Aucun changement du code jouable ni des sauvegardes dans ce commit de documentation.**
+
 ## Web Alpha v0.7a — DEV-072 : vrai combat tactique (17 novembre 2026)
 
 - Se déplacer dans un ennemi ne l'attaque plus : il devient cible sans tour dépensé.

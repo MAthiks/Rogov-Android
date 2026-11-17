@@ -34,6 +34,12 @@ Le combat v0.6.1 par collision/contre-attaque est transitoire et **sera remplac�
 **Source de vérité :** docs/COMBAT_DESIGN_V0.7.md.  
 **Prompt d'exécution :** docs/DEV_PROMPT_V0.7.md.
 
+## Évolution de combat : caractéristiques, équipement, classes
+
+Décision de conception : le critique, la parade, le blocage et l'esquive doivent tenir compte des caractéristiques **des deux camps**, de leur matériel, de l'Endurance et des compétences de classe. Garder les **six attributs du GDD** (FOR, AGI, CON, PER, VOL, INT), ainsi que les **onze archétypes** (Mercenaire, Éclaireur, Médecin, Récupérateur, Chasseur, Artisan, Érudit, Filou, Cultiste, Paladin, Lépreux). La magie reste rare, liée aux classes/reliques, avec contreparties en Stabilité et ressources.
+
+**Source de vérité :** [STATS_EQUIPMENT_CLASSES_V0.7.md](STATS_EQUIPMENT_CLASSES_V0.7.md). C'est un **plan de conception**, pas encore une fonctionnalité jouable ; le prototype v0.7a utilise toujours des effets fixes. Ne pas implémenter les onze classes ou des dizaines d'objets en même temps : commencer par le modèle commun, puis Mercenaire et Gardien pour valider les calculs.
+
 ## Direction artistique
 
 - Horreur cosmique et archéologique ; sprites originaux sobres, silhouettes contrastées sur mobile.
@@ -58,7 +64,7 @@ Le bilan de studio de référence est conservé dans [QUALITY_REVIEW_6_TO_8.md](
 
 Mesures minimales : tests automatiques, sauvegardes préservées, essais Android réels, au moins cinq testeurs sur deux descentes et une majorité exprimant l'envie de rejouer. La cible 8/10 reste **un objectif**, pas une note atteinte.
 
-**DEV-070, DEV-071 et DEV-072 développés :** sélection, portée et panneau de cible ; actions Attaquer, Esquiver, Parer (avec épée), Bloquer, Reculer. La collision ne provoque plus d'attaque ni de tour. Les défenses consomment un tour et protègent contre le prochain coup compatible. **DEV-073 : intentions avancées de l'IA et équilibrage.** Vérification sur Android encore nécessaire.
+**DEV-070, DEV-071 et DEV-072 développés :** sélection, portée et panneau de cible ; actions Attaquer, Esquiver, Parer (avec épée), Bloquer, Reculer. La collision ne provoque plus d'attaque ni de tour. Les défenses consomment un tour et protègent contre le prochain coup compatible. **DEV-073A/B/C : modèle statistique, jets déterministes et intentions avancées.** Vérification sur Android encore nécessaire.
 
 ## Règle de suivi
 

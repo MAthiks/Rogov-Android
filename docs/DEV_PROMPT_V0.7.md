@@ -60,3 +60,7 @@ Agir comme une équipe de programmation web/mobile, conception tactique, UX Andr
 Le joueur voit la menace, comprend sa portée, choisit une action et en observe le résultat. Le combat reste sur la carte, sans scène séparée, et le risque d'équipement propre à ROGOV demeure central.
 
 **Ne pas marquer la v0.7 « publiée » tant que le nouveau moteur, l'UI et les tests ne le confirment pas.**
+
+## Orientation complémentaire (17 novembre 2026)
+
+Après le prototype DEV-072, la suite de l'implémentation doit respecter les choix décrits dans [STATS_EQUIPMENT_CLASSES_V0.7.md](STATS_EQUIPMENT_CLASSES_V0.7.md) : six caractéristiques communes PJ/PNJ, Endurance, matériel, chances de critique/parade/blocage/esquive, RNG reproductible, puis compétences liées aux onze archétypes du GDD. Diviser DEV-073 en A (données/migrations), B (résolution) et C (intentions), avant de prototyper un seul kit de classe. Ces règles sont **à implémenter** et non encore actives dans la v0.7a.

@@ -19,7 +19,7 @@ test("DEV-071 mobile target panel is inside the expedition below the map", () =>
   const dpad=html.indexOf('class="dpad"');
   assert.ok(map>=0 && map<targets && targets<panel && panel<dpad);
   assert.match(html,/id="combat-panel"[^>]*hidden/);
-  assert.match(html,/COMBAT ACTIF/);
+  assert.match(html,/COMBAT STATISTIQUE/);
 });
 
 test("DEV-071 touch target selection and keyboard cycle use pure no-turn contract", () => {

@@ -168,8 +168,8 @@ function receiveEnemyAttack(s,enemy,type,base,source) {
           }
         }
         if(mode==="block")damage=Math.max(0,damage-defender.blockAbsorb);
-        const verb={dodge:"Esquive",parry:"Parade",block:"Blocage"}[mode];
-        recordEvent(s,"defense",verb+" réussi(e) contre "+type.name+
+        const verb={dodge:"Esquive réussie",parry:"Parade réussie",block:"Blocage réussi"}[mode];
+        recordEvent(s,"defense",verb+" contre "+type.name+
           " ("+defense.chance+" %).",run.turns);
       } else {
         recordEvent(s,"defense","Défense échouée ("+defense.chance+" %) contre "+type.name+".",run.turns);

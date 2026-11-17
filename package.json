@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:web": "node --test tests/web-game.test.mjs",
-    "check:web": "node --check docs/app.js && node --check docs/game.js && node --check docs/tiles.js && node --check docs/sw.js"
+    "test:web": "node --test tests/web-game.test.mjs tests/combat-contract.test.mjs",
+    "check:web": "node --check docs/app.js && node --check docs/game.js && node --check docs/tiles.js && node --check docs/combat.js && node --check docs/sw.js"
   }
 }

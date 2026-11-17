@@ -11,7 +11,8 @@
 | 0.6 | Livré | Bible visuelle lovecraftienne, Charognard/Gardien revus, Larve de faille |
 | 0.6.1 | Livré | Correctif responsive et cache Android |
 | 0.6.2 | Livré | Sélection sans tour, panneau contextualisé et intentions (aperçu) |
-| **0.7a** | **Prototype tactique** | Attaque explicite ; esquive, parade, blocage et repli ; revue de l'IA et test Android encore nécessaires |
+| 0.7a | Livré | Attaque explicite ; esquive, parade, blocage et repli |
+| **0.7b** | **Modèle de combat** | Six attributs pour héros et ennemis, profils d'équipement, migration, fiche repliable ; calcul des jets à venir |
 | **0.7** | **Combat explicite en prototype ; IA et validation à faire** | **Combat hybride sur carte + panneau contextuel, cibles explicites, distances, défenses actives, intentions et repli** |
 | 0.8 | À cadrer | Équilibrage combat / économie d'extraction / ergonomie |
 | 1.0 | À cadrer | Version testable élargie, progression et contenu stabilisés |
@@ -20,7 +21,7 @@
 
 **Nouvelle direction systémique (conception) :** [caractéristiques, équipement, critiques, classes et magie](docs/STATS_EQUIPMENT_CLASSES_V0.7.md). Avant d'ajouter des sorts, développer les six attributs communs aux personnages et adversaires, les calculs d'équipement, les chances de critique/parade/blocage et l'Endurance de combat.
 
-**Critères de la cible Alpha 8/10 :** [bilan de studio et scorecard](docs/QUALITY_REVIEW_6_TO_8.md). DEV-070 (contrat), DEV-071 (panneau) et DEV-072 (actions tactiques) sont développés. DEV-073A (statistiques communes et équipement), DEV-073B (résolution probabiliste reproductible), DEV-073C (intentions ennemies avancées), puis QA Android sont les prochains jalons.
+**Critères de la cible Alpha 8/10 :** [bilan de studio et scorecard](docs/QUALITY_REVIEW_6_TO_8.md). DEV-070 (contrat), DEV-071 (panneau) et DEV-072 (actions tactiques) sont développés. DEV-073A (attributs et équipement) est développé ; DEV-073B (jets probabilistes reproductibles), DEV-073C (intentions avancées) et QA Android restent les prochains jalons.
 
 ## Principes de production
 

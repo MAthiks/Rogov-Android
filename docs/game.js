@@ -1,4 +1,6 @@
 // ROGOV Web — deterministic, offline-first gameplay core. No DOM dependencies.
+import { DEFAULT_HERO_STATS, ENEMY_STATS, migrateHero, migrateEnemy, migrateRunStats,
+  validAttributes, validClassId, validLoadout } from "./stats.js";
 export const SAVE_KEY = "rogov-web-v1";
 export const SCHEMA_VERSION = 1;
 export const INVENTORY_LIMIT = 8;
@@ -24,9 +26,8 @@ function validJournalEntry(entry) {
 export function normalizeJournal(state) {
   return {
     ...state,
-    run: state.run && !Array.isArray(state.run.enemies)
-      ? { ...state.run, enemies: [] }
-      : state.run,
+    meta:{...state.meta,hero:migrateHero(state.meta.hero)},
+    run:migrateRunStats(state.run),
     journal: state.journal.slice(0, JOURNAL_LIMIT).map(entry =>
       typeof entry === "string"
         ? { type:"system", turn:null, text:entry }
@@ -207,7 +208,8 @@ export function newGame() {
   return {
     schemaVersion: SCHEMA_VERSION,
     meta: {
-      hero: { id: "character.first_wanderer", title: "L'Égaré", level: 1, xp: 0 },
+      hero: { id: "character.first_wanderer", title: "L'Égaré", level: 1, xp: 0,
+        attributes:{...DEFAULT_HERO_STATS}, classId:null },
       stash: { "weapon.rusty_sword": 1, "consumable.bandage": 2 },
       descents: 0, extractions: 0, recalls: 0
     },
@@ -233,6 +235,9 @@ export function validateSave(s) {
   if (!s.journal.every(validJournalEntry)) return false;
   if (!Number.isSafeInteger(s.meta.hero.xp) || s.meta.hero.xp < 0) return false;
   if (!Number.isSafeInteger(s.meta.hero.level) || s.meta.hero.level !== 1 + Math.floor(s.meta.hero.xp / 5)) return false;
+  // Optional tactical fields preserve every v0.6/v0.7a save.
+  if (s.meta.hero.attributes!==undefined && !validAttributes(s.meta.hero.attributes)) return false;
+  if (s.meta.hero.classId!==undefined && !validClassId(s.meta.hero.classId)) return false;
   for (const [id,count] of Object.entries(s.meta.stash)) {
     if (!ITEMS[id] || !Number.isSafeInteger(count) || count < 0) return false;
   }
@@ -245,6 +250,7 @@ export function validateSave(s) {
       if (!ITEMS[id] || !Number.isSafeInteger(count) || count < 0) return false;
     }
     if (quantity(r.carried) > INVENTORY_LIMIT) return false;
+    if (r.loadout!==undefined && !validLoadout(r.loadout,r.carried)) return false;
     if (r.targetId!==undefined && r.targetId!==null &&
         (typeof r.targetId!=="string" || r.targetId.length===0)) return false;
     if (r.defense!==undefined && !TACTICAL_DEFENSES.includes(r.defense)) return false;
@@ -255,6 +261,8 @@ export function validateSave(s) {
           !Number.isInteger(enemy.x) || !Number.isInteger(enemy.y) ||
           !Number.isInteger(enemy.hp) || enemy.hp<1 || enemy.hp>ENEMY_TYPES[enemy.kind].hp ||
           tileAt(enemy.x,enemy.y)==="#") return false;
+        if (enemy.attributes!==undefined && !validAttributes(enemy.attributes)) return false;
+        if (enemy.loadout!==undefined && !validLoadout(enemy.loadout)) return false;
       }
     }
   }
@@ -269,13 +277,15 @@ export function beginRun(state, equipment=[]) {
     return info(state, "Objet absent du coffre sécurisé.", false);
   }
   const s = copy(state);
+  s.meta.hero=migrateHero(s.meta.hero);
   const carried = {};
   for (const id of equipment) {
     s.meta.stash[id] -= 1;
     carried[id] = 1;
   }
   s.meta.descents += 1;
-  s.run = { x: 1, y: 7, hp: MAX_HP, turns: 0, carried, collected: [], enemies: ENEMY_START.map(e=>({...e})) };
+  s.run = migrateRunStats({ x: 1, y: 7, hp: MAX_HP, turns: 0, carried,
+    collected: [], enemies: ENEMY_START.map(e=>({...e})) });
   return info(s, "Descente " + s.meta.descents + " : les profondeurs de Nhal s'ouvrent.");
 }
 export function recall(state) {

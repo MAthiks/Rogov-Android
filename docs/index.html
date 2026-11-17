@@ -8,7 +8,7 @@
   <title>ROGOV — Veyr / Nhal</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css?v=0.7a">
+  <link rel="stylesheet" href="./style.css?v=0.7b">
   <!-- Critical responsive shell: renders correctly even if Chrome serves an older PWA stylesheet. -->
   <style id="title-critical-style">
     html,body{max-width:100%;overflow-x:hidden}
@@ -32,7 +32,7 @@
     .title-screen .title-footer a,.title-screen .title-footer button{color:#cce2d3;font:inherit}
     @media(max-width:360px){.title-screen{padding:8px 6px}.title-screen .title-shell{padding:12px}.title-screen .title-brand h1{letter-spacing:.07em}}
   </style>
-  <script type="module" src="./app.js?v=0.7a"></script>
+  <script type="module" src="./app.js?v=0.7b"></script>
 </head>
 <body>
   <section id="title-screen" class="title-screen" aria-labelledby="title-logo">
@@ -40,7 +40,7 @@
       <header class="title-top">
         <span>VEYR / NHAL</span>
         <span class="title-sigil" aria-hidden="true">◈</span>
-        <span>WEB ALPHA 0.7a</span>
+        <span>WEB ALPHA 0.7b</span>
       </header>
       <div class="title-brand">
         <h1 id="title-logo">ROGOV</h1>
@@ -106,6 +106,13 @@
           <div class="health-header"><span>SANTÉ <strong id="health-state" data-health="healthy">STABLE</strong></span><span id="threat-state" data-threat="danger">2 HOSTILES</span></div>
           <progress id="health-meter" aria-label="Points de vie" max="12" value="12">12/12</progress>
         </div>
+        <details class="actor-stats-sheet" id="actor-stats-sheet">
+          <summary><span>Fiche de l'Égaré</span><small>FOR · AGI · CON · PER · VOL · INT</small></summary>
+          <p class="actor-stats-caption">Aperçu des caractéristiques : les jets de combat utiliseront ces valeurs dans DEV-073B.</p>
+          <div id="actor-stat-values" class="actor-stat-values" aria-label="Caractéristiques du personnage"></div>
+          <div id="actor-derived-values" class="actor-derived-values"></div>
+          <p id="actor-class-label" class="actor-class-label"></p>
+        </details>
         <div class="dungeon-wrap">
           <div class="render-controls"><span>PACK VISUEL / NHAL</span><button type="button" id="renderer-toggle" class="secondary" aria-pressed="true">Passer en ASCII</button></div>
           <div id="tile-map" class="pixel-map" role="group" aria-label="Carte graphique du donjon. Touchez un ennemi pour le cibler." tabindex="0"></div>
@@ -147,6 +154,7 @@
             <span>ARME : <strong id="combat-weapon">—</strong></span>
             <span>DÉFENSE : <strong id="combat-defense">Aucune</strong></span>
           </div>
+          <p id="combat-target-profile" class="combat-target-profile"></p>
           <p id="combat-range-note" class="hint">Le combat tactique arrive dans une prochaine mise à jour.</p>
           <div class="tactic-actions" role="group" aria-label="Actions tactiques au tour par tour">
             <button id="combat-attack" type="button">⚔ Attaquer <small>F · CONTACT</small></button>

@@ -79,11 +79,11 @@ test("DEV-071 selecting a target preserves current save and extraction rules", (
   assert.ok(validateSave(s));
 });
 
-test("DEV-072 cache v0.7a includes the combat module for offline operation", () => {
+test("DEV-072 cache v0.7b includes the combat module for offline operation", () => {
   const sw=asset("sw.js");
   const html=asset("index.html");
-  assert.match(sw,/rogov-v0\.7a/);
+  assert.match(sw,/rogov-v0\.7b/);
   assert.match(sw,/"\.\/combat\.js"/);
-  assert.match(html,/style\.css\?v=0\.7a/);
-  assert.match(html,/app\.js\?v=0\.7a/);
+  assert.match(html,/style\.css\?v=0\.7b/);
+  assert.match(html,/app\.js\?v=0\.7b/);
 });

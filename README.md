@@ -1,6 +1,6 @@
 # ROGOV — Roguelike d'extraction tactique
 
-**Version Web : v0.7a — prototype de combat tactique (HTML/PWA).**  
+**Version Web : v0.7b — prototype des attributs héros/ennemis et de l'équipement (HTML/PWA).**  
 **Prochaine version en développement : v0.7 — combat tactique hybride (non jouable intégralement).**
 
 Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-Android/**
@@ -20,9 +20,9 @@ ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il
 
 | Branche produit | État | Sources |
 |---|---|---|
-| **Web HTML/PWA** | **Jouable v0.7a** : carte, sprites, trois ennemis, combat de collision simple, journal, soins, Rappel et extraction | `docs/` |
+| **Web HTML/PWA** | **Jouable v0.7b** : carte, sprites, trois ennemis, combat de collision simple, journal, soins, Rappel et extraction | `docs/` |
 | **Android natif Kotlin** | Prototype de compatibilité APK **v0.1.3** ; installation sur Samsung non confirmée | `app/` |
-| **Combat hybride v0.7** | **DEV-070 à 072 livrés : ciblage et actions tactiques, intentions avancées DEV-073 à venir**, pas encore présent sur le site | documents de conception v0.7 |
+| **Combat hybride v0.7** | **DEV-070 à 073A livrés : combat tactique et base des caractéristiques ; jets stat-dépendants DEV-073B à venir**, pas encore présent sur le site | documents de conception v0.7 |
 
 Le déploiement public Web passe par GitHub Pages et le workflow « ROGOV Web — Tests and GitHub Pages ». Chaque navigateur garde sa propre sauvegarde locale. Le mode PWA permet une utilisation hors ligne après chargement initial.
 
@@ -36,7 +36,8 @@ Cette orientation reprend des principes fonctionnels de combat tactique, sans re
 
 ### Documents de référence
 
-- [Caractéristiques, équipement, classes et magie (conception)](docs/STATS_EQUIPMENT_CLASSES_V0.7.md) — extension du combat hybride : probabilités et équipement propres à chaque acteur, sorts rares liés aux classes. **Non encore jouable.**
+- [Caractéristiques, équipement, classes et magie (conception)](docs/STATS_EQUIPMENT_CLASSES_V0.7.md) — architecture cible : critiques et défenses dépendant des statistiques.
+- [DEV-073A — Modèle héros/PNJ et équipement](docs/DEV073A_ACTOR_STATS.md) — six caractéristiques intégrées et visibles ; valeurs dérivées provisoires **non appliquées aux dégâts**.
 
 - [Bilan du studio et objectif Alpha 8/10](docs/QUALITY_REVIEW_6_TO_8.md) — points faibles, critères qualité et tests joueurs
 - [GDD de combat hybride v0.7](docs/COMBAT_DESIGN_V0.7.md) — règles, flux de tour, UI, sauvegardes, tests

@@ -2,7 +2,7 @@
 
 **Dernière mise à jour : 17 novembre 2026.**  
 **Canal prioritaire : HTML5/CSS/JavaScript/PWA jouable sur Android.**  
-**Version Web : v0.7a (prototype tactique), cible v0.7 : IA et équilibrage validés.**
+**Version Web : v0.7b (attributs et équipement intégrés, jets non appliqués), cible v0.7 : combat statistique et IA équilibrés.**
 
 ## Vision
 
@@ -64,7 +64,7 @@ Le bilan de studio de référence est conservé dans [QUALITY_REVIEW_6_TO_8.md](
 
 Mesures minimales : tests automatiques, sauvegardes préservées, essais Android réels, au moins cinq testeurs sur deux descentes et une majorité exprimant l'envie de rejouer. La cible 8/10 reste **un objectif**, pas une note atteinte.
 
-**DEV-070, DEV-071 et DEV-072 développés :** sélection, portée et panneau de cible ; actions Attaquer, Esquiver, Parer (avec épée), Bloquer, Reculer. La collision ne provoque plus d'attaque ni de tour. Les défenses consomment un tour et protègent contre le prochain coup compatible. **DEV-073A/B/C : modèle statistique, jets déterministes et intentions avancées.** Vérification sur Android encore nécessaire.
+**DEV-070, DEV-071 et DEV-072 développés :** sélection, portée et panneau de cible ; actions Attaquer, Esquiver, Parer (avec épée), Bloquer, Reculer. La collision ne provoque plus d'attaque ni de tour. Les défenses consomment un tour et protègent contre le prochain coup compatible. **DEV-073A réalisé :** modèle commun attributs et équipement, fiche de stats et migration des anciennes sauvegardes. **DEV-073B/C restent à faire** : résolution des jets selon équipement et caractéristiques, puis intentions avancées. Vérification sur Android encore nécessaire.
 
 ## Règle de suivi
 

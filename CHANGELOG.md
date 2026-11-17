@@ -1,3 +1,12 @@
+## Web Alpha v0.7b — DEV-073A : caractéristiques et équipements (2026-11-17)
+
+- Profils FOR/AGI/CON/PER/VOL/INT persistants pour le héros et les trois familles ennemies.
+- Catalogue des bonus de l'Épée usée et des équipements innés des ennemis ; pièces de bouclier/armure réservées aux tests (pas encore obtenables).
+- Calculs dérivés d'Endurance, précision, critique, esquive, parade, blocage et protection ; **aperçus sans effet sur les dégâts ou les chances réelles**.
+- Fiche d'attributs repliable et aperçu du profil de l'ennemi ciblé.
+- Migration des anciennes sauvegardes sans perte de héros, XP, coffre, sac, position, cible ou ennemis ; version de schéma et clé conservées.
+- Prochaine phase : DEV-073B (jets reproducibles et effets des bonus).
+
 ## Conception évolutive — statistiques de combat et archétypes (2026-11-17)
 
 - Décision de design : parade, blocage, esquive, toucher et coups critiques devront dépendre des statistiques du PJ/PNJ, de l'équipement, de l'Endurance et des talents de classe.

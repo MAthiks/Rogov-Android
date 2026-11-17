@@ -201,3 +201,17 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 .tactic-actions button:last-child{grid-column:1/-1}
 @media(max-width:380px){.tactic-actions{gap:6px}.tactic-actions button{padding:7px 4px;font-size:12px}}
 .event-defense{--event-accent:#b5d8bf}
+
+/* DEV-073A — collapsible stat sheet. Preview values do not alter v0.7a combat. */
+.actor-stats-sheet{margin:0 0 13px;background:#11252a;border:1px solid #405e58;border-radius:10px;min-width:0}
+.actor-stats-sheet summary{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;min-height:46px;padding:10px 12px;cursor:pointer;color:#dce9dd;font-weight:750;font-size:12px}
+.actor-stats-sheet summary small{font-size:10px;color:#a9c6b3;letter-spacing:.03em}
+.actor-stats-sheet[open] summary{border-bottom:1px solid #405e58}
+.actor-stats-caption,.actor-class-label{font-size:11px;line-height:1.5;color:#b7c8b9;margin:10px 12px}
+.actor-stat-values{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:0 12px}
+.actor-stat-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 0;border:1px solid #52695e;border-radius:7px;background:#273a36;min-width:0}
+.actor-stat-chip small{font:750 10px/1.2 ui-monospace,monospace;color:#afcdb9}
+.actor-stat-chip strong{font:800 16px/1.3 ui-monospace,monospace;color:#e8efdc}
+.actor-derived-values{margin:10px 12px;font-size:11px;line-height:1.6;color:#d1dfcf}
+.combat-target-profile{font-size:10px;line-height:1.6;color:#a9c7b5;margin:9px 1px 0}
+@media(max-width:370px){.actor-stat-values{gap:3px}.actor-stat-chip small{font-size:9px}}

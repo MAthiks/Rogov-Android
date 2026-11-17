@@ -1,5 +1,7 @@
 import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, move, attackTarget, defend, retreat, useItem, waitTurn, mapText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
+import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
+  heroDerivedStats, enemyDerivedStats } from "./stats.js";
 import { selectTarget, clearTarget, combatSnapshot, rangeBand, tileDistance } from "./combat.js";
 
 const $ = (id) => document.getElementById(id);
@@ -191,6 +193,35 @@ function renderTargetChoices() {
     host.append(choice);
   }
 }
+function renderActorStats() {
+  const profile=heroDerivedStats(state);
+  const values=$("actor-stat-values");
+  values.replaceChildren();
+  if (!profile) return;
+  for (const key of STAT_KEYS) {
+    const cell=document.createElement("span");
+    cell.className="actor-stat-chip";
+    const label=document.createElement("small");
+    label.textContent=STAT_LABELS[key];
+    const number=document.createElement("strong");
+    number.textContent=String(profile.attributes[key]);
+    cell.append(label,number);
+    values.append(cell);
+  }
+  const gear=state.run?.loadout || {};
+  const weapon=gear.mainHand && EQUIPMENT_CATALOG[gear.mainHand];
+  $("actor-derived-values").textContent=
+    "Endurance potentielle "+profile.enduranceMax+
+    " · Critique "+profile.criticalChance+" %"+
+    " · Esquive "+profile.dodgeChance+" %"+
+    " · Parade "+profile.parryChance+" %"+
+    " · Blocage "+profile.blockChance+" %"+
+    " · Armure "+profile.armor+
+    " · Arme : "+(weapon?.name || "Aucune");
+  const classId=state.meta.hero.classId;
+  $("actor-class-label").textContent="Archétype : "+
+    (classId && ARCHETYPES[classId] ? ARCHETYPES[classId] : "non choisi (système de classes à venir)");
+}
 function renderCombatPreview() {
   const snapshot=combatSnapshot(state);
   const panel=$("combat-panel");
@@ -200,6 +231,15 @@ function renderCombatPreview() {
   $("combat-target-family").textContent=snapshot.family;
   $("combat-target-health").textContent=snapshot.hp+" / "+snapshot.maxHp+" PV";
   $("combat-target-distance").textContent=snapshot.band+" · "+snapshot.distance+" cases";
+  const enemy=state.run.enemies?.find(e=>e.id===snapshot.targetId);
+  const enemyStats=enemyDerivedStats(enemy);
+  $("combat-target-profile").textContent=enemyStats
+    ? "Profil adverse (aperçu) : FOR "+enemyStats.attributes.strength+
+      " · AGI "+enemyStats.attributes.agility+
+      " · CON "+enemyStats.attributes.constitution+
+      " · Armure "+enemyStats.armor+
+      " · Critique "+enemyStats.criticalChance+" %"
+    : "";
   $("combat-intent").textContent=snapshot.intent?.label || "Intention inconnue";
   $("combat-intent").dataset.intent=snapshot.intent?.kind || "idle";
   $("combat-weapon").textContent=(state.run.carried["weapon.rusty_sword"]||0)>0
@@ -247,6 +287,7 @@ function render() {
     $("graphic-legend").hidden = renderMode !== "tiles";
     $("ascii-legend").hidden = renderMode !== "ascii";
     if (renderMode === "tiles") drawTileMap(state, $("tile-map"));
+    renderActorStats();
     renderTargetChoices();
     renderCombatPreview();
     renderInventory($("bag-items"), run.carried);

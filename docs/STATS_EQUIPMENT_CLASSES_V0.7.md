@@ -1,8 +1,8 @@
 # ROGOV — Système caractéristiques, équipement, classes et magie
 
 **Décision de direction : 17 novembre 2026.**  
-**Statut : orientation validée sur le principe ; valeurs à prototyper et équilibrer, non implémentées.**  
-**Version jouable : Web Alpha v0.7a, avec parade, blocage et dégâts encore fixes.**
+**Statut : DEV-073A intégré (profils, équipement, chiffres dérivés et migration), mais calculs de combat probabilistes, classes actives et magie non implémentés.**  
+**Version jouable : Web Alpha v0.7b ; les caractéristiques sont consultables mais les effets de parade, blocage, critique et dégâts restent ceux de la v0.7a.**
 
 ## Vision
 
@@ -97,7 +97,7 @@ Définir des capacités actives, passives et des sorts via un moteur unique : id
 
 ## Plan de production (un lot actif à la fois)
 
-1. **DEV-073A** : attributs communs PJ/PNJ, équipement, statistiques dérivées, migration de sauvegarde et tests.
+1. **DEV-073A (implémenté)** : attributs communs PJ/PNJ, équipement, statistiques dérivées, migration de sauvegarde et tests. Voir [DEV073A_ACTOR_STATS.md](DEV073A_ACTOR_STATS.md).
 2. **DEV-073B** : calculs de toucher/critique/parade/blocage/esquive, Endurance, jets à graine, tests contre Gardien.
 3. **DEV-073C** : télégraphie ennemie (Charognard, Gardien, Larve), équilibrage et feedback lisible.
 4. **DEV-075** : un premier kit de classe — Mercenaire (Garde, Frappe lourde) — et moteur générique d'aptitudes.

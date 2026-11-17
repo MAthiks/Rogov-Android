@@ -94,3 +94,9 @@ Les ennemis de Nhal peuvent être sélectionnés sur la carte graphique (toucher
 Le panneau de combat devient interactif : Attaquer (F), Esquiver (E), Parer (P), Bloquer (B) et Reculer (R) en mode clavier, ou boutons tactiles. Toucher un ennemi ou avancer dans sa case le cible **sans dépenser de tour**. Une attaque n'est possible qu'à CONTACT ; la parade requiert l'épée, l'esquive évite un coup de mêlée, le blocage absorbe 1 dégât d'une attaque (y compris l'onde de Faille) et reculer cherche une case libre qui augmente la distance. Les actions invalides ne coûtent rien.
 
 Les règles de Rappel, extraction, coffre et sac sont inchangées ; les anciennes sauvegardes restent compatibles. **À vérifier en conditions réelles sur Samsung.** L'IA actuelle est conservée ; les nouvelles préparations et indications ennemies restent à travailler en DEV-073.
+
+## Web Alpha v0.7b — Statistiques et équipement (DEV-073A)
+
+En descente, ouvrir **« Fiche de l'Égaré »** pour consulter les six attributs, les potentiels d'Endurance et de critique/esquive/parade/blocage et l'arme prise du sac. Le panneau de cible affiche un bref profil statistique adverse. Les objets prototypes de bouclier et d'armure servent aux tests du modèle, **ne sont pas disponibles dans la partie actuelle**.
+
+**Le combat continue d'utiliser les dégâts et défenses fixes de la v0.7a.** Les chances affichées sont uniquement une prévisualisation avant DEV-073B. Les anciennes sauvegardes sont complétées en mémoire sans toucher au coffre ou aux objets portés ; elles restent sur la clé rogov-web-v1. La PWA met en cache le nouveau module stats.js.

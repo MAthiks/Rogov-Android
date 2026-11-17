@@ -1,8 +1,8 @@
 # Backlog de production — ROGOV (WIP maximal = 1)
 
-**Version cible : Web Alpha v0.7a — actions de combat explicites (DEV-072).**  
+**Version Web : Alpha v0.7b — modèle de caractéristiques (DEV-073A).**  
 **Décision actée : Combat hybride v0.7.**  
-**État actuel : DEV-070, DEV-071 et DEV-072 développés ; changement de conception validé pour des statistiques/équipements influençant le combat. Le système statistique n'est pas encore programmé.**
+**État actuel : DEV-070 à DEV-073A développés ; modèle des statistiques intégré, mais les jets de critique et de défense restent à programmer en DEV-073B.**
 
 ## Priorité P0 — v0.7, un lot à la fois
 
@@ -11,14 +11,14 @@
 - [x] **DEV-070 — Contrat du combat et tests** : distance CONTACT/PROCHE/LOIN, sélection explicite, intention, états défensifs, sauvegarde
 - [x] **DEV-071 — Panneau contextuel Android** : cible, PV, distance, intentions et actions, carte toujours visible
 - [x] **DEV-072 — Actions tactiques** : attaque explicite (sans attaque par déplacement), esquive, parade, blocage, repli
-- [ ] **DEV-073A — Statistiques et équipement** : six attributs PJ/PNJ, Endurance, emplacements et bonus, anciennes sauvegardes
+- [x] **DEV-073A — Statistiques et équipement** : six attributs PJ/PNJ, Endurance, emplacements et bonus, anciennes sauvegardes
 - [ ] **DEV-073B — Résolution des coups** : précision, critique, parade, blocage, esquive selon caractéristiques/équipement ; RNG reproductible
 - [ ] **DEV-073C — IA et annonces** : Charognard, Gardien déchu, Larve de faille ; contre-jeu lisible
 - [ ] **DEV-075 — Premier kit de classe** : Mercenaire (Garde, Frappe lourde) et moteur d'aptitudes, après stabilisation du combat
 - [ ] **DEV-076 — Sorts low magic** : un prototype avec coût/risque, pas onze classes livrées d'un coup
 - [ ] **QA-074 — Compatibilité et livraison** : tests combat/Rappel/extraction/sauvegarde, ASCII, PWA, Android, GitHub Pages
 
-**Prochain lot actif : DEV-073A — modèle PJ/PNJ et équipement.** Avant de télégraphier et équilibrer des attaques dont le résultat dépendra des statistiques, il faut d'abord stabiliser leur source de vérité commune. Puis DEV-073B (résolution) et DEV-073C (intentions). Les tests sur Samsung restent indispensables avant d'augmenter la note qualitative.
+**Prochain lot actif : DEV-073B — résolution statistique des coups.** Les profils FOR/AGI/CON/PER/VOL/INT des deux camps, l'équipement et la migration sont désormais intégrés. Il reste à appliquer ces données aux jets de toucher, critiques et défenses avec un RNG reproductible, avant DEV-073C (intentions). Les essais sur Samsung restent indispensables.
 
 **Objectif de qualité :** [bilan 6/10 → 8/10](docs/QUALITY_REVIEW_6_TO_8.md) ; aucune note de 8/10 ne sera attribuée sans tests sur téléphone et retours de joueurs.
 

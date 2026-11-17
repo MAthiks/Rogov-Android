@@ -302,7 +302,7 @@ test("title screen contains functional controls and separate game shell", async 
 test("title scene is included in PWA cache manifest", async () => {
   const {readFileSync} = await import("node:fs");
   const sw=readFileSync(new URL("../docs/sw.js", import.meta.url),"utf8");
-  assert.match(sw,/rogov-v0\.6\.1/);
+  assert.match(sw,/rogov-v0\.6\.2/);
   assert.match(sw,/title-scene\.webp/);
 });
 
@@ -382,8 +382,8 @@ test("mobile title stays legible even when a stale PWA CSS file is loaded", asyn
   assert.match(html,/id="title-critical-style"/);
   assert.match(html,/title-screen \.title-scene img\{display:block;width:100%;max-width:100%/);
   assert.match(html,/title-screen \.title-button\{display:block;width:100%/);
-  assert.match(html,/\.\/style\.css\?v=0\.6\.1/);
-  assert.match(html,/\.\/app\.js\?v=0\.6\.1/);
+  assert.match(html,/\.\/style\.css\?v=0\.6\.2/);
+  assert.match(html,/\.\/app\.js\?v=0\.6\.2/);
   assert.match(sw,/criticalAsset =/);
   assert.match(sw,/fetch\(request\)\.then\(\(response\) =>/);
 });

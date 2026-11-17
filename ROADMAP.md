@@ -10,13 +10,14 @@
 | 0.5.1 | Livré | Écran titre |
 | 0.6 | Livré | Bible visuelle lovecraftienne, Charognard/Gardien revus, Larve de faille |
 | 0.6.1 | Livré | Correctif responsive et cache Android |
-| **0.7** | **Contrat de combat et tests livrés ; interface et actions à faire** | **Combat hybride sur carte + panneau contextuel, cibles explicites, distances, défenses actives, intentions et repli** |
+| 0.6.2 | Aperçu tactique | Sélection sans tour, cibles sur carte, panneau contextualisé et intentions ; règles de combat anciennes conservées |
+| **0.7** | **Contrat et interface d'information livrés ; actions tactiques et IA à faire** | **Combat hybride sur carte + panneau contextuel, cibles explicites, distances, défenses actives, intentions et repli** |
 | 0.8 | À cadrer | Équilibrage combat / économie d'extraction / ergonomie |
 | 1.0 | À cadrer | Version testable élargie, progression et contenu stabilisés |
 
 **Référence de la prochaine version :** [GDD combat v0.7](docs/COMBAT_DESIGN_V0.7.md) et [prompt v0.7](docs/DEV_PROMPT_V0.7.md).
 
-**Critères de la cible Alpha 8/10 :** [bilan de studio et scorecard](docs/QUALITY_REVIEW_6_TO_8.md). DEV-070 (contrat de combat et 12 tests spécifiques) est terminé ; DEV-071 (panneau contextuel) est le prochain jalon.
+**Critères de la cible Alpha 8/10 :** [bilan de studio et scorecard](docs/QUALITY_REVIEW_6_TO_8.md). DEV-070 (contrat de combat et 12 tests spécifiques) et DEV-071 (panneau d'observation) sont développés. DEV-072 (attaques et défenses explicites) est le prochain jalon.
 
 ## Principes de production
 

@@ -1,10 +1,10 @@
 {
   "name": "rogov-web",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "private": true,
   "type": "module",
   "scripts": {
-    "test:web": "node --test tests/web-game.test.mjs tests/combat-contract.test.mjs",
+    "test:web": "node --test tests/web-game.test.mjs tests/combat-contract.test.mjs tests/ui-combat-preview.test.mjs",
     "check:web": "node --check docs/app.js && node --check docs/game.js && node --check docs/tiles.js && node --check docs/combat.js && node --check docs/sw.js"
   }
 }

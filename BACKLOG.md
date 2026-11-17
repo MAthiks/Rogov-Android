@@ -1,20 +1,20 @@
 # Backlog de production — ROGOV (WIP maximal = 1)
 
-**Base publiée : Web Alpha v0.6.1.**  
+**Base web en cours de mise à jour : v0.6.2 (aperçu tactique DEV-071).**  
 **Décision actée : Combat hybride v0.7.**  
-**État actuel : DEV-070 (contrat et tests) terminé ; le gameplay v0.6.1 reste inchangé.**
+**État actuel : DEV-070 et DEV-071 intégrés ; les règles de combat restent celles de la v0.6.1.**
 
 ## Priorité P0 — v0.7, un lot à la fois
 
 - [x] **DOC-007 — Valider la direction hybride** : carte conservée, panneau tactique contextuel, inspiration fonctionnelle Darkest Dungeon
 - [x] **DOC-008 — Documenter** : GDD combat, prompt d'implémentation, Master Prompt et roadmap
 - [x] **DEV-070 — Contrat du combat et tests** : distance CONTACT/PROCHE/LOIN, sélection explicite, intention, états défensifs, sauvegarde
-- [ ] **DEV-071 — Panneau contextuel Android** : cible, PV, distance, intentions et actions, carte toujours visible
+- [x] **DEV-071 — Panneau contextuel Android** : cible, PV, distance, intentions et actions, carte toujours visible
 - [ ] **DEV-072 — Actions tactiques** : attaque explicite (sans attaque par déplacement), esquive, parade, blocage, repli
 - [ ] **DEV-073 — IA et annonces** : Charognard, Gardien déchu, Larve de faille ; contre-jeu lisible
 - [ ] **QA-074 — Compatibilité et livraison** : tests combat/Rappel/extraction/sauvegarde, ASCII, PWA, Android, GitHub Pages
 
-**Prochain lot actif : DEV-071 — panneau contextuel Android**, en s'appuyant sur docs/combat.js. DEV-072 (actions tactiques) ne doit commencer qu'après validation du panneau et de la sélection sans effet.
+**Prochain lot actif : DEV-072 — résolution des actions tactiques**. Le panneau DEV-071 présente les cibles et intentions ; les 4 commandes affichées sont des aperçus NON interactifs tant que le moteur n'est pas prêt. Il faut d'abord valider le confort du panneau en test sur Samsung.
 
 **Objectif de qualité :** [bilan 6/10 → 8/10](docs/QUALITY_REVIEW_6_TO_8.md) ; aucune note de 8/10 ne sera attribuée sans tests sur téléphone et retours de joueurs.
 

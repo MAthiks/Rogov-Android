@@ -1,5 +1,6 @@
 import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, move, useItem, waitTurn, mapText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
+import { selectTarget, clearTarget, combatSnapshot, rangeBand, tileDistance } from "./combat.js";
 
 const $ = (id) => document.getElementById(id);
 let state = newGame();
@@ -139,6 +140,75 @@ function inspect(x,y) {
   $("inspect-description").textContent=details.description;
   $("inspect-panel").dataset.kind=details.kind;
 }
+/**
+ * DEV-071: selecting a target is informational only. Combat rules still belong
+ * to v0.6.1 until DEV-072 replaces movement-based attacks.
+ */
+function chooseTarget(enemyId) {
+  if (!state.run) return;
+  const result = selectTarget(state,enemyId);
+  if (!result.changed) return;
+  state=result.state;
+  persist();
+  render();
+}
+function unselectTarget() {
+  const result=clearTarget(state);
+  if (!result.changed) return;
+  state=result.state;
+  persist();
+  render();
+}
+function renderTargetChoices() {
+  const host=$("target-choices");
+  host.replaceChildren();
+  if (!state.run) return;
+  const enemies=state.run.enemies || [];
+  if (!enemies.length) {
+    const empty=document.createElement("p");
+    empty.className="target-empty";
+    empty.textContent="Aucun ennemi restant dans cette descente.";
+    host.append(empty);
+    return;
+  }
+  for (const enemy of enemies) {
+    const choice=document.createElement("button");
+    choice.type="button";
+    choice.className="target-choice";
+    choice.setAttribute("aria-pressed",String(state.run.targetId===enemy.id));
+    choice.title="Observer et cibler sans consommer de tour";
+    const portrait=document.createElement("img");
+    portrait.alt="";
+    portrait.src=TILE_SPRITES[enemy.kind];
+    const copy=document.createElement("span");
+    const label=document.createElement("strong");
+    label.textContent=enemy.kind==="rift_larva"?"Larve":enemy.kind==="guardian"?"Gardien":"Charognard";
+    const details=document.createElement("small");
+    details.textContent=rangeBand(tileDistance(state.run,enemy))+" · "+enemy.hp+" PV";
+    copy.append(label,details);
+    choice.append(portrait,copy);
+    choice.addEventListener("click",()=>chooseTarget(enemy.id));
+    host.append(choice);
+  }
+}
+function renderCombatPreview() {
+  const snapshot=combatSnapshot(state);
+  const panel=$("combat-panel");
+  panel.hidden=!snapshot;
+  if (!snapshot) return;
+  $("combat-target-name").textContent=snapshot.name;
+  $("combat-target-family").textContent=snapshot.family;
+  $("combat-target-health").textContent=snapshot.hp+" / "+snapshot.maxHp+" PV";
+  $("combat-target-distance").textContent=snapshot.band+" · "+snapshot.distance+" cases";
+  $("combat-intent").textContent=snapshot.intent?.label || "Intention inconnue";
+  $("combat-intent").dataset.intent=snapshot.intent?.kind || "idle";
+  $("combat-weapon").textContent=(state.run.carried["weapon.rusty_sword"]||0)>0
+    ? "Épée usée" : "Sans arme";
+  $("combat-defense").textContent=snapshot.defense==="none" ? "Aucune" : snapshot.defense;
+  $("combat-range-note").textContent=snapshot.meleeAvailable
+    ? "Cible au contact. Les commandes tactiques arrivent dans DEV-072."
+    : "Hors de portée de mêlée. Observe l'ennemi et rapproche-toi prudemment.";
+}
 function render() {
   const run = state.run;
   $("mode-status").textContent = run ? "DESCENTE" : "REFUGE";
@@ -174,6 +244,8 @@ function render() {
     $("graphic-legend").hidden = renderMode !== "tiles";
     $("ascii-legend").hidden = renderMode !== "ascii";
     if (renderMode === "tiles") drawTileMap(state, $("tile-map"));
+    renderTargetChoices();
+    renderCombatPreview();
     renderInventory($("bag-items"), run.carried);
   } else {
     const available = new Set(Object.keys(state.meta.stash).filter((id) => state.meta.stash[id] > 0));
@@ -194,6 +266,10 @@ function act(result) {
   }
   transientMessage = null;
   state = result.state;
+  // If an enemy dies during the v0.6 collision combat, never leave a stale target.
+  if (state.run?.targetId && !state.run.enemies?.some(e=>e.id===state.run.targetId && e.hp>0)) {
+    state=clearTarget(state).state;
+  }
   if (!state.run) selected.clear();
   persist();
   render();
@@ -269,6 +345,7 @@ for (const button of document.querySelectorAll("[data-direction]")) {
 $("wait-btn").addEventListener("click", () => act(waitTurn(state)));
 $("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.bandage")));
 $("use-tonic").addEventListener("click", () => act(useItem(state, "consumable.dusk_tonic")));
+$("target-clear").addEventListener("click", unselectTarget);
 window.addEventListener("keydown", (event) => {
   if (!state.run) return;
   const target = event.target;
@@ -277,6 +354,15 @@ window.addEventListener("keydown", (event) => {
   if (direction) {
     event.preventDefault();
     act(move(state,direction));
+    return;
+  }
+  if (event.key.toLowerCase()==="c" && target?.tagName!=="BUTTON") {
+    const enemies=state.run.enemies || [];
+    if (enemies.length) {
+      event.preventDefault();
+      const index=enemies.findIndex(e=>e.id===state.run.targetId);
+      chooseTarget(enemies[(index+1)%enemies.length].id);
+    }
     return;
   }
   const action = { " ":"wait", "1":"bandage", "2":"tonic" }[event.key];
@@ -291,6 +377,7 @@ renderLegend();
 $("tile-map").addEventListener("click", (event) => {
   const cell=event.target.closest(".pixel-tile");
   if (!cell || !$("tile-map").contains(cell)) return;
+  if (cell.dataset.enemyId) chooseTarget(cell.dataset.enemyId);
   inspect(Number(cell.dataset.x),Number(cell.dataset.y));
 });
 $("renderer-toggle").addEventListener("click", () => {

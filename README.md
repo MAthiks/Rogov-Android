@@ -1,7 +1,7 @@
 # ROGOV — Roguelike d'extraction tactique
 
-**Version jouable Web : v0.6.1 (HTML/PWA).**  
-**Prochaine version en conception : v0.7 — combat tactique hybride (non implémenté).**
+**Version Web : v0.6.2 — aperçu tactique, combat actuel inchangé (HTML/PWA).**  
+**Prochaine version en développement : v0.7 — combat tactique hybride (non jouable intégralement).**
 
 Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-Android/**
 
@@ -20,9 +20,9 @@ ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il
 
 | Branche produit | État | Sources |
 |---|---|---|
-| **Web HTML/PWA** | **Jouable v0.6.1** : carte, sprites, trois ennemis, combat de collision simple, journal, soins, Rappel et extraction | `docs/` |
+| **Web HTML/PWA** | **Jouable v0.6.2** : carte, sprites, trois ennemis, combat de collision simple, journal, soins, Rappel et extraction | `docs/` |
 | **Android natif Kotlin** | Prototype de compatibilité APK **v0.1.3** ; installation sur Samsung non confirmée | `app/` |
-| **Combat hybride v0.7** | **Conception actée ; développement à faire**, pas encore présent sur le site | documents de conception v0.7 |
+| **Combat hybride v0.7** | **DEV-070 et DEV-071 livrés : ciblage et panneau informatif ; DEV-072 à venir**, pas encore présent sur le site | documents de conception v0.7 |
 
 Le déploiement public Web passe par GitHub Pages et le workflow « ROGOV Web — Tests and GitHub Pages ». Chaque navigateur garde sa propre sauvegarde locale. Le mode PWA permet une utilisation hors ligne après chargement initial.
 
@@ -30,7 +30,7 @@ Le déploiement public Web passe par GitHub Pages et le workflow « ROGOV Web �
 
 Rester sur **la carte**, avec un **panneau tactique contextuel** plutôt qu'une arène séparée. Choisir explicitement une cible et une action : **Attaquer**, **Esquiver**, **Parer/Bloquer**, **Reculer**. Tenir compte des distances CONTACT / PROCHE / LOIN, des intentions ennemies et du risque de perdre le sac. Le simple déplacement vers un ennemi ne devra plus provoquer une attaque automatique.
 
-**DEV-070 réalisé :** un contrat de combat indépendant dans `docs/combat.js`, vérifié par des tests de distance, sélection, intentions et anciennes sauvegardes. **L'interface et la résolution tactique restent à développer.**
+**DEV-070 et DEV-071 réalisés :** module indépendant `docs/combat.js` (distance, sélection, intentions) et panneau contextuel en jeu (sélection tactile ou touche C, PV, distance, intentions). **Les commandes tactiques affichées sont des aperçus et le combat v0.6 par collision demeure, jusqu'à DEV-072.**
 
 Cette orientation reprend des principes fonctionnels de combat tactique, sans reproduire visuellement Darkest Dungeon ni emprunter des ressources à des jeux tiers.
 

@@ -2,7 +2,7 @@
 
 **Dernière mise à jour : 17 novembre 2026.**  
 **Canal prioritaire : HTML5/CSS/JavaScript/PWA jouable sur Android.**  
-**Version livrée : v0.6.1. Version cible en conception : v0.7.**
+**Version Web : v0.6.2 (panneau d'aperçu tactique), cible v0.7 : combat hybride complet.**
 
 ## Vision
 
@@ -58,7 +58,7 @@ Le bilan de studio de référence est conservé dans [QUALITY_REVIEW_6_TO_8.md](
 
 Mesures minimales : tests automatiques, sauvegardes préservées, essais Android réels, au moins cinq testeurs sur deux descentes et une majorité exprimant l'envie de rejouer. La cible 8/10 reste **un objectif**, pas une note atteinte.
 
-**DEV-070 terminé :** le contrat pur du combat est dans `combat.js`, avec tests de sélection, portées et intentions. Le jeu en production conserve encore son combat simplifié ; panneau et actions sont à implémenter.
+**DEV-070 et DEV-071 terminés :** `combat.js` expose sélection, portée et intentions ; `app.js` / `index.html` affichent un panneau d'observation sans coût de tour, accessible en mode graphique/ASCII. Les 4 commandes tactiques ne sont PAS encore actives : DEV-072 devra remplacer l'attaque par collision avant toute annonce de combat v0.7 complet.
 
 ## Règle de suivi
 

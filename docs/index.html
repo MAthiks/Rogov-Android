@@ -8,7 +8,7 @@
   <title>ROGOV — Veyr / Nhal</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css?v=0.6.1">
+  <link rel="stylesheet" href="./style.css?v=0.6.2">
   <!-- Critical responsive shell: renders correctly even if Chrome serves an older PWA stylesheet. -->
   <style id="title-critical-style">
     html,body{max-width:100%;overflow-x:hidden}
@@ -32,7 +32,7 @@
     .title-screen .title-footer a,.title-screen .title-footer button{color:#cce2d3;font:inherit}
     @media(max-width:360px){.title-screen{padding:8px 6px}.title-screen .title-shell{padding:12px}.title-screen .title-brand h1{letter-spacing:.07em}}
   </style>
-  <script type="module" src="./app.js?v=0.6.1"></script>
+  <script type="module" src="./app.js?v=0.6.2"></script>
 </head>
 <body>
   <section id="title-screen" class="title-screen" aria-labelledby="title-logo">
@@ -40,7 +40,7 @@
       <header class="title-top">
         <span>VEYR / NHAL</span>
         <span class="title-sigil" aria-hidden="true">◈</span>
-        <span>WEB ALPHA 0.6.1</span>
+        <span>WEB ALPHA 0.6.2</span>
       </header>
       <div class="title-brand">
         <h1 id="title-logo">ROGOV</h1>
@@ -108,11 +108,52 @@
         </div>
         <div class="dungeon-wrap">
           <div class="render-controls"><span>PACK VISUEL / NHAL</span><button type="button" id="renderer-toggle" class="secondary" aria-pressed="true">Passer en ASCII</button></div>
-          <div id="tile-map" class="pixel-map" role="img" aria-label="Carte graphique du donjon" tabindex="0"></div>
+          <div id="tile-map" class="pixel-map" role="group" aria-label="Carte graphique du donjon. Touchez un ennemi pour le cibler." tabindex="0"></div>
           <pre id="dungeon-map" aria-label="Carte ASCII du donjon" tabindex="0" hidden></pre>
           <div id="graphic-legend" class="graphic-legend" aria-label="Légende illustrée du donjon"></div>
           <div id="ascii-legend" class="legend" hidden>@ Joueur · c Charognard · G Gardien · $ Butin · ^ Mort · E Extraction · # Mur</div>
         </div>
+
+        <section class="tactical-targets" aria-labelledby="target-choices-title">
+          <div class="target-choices-heading">
+            <strong id="target-choices-title">Menaces identifiées</strong>
+            <span>Toucher une créature ou appuyer sur C pour cibler</span>
+          </div>
+          <div id="target-choices" class="target-choices" role="group" aria-label="Choisir une cible sans perdre de tour"></div>
+        </section>
+        <section id="combat-panel" class="combat-preview" aria-labelledby="combat-panel-title" hidden>
+          <div class="combat-preview-heading">
+            <div>
+              <span class="eyebrow">ENGAGEMENT — APERÇU TACTIQUE</span>
+              <h3 id="combat-panel-title">CIBLE VERROUILLÉE</h3>
+            </div>
+            <button type="button" id="target-clear" class="target-clear">✕ Désélectionner</button>
+          </div>
+          <div class="combat-target-card" aria-live="polite">
+            <div>
+              <strong id="combat-target-name">Ennemi</strong>
+              <small id="combat-target-family">Lignée</small>
+            </div>
+            <div class="combat-target-stats">
+              <strong id="combat-target-health">PV</strong>
+              <span id="combat-target-distance">CONTACT</span>
+            </div>
+          </div>
+          <div class="combat-intention">
+            <span>INTENTION ENNEMIE (TOUR SUIVANT)</span>
+            <strong id="combat-intent" data-intent="idle">Observation</strong>
+          </div>
+          <div class="combat-loadout">
+            <span>ARME : <strong id="combat-weapon">—</strong></span>
+            <span>DÉFENSE : <strong id="combat-defense">Aucune</strong></span>
+          </div>
+          <p id="combat-range-note" class="hint">Le combat tactique arrive dans une prochaine mise à jour.</p>
+          <div class="tactic-preview-actions" aria-label="Actions de combat en préparation">
+            <span>⚔ Attaquer</span><span>◈ Esquiver</span><span>⛨ Parer / Bloquer</span><span>↙ Reculer</span>
+          </div>
+          <p class="tactic-preview-warning"><strong>APERÇU UNIQUEMENT :</strong> les nouvelles actions ne sont pas encore jouables. Le combat actuel s'effectue toujours en marchant vers l'ennemi.</p>
+        </section>
+
         <div id="inspect-panel" class="inspect-panel" data-kind="floor" aria-live="polite">
           <strong id="inspect-title">Identifier une case</strong>
           <p id="inspect-description">Touchez un élément de la carte pour connaître son rôle et ses caractéristiques.</p>
@@ -124,7 +165,7 @@
           <button type="button" data-direction="down" class="down" aria-label="Descendre">↓</button>
           <button type="button" data-direction="right" class="right" aria-label="Aller à droite">→</button>
         </div>
-        <p class="hint center">Marche vers un ennemi pour l'attaquer. La Larve de faille projette une onde en ligne droite tous les 3 tours : évite son axe. Touchez une case pour l'identifier.</p>
+        <p class="hint center">Le combat tactique est en préparation : dans cette version, marche encore vers un ennemi pour l'attaquer. La Larve projette une onde tous les 3 tours.</p>
         <div class="survival-actions" role="group" aria-label="Actions de survie">
           <button id="wait-btn" type="button" class="survival-action">Attendre <small>1 tour</small></button>
           <button id="use-bandage" type="button" class="survival-action" disabled>Bandage +4 PV (0)</button>

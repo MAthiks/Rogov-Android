@@ -97,7 +97,9 @@ export function drawTileMap(state,host) {
       if(enemy) {
         spriteId=enemy.kind;
         cell.dataset.entity="enemy";
+        cell.dataset.enemyId=enemy.id;
         cell.classList.add("hostile-tile");
+        if (run.targetId===enemy.id) cell.classList.add("selected-target-tile");
         cell.dataset.hp=String(enemy.hp);
       }
       else if(tile==="$"&&!run.collected.includes(x+","+y))spriteId="loot";

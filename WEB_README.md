@@ -82,3 +82,9 @@ L'écran titre inclut désormais les règles CSS critiques directement dans le H
 La prochaine évolution supprimera **l'attaque automatique lorsqu'on marche sur un ennemi** et conservera la carte pendant les engagements. Un panneau tactique contextuel indiquera cible, PV, distance CONTACT/PROCHE/LOIN, intention ennemie et actions du joueur : attaquer, esquiver, parer/bloquer, reculer. Le soin et l'attente resteront disponibles.
 
 La référence de conception est [docs/COMBAT_DESIGN_V0.7.md](docs/COMBAT_DESIGN_V0.7.md). Le plan d'exécution figure dans [docs/DEV_PROMPT_V0.7.md](docs/DEV_PROMPT_V0.7.md). **À ce stade, le site conserve le combat simplifié de la v0.6.1**. Le Rappel, l'extraction, le coffre et les sauvegardes restent les invariants prioritaires.
+
+## v0.6.2 — Aperçu de combat hybride (DEV-071)
+
+Les ennemis de Nhal peuvent être sélectionnés sur la carte graphique (toucher le sprite) ou dans la bande « Menaces identifiées », accessible aussi en ASCII. La sélection n'use ni tour ni équipement. Le panneau tactique montre les PV, la portée, l'intention du prochain tour, l'arme et la défense. Sur clavier, **C** passe à la cible suivante.
+
+**Limite volontaire :** les commandes Attaquer, Esquiver, Parer/Bloquer et Reculer sont uniquement présentées visuellement ; elles ne sont pas encore actives. Le moteur actuel attaque toujours en marchant sur une case ennemie. Le prochain lot DEV-072 corrigera ce point avec de nouvelles règles. Aucun nouveau format de sauvegarde ou APK requis.

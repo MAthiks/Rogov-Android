@@ -1,3 +1,12 @@
+## Web Alpha v0.6.2 — DEV-071 : ciblage et panneau tactique (2026-11-17)
+
+- Sélection sans coût de tour depuis la carte graphique ou une bande de cibles accessible en mode ASCII.
+- Panneau de cible : nom, famille, PV, distance CONTACT/PROCHE/LOIN, intention du prochain tour, arme et défense.
+- Touche C pour passer à la cible suivante ; désélection et contour visuel sur l'ennemi sélectionné.
+- Les quatre actions tactiques annoncées sont encore de simples aperçus non interactifs. **Le moteur de combat de la v0.6.1 reste inchangé** : se déplacer contre un ennemi l'attaque encore.
+- Sauvegardes compatibles, cache PWA versionné et tests de régression.
+- Le futur lot DEV-072 remplace l'attaque par collision et active les défenses tactiques.
+
 ## Fondation du combat v0.7 — DEV-070 (2026-11-17)
 
 - Nouveau module pur `docs/combat.js` : distances CONTACT/PROCHE/LOIN, lignes de vue rectilignes, sélection/désélection de cible sans coût de tour, aperçu de l'IA actuelle, états de défense contrôlés et modèle de données pour le futur panneau.

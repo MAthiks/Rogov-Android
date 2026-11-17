@@ -150,3 +150,43 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 .title-brand h1 { max-width:100%; letter-spacing:clamp(.06em,1.4vw,.16em); font-size:clamp(42px,12vw,68px); }
 .title-scene, .title-scene img { max-width:100%; }
 .title-menu, .title-menu button { min-width:0; max-width:100%; }
+
+
+/* DEV-071 — tactical target inspection. No v0.7 damage/defense rules until DEV-072. */
+.tactical-targets{margin-top:12px;padding:10px;border:1px solid #405451;background:#101f24;border-radius:9px}
+.target-choices-heading{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px}
+.target-choices-heading strong{font:750 12px/1.4 ui-monospace,monospace;letter-spacing:.07em;color:#d8e6d5}
+.target-choices-heading span{font-size:10px;color:#9eb6a9}
+.target-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.target-choice{display:flex;gap:5px;align-items:center;min-width:0;min-height:49px;padding:5px 6px;border:1px solid #445b58;border-radius:8px;background:#21332f;color:#e3eadc;text-align:left}
+.target-choice img{width:26px;height:26px;flex-shrink:0;image-rendering:pixelated}
+.target-choice span{min-width:0;display:flex;flex-direction:column;gap:1px}
+.target-choice strong{font-size:10px;line-height:1.15;overflow-wrap:anywhere}
+.target-choice small{font-size:9px;color:#a5c6b5;line-height:1.15}
+.target-choice[aria-pressed="true"]{border-color:#ebdfac;outline:1px solid #c7d0ab;background:#35473c}
+.target-empty{font-size:11px;color:var(--muted);margin:4px 0}
+.hostile-tile.selected-target-tile:before{inset:-1px;border:2px solid #ffe19b;box-shadow:0 0 0 1px #1b2626;z-index:1}
+.combat-preview{margin-top:12px;padding:12px;border:1px solid #988469;border-radius:10px;background:linear-gradient(165deg,#1b2a2d,#141e26);box-shadow:inset 0 1px 0 #efc79324;min-width:0}
+.combat-preview-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.combat-preview-heading h3{margin:2px 0 8px;color:#d8e4d4}
+.combat-preview-heading .eyebrow{font-size:9px;color:#d4bf9a}
+.target-clear{border:1px solid #6d7e73;border-radius:6px;background:#263a37;color:#dce8da;font-size:11px;min-height:44px;padding:7px 9px}
+.combat-target-card{display:flex;justify-content:space-between;gap:12px;align-items:center;background:#263139;border:1px solid #516366;border-radius:8px;padding:10px}
+.combat-target-card>div{display:flex;flex-direction:column;gap:3px}
+.combat-target-card strong{font-size:14px;color:#e6ecdf}
+.combat-target-card small{font-size:11px;color:#a9beb1}
+.combat-target-stats{text-align:right;font:600 11px ui-monospace,monospace}
+.combat-target-stats strong{color:#efaf98}
+.combat-target-stats span{color:#e5d8b6}
+.combat-intention{margin-top:10px;padding:10px;border-left:3px solid #dfa893;background:#2b2929;border-radius:5px;display:flex;flex-direction:column;gap:5px}
+.combat-intention span{font:700 10px ui-monospace,monospace;color:#e6b59d}
+.combat-intention strong{color:#f0e6d6;font-size:13px}
+#combat-intent[data-intent="idle"]{color:#bacbc5}
+#combat-intent[data-intent="rift_charge"],#combat-intent[data-intent="rift_pulse"]{color:#b0e7d7}
+.combat-loadout{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:11px 0 0;font:10px/1.5 ui-monospace,monospace;color:#aebdb4}
+.combat-loadout strong{color:#e1eada}
+.tactic-preview-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+.tactic-preview-actions span{display:flex;align-items:center;justify-content:center;text-align:center;min-height:38px;padding:6px;background:#29362e;border:1px dashed #5c6a60;border-radius:7px;color:#aabbaa;font-size:12px;font-weight:600;opacity:.72}
+.tactic-preview-warning{font-size:11px;line-height:1.55;color:#c6b9a4;margin:11px 0 0}
+.tactic-preview-warning strong{color:#e2c49d}
+@media(max-width:390px){.target-choices{gap:4px}.target-choice{padding:4px 3px}.target-choice img{width:22px;height:22px}.target-choice strong{font-size:9px}.target-choice small{font-size:8px}}

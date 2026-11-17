@@ -72,3 +72,7 @@ La v0.6 applique une bible artistique inspirée de l'horreur cosmique, avec des 
 Les murs, la faille et l'arche d'extraction reprennent les mêmes matériaux, tout en restant immédiatement lisibles. La légende graphique et l'inspection tactile identifient les trois ennemis.
 
 Aucune modification du format de sauvegarde : les descentes v0.5.1 déjà en cours gardent leur population d'ennemis d'origine, les nouvelles descentes commencent avec la Larve. Le personnage, l'XP et le coffre restent persistants ; la mort fait perdre le sac. Les sprites sont embarqués, sans police ni image externe. Le jeu fonctionne hors ligne après le premier chargement.
+
+## v0.6.1 — Correctif responsive et cache Android
+
+L'écran titre inclut désormais les règles CSS critiques directement dans le HTML afin de rester lisible si un navigateur conserve temporairement une ancienne feuille de style. Les ressources CSS/JS sont versionnées et téléchargées en priorité depuis le réseau avant d'être utilisées hors ligne, pour éviter le mélange d'une nouvelle page HTML avec un vieux CSS. Aucune modification des sauvegardes ni du gameplay. Correctif motivé par un retour de test sur Samsung (illustration trop large, boutons non stylés, titre tronqué).

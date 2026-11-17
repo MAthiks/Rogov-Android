@@ -8,8 +8,31 @@
   <title>ROGOV — Veyr / Nhal</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css">
-  <script type="module" src="./app.js"></script>
+  <link rel="stylesheet" href="./style.css?v=0.6.1">
+  <!-- Critical responsive shell: renders correctly even if Chrome serves an older PWA stylesheet. -->
+  <style id="title-critical-style">
+    html,body{max-width:100%;overflow-x:hidden}
+    [hidden]{display:none!important}
+    .title-screen,.title-screen *{box-sizing:border-box}
+    .title-screen{width:100%;min-width:0;min-height:100dvh;display:flex;justify-content:center;padding:16px 12px 28px;background:radial-gradient(ellipse at 50% 24%,#173a34,#07191c 52%,#061114);color:#e8edde;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    .title-screen .title-shell{width:100%;min-width:0;max-width:440px;align-self:flex-start;padding:clamp(14px,4vw,26px);border:1px solid #4c7565;border-radius:20px;background:#071719;box-shadow:0 16px 50px #0008}
+    .title-screen .title-top{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#aec3b3;font:600 10px/1.4 ui-monospace,monospace;letter-spacing:.05em}
+    .title-screen .title-brand{text-align:center;margin:20px 0 15px}
+    .title-screen .title-brand h1{margin:0;font:700 clamp(42px,12vw,68px)/1.1 Georgia,serif;letter-spacing:.12em;color:#e9e9d9;overflow-wrap:normal}
+    .title-screen .title-brand p{margin:10px 0 0;font:600 11px/1.4 ui-monospace,monospace;letter-spacing:.14em;color:#b7cdbb}
+    .title-screen .title-scene{width:100%;min-width:0;border-radius:14px;overflow:hidden;background:#132b2c}
+    .title-screen .title-scene img{display:block;width:100%;max-width:100%;height:auto;object-fit:cover;aspect-ratio:620/342}
+    .title-screen .title-tagline{margin:22px 2px;text-align:center;color:#e6e9d9;font:600 clamp(17px,4.5vw,22px)/1.35 Georgia,serif}
+    .title-screen .title-menu{display:grid;gap:10px;min-width:0}
+    .title-screen .title-button{display:block;width:100%;min-width:0;min-height:56px;padding:13px 12px;border-radius:10px;font:800 16px/1.2 system-ui,sans-serif;letter-spacing:.04em;white-space:normal;cursor:pointer}
+    .title-screen .title-primary{color:#10221d;background:#aed6b3;border:1px solid #d5efc9}
+    .title-screen .title-secondary{color:#e2e9dc;background:#203b34;border:1px solid #719381}
+    .title-screen .title-save-info{margin:0;text-align:center;color:#a6b9af;font:12px/1.4 system-ui,sans-serif}
+    .title-screen .title-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:20px;padding-top:14px;border-top:1px solid #38594f;color:#b5c8bc;font:10px/1.4 ui-monospace,monospace}
+    .title-screen .title-footer a,.title-screen .title-footer button{color:#cce2d3;font:inherit}
+    @media(max-width:360px){.title-screen{padding:8px 6px}.title-screen .title-shell{padding:12px}.title-screen .title-brand h1{letter-spacing:.07em}}
+  </style>
+  <script type="module" src="./app.js?v=0.6.1"></script>
 </head>
 <body>
   <section id="title-screen" class="title-screen" aria-labelledby="title-logo">
@@ -17,7 +40,7 @@
       <header class="title-top">
         <span>VEYR / NHAL</span>
         <span class="title-sigil" aria-hidden="true">◈</span>
-        <span>WEB ALPHA 0.6</span>
+        <span>WEB ALPHA 0.6.1</span>
       </header>
       <div class="title-brand">
         <h1 id="title-logo">ROGOV</h1>
@@ -50,7 +73,7 @@
       <div class="masthead-left">
         <span class="eyebrow">Nhal / Protocole du Rappel</span>
         <h1>ROGOV<span class="glow">.</span></h1>
-        <p class="subtitle">EXTRACTION ROGUELIKE — WEB ALPHA 0.6</p>
+        <p class="subtitle">EXTRACTION ROGUELIKE — WEB ALPHA 0.6.1</p>
       </div>
       <div class="masthead-right"><span class="status-dot"></span><span id="mode-status">REFUGE</span></div>
     </header>

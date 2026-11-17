@@ -1,6 +1,6 @@
-const CACHE_NAME = "rogov-v0.6.0";
+const CACHE_NAME = "rogov-v0.6.1";
 const CORE = [
-  "./", "./index.html", "./style.css", "./app.js", "./game.js", "./tiles.js",
+  "./", "./index.html", "./style.css?v=0.6.1", "./app.js?v=0.6.1", "./game.js", "./tiles.js",
   "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./title-scene.webp"
 ];
 self.addEventListener("install", (event) => {
@@ -28,6 +28,19 @@ self.addEventListener("fetch", (event) => {
       }
       return response;
     }).catch(async () => (await caches.match("./index.html")) || Response.error()));
+    return;
+  }
+  // Network-first for interface assets: prevent new HTML from pairing with an
+  // outdated stylesheet in an old PWA cache. Offline usage retains cached files.
+  const criticalAsset = /\.(?:css|js)$/i.test(url.pathname);
+  if (criticalAsset) {
+    event.respondWith(fetch(request).then((response) => {
+      if (response.ok) {
+        const result = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, result));
+      }
+      return response;
+    }).catch(async () => (await caches.match(request)) || Response.error()));
     return;
   }
   event.respondWith(caches.match(request).then((cached) => cached || fetch(request).then((response) => {

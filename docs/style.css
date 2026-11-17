@@ -141,3 +141,12 @@
 .hostile-tile.tile-guardian:before{border-color:#ccd0bb}
 .graphic-legend{border-top:1px solid #31484b;margin-top:10px}
 .legend-chip{color:#d1dfd7}
+
+
+/* v0.6.1 — defensive mobile constraints / no horizontal overflow */
+html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
+.title-screen { width:100%; min-width:0; }
+.title-shell { min-width:0; max-width:min(440px,100%); }
+.title-brand h1 { max-width:100%; letter-spacing:clamp(.06em,1.4vw,.16em); font-size:clamp(42px,12vw,68px); }
+.title-scene, .title-scene img { max-width:100%; }
+.title-menu, .title-menu button { min-width:0; max-width:100%; }

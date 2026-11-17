@@ -11,9 +11,18 @@ android {
         applicationId = "com.rogov.android"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.1.1"
+        versionCode = 3
+        versionName = "0.1.2"
         testInstrumentationRunner = "android.test.InstrumentationTestRunner"
+    }
+
+    // Diagnostic install package, separate from any previous ROGOV installation.
+    // Production package remains com.rogov.android.
+    buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".installtest"
+            versionNameSuffix = "-test"
+        }
     }
 
     compileOptions {

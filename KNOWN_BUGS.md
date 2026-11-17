@@ -1,8 +1,6 @@
-# Limites connues — ROGOV v0.1.1
-
-- Compilation Android et installation sur téléphone à confirmer par la CI et un test réel.
-- Version ASCII avec carte fixe ; combats et génération procédurale prévus ultérieurement.
-- L'équipement ne peut pas encore être utilisé. Chaque type n'est sélectionnable qu'une fois par descente.
-- Une sauvegarde de version inconnue n'est pas écrasée automatiquement.
-- Terminer une descente avant une mise à jour de la carte.
-- Un APK debug n'est pas une release prête pour Google Play.
+# ROGOV v0.1.2 — Diagnostic Android
+- L'installation sur un véritable téléphone Samsung n'est pas encore confirmée.
+- L'APK debug utilise `com.rogov.android.installtest` afin d'isoler les conflits de paquet et de signature.
+- Les APK debug de différentes exécutions GitHub peuvent utiliser des signatures différentes ; ne pas installer comme mise à jour.
+- Un autre blocage peut provenir des réglages de sécurité du téléphone (par ex. protection contre l'installation de sources externes), du manque de stockage ou du gestionnaire de téléchargements.
+- Tester le jeu en condition réelle avant la distribution générale.

@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -34,12 +34,11 @@ jobs:
             echo "::error::Android sdkmanager not found in $SDKROOT"
             exit 1
           fi
-          echo "Using $SDKMANAGER"
           yes | "$SDKMANAGER" --sdk_root="$SDKROOT" --licenses > /dev/null || true
           "$SDKMANAGER" --sdk_root="$SDKROOT" --install 'platforms;android-36' 'build-tools;36.0.0'
-      - name: Unit tests + debug APK
+      - name: Unit tests and debug APK
         run: gradle --no-daemon :app:testDebugUnitTest :app:assembleDebug
-      - name: Verify APK signature, alignment and Android compatibility
+      - name: Verify APK signature and compatibility
         shell: bash
         run: |
           TOOLS="${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools/36.0.0"
@@ -48,11 +47,35 @@ jobs:
           "$TOOLS/zipalign" -c -v 4 "$APK"
           "$TOOLS/aapt" dump badging "$APK" | grep -E "^(package|sdkVersion|targetSdkVersion|application-label)"
           sha256sum "$APK"
-      - name: Publish downloadable APK
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Emulator Android 13 — install and launch smoke test
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n com.rogov.android.installtest/com.rogov.android.MainActivity
+            sleep 5
+            if ! adb shell pidof com.rogov.android.installtest; then
+              echo "ROGOV did not remain running after launch"
+              adb logcat -d -s AndroidRuntime:E
+              exit 1
+            fi
+            adb shell screencap -p /sdcard/rogov-screen.png
+            adb pull /sdcard/rogov-screen.png rogov-screen.png
+      - name: Publish install-tested APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: ROGOV-0.1.1-verified-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: ROGOV-0.1.2-install-tested-apk
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            rogov-screen.png
           if-no-files-found: error
           retention-days: 30

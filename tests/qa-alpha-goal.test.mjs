@@ -6,6 +6,7 @@ import {
   normalizeJournal,attackTarget,waitTurn
 } from "../docs/game.js";
 import {selectTarget,currentEnemyIntent} from "../docs/combat.js";
+import {generateLayout,safeRoute,twoReturnWays} from "../docs/dungeon.js";
 
 const SAFE_EXTRACT_ROUTE=["up","right","right",...Array(9).fill("right"),"down"];
 const start=(state=newGame(),gear=[])=>beginRun(state,gear).state;
@@ -30,32 +31,29 @@ function safeLootExtract(state,gear=[]){
   return {state:s,damageTaken:peakThreat};
 }
 
-test("QA-074: two consecutive runs have exactly the same geometry, spawns and loot",()=>{
+test("VAR-077: consecutive runs present distinct routes, spawn and loot",()=>{
   let s=start();
-  const first={map:MAP.slice(),enemies:s.run.enemies.map(e=>[e.kind,e.x,e.y]),
-    bag:s.run.collected.slice(),hp:s.run.hp};
-  s=recall(s).state;
-  s=start(s);
-  const second={map:MAP.slice(),enemies:s.run.enemies.map(e=>[e.kind,e.x,e.y]),
-    bag:s.run.collected.slice(),hp:s.run.hp};
-  assert.deepEqual(second,first);
-  assert.notEqual(s.run.rngState,undefined);
-  // This is an objective *quality gap*, not a success criterion:
-  // RNG affects combat rolls but does not generate layout/spawns/loot.
+  const one={map:s.run.map,loot:s.run.loot,enemies:s.run.enemies.map(e=>[e.kind,e.x,e.y])};
+  s=recall(s).state;s=start(s);
+  const two={map:s.run.map,loot:s.run.loot,enemies:s.run.enemies.map(e=>[e.kind,e.x,e.y])};
+  assert.notDeepEqual(one,two);
+  s=recall(s).state;s=start(s);
+  const three={map:s.run.map,loot:s.run.loot,enemies:s.run.enemies.map(e=>[e.kind,e.x,e.y])};
+  assert.notDeepEqual(two,three);
+  assert.ok(validateSave(s));
 });
 
-test("QA-074: three consecutive risk-free relic extractions are mechanically identical",()=>{
-  let state=newGame();
-  for(let i=1;i<=3;i++){
-    const {state:after,damageTaken}=safeLootExtract(state);
-    state=after;
-    assert.equal(damageTaken,0);
-    assert.equal(state.meta.extractions,i);
-    assert.equal(state.meta.recalls,0);
-    assert.equal(state.meta.hero.xp,i*3); // One loot XP + two extraction XP.
-    assert.equal(state.meta.stash["relic.ashen_fragment"],i);
-    assert.equal(state.meta.stash["weapon.rusty_sword"],1);
-    assert.ok(validateSave(state));
+test("VAR-077: three runs retain real escape routes without mandatory lethal locks",()=>{
+  for(let n=1;n<=3;n++){
+    const layout=generateLayout(n);
+    const exit=layout.exit;
+    assert.ok(twoReturnWays(layout.map,layout.start,exit) || n===1);
+    const relic=Object.entries(layout.loot).find(([,v])=>v==="relic.ashen_fragment");
+    assert.ok(relic);
+    const [x,y]=relic[0].split(",").map(Number);
+    const blocked=new Set(layout.enemies.map(e=>e.x+","+e.y));
+    assert.ok(safeRoute(layout.map,{x,y},exit,blocked));
+    assert.ok(safeRoute(layout.map,layout.start,exit,blocked));
   }
 });
 
@@ -142,15 +140,14 @@ test("QA-074: retreating from a prepared guardian preserves the option to extrac
   assert.ok(validateSave(s));
 });
 
-test("QA-074: multiple runs retain distinct seeded combat RNG while preserving a fixed map",()=>{
+test("VAR-077: run seeds and level layouts both change across descents",()=>{
   let s=start();
   const seed1=s.run.rngState;
-  s=recall(s).state;
-  s=start(s);
-  const seed2=s.run.rngState;
-  assert.notEqual(seed1,seed2);
-  assert.deepEqual(s.run.enemies.map(e=>[e.kind,e.x,e.y]),
-    start().run.enemies.map(e=>[e.kind,e.x,e.y]));
+  const map1=s.run.map;
+  s=recall(s).state;s=start(s);
+  assert.notEqual(seed1,s.run.rngState);
+  assert.notDeepEqual(map1,s.run.map);
+  assert.notDeepEqual(s.run.loot,generateLayout(1).loot);
 });
 
 test("QA-074: PWA has explicit touch controls and a cached game engine",()=>{

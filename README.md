@@ -1,29 +1,50 @@
-# ROGOV Android v0.1.3 — diagnostic de compatibilité
+# ROGOV — Roguelike d'extraction tactique
 
-ROGOV est un roguelike d'extraction ASCII pour Android.
+**Version jouable Web : v0.6.1 (HTML/PWA).**  
+**Prochaine version en conception : v0.7 — combat tactique hybride (non implémenté).**
 
-## Version de compatibilité (APK debug)
+Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-Android/**
 
-Cette **version de diagnostic** utilise un identifiant distinct : `com.rogov.android.compat`. Elle ne remplace pas les versions précédentes et ne modifie pas leurs sauvegardes.
+ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il conjugue exploration au tour par tour, combat, équipement à risque, extraction et horreur cosmique originale.
 
-Différences avec l'APK 0.1.2 :
-- Target Android 13 (API 33) plutôt que Android 16 (API 36).
-- Signatures APK v1 et v2 explicitement activées.
-- Identifiant de paquet `com.rogov.android.compat` et libellé `ROGOV COMPAT`.
-- Tests automatisés d'installation, de lancement et de signature sur émulateur Android 13.
+## Boucle fondamentale
 
-**Ce n'est pas encore une application publiée sur le Play Store**, et sa signature debug change potentiellement entre les builds.
+**Refuge de Veyr → préparation → descente dans Nhal → butin → extraction ou Rappel → refuge.**
 
-Le dépôt GitHub est public. Les droits des ressources originales restent à définir par une licence explicite ; aucune ressource d'un autre jeu n'est fournie.
+- Le héros, son expérience et ses niveaux persistent après une mort.
+- Ce qui reste dans le coffre de Veyr est sécurisé.
+- Ce qui est transporté ou récupéré pendant la descente est **perdu en cas de mort**.
+- Une extraction réussie dépose le sac dans le coffre.
 
-## Boucle jouable
+## État des deux applications
 
-Refuge de Veyr → Descente → Butin → Extraction ou mort → Retour au refuge.
+| Branche produit | État | Sources |
+|---|---|---|
+| **Web HTML/PWA** | **Jouable v0.6.1** : carte, sprites, trois ennemis, combat de collision simple, journal, soins, Rappel et extraction | `docs/` |
+| **Android natif Kotlin** | Prototype de compatibilité APK **v0.1.3** ; installation sur Samsung non confirmée | `app/` |
+| **Combat hybride v0.7** | **Conception actée ; développement à faire**, pas encore présent sur le site | documents de conception v0.7 |
 
-Le personnage et l'expérience persistent ; les objets transportés sont perdus en cas de mort. Le coffre permanent est protégé. Les données de jeu sont dans `app/src/main/assets/rogov`.
+Le déploiement public Web passe par GitHub Pages et le workflow « ROGOV Web — Tests and GitHub Pages ». Chaque navigateur garde sa propre sauvegarde locale. Le mode PWA permet une utilisation hors ligne après chargement initial.
 
-## Installation
+## Nouvelle orientation du combat — v0.7 (prévue)
 
-Téléchargez le fichier .apk depuis la publication GitHub (Releases) ou l'artifact du workflow GitHub Actions de la version 0.1.3. Le fichier doit garder l'extension .apk et être ouvert depuis un gestionnaire de fichiers avec l'autorisation Android "Installer des applis inconnues".
+Rester sur **la carte**, avec un **panneau tactique contextuel** plutôt qu'une arène séparée. Choisir explicitement une cible et une action : **Attaquer**, **Esquiver**, **Parer/Bloquer**, **Reculer**. Tenir compte des distances CONTACT / PROCHE / LOIN, des intentions ennemies et du risque de perdre le sac. Le simple déplacement vers un ennemi ne devra plus provoquer une attaque automatique.
 
-Si l'installation échoue sur le téléphone malgré l'installation réussie sur émulateur, noter le message exact du Gestionnaire de paquets et vérifier les restrictions Samsung, la place disponible et l'installation d'autres applications externes. Ne pas désactiver Play Protect pour forcer l'installation.
+Cette orientation reprend des principes fonctionnels de combat tactique, sans reproduire visuellement Darkest Dungeon ni emprunter des ressources à des jeux tiers.
+
+### Documents de référence
+
+- [GDD de combat hybride v0.7](docs/COMBAT_DESIGN_V0.7.md) — règles, flux de tour, UI, sauvegardes, tests
+- [Prompt de développement v0.7](docs/DEV_PROMPT_V0.7.md) — étapes d'implémentation
+- [Master Prompt](docs/ROGOV_MASTER_PROMPT.md) — objectifs et contraintes communs
+- [Bible visuelle v0.6](docs/VISUAL_BIBLE_V0.6.md) — identité originale des créatures
+- [Roadmap](ROADMAP.md) · [Backlog](BACKLOG.md) · [Journal des modifications](CHANGELOG.md)
+- [Guide PWA et historique Web](WEB_README.md) · [Guide de test](TESTING.md)
+
+## Historique de compatibilité APK
+
+Le prototype natif de diagnostic **ROGOV COMPAT 0.1.3** utilise le paquet `com.rogov.android.compat`, cible Android 13 (API 33), et des signatures debug v1/v2. Il ne remplace pas l'application web ni ses sauvegardes. Des vérifications d'installation ont été effectuées en émulateur, mais le problème de distribution sur téléphone Samsung a motivé la priorité donnée au Web.
+
+**Ne pas désactiver Play Protect pour forcer l'installation.** L'identifiant et la signature des APK debug peuvent varier entre des builds ; les deux voies de développement restent distinctes.
+
+Ce dépôt est public ; une licence de réutilisation explicite reste à définir. Ne pas supposer que « public » équivaut à « libre de droits ».

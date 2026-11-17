@@ -6,7 +6,7 @@ Les APK ROGOV ont été bloqués sur un Samsung par Google Play Protect. Le proj
 
 ## Jouer
 
-Site prévu : https://mathiks.github.io/Rogov-Android/ (après publication GitHub Pages).
+Site public : https://mathiks.github.io/Rogov-Android/ — version Web Alpha v0.6.1 publiée.
 
 Sur le téléphone : ouvrir l'URL dans Chrome. Pour ajouter l'application à l'écran d'accueil : Chrome → menu ⋮ → « Ajouter à l'écran d'accueil » ou « Installer l'application ».
 
@@ -76,3 +76,9 @@ Aucune modification du format de sauvegarde : les descentes v0.5.1 déjà en cou
 ## v0.6.1 — Correctif responsive et cache Android
 
 L'écran titre inclut désormais les règles CSS critiques directement dans le HTML afin de rester lisible si un navigateur conserve temporairement une ancienne feuille de style. Les ressources CSS/JS sont versionnées et téléchargées en priorité depuis le réseau avant d'être utilisées hors ligne, pour éviter le mélange d'une nouvelle page HTML avec un vieux CSS. Aucune modification des sauvegardes ni du gameplay. Correctif motivé par un retour de test sur Samsung (illustration trop large, boutons non stylés, titre tronqué).
+
+## Combat hybride v0.7 — orientation validée, NON DÉPLOYÉE
+
+La prochaine évolution supprimera **l'attaque automatique lorsqu'on marche sur un ennemi** et conservera la carte pendant les engagements. Un panneau tactique contextuel indiquera cible, PV, distance CONTACT/PROCHE/LOIN, intention ennemie et actions du joueur : attaquer, esquiver, parer/bloquer, reculer. Le soin et l'attente resteront disponibles.
+
+La référence de conception est [docs/COMBAT_DESIGN_V0.7.md](docs/COMBAT_DESIGN_V0.7.md). Le plan d'exécution figure dans [docs/DEV_PROMPT_V0.7.md](docs/DEV_PROMPT_V0.7.md). **À ce stade, le site conserve le combat simplifié de la v0.6.1**. Le Rappel, l'extraction, le coffre et les sauvegardes restent les invariants prioritaires.

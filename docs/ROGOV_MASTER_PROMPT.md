@@ -1,15 +1,57 @@
-# ROGOV — Master Prompt v1.2 (résumé)
+# ROGOV — Master Prompt v1.3 (référence de production)
 
-Développer rapidement un roguelike d'extraction tactique en Kotlin, solo et hors ligne, testable et maintenable sur Android.
+**Dernière mise à jour : 17 novembre 2026.**  
+**Canal prioritaire : HTML5/CSS/JavaScript/PWA jouable sur Android.**  
+**Version livrée : v0.6.1. Version cible en conception : v0.7.**
 
-## Boucle fondamentale
-REFUGE DE VEYR → PRÉPARATION → DESCENTE DANS NHAL → BUTIN → EXTRACTION OU MORT → REFUGE.
+## Vision
 
-- Le personnage, son niveau et son expérience sont permanents.
-- Les objets pris au refuge rejoignent le sac de descente temporaire.
-- La mort provoque le Rappel à Veyr et détruit **tous** les objets transportés, jamais ceux restés au coffre.
-- L'extraction transfère tous les objets du sac dans le coffre du refuge.
-- Le Rappel est un phénomène mystérieux propre à ROGOV.
-- Le moteur est indépendant de l'interface Android ; les contenus ont des identifiants stables dans des JSON.
-- Tests reproductibles, sauvegardes versionnées, build APK dans GitHub Actions.
-- Une seule tâche en cours : terminer le premier APK testable.
+Développer rapidement un roguelike d'extraction tactique, solo, hors ligne, lisible au téléphone et facile à mettre à jour. Monde low fantasy et horreur cosmique originale : **Veyr** (refuge) et **Nhal** (profondeurs).
+
+## Boucle de jeu non négociable
+
+**REFUGE DE VEYR → PRÉPARATION → DESCENTE DANS NHAL → RISQUE ET BUTIN → EXTRACTION OU MORT → REFUGE.**
+
+- Le personnage, son niveau et son expérience restent permanents.
+- Les objets du coffre ne sont jamais exposés à la mort lors d'une descente.
+- Le sac temporaire regroupe les objets emportés depuis Veyr **et** ramassés dans Nhal.
+- La mort déclenche le **Rappel** : retour au refuge, **perte intégrale du sac**, mais conservation du héros et du coffre.
+- L'extraction sécurise le sac en le transférant au coffre.
+- Le Rappel est un phénomène narratif mystérieux propre à ROGOV.
+
+## Décision majeure — combat tactique hybride v0.7
+
+Le combat v0.6.1 par collision/contre-attaque est transitoire et **sera remplacé**. La v0.7 conserve exploration et rencontres **sur la carte** et révèle un **panneau tactique contextuel**, sans écran d'arène séparé.
+
+- Cible sélectionnée explicitement ; inspecter/sélectionner ne déclenche pas d'attaque ni de tour.
+- Action explicite pour combattre : attaquer, esquiver, parer, bloquer ou reculer.
+- Distances de combat : **CONTACT / PROCHE / LOIN**.
+- Intentions ennemies lisibles avant les actions importantes : préparation, attaque, capacité surnaturelle.
+- Éviter et fuir doivent être de vrais choix : tout combat risque de faire perdre le butin porté.
+- Référence Darkest Dungeon limitée à la lisibilité, aux intentions, au positionnement et à la pression, sans copier le jeu.
+- Les règles numériques fines et l'implémentation sont **encore à tester**.
+
+**Source de vérité :** docs/COMBAT_DESIGN_V0.7.md.  
+**Prompt d'exécution :** docs/DEV_PROMPT_V0.7.md.
+
+## Direction artistique
+
+- Horreur cosmique et archéologique ; sprites originaux sobres, silhouettes contrastées sur mobile.
+- Trois familles : Charognards de Nhal, Gardiens déchus, Choses de la Faille.
+- Personnage humain stable ; ennemis organiques / minéraux / anormaux ; pas de tentacules gratuits ni de copie d'illustrations lovecraftiennes existantes.
+- Garder la palette sombre, la légende graphique, le mode ASCII et l'écran titre approuvé.
+
+Référence : docs/VISUAL_BIBLE_V0.6.md.
+
+## Architecture et livraison
+
+- Application web prioritaire : docs/game.js (moteur), docs/app.js (UI), docs/tiles.js (sprites), docs/index.html, docs/style.css.
+- Les données sauvegardées doivent rester versionnées et migrables ; ne jamais effacer silencieusement les parties.
+- Tests du moteur dans tests/web-game.test.mjs ; ressources offline via service worker et déploiement GitHub Pages.
+- Dépôt public ; faire attention aux droits d'auteur des ressources et prévoir une licence explicite.
+- **WIP = 1.** Avancer par lots verticaux testés, avec historique documenté.
+- Le prototype natif Kotlin/Android existe dans app/, mais reste une voie historique, pas la diffusion prioritaire.
+
+## Règle de suivi
+
+Ne jamais annoncer une fonction v0.7 comme publiée tant qu'elle n'est pas codée, testée et déployée. Conserver la distinction **décidé / en cours / livré**.

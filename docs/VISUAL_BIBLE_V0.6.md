@@ -56,3 +56,9 @@ Nhal doit évoquer un monde ancien et indifférent, ni simplement fantastique ni
 ## Prochaines familles potentielles
 
 Charognards : Rôdeur caveux · Gardien : Veilleur brisé · Faille : Témoin aveugle. Concepts uniquement ; aucun de ces trois ennemis n'est implémenté.
+
+## Extension de direction artistique — interface de combat prévue en v0.7
+
+Le combat hybride reste **sur la carte** : aucune illustration d'arène séparée à prévoir. Les intentions ennemies (attaque courte, coup lourd préparé, onde spectrale de Larve) seront signalées par **formes, icônes et textes**, en complément des couleurs existantes. Le panneau tactique devra conserver la hiérarchie : cible et intention > options de défense / attaque > détails secondaires.
+
+Inspirations de tension tactique uniquement ; **aucune reprise des éléments graphiques ou du layout de Darkest Dungeon**. La v0.7 est en conception et cet ajout ne décrit pas une fonctionnalité déjà présente.

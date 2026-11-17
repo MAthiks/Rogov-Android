@@ -1,3 +1,23 @@
+## Préparation v0.7 — décision de conception (NON PUBLIÉE, 2026-11-17)
+
+- Adoption du **combat hybride sur carte**, avec panneau tactique contextuel plutôt qu'une arène séparée.
+- Intentions retenues : cibles explicites, distances CONTACT/PROCHE/LOIN, esquive, parade, blocage, repli et intentions ennemies annoncées.
+- Préparation de la documentation : GDD combat v0.7, prompt d'implémentation, Master Prompt et plan de production.
+- **Aucun changement de code de combat v0.7 et aucune nouvelle version jouable à ce stade.**
+
+## Web v0.6.1 — correctif Android (2026-11-17)
+
+- Correctif de l'écran titre trop large sur Samsung.
+- CSS critique embarqué et ressources PWA d'interface versionnées.
+- Version jouable Web de référence, distincte des APK natifs.
+
+## Web v0.6 — bestiaire et direction artistique (2026-11-17)
+
+- Lignées visuelles originales et nouvelle Larve de faille, avec onde à distance.
+- Bible visuelle et prompt v0.6 intégrés.
+
+## Historique Android natif
+
 ## v0.1.3 — diagnostic de compatibilité (2026-11-17)
 
 - Nouvel identifiant `com.rogov.android.compat` pour exclure un conflit d'installation.

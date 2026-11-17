@@ -164,12 +164,14 @@ test("walking into a guardian only selects; explicit attacks give XP", () => {
   assert.equal(s.run.hp,12);
   s=attackTarget(s).state;
   assert.equal(s.run.turns,1);
-  assert.equal(s.run.enemies[0].hp,2);
-  assert.equal(s.run.hp,10);
+  assert.equal(s.run.enemies[0].hp,3); // Sword 3 minus guardian armor 1.
+  assert.equal(s.run.hp,9); // Guardian strength adds 1 to its attack.
   assert.ok(s.journal.some(e=>e.type==="combat"));
   s=attackTarget(s).state;
+  assert.equal(s.run.enemies[0].hp,1);
+  s=attackTarget(s).state;
   assert.equal(s.run.enemies.length,0);
-  assert.equal(s.run.hp,10);
+  assert.equal(s.run.hp,6);
   assert.equal(s.run.targetId,null);
   assert.equal(s.meta.hero.xp,4);
   assert.ok(s.journal.some(e=>e.text.includes("Victoire sur Gardien déchu")));
@@ -229,7 +231,7 @@ test("bandage heals four, costs one turn, and adjacent enemy can counterattack",
   const result=useItem(s,"consumable.bandage");
   assert.equal(result.changed,true);
   s=result.state;
-  assert.equal(s.run.hp,8); // 6 + 4 healing - 2 guard damage
+  assert.equal(s.run.hp,7); // 6 + 4 healing - 3 stat-based guardian damage
   assert.equal(s.run.turns,1);
   assert.equal(s.run.carried["consumable.bandage"] || 0,0);
   assert.equal(s.meta.stash["consumable.bandage"],1); // the other bandage is safe at Veyr
@@ -270,7 +272,7 @@ test("waiting advances one turn and may provoke an enemy", () => {
   s.run.enemies=[{id:"close-guard",kind:"guardian",x:2,y:7,hp:5}];
   s=waitTurn(s).state;
   assert.equal(s.run.turns,1);
-  assert.equal(s.run.hp,10);
+  assert.equal(s.run.hp,9);
   assert.ok(s.journal.some(e=>e.type==="combat"));
 });
 test("waiting and item use are disabled at the refuge", () => {
@@ -311,7 +313,7 @@ test("title screen contains functional controls and separate game shell", async 
 test("title scene is included in PWA cache manifest", async () => {
   const {readFileSync} = await import("node:fs");
   const sw=readFileSync(new URL("../docs/sw.js", import.meta.url),"utf8");
-  assert.match(sw,/rogov-v0\.7b/);
+  assert.match(sw,/rogov-v0\.7c/);
   assert.match(sw,/title-scene\.webp/);
 });
 
@@ -395,8 +397,8 @@ test("mobile title stays legible even when a stale PWA CSS file is loaded", asyn
   assert.match(html,/id="title-critical-style"/);
   assert.match(html,/title-screen \.title-scene img\{display:block;width:100%;max-width:100%/);
   assert.match(html,/title-screen \.title-button\{display:block;width:100%/);
-  assert.match(html,/\.\/style\.css\?v=0\.7b/);
-  assert.match(html,/\.\/app\.js\?v=0\.7b/);
+  assert.match(html,/\.\/style\.css\?v=0\.7c/);
+  assert.match(html,/\.\/app\.js\?v=0\.7c/);
   assert.match(sw,/criticalAsset =/);
   assert.match(sw,/fetch\(request\)\.then\(\(response\) =>/);
 });

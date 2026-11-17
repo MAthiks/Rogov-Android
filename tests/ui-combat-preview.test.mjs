@@ -60,7 +60,7 @@ test("DEV-072 tactical actions are buttons attached to the engine", () => {
   assert.match(app,/act\(attackTarget\(state\)\)/);
   assert.match(app,/act\(defend\(state,"dodge"\)\)/);
   assert.match(app,/act\(retreat\(state\)\)/);
-  assert.match(html,/Seule l'action Attaquer inflige des dégâts/);
+  assert.match(html,/La précision, les critiques et les défenses dépendent/);
 
 });
 
@@ -79,11 +79,11 @@ test("DEV-071 selecting a target preserves current save and extraction rules", (
   assert.ok(validateSave(s));
 });
 
-test("DEV-072 cache v0.7b includes the combat module for offline operation", () => {
+test("DEV-072 cache v0.7c includes the combat module for offline operation", () => {
   const sw=asset("sw.js");
   const html=asset("index.html");
-  assert.match(sw,/rogov-v0\.7b/);
+  assert.match(sw,/rogov-v0\.7c/);
   assert.match(sw,/"\.\/combat\.js"/);
-  assert.match(html,/style\.css\?v=0\.7b/);
-  assert.match(html,/app\.js\?v=0\.7b/);
+  assert.match(html,/style\.css\?v=0\.7c/);
+  assert.match(html,/app\.js\?v=0\.7c/);
 });

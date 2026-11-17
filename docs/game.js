@@ -1,6 +1,8 @@
 // ROGOV Web — deterministic, offline-first gameplay core. No DOM dependencies.
 import { DEFAULT_HERO_STATS, ENEMY_STATS, migrateHero, migrateEnemy, migrateRunStats,
-  validAttributes, validClassId, validLoadout } from "./stats.js";
+  validAttributes, validClassId, validLoadout, heroDerivedStats, enemyDerivedStats } from "./stats.js";
+import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDefense,
+  regenEndurance } from "./combat-rules.js";
 export const SAVE_KEY = "rogov-web-v1";
 export const SCHEMA_VERSION = 1;
 export const INVENTORY_LIMIT = 8;
@@ -23,11 +25,23 @@ function validJournalEntry(entry) {
 }
 
 /** Preserve all existing save fields while upgrading the old journal format in memory. */
+function migrateCombatRun(run,meta) {
+  if(!run)return run;
+  const enriched=migrateRunStats(run);
+  const max=heroDerivedStats({meta,run:enriched})?.enduranceMax ?? 15;
+  return {
+    ...enriched,
+    rngState: enriched.rngState===undefined?descentSeed(meta.descents):enriched.rngState,
+    enduranceMax: enriched.enduranceMax===undefined?max:enriched.enduranceMax,
+    endurance: enriched.endurance===undefined?max:enriched.endurance
+  };
+}
 export function normalizeJournal(state) {
+  const meta={...state.meta,hero:migrateHero(state.meta.hero)};
   return {
     ...state,
-    meta:{...state.meta,hero:migrateHero(state.meta.hero)},
-    run:migrateRunStats(state.run),
+    meta,
+    run:migrateCombatRun(state.run,meta),
     journal: state.journal.slice(0, JOURNAL_LIMIT).map(entry =>
       typeof entry === "string"
         ? { type:"system", turn:null, text:entry }
@@ -122,44 +136,56 @@ function canRiftPulse(enemy, run) {
 }
 
 /**
- * DEV-072: a defensive stance can mitigate the first matching enemy hit this turn.
- * Dodge avoids melee, parry (with sword) deflects 1 melee damage and ripostes 1,
- * block absorbs 1 damage from either melee or a rift pulse.
- * Invalid or mismatched attacks do not consume the stance until turn end.
+ * Both sides use the same hit/crit/armor formulas.
+ * A player's active defense checks stats + equipment, and applies to the first
+ * matching landed hit in the enemy phase only. Enemy strikes may miss or crit.
  */
-function receiveEnemyAttack(s, enemy, type, amount, source) {
+function receiveEnemyAttack(s,enemy,type,base,source) {
   const run=s.run;
-  const mode=run.defense || "none";
-  let damage=amount;
-  if (source==="melee" && mode==="dodge") {
-    damage=0;
-    run.defense="none";
-    recordEvent(s,"defense","Esquive réussie contre "+type.name+".",run.turns);
-  } else if (source==="melee" && mode==="parry" &&
-             (run.carried["weapon.rusty_sword"]||0)>0) {
-    damage=Math.max(0,amount-1);
-    run.defense="none";
-    enemy.hp-=1;
-    recordEvent(s,"defense","Parade contre "+type.name+" : -1 dégât, riposte 1.",run.turns);
-    if (enemy.hp<=0) {
-      run.enemies=run.enemies.filter(e=>e.id!==enemy.id);
-      gainXp(s,type.xp);
-      if(run.targetId===enemy.id) run.targetId=null;
-      recordEvent(s,"combat",type.name+" vaincu en riposte : +"+type.xp+" XP.",run.turns);
-    }
-  } else if (mode==="block") {
-    damage=Math.max(0,amount-1);
-    run.defense="none";
-    recordEvent(s,"defense","Blocage : 1 dégât absorbé ("+type.name+").",run.turns);
+  const attacker=enemyDerivedStats(enemy);
+  const defender=heroDerivedStats(s);
+  const result=resolveStrike(s,attacker,defender,base,{source});
+  if(!result.hit){
+    recordEvent(s,"combat",type.name+" manque son attaque.",run.turns);
+    return s;
   }
-  if (damage>0) {
+  let damage=result.damage;
+  const mode=run.defense||"none";
+  if(mode!=="none") {
+    const defense=resolveActiveDefense(s,mode,defender,attacker,source);
+    if(defense.attempted) {
+      run.defense="none";
+      if(defense.success) {
+        if(mode==="dodge")damage=0;
+        if(mode==="parry"){
+          damage=Math.max(0,damage-1-Math.floor(defender.parryChance/25));
+          enemy.hp-=1+Math.floor((defender.attackPower-5)/5);
+          if(enemy.hp<=0){
+            run.enemies=run.enemies.filter(e=>e.id!==enemy.id);
+            gainXp(s,type.xp);
+            if(run.targetId===enemy.id)run.targetId=null;
+            recordEvent(s,"loot",type.name+" vaincu en riposte : +"+type.xp+" XP.",run.turns);
+          }
+        }
+        if(mode==="block")damage=Math.max(0,damage-defender.blockAbsorb);
+        const verb={dodge:"Esquive",parry:"Parade",block:"Blocage"}[mode];
+        recordEvent(s,"defense",verb+" réussi(e) contre "+type.name+
+          " ("+defense.chance+" %).",run.turns);
+      } else {
+        recordEvent(s,"defense","Défense échouée ("+defense.chance+" %) contre "+type.name+".",run.turns);
+      }
+    }
+  }
+  if(damage>0){
     run.hp=Math.max(0,run.hp-damage);
     recordEvent(s,"combat",type.name+
-      (source==="rift" ? " libère une onde" : " te touche")+
+      (source==="rift"?" libère une onde":" te touche")+
+      (result.critical?" — CRITIQUE !":"")+
       " : -"+damage+" PV. ("+run.hp+"/"+MAX_HP+")",run.turns);
+  } else if(!run.defense){
+    recordEvent(s,"combat","Le coup de "+type.name+" ne cause aucun dégât.",run.turns);
   }
-  if(run.hp<=0) return recall(s).state;
-  return s;
+  return run.hp<=0?recall(s).state:s;
 }
 function enemyPhase(s) {
   const run=s.run;
@@ -250,6 +276,11 @@ export function validateSave(s) {
       if (!ITEMS[id] || !Number.isSafeInteger(count) || count < 0) return false;
     }
     if (quantity(r.carried) > INVENTORY_LIMIT) return false;
+    if (r.rngState!==undefined && !validSeed(r.rngState)) return false;
+    if (r.enduranceMax!==undefined && (!Number.isSafeInteger(r.enduranceMax) ||
+        r.enduranceMax<1 || r.enduranceMax>100))return false;
+    if (r.endurance!==undefined && (!Number.isSafeInteger(r.endurance) ||
+        r.endurance<0 || r.endurance>(r.enduranceMax??100)))return false;
     if (r.loadout!==undefined && !validLoadout(r.loadout,r.carried)) return false;
     if (r.targetId!==undefined && r.targetId!==null &&
         (typeof r.targetId!=="string" || r.targetId.length===0)) return false;
@@ -284,8 +315,8 @@ export function beginRun(state, equipment=[]) {
     carried[id] = 1;
   }
   s.meta.descents += 1;
-  s.run = migrateRunStats({ x: 1, y: 7, hp: MAX_HP, turns: 0, carried,
-    collected: [], enemies: ENEMY_START.map(e=>({...e})) });
+  s.run = migrateCombatRun({ x: 1, y: 7, hp: MAX_HP, turns: 0, carried,
+    collected: [], enemies: ENEMY_START.map(e=>({...e})) },s.meta);
   return info(s, "Descente " + s.meta.descents + " : les profondeurs de Nhal s'ouvrent.");
 }
 export function recall(state) {
@@ -330,6 +361,7 @@ export function move(state, direction, context="move") {
   }
   const s = copy(state);
   s.run.turns += 1;
+  regenEndurance(s,1);
   s.run.x=x; s.run.y=y;
   if(tile==="^") return recall(s);
   if(tile==="E") return extract(s);
@@ -358,20 +390,33 @@ export function attackTarget(state) {
   if (!enemy) return info(state,"Sélectionne une cible vivante.",false);
   if (distance(state.run,enemy)!==1)
     return info(state,"Cible hors de portée : approche au CONTACT.",false);
+  if ((state.run.endurance??0)<TACTICAL_COSTS.attack)
+    return info(state,"Endurance insuffisante : attends pour récupérer.",false);
   const s=copy(state);
   const target=s.run.enemies.find(e=>e.id===enemy.id);
   const type=ENEMY_TYPES[target.kind];
-  const damage=(s.run.carried["weapon.rusty_sword"]||0)>0?3:2;
+  const base=(s.run.carried["weapon.rusty_sword"]||0)>0?3:2;
+  s.run.endurance-=TACTICAL_COSTS.attack;
   s.run.turns+=1;
-  target.hp-=damage;
-  const defeated=target.hp<=0;
-  recordEvent(s,"combat","Tu frappes "+type.name+" : "+damage+
-    " dégâts"+(defeated?" (vaincu).":"."),s.run.turns);
-  if(defeated){
-    s.run.enemies=s.run.enemies.filter(e=>e.id!==target.id);
-    s.run.targetId=null;
-    gainXp(s,type.xp);
-    recordEvent(s,"loot","Victoire sur "+type.name+" : +"+type.xp+" XP.",s.run.turns);
+  const attacker=heroDerivedStats(s);
+  const defender=enemyDerivedStats(target);
+  const result=resolveStrike(s,attacker,defender,base);
+  if(!result.hit) {
+    recordEvent(s,"combat","Tu manques "+type.name+
+      " ("+result.accuracy+" % de précision).",s.run.turns);
+  } else {
+    target.hp-=result.damage;
+    const killed=target.hp<=0;
+    recordEvent(s,"combat","Tu frappes "+type.name+
+      (result.critical?" — COUP CRITIQUE !":"")+
+      " : "+result.damage+" dégât"+(result.damage>1?"s":"")+
+      (killed?" (vaincu).":"."),s.run.turns);
+    if(killed) {
+      s.run.enemies=s.run.enemies.filter(e=>e.id!==target.id);
+      s.run.targetId=null;
+      gainXp(s,type.xp);
+      recordEvent(s,"loot","Victoire sur "+type.name+" : +"+type.xp+" XP.",s.run.turns);
+    }
   }
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||"Attaque résolue.",changed:true};
@@ -384,7 +429,10 @@ export function defend(state, mode) {
     return info(state,"Défense inconnue.",false);
   if (mode==="parry" && (state.run.carried["weapon.rusty_sword"]||0)<1)
     return info(state,"Parade impossible sans une arme de mêlée.",false);
+  if ((state.run.endurance??0)<TACTICAL_COSTS[mode])
+    return info(state,"Endurance insuffisante : attends pour récupérer.",false);
   const s=copy(state);
+  s.run.endurance-=TACTICAL_COSTS[mode];
   s.run.turns+=1;
   s.run.defense=mode;
   const labels={dodge:"Esquive",parry:"Parade",block:"Blocage"};
@@ -430,6 +478,7 @@ export function useItem(state, itemId) {
   run.carried[itemId] -= 1;
   if (run.carried[itemId] === 0) delete run.carried[itemId];
   run.turns += 1;
+  regenEndurance(s,1);
   recordEvent(s, "heal", ITEMS[itemId].name + " utilisé : +" + healed + " PV. (" + run.hp + "/" + MAX_HP + ")", run.turns);
   const after = enemyPhase(s);
   return { state:after, message:after.journal[0]?.text || "Soin effectué.", changed:true };
@@ -440,6 +489,7 @@ export function waitTurn(state) {
   if (!state.run) return info(state, "Tu es au refuge.", false);
   const s = copy(state);
   s.run.turns += 1;
+  regenEndurance(s,3);
   recordEvent(s, "system", "Tu attends et observes les profondeurs.", s.run.turns);
   const after = enemyPhase(s);
   return { state:after, message:after.journal[0]?.text || "Tour passé.", changed:true };

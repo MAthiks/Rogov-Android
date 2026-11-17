@@ -1,7 +1,7 @@
 # ROGOV — GDD de combat tactique hybride v0.7
 
 **Statut : conception approuvée le 17 novembre 2026 ; contrat DEV-070, panneau DEV-071 et actions explicites DEV-072 implémentés ; intentions avancées DEV-073 et équilibrage non finalisés.**  
-**Version jouable de référence : Web Alpha v0.7b ; base statistique intégrée, résultats de combat encore fixes. Évolution dans STATS_EQUIPMENT_CLASSES_V0.7.md.**  
+**Version jouable de référence : Web Alpha v0.7c ; résultats des combats calculés avec les statistiques et l'équipement. Équilibrage non finalisé.**  
 **Références d'intention :** Darkest Dungeon (pression tactique, choix et lecture des intentions), roguelike sur grille (exploration continue), extraction à risque (éviter un combat peut sauver l'équipement). Aucune copie d'UI, d'illustrations, de personnages ou de règles propriétaires.
 
 ## 1. Vision
@@ -84,7 +84,7 @@ Le panneau présente la dernière action et le danger imminent, tandis que l'his
 - **Lot 1 — Contrat de combat : TERMINÉ** dans `docs/combat.js` (distance, portée, sélection, intentions, états défensifs, tests). Aucun changement visuel ni modification des règles de combat en production.
 - **Lot 2 — Panneau contextuel : TERMINÉ en prévisualisation**, sélection et désélection tactiles, portée, intentions actuelles, modes graphique/ASCII. **Les boutons d'attaque et défense sont encore des aperçus** ; la marche vers un ennemi attaque toujours en v0.6.2.
 - **Lot 3 — Actions explicites : TERMINÉ au niveau prototype** — attaque de contact avec cible, esquive contre la mêlée, parade avec épée (réduit 1 dégât et riposte 1), blocage absorbe 1 dégât (mêlée ou onde), repli d'une case libre augmentant la distance. Aucun coût en cas d'action impossible. La collision sélectionne la cible sans tour ni dégâts.
-- **Lot 4 — Statistiques et IA :** DEV-073A (attributs/équipement/migrations) intégré. Suivent DEV-073B (jets de toucher, critique et défenses) puis DEV-073C (intentions distinctes Charognard/Gardien/Larve). Prévoir journaux lisibles et essais terrain sur Samsung.
+- **Lot 4 — Statistiques et IA :** DEV-073A (attributs/équipement/migrations) et DEV-073B (jets de toucher, critique et défenses) intégrés. Suit DEV-073C (intentions distinctes Charognard/Gardien/Larve). Prévoir journaux lisibles et essais terrain sur Samsung.
 - **Lot 5 — Livraison :** tests, sauvegarde, mode hors ligne, accessibilité, déploiement GitHub Pages.
 
 **WIP maximal : 1 lot actif à la fois.** Ne pas ajouter d'inventaire complexe, d'effets de stress, de groupe à quatre personnages ni de génération procédurale dans cette évolution.

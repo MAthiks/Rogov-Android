@@ -1,3 +1,12 @@
+## Web Alpha v0.7c — DEV-073B : combat statistique (2026-11-17)
+
+- Jets reproductibles de précision et de critique pour les deux camps ; RNG persistante dans la sauvegarde.
+- Dégâts physiques modifiés par les statistiques, réduction d'armure et résistance occulte de la Larve.
+- Défenses tactiques non garanties : esquive, parade et blocage utilisent attributs et équipement. Échec et critique affichés dans le journal.
+- Endurance : attaques 1, défenses 2, attente +3, déplacement/soin +1. HUD d'Endurance et chances effectives en regard de la cible.
+- Migration sans perte des anciennes sauvegardes, sans changement du Rappel et de l'extraction.
+- **Limites :** équilibrage préliminaire et IA ennemie capable de choisir sa propre défense non implémentée (DEV-073C).
+
 ## Web Alpha v0.7b — DEV-073A : caractéristiques et équipements (2026-11-17)
 
 - Profils FOR/AGI/CON/PER/VOL/INT persistants pour le héros et les trois familles ennemies.

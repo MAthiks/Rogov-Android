@@ -2,6 +2,7 @@ import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspe
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
   heroDerivedStats, enemyDerivedStats } from "./stats.js";
+import {TACTICAL_COSTS, hitChance, defenseChance} from "./combat-rules.js";
 import { selectTarget, clearTarget, combatSnapshot, rangeBand, tileDistance } from "./combat.js";
 
 const $ = (id) => document.getElementById(id);
@@ -211,11 +212,11 @@ function renderActorStats() {
   const gear=state.run?.loadout || {};
   const weapon=gear.mainHand && EQUIPMENT_CATALOG[gear.mainHand];
   $("actor-derived-values").textContent=
-    "Endurance potentielle "+profile.enduranceMax+
+    "Endurance maximale "+profile.enduranceMax+
     " · Critique "+profile.criticalChance+" %"+
-    " · Esquive "+profile.dodgeChance+" %"+
-    " · Parade "+profile.parryChance+" %"+
-    " · Blocage "+profile.blockChance+" %"+
+    " · Agilité défensive "+profile.dodgeChance+
+    " · Maîtrise de parade "+profile.parryChance+
+    " · Maîtrise de blocage "+profile.blockChance+
     " · Armure "+profile.armor+
     " · Arme : "+(weapon?.name || "Aucune");
   const classId=state.meta.hero.classId;
@@ -233,20 +234,25 @@ function renderCombatPreview() {
   $("combat-target-distance").textContent=snapshot.band+" · "+snapshot.distance+" cases";
   const enemy=state.run.enemies?.find(e=>e.id===snapshot.targetId);
   const enemyStats=enemyDerivedStats(enemy);
-  $("combat-target-profile").textContent=enemyStats
-    ? "Profil adverse (aperçu) : FOR "+enemyStats.attributes.strength+
-      " · AGI "+enemyStats.attributes.agility+
-      " · CON "+enemyStats.attributes.constitution+
-      " · Armure "+enemyStats.armor+
-      " · Critique "+enemyStats.criticalChance+" %"
+  const heroStats=heroDerivedStats(state);
+  $("combat-target-profile").textContent=enemyStats && heroStats
+    ? "Coup au contact : "+hitChance(heroStats,enemyStats)+
+      " % de toucher · "+heroStats.criticalChance+" % de critique sur touche"+
+      " · Armure adverse "+enemyStats.armor+
+      " · Défenses contre cet ennemi : esquive "+defenseChance("dodge",heroStats,enemyStats,"melee")+
+      " %, parade "+defenseChance("parry",heroStats,enemyStats,"melee")+
+      " %, blocage "+defenseChance("block",heroStats,enemyStats,"melee")+" %"
     : "";
   $("combat-intent").textContent=snapshot.intent?.label || "Intention inconnue";
   $("combat-intent").dataset.intent=snapshot.intent?.kind || "idle";
   $("combat-weapon").textContent=(state.run.carried["weapon.rusty_sword"]||0)>0
     ? "Épée usée" : "Sans arme";
   $("combat-defense").textContent=snapshot.defense==="none" ? "Aucune" : snapshot.defense;
-  $("combat-attack").disabled=!snapshot.meleeAvailable;
-  $("combat-parry").disabled=(state.run.carried["weapon.rusty_sword"]||0)<1;
+  const stamina=state.run.endurance??0;
+  $("combat-attack").disabled=!snapshot.meleeAvailable || stamina<TACTICAL_COSTS.attack;
+  $("combat-dodge").disabled=stamina<TACTICAL_COSTS.dodge;
+  $("combat-parry").disabled=(state.run.carried["weapon.rusty_sword"]||0)<1 || stamina<TACTICAL_COSTS.parry;
+  $("combat-block").disabled=stamina<TACTICAL_COSTS.block;
   $("combat-range-note").textContent=snapshot.meleeAvailable
     ? "Cible au CONTACT : tu peux attaquer. Chaque action valide consomme un tour."
     : "Hors de portée de mêlée : rapproche-toi, prépare une défense ou recule.";
@@ -264,6 +270,9 @@ function render() {
   renderJournal();
   if (run) {
     $("hp").textContent = run.hp + " / " + MAX_HP;
+    $("endurance-state").textContent = run.endurance+" / "+run.enduranceMax;
+    $("endurance-meter").max=run.enduranceMax;
+    $("endurance-meter").value=run.endurance;
     $("health-meter").value = run.hp;
     $("health-meter").max = MAX_HP;
     $("health-meter").setAttribute("aria-valuetext", run.hp + " points de vie sur " + MAX_HP);

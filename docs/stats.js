@@ -1,5 +1,5 @@
-// ROGOV DEV-073A — shared hero/NPC stats and equipment model (pure, offline).
-// Derived numbers are PREVIEWS: combat dice, crits and stat-driven defense are DEV-073B.
+// ROGOV DEV-073A/B — shared hero/NPC stats and equipment model (pure, offline).
+// Derived accuracy, critical, evasion, armor and defense now feed combat-rules.js.
 export const STAT_KEYS=Object.freeze(["strength","agility","constitution","perception","willpower","intellect"]);
 export const STAT_LABELS=Object.freeze({
   strength:"FOR",agility:"AGI",constitution:"CON",perception:"PER",
@@ -122,8 +122,8 @@ function gearBonuses(loadout){
   return result;
 }
 /**
- * Pure shared actor calculation. Stats are model-only in DEV-073A;
- * existing v0.7a attack/defend damage and HP are intentionally untouched.
+ * Shared actor calculation. DEV-073B uses these derived values during combat;
+ * class abilities and higher-quality gear remain future work.
  */
 export function deriveStats(attributes,loadout=EMPTY_LOADOUT){
   if(!validAttributes(attributes)||!validLoadout(loadout))return null;

@@ -38,29 +38,29 @@ test("DEV-072: an invalid attack never spends a turn",()=>{
   assert.equal(attackTarget(newGame()).changed,false);
 });
 test("DEV-072: explicit attacks use the weapon and award XP on a kill",()=>{
-  let s=nearbyGuardian(run(["weapon.rusty_sword"]));
+  let s=nearbyGuardian(run(["weapon.rusty_sword"]),2);
   s=selectTarget(s,"g").state;
+  s.run.rngState=0; // first roll hits; normal attack beats armor.
   s=attackTarget(s).state;
   assert.equal(s.run.turns,1);
-  assert.equal(s.run.enemies[0].hp,2);
-  assert.equal(s.run.hp,10);
-  s=attackTarget(s).state;
   assert.equal(s.run.enemies.length,0);
   assert.equal(s.run.targetId,null);
   assert.equal(s.meta.hero.xp,4);
-  assert.equal(s.run.hp,10);
+  assert.equal(s.run.hp,12);
   assert.ok(validateSave(s));
 });
 test("DEV-072: attacking without a weapon still works but does less damage",()=>{
   let s=nearbyGuardian(run());
   s=selectTarget(s,"g").state;
+  s.run.rngState=0;
   s=attackTarget(s).state;
-  assert.equal(s.run.enemies[0].hp,3);
+  assert.equal(s.run.enemies[0].hp,4); // bare fists 2, stone armor 1.
   assert.equal(s.run.turns,1);
-  assert.equal(s.run.hp,10);
+  assert.equal(s.run.hp,12); // guardian's next strike misses with seed 0.
 });
 test("DEV-072: dodge negates the next contact strike without teleporting",()=>{
   let s=nearbyGuardian(run());
+  s.run.rngState=1; // hit, no crit, successful dodge.
   s=defend(s,"dodge").state;
   assert.equal(s.run.hp,12);
   assert.equal(s.run.turns,1);
@@ -68,15 +68,16 @@ test("DEV-072: dodge negates the next contact strike without teleporting",()=>{
   assert.equal(s.run.defense,"none");
   assert.ok(s.journal.some(e=>e.type==="defense" && e.text.includes("Esquive réussie")));
   s=waitTurn(s).state;
-  assert.equal(s.run.hp,10);
+  assert.equal(s.run.hp,9);
 });
 test("DEV-072: parry requires sword; with sword reduces damage and retaliates",()=>{
   let s=nearbyGuardian(run());
   assert.equal(defend(s,"parry").changed,false);
   assert.equal(s.run.turns,0);
   s=nearbyGuardian(run(["weapon.rusty_sword"]));
+  s.run.rngState=1;
   s=defend(s,"parry").state;
-  assert.equal(s.run.hp,11);
+  assert.equal(s.run.hp,10);
   assert.equal(s.run.enemies[0].hp,4);
   assert.equal(s.run.turns,1);
   assert.ok(s.journal.some(e=>e.type==="defense" && e.text.includes("Parade")));
@@ -85,22 +86,25 @@ test("DEV-072: parry requires sword; with sword reduces damage and retaliates",(
 test("DEV-072: parry kills wounded foe, awards XP and clears selection",()=>{
   let s=nearbyGuardian(run(["weapon.rusty_sword"]),1);
   s=selectTarget(s,"g").state;
+  s.run.rngState=1;
   s=defend(s,"parry").state;
   assert.equal(s.run.enemies.length,0);
   assert.equal(s.run.targetId,null);
   assert.equal(s.meta.hero.xp,4);
-  assert.equal(s.run.hp,11);
+  assert.equal(s.run.hp,10);
   assert.ok(validateSave(s));
 });
 test("DEV-072: block absorbs one point of either melee or rift damage",()=>{
   let s=nearbyGuardian(run());
+  s.run.rngState=1;
   s=defend(s,"block").state;
-  assert.equal(s.run.hp,11); // guardian deals two, shield absorbs one
+  assert.equal(s.run.hp,10); // 3 damage - 1 absorbed, no shield.
   assert.equal(s.run.turns,1);
   s=run();
   s.run.x=4;s.run.y=2;
   s.run.turns=2;
   s.run.enemies=[{id:"l",kind:"rift_larva",x:6,y:2,hp:4}];
+  s.run.rngState=1;
   s=defend(s,"block").state;
   assert.equal(s.run.hp,12); // supernatural pulse absorbed
   assert.equal(s.run.turns,3);
@@ -110,6 +114,7 @@ test("DEV-072: dodge does not negate a supernatural pulse",()=>{
   let s=run();
   s.run.x=4;s.run.y=2;s.run.turns=2;
   s.run.enemies=[{id:"l",kind:"rift_larva",x:6,y:2,hp:4}];
+  s.run.rngState=1;
   s=defend(s,"dodge").state;
   assert.equal(s.run.hp,11);
 });
@@ -119,8 +124,9 @@ test("DEV-072: defensive posture blocks only first matching hit per turn",()=>{
     {id:"g1",kind:"guardian",x:2,y:7,hp:5},
     {id:"g2",kind:"guardian",x:1,y:6,hp:5}
   ];
+  s.run.rngState=1;
   s=defend(s,"dodge").state;
-  assert.equal(s.run.hp,10); // first missed, second hit for 2
+  assert.equal(s.run.hp,9); // first dodged, second hits for 3
   assert.equal(s.run.defense,"none");
 });
 test("DEV-072: retreat increases distance and costs one turn",()=>{
@@ -172,6 +178,7 @@ test("DEV-072: a selected old save remains compatible with tactical actions",()=
 test("DEV-072: fatal attack follows Rappel contract, keeps hero/stash but loses bag",()=>{
   let s=nearbyGuardian(run(["weapon.rusty_sword"]));
   s.run.hp=2;
+  s.run.rngState=1;
   s=selectTarget(s,"g").state;
   s=attackTarget(s).state;
   assert.equal(s.run,null);

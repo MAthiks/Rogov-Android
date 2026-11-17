@@ -215,3 +215,10 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 .actor-derived-values{margin:10px 12px;font-size:11px;line-height:1.6;color:#d1dfcf}
 .combat-target-profile{font-size:10px;line-height:1.6;color:#a9c7b5;margin:9px 1px 0}
 @media(max-width:370px){.actor-stat-values{gap:3px}.actor-stat-chip small{font-size:9px}}
+
+/* DEV-073B — stamina meter in responsive survival HUD. */
+.endurance-header{display:flex;justify-content:space-between;gap:6px;align-items:center;flex-wrap:wrap;margin-top:9px;font-size:11px;color:#cad8cb}
+.endurance-header strong{color:#e1d5ae;font-variant-numeric:tabular-nums}
+.endurance-header small{font-size:10px;color:#91b9b2}
+#endurance-meter{width:100%;height:7px;accent-color:#afc3a4}
+@media(max-width:370px){.endurance-header small{font-size:9px}}

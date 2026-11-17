@@ -100,3 +100,9 @@ Les règles de Rappel, extraction, coffre et sac sont inchangées ; les ancienne
 En descente, ouvrir **« Fiche de l'Égaré »** pour consulter les six attributs, les potentiels d'Endurance et de critique/esquive/parade/blocage et l'arme prise du sac. Le panneau de cible affiche un bref profil statistique adverse. Les objets prototypes de bouclier et d'armure servent aux tests du modèle, **ne sont pas disponibles dans la partie actuelle**.
 
 **Le combat continue d'utiliser les dégâts et défenses fixes de la v0.7a.** Les chances affichées sont uniquement une prévisualisation avant DEV-073B. Les anciennes sauvegardes sont complétées en mémoire sans toucher au coffre ou aux objets portés ; elles restent sur la clé rogov-web-v1. La PWA met en cache le nouveau module stats.js.
+
+## Web Alpha v0.7c — DEV-073B : statistiques actives
+
+Les attaques du héros et des ennemis peuvent maintenant manquer ou être critiques selon leur précision, leurs attributs, leur matériel et les résistances de la cible. Les préparations d'esquive, parade et blocage ont des chances de réussite et consomment **2 Endurance**, l'attaque consomme **1 Endurance**, attendre rend **3 Endurance** et se déplacer/soigner en rend **1**. Une barre d'Endurance apparaît sous la vie, tandis que le panneau de cible affiche les chances calculées pour cet affrontement.
+
+Les jets utilisent une graine persistante dans la sauvegarde : quitter/revenir n'autorise pas un nouveau tirage sur la même action. Le Rappel, l'extraction et les anciennes sauvegardes restent compatibles. Les chiffres sont expérimentaux et demandent des essais Android, et l'IA ennemie ne choisit pas encore sa propre posture défensive.

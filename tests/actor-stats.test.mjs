@@ -152,8 +152,8 @@ test("DEV-073A: actor stats are serializable and do not change v0.7a attack outc
   s.run.enemies=[{id:"g",kind:"guardian",x:11,y:2,hp:5,attributes:{...ENEMY_STATS.guardian},loadout:{...{mainHand:"weapon.guardian_ritual_blade",body:"armor.guardian_stone"}}}];
   s=selectTarget(s,"g").state;
   s=attackTarget(s).state;
-  // The higher guardian CON/armor does NOT yet change physical damage (DEV-073B).
-  assert.equal(s.run.enemies[0].hp,2);
+  // In DEV-073B the guardian armor reduces 3 base sword damage to 2.
+  assert.equal(s.run.enemies[0].hp,3);
   assert.ok(validateSave(s));
   const copy=JSON.parse(JSON.stringify(s));
   assert.deepEqual(heroDerivedStats(copy),heroDerivedStats(s));
@@ -188,13 +188,13 @@ test("DEV-073A: UI shows actor stats and enemy stats as previews, cache includes
   for(const id of ["actor-stats-sheet","actor-stat-values","actor-derived-values","actor-class-label","combat-target-profile"]){
     assert.ok(html.includes('id="'+id+'"'),id+" missing");
   }
-  assert.match(html,/les jets de combat utiliseront ces valeurs dans DEV-073B/);
+  assert.match(html,/Caractéristiques actives/);
   assert.match(app,/heroDerivedStats\(state\)/);
   assert.match(app,/enemyDerivedStats\(enemy\)/);
   assert.match(app,/renderActorStats\(\)/);
-  assert.match(sw,/rogov-v0\.7b/);
+  assert.match(sw,/rogov-v0\.7c/);
   assert.match(sw,/"\.\/stats\.js"/);
-  assert.match(html,/app\.js\?v=0\.7b/);
-  assert.match(html,/style\.css\?v=0\.7b/);
+  assert.match(html,/app\.js\?v=0\.7c/);
+  assert.match(html,/style\.css\?v=0\.7c/);
   assert.match(pkg.scripts["test:web"],/actor-stats\.test\.mjs/);
 });

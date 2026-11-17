@@ -33,3 +33,7 @@ Une petite **Fiche de l'Égaré** repliable présente les six attributs et les s
 **DEV-073B** : un moteur de jets reproductibles (seed sérialisée ou RNG injecté), couplant arme/armure/bouclier et statistiques aux chances réelles d'esquiver, parer, bloquer et infliger des critiques. D'abord en tests de simulation héros contre Gardien, puis dans le jeu.
 
 **DEV-073C** : améliorer les intentions ennemies et leurs annonces, puis équilibrer. Ne pas ajouter les onze classes et la magie avant la stabilisation de ces fondations.
+
+## Extension v0.7c — DEV-073B
+
+Le modèle statistique DEV-073A est désormais utilisé en combat : précision, coups critiques, réduction par armure et défenses actives. Les données sont alimentées par les mêmes profils héros/ennemis, et l'Endurance et la graine de jets sont persistantes durant chaque descente. Lire [DEV073B_COMBAT_RULES.md](DEV073B_COMBAT_RULES.md) pour les valeurs provisoires et tests. Les mentions précédentes « prévisualisation uniquement » décrivent l'état historique de la v0.7b, non celui de v0.7c.

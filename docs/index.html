@@ -8,7 +8,7 @@
   <title>ROGOV — Veyr / Nhal</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css?v=0.7b">
+  <link rel="stylesheet" href="./style.css?v=0.7c">
   <!-- Critical responsive shell: renders correctly even if Chrome serves an older PWA stylesheet. -->
   <style id="title-critical-style">
     html,body{max-width:100%;overflow-x:hidden}
@@ -32,7 +32,7 @@
     .title-screen .title-footer a,.title-screen .title-footer button{color:#cce2d3;font:inherit}
     @media(max-width:360px){.title-screen{padding:8px 6px}.title-screen .title-shell{padding:12px}.title-screen .title-brand h1{letter-spacing:.07em}}
   </style>
-  <script type="module" src="./app.js?v=0.7b"></script>
+  <script type="module" src="./app.js?v=0.7c"></script>
 </head>
 <body>
   <section id="title-screen" class="title-screen" aria-labelledby="title-logo">
@@ -40,7 +40,7 @@
       <header class="title-top">
         <span>VEYR / NHAL</span>
         <span class="title-sigil" aria-hidden="true">◈</span>
-        <span>WEB ALPHA 0.7b</span>
+        <span>WEB ALPHA 0.7c</span>
       </header>
       <div class="title-brand">
         <h1 id="title-logo">ROGOV</h1>
@@ -105,10 +105,12 @@
         <div class="survival-hud" aria-label="État de santé et danger">
           <div class="health-header"><span>SANTÉ <strong id="health-state" data-health="healthy">STABLE</strong></span><span id="threat-state" data-threat="danger">2 HOSTILES</span></div>
           <progress id="health-meter" aria-label="Points de vie" max="12" value="12">12/12</progress>
+          <div class="endurance-header"><span>ENDURANCE <strong id="endurance-state">15 / 15</strong></span><small>Attaquer 1 · Défendre 2 · Attendre +3</small></div>
+          <progress id="endurance-meter" aria-label="Endurance de combat" max="15" value="15">15/15</progress>
         </div>
         <details class="actor-stats-sheet" id="actor-stats-sheet">
           <summary><span>Fiche de l'Égaré</span><small>FOR · AGI · CON · PER · VOL · INT</small></summary>
-          <p class="actor-stats-caption">Aperçu des caractéristiques : les jets de combat utiliseront ces valeurs dans DEV-073B.</p>
+          <p class="actor-stats-caption">Caractéristiques actives : elles modifient précision, critiques, dégâts et défenses (équilibrage provisoire).</p>
           <div id="actor-stat-values" class="actor-stat-values" aria-label="Caractéristiques du personnage"></div>
           <div id="actor-derived-values" class="actor-derived-values"></div>
           <p id="actor-class-label" class="actor-class-label"></p>
@@ -157,13 +159,13 @@
           <p id="combat-target-profile" class="combat-target-profile"></p>
           <p id="combat-range-note" class="hint">Le combat tactique arrive dans une prochaine mise à jour.</p>
           <div class="tactic-actions" role="group" aria-label="Actions tactiques au tour par tour">
-            <button id="combat-attack" type="button">⚔ Attaquer <small>F · CONTACT</small></button>
-            <button id="combat-dodge" type="button">◈ Esquiver <small>E · évite la mêlée</small></button>
-            <button id="combat-parry" type="button">⛨ Parer <small>P · avec arme</small></button>
-            <button id="combat-block" type="button">▣ Bloquer <small>B · amortit 1 dégât</small></button>
+            <button id="combat-attack" type="button">⚔ Attaquer <small>F · 1 END · CONTACT</small></button>
+            <button id="combat-dodge" type="button">◈ Esquiver <small>E · 2 END · mêlée</small></button>
+            <button id="combat-parry" type="button">⛨ Parer <small>P · 2 END · arme</small></button>
+            <button id="combat-block" type="button">▣ Bloquer <small>B · 2 END · réduit le coup</small></button>
             <button id="combat-retreat" type="button">↙ Reculer <small>R · case libre</small></button>
           </div>
-          <p class="tactic-preview-warning"><strong>COMBAT ACTIF :</strong> toucher un adversaire le cible sans perdre de tour. Seule l'action Attaquer inflige des dégâts. Esquive, parade, blocage et recul ont des effets différents.</p>
+          <p class="tactic-preview-warning"><strong>COMBAT STATISTIQUE :</strong> toucher un adversaire ne coûte aucun tour. La précision, les critiques et les défenses dépendent des caractéristiques et de l'équipement. Un échec reste possible ; attends pour récupérer de l'Endurance.</p>
         </section>
 
         <div id="inspect-panel" class="inspect-panel" data-kind="floor" aria-live="polite">

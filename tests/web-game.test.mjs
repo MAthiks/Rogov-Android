@@ -302,7 +302,7 @@ test("title screen contains functional controls and separate game shell", async 
 test("title scene is included in PWA cache manifest", async () => {
   const {readFileSync} = await import("node:fs");
   const sw=readFileSync(new URL("../docs/sw.js", import.meta.url),"utf8");
-  assert.match(sw,/rogov-v0\.5\.1/);
+  assert.match(sw,/rogov-v0\.6\.0/);
   assert.match(sw,/title-scene\.webp/);
 });
 

@@ -1,0 +1,39 @@
+name: Publish ROGOV diagnostic APK
+
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-install-test.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Download Android-13 tested artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ROGOV-0.1.2-install-tested-apk
+          run-id: 44078045769
+          github-token: ${{ github.token }}
+          path: dist
+      - name: Prepare direct APK download
+        shell: bash
+        run: |
+          APK=$(find dist -type f -name 'app-debug.apk' -print -quit)
+          test -n "$APK"
+          cp "$APK" dist/ROGOV-v0.1.2-diagnostic.apk
+          sha256sum dist/ROGOV-v0.1.2-diagnostic.apk
+      - name: Publish diagnostic GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v0.1.2-diagnostic dist/ROGOV-v0.1.2-diagnostic.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "ROGOV 0.1.2 — diagnostic installation Android" \
+            --notes "APK de diagnostic : com.rogov.android.installtest, indépendant de toute ancienne installation de ROGOV. Installé, lancé et validé par GitHub Actions sur émulateur Android 13. Ne contient ni suivi ni connexion réseau. Télécharger uniquement l'APK joint à cette release. Si le téléphone affiche « Application non installée », vérifier la permission Installer les applications inconnues pour Mes fichiers et la protection Auto Blocker si disponible."

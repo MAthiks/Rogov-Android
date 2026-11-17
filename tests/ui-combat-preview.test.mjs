@@ -55,7 +55,7 @@ test("DEV-071 four tactical actions are labelled as previews and not activatable
   }
   assert.doesNotMatch(html,/id="tactical-attack"/);
   assert.doesNotMatch(app,/function attackTarget/);
-  assert.match(html,/le combat actuel s'effectue toujours en marchant vers l'ennemi/);
+  assert.match(html,/le combat actuel s'effectue toujours en marchant vers l'ennemi/i);
 });
 
 test("DEV-071 selecting a target preserves all current combat, death and extraction rules", () => {

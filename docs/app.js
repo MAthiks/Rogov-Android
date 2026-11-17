@@ -1,5 +1,5 @@
-import { SAVE_KEY, ITEMS, newGame, validateSave, normalizeJournal, beginRun, move, mapText, inventoryCount } from "./game.js";
-import { drawTileMap } from "./tiles.js";
+import { SAVE_KEY, ITEMS, ENEMY_TYPES, newGame, validateSave, normalizeJournal, inspectTile, beginRun, move, mapText, inventoryCount } from "./game.js";
+import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 
 const $ = (id) => document.getElementById(id);
 let state = newGame();
@@ -112,6 +112,27 @@ function renderJournal() {
   for (const entry of state.journal) fragment.append(eventRow(entry));
   $("journal").replaceChildren(fragment);
 }
+function renderLegend() {
+  const target=$("graphic-legend");
+  if (target.childElementCount) return;
+  for (const [id,label] of LEGEND_ITEMS) {
+    const chip=document.createElement("span");
+    chip.className="legend-chip";
+    const img=document.createElement("img");
+    img.src=TILE_SPRITES[id];img.alt="";img.draggable=false;
+    const title=document.createElement("span");
+    title.textContent=label;
+    chip.append(img,title);
+    target.append(chip);
+  }
+}
+function inspect(x,y) {
+  const details=inspectTile(state,x,y);
+  if(!details) return;
+  $("inspect-title").textContent=details.name;
+  $("inspect-description").textContent=details.description;
+  $("inspect-panel").dataset.kind=details.kind;
+}
 function render() {
   const run = state.run;
   $("mode-status").textContent = run ? "DESCENTE" : "REFUGE";
@@ -131,6 +152,8 @@ function render() {
     $("tile-map").hidden = renderMode !== "tiles";
     $("renderer-toggle").textContent = renderMode === "tiles" ? "Passer en ASCII" : "Activer les graphismes";
     $("renderer-toggle").setAttribute("aria-pressed", renderMode === "tiles" ? "true" : "false");
+    $("graphic-legend").hidden = renderMode !== "tiles";
+    $("ascii-legend").hidden = renderMode !== "ascii";
     if (renderMode === "tiles") drawTileMap(state, $("tile-map"));
     renderInventory($("bag-items"), run.carried);
   } else {
@@ -140,6 +163,11 @@ function render() {
   }
 }
 function act(result) {
+  if (result.changed) {
+    $("inspect-title").textContent="Identifier une case";
+    $("inspect-description").textContent="Touchez un élément de la carte pour connaître son rôle et ses caractéristiques.";
+    $("inspect-panel").dataset.kind="floor";
+  }
   if (!result.changed) {
     transientMessage = { type:"action", turn:state.run?.turns ?? null, text:result.message };
     renderJournal();
@@ -167,6 +195,12 @@ window.addEventListener("keydown", (event) => {
     event.preventDefault();
     act(move(state,direction));
   }
+});
+renderLegend();
+$("tile-map").addEventListener("click", (event) => {
+  const cell=event.target.closest(".pixel-tile");
+  if (!cell || !$("tile-map").contains(cell)) return;
+  inspect(Number(cell.dataset.x),Number(cell.dataset.y));
 });
 $("renderer-toggle").addEventListener("click", () => {
   renderMode = renderMode === "tiles" ? "ascii" : "tiles";

@@ -34,3 +34,14 @@ Le code est public ; la licence de réutilisation doit encore être définie. Le
 Six sprites SVG embarqués dans `docs/tiles.js` : sol, mur, héros, butin, danger et sortie. Un bouton bascule entre rendu graphique et ASCII sans changer le moteur, le personnage ou les sauvegardes. Aucun asset sous licence tierce.
 
 Pour envoyer un lien de jeu au testeur, activer GitHub Pages dans **Settings → Pages → Source : GitHub Actions**. L'URL sera `https://mathiks.github.io/Rogov-Android/` une fois le déploiement réussi. Les sauvegardes de chacun restent locales à son navigateur.
+
+## ROGOV v0.4 — graphismes et combats
+
+- Silhouettes améliorées : héros plus contrasté, sol simplifié, murs différenciés.
+- Deux ennemis originaux : charognard (rapide, poursuite courte, 3 PV, 1 dégât) et gardien déchu (lourd, stationnaire, 5 PV, 2 dégâts).
+- Marche vers un ennemi pour l'attaquer. Le joueur inflige 2 dégâts à mains nues ou 3 avec l'épée usée ; les monstres vivants adjacents contre-attaquent.
+- En cliquant sur une case de la carte graphique, afficher une fiche d'identification sans consommer de tour.
+- Légende graphique : joueur, charognard, garde, butin, faille et extraction.
+- En cas de mort au combat : Rappel et perte de tout le sac, personnage et coffre conservés.
+- Chargement des sauvegardes précédentes : les descentes déjà commencées conservent leur carte et leur inventaire, sans ajouter rétroactivement les nouveaux ennemis.
+- Compatibilité avec les modes HTML/PWA, ASCII et pixel art.

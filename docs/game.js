@@ -18,6 +18,9 @@ function validJournalEntry(entry) {
 export function normalizeJournal(state) {
   return {
     ...state,
+    run: state.run && !Array.isArray(state.run.enemies)
+      ? { ...state.run, enemies: [] }
+      : state.run,
     journal: state.journal.slice(0, JOURNAL_LIMIT).map(entry =>
       typeof entry === "string"
         ? { type:"system", turn:null, text:entry }
@@ -62,6 +65,68 @@ export const MAP = Object.freeze([
   "#S.^..#.....E.#",
   "###############"
 ]);
+
+/** Original ROGOV enemy families — readable silhouettes, deterministic v0.4 AI. */
+export const ENEMY_TYPES = Object.freeze({
+  charognard: { name:"Charognard", symbol:"c", hp:3, damage:1, xp:2, aggro:2, description:"Petite créature des ruines. Elle chasse les intrus à courte distance." },
+  guardian: { name:"Gardien déchu", symbol:"G", hp:5, damage:2, xp:4, aggro:0, description:"Guerrier en armure, lent mais dangereux au contact." }
+});
+const ENEMY_START = Object.freeze([
+  { id:"nhal-charognard-01", kind:"charognard", x:3, y:2, hp:3 },
+  { id:"nhal-guardian-01", kind:"guardian", x:11, y:2, hp:5 }
+]);
+const distance = (a,b) => Math.abs(a.x-b.x) + Math.abs(a.y-b.y);
+export function enemyAt(run, x, y) {
+  return (run?.enemies || []).find(enemy => enemy.x === x && enemy.y === y && enemy.hp > 0) || null;
+}
+export function inspectTile(state, x, y) {
+  if (!state.run || !Number.isInteger(x) || !Number.isInteger(y)) return null;
+  if (x === state.run.x && y === state.run.y) return { kind:"hero", name:"L'Égaré", description:"Ton personnage. PV : "+state.run.hp+"/12." };
+  const enemy = enemyAt(state.run,x,y);
+  if (enemy) return { kind:"enemy", name:ENEMY_TYPES[enemy.kind].name, description:"PV "+enemy.hp+"/"+ENEMY_TYPES[enemy.kind].hp+" · "+ENEMY_TYPES[enemy.kind].description };
+  const tile = tileAt(x,y);
+  if (tile==="#") return { kind:"wall", name:"Mur de pierre", description:"Obstacle infranchissable." };
+  if (tile==="^") return { kind:"danger", name:"Faille mortelle", description:"La traverser déclenche le Rappel. Le sac sera perdu." };
+  if (tile==="E") return { kind:"extraction", name:"Arche d'extraction", description:"Atteins-la pour sécuriser ton équipement." };
+  if (tile==="$" && !state.run.collected.includes(positionKey(x,y))) {
+    const id=LOOT[positionKey(x,y)];
+    return { kind:"loot", name:ITEMS[id].name, description:"Butin récupérable. Tu dois te déplacer sur cette case." };
+  }
+  if (tile==="#") return null;
+  return { kind:"floor", name:"Sol de Nhal", description:"Terrain praticable." };
+}
+function enemyPhase(s) {
+  const run=s.run;
+  if (!run) return s;
+  for (const enemy of run.enemies || []) {
+    const type=ENEMY_TYPES[enemy.kind];
+    const d=distance(enemy,{x:run.x,y:run.y});
+    if (d===1) {
+      run.hp = Math.max(0,run.hp-type.damage);
+      recordEvent(s,"combat",type.name+" te touche : -"+type.damage+" PV. ("+run.hp+"/12)",run.turns);
+      if(run.hp<=0) {
+        return recall(s).state;
+      }
+    } else if (type.aggro > 0 && d<=type.aggro) {
+      const dx=Math.sign(run.x-enemy.x),dy=Math.sign(run.y-enemy.y);
+      const options=Math.abs(run.x-enemy.x)>=Math.abs(run.y-enemy.y)
+        ? [[dx,0],[0,dy]] : [[0,dy],[dx,0]];
+      for(const [ox,oy] of options) {
+        if (!ox&&!oy)continue;
+        const nx=enemy.x+ox,ny=enemy.y+oy;
+        const tile=tileAt(nx,ny);
+        if((tile==="."||tile==="S") && !(nx===run.x&&ny===run.y) &&
+           !enemyAt(run,nx,ny)) {
+          enemy.x=nx;enemy.y=ny;
+          recordEvent(s,"danger","Un charognard approche.",run.turns);
+          break;
+        }
+      }
+    }
+  }
+  return s;
+}
+
 const LOOT = Object.freeze({ "3,6": "relic.ashen_fragment", "8,2": "consumable.dusk_tonic" });
 export const DIRECTIONS = Object.freeze({
   up: [0,-1], down: [0,1], left: [-1,0], right: [1,0]
@@ -108,6 +173,15 @@ export function validateSave(s) {
       if (!ITEMS[id] || !Number.isSafeInteger(count) || count < 0) return false;
     }
     if (quantity(r.carried) > INVENTORY_LIMIT) return false;
+    if (r.enemies !== undefined) {
+      if (!Array.isArray(r.enemies)) return false;
+      for (const enemy of r.enemies) {
+        if (!enemy || typeof enemy.id!=="string" || !(enemy.kind in ENEMY_TYPES) ||
+          !Number.isInteger(enemy.x) || !Number.isInteger(enemy.y) ||
+          !Number.isInteger(enemy.hp) || enemy.hp<1 || enemy.hp>ENEMY_TYPES[enemy.kind].hp ||
+          tileAt(enemy.x,enemy.y)==="#") return false;
+      }
+    }
   }
   return true;
 }
@@ -126,7 +200,7 @@ export function beginRun(state, equipment=[]) {
     carried[id] = 1;
   }
   s.meta.descents += 1;
-  s.run = { x: 1, y: 7, hp: 12, turns: 0, carried, collected: [] };
+  s.run = { x: 1, y: 7, hp: 12, turns: 0, carried, collected: [], enemies: ENEMY_START.map(e=>({...e})) };
   return info(s, "Descente " + s.meta.descents + " : les profondeurs de Nhal s'ouvrent.");
 }
 export function recall(state) {
@@ -161,28 +235,48 @@ export function move(state, direction) {
   const tile = tileAt(x,y);
   if (tile === "#") return info(state, "Un mur barre le passage.", false);
   const s = copy(state);
-  s.run.x = x;
-  s.run.y = y;
   s.run.turns += 1;
-  if (tile === "^") return recall(s);
-  if (tile === "E") return extract(s);
-  if (tile === "$" && !s.run.collected.includes(positionKey(x,y))) {
-    if (quantity(s.run.carried) >= INVENTORY_LIMIT) {
-      return info(s, "Sac plein : laisse le butin pour le moment.", true, "danger");
+  const enemy=enemyAt(s.run,x,y);
+  if(enemy) {
+    const type=ENEMY_TYPES[enemy.kind];
+    const damage=(s.run.carried["weapon.rusty_sword"]||0)>0 ? 3 : 2;
+    enemy.hp-=damage;
+    const killed=enemy.hp<=0;
+    recordEvent(s,"combat","Tu frappes "+type.name+" : "+damage+" dégâts"+(killed?" (vaincu).":"."),s.run.turns);
+    if(killed) {
+      s.run.enemies=s.run.enemies.filter(e=>e.id!==enemy.id);
+      gainXp(s,type.xp);
+      recordEvent(s,"loot","Victoire sur "+type.name+" : +"+type.xp+" XP.",s.run.turns);
     }
-    const id = LOOT[positionKey(x,y)];
-    s.run.carried[id] = (s.run.carried[id] || 0) + 1;
-    s.run.collected.push(positionKey(x,y));
-    gainXp(s, 1);
-    return info(s, "Butin : " + ITEMS[id].name + ". +1 XP.", true, "loot");
+    const after=enemyPhase(s);
+    return {state:after,message:after.journal[0]?.text||"Combat.",changed:true};
   }
-  return info(s, "Déplacement dans Nhal.", true, "action");
+  s.run.x=x; s.run.y=y;
+  if(tile==="^") return recall(s);
+  if(tile==="E") return extract(s);
+  let message="Déplacement dans Nhal.",type="action";
+  if(tile==="$"&&!s.run.collected.includes(positionKey(x,y))) {
+    if(quantity(s.run.carried)>=INVENTORY_LIMIT) {
+      message="Sac plein : laisse le butin pour le moment.";type="danger";
+    } else {
+      const id=LOOT[positionKey(x,y)];
+      s.run.carried[id]=(s.run.carried[id]||0)+1;
+      s.run.collected.push(positionKey(x,y));
+      gainXp(s,1);
+      message="Butin : "+ITEMS[id].name+". +1 XP.";type="loot";
+    }
+  }
+  recordEvent(s,type,message,s.run.turns);
+  const after=enemyPhase(s);
+  return {state:after,message:after.journal[0]?.text||message,changed:true};
 }
 export function mapText(state) {
   if (!state.run) return "";
   const {x: px,y: py,collected} = state.run;
   return MAP.map((row,y) => row.split("").map((tile,x) => {
     if (x === px && y === py) return "@";
+    const enemy=enemyAt(state.run,x,y);
+    if(enemy) return ENEMY_TYPES[enemy.kind].symbol;
     if (tile === "S") return ".";
     if (tile === "$" && collected.includes(positionKey(x,y))) return ".";
     return tile;

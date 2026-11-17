@@ -47,3 +47,29 @@
  .last-action p{font-size:13px}
  #journal{max-height:220px}
 }
+
+/* ROGOV v0.4 — art direction: silhouettes first, readable on small screens */
+.pixel-map{border-color:#69817d;box-shadow:0 0 0 1px #c2d1b320,0 6px 22px #0008}
+.pixel-tile{background-color:#202c33}
+.tile-hero{z-index:2}
+.tile-hero:before{content:"";position:absolute;inset:0;border:2px solid #e7efd0;box-shadow:inset 0 0 0 1px #17272a;pointer-events:none}
+.hostile-tile{z-index:2}
+.hostile-tile:before{content:"";position:absolute;inset:1px;border:1px solid #f1aa78;pointer-events:none}
+.tile-guardian:before{border-color:#cadde3}
+.hostile-tile:after{content:attr(data-hp);position:absolute;right:0;bottom:0;min-width:9px;min-height:10px;padding:0 1px;background:#341e23;color:#ffe7c9;font:800 9px/10px ui-monospace,monospace;text-align:center;pointer-events:none}
+.graphic-legend{display:flex;flex-wrap:wrap;gap:5px 12px;justify-content:center;padding:10px 6px 3px}
+.legend-chip{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font:600 11px/1.3 ui-monospace,monospace;color:#cad7cf}
+.legend-chip img{width:24px;height:24px;image-rendering:pixelated;flex-shrink:0}
+.inspect-panel{border:1px solid #43585b;border-left:3px solid #a8bcb5;border-radius:8px;background:#12222a;padding:10px 12px;margin-top:13px}
+.inspect-panel strong{display:block;font-size:13px;color:#ebeee6}
+.inspect-panel p{font-size:12px;color:#b9cbc2;line-height:1.5;margin:3px 0 0}
+.inspect-panel[data-kind="enemy"]{border-left-color:#e3a17b}
+.inspect-panel[data-kind="danger"]{border-left-color:#eb8f91}
+.inspect-panel[data-kind="loot"]{border-left-color:#e8c678}
+.inspect-panel[data-kind="extraction"]{border-left-color:#a8dfc0}
+@media(max-width:410px){
+ .graphic-legend{gap:4px 7px}
+ .legend-chip{font-size:10px}
+ .legend-chip img{width:20px;height:20px}
+ .hostile-tile:after{font-size:8px;line-height:8px;min-height:8px}
+}

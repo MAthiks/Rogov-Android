@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {newGame, validateSave, normalizeJournal, JOURNAL_LIMIT, beginRun, move, recall, extract, inventoryCount, mapText} from "../docs/game.js";
+import {newGame, validateSave, normalizeJournal, JOURNAL_LIMIT, ENEMY_TYPES, enemyAt, inspectTile, beginRun, move, recall, extract, inventoryCount, mapText} from "../docs/game.js";
 
 test("fresh refuge is stable", () => {
   const s = newGame();
@@ -131,4 +131,81 @@ test("journal is capped at 30 while the hero remains persistent", () => {
   assert.equal(s.journal.length,JOURNAL_LIMIT);
   assert.equal(s.meta.recalls,25);
   assert.ok(validateSave(s));
+});
+
+
+test("the two enemy families spawn with distinct ASCII symbols and visual identities", () => {
+  const s=beginRun(newGame(),[]).state;
+  assert.deepEqual(s.run.enemies.map(e=>e.kind),["charognard","guardian"]);
+  assert.equal(ENEMY_TYPES.charognard.symbol,"c");
+  assert.equal(ENEMY_TYPES.guardian.symbol,"G");
+  const map=mapText(s);
+  assert.ok(map.includes("c"));
+  assert.ok(map.includes("G"));
+  assert.equal(inspectTile(s,3,2).name,"Charognard");
+  assert.equal(inspectTile(s,11,2).name,"Gardien déchu");
+  assert.equal(inspectTile(s,9,4).kind,"danger");
+  assert.equal(inspectTile(s,12,7).kind,"extraction");
+  assert.equal(inspectTile(s,8,2).kind,"loot");
+  assert.ok(validateSave(s));
+});
+test("walking into a guardian attacks without moving the hero; killing grants XP", () => {
+  let s=beginRun(newGame(),["weapon.rusty_sword"]).state;
+  s.run.enemies=[{id:"test-guardian",kind:"guardian",x:2,y:7,hp:5}];
+  s=move(s,"right").state;
+  assert.equal(s.run.x,1);
+  assert.equal(s.run.y,7);
+  assert.equal(s.run.turns,1);
+  assert.equal(s.run.enemies[0].hp,2);
+  assert.equal(s.run.hp,10);
+  assert.ok(s.journal.some(e=>e.type==="combat"));
+  s=move(s,"right").state;
+  assert.equal(s.run.enemies.length,0);
+  assert.equal(s.run.hp,10);
+  assert.equal(s.meta.hero.xp,4);
+  assert.ok(s.journal.some(e=>e.text.includes("Victoire sur Gardien déchu")));
+  assert.ok(validateSave(s));
+});
+test("enemy combat can cause a Rappel without losing the persistent hero or stash", () => {
+  let s=beginRun(newGame(),["weapon.rusty_sword"]).state;
+  s.run.hp=2;
+  s.run.enemies=[{id:"test-guardian",kind:"guardian",x:2,y:7,hp:5}];
+  s=move(s,"right").state;
+  assert.equal(s.run,null);
+  assert.equal(s.meta.recalls,1);
+  assert.equal(s.meta.hero.level,1);
+  assert.equal(s.meta.stash["weapon.rusty_sword"],0);
+  assert.equal(s.meta.stash["consumable.bandage"],2);
+  assert.equal(s.journal[0].type,"recall");
+  assert.equal(s.journal[0].turn,1);
+});
+test("older active descents without enemies remain loadable and are not reset", () => {
+  const old=beginRun(newGame(),[]).state;
+  old.run.x=2;old.run.y=6;old.run.turns=11;old.run.hp=8;
+  delete old.run.enemies;
+  assert.equal(validateSave(old),true);
+  const migrated=normalizeJournal(old);
+  assert.deepEqual(migrated.run.enemies,[]);
+  assert.equal(migrated.run.turns,11);
+  assert.equal(migrated.run.hp,8);
+  assert.equal(migrated.run.x,2);
+  assert.ok(validateSave(migrated));
+});
+test("charognards pursue the hero only at short distance", () => {
+  let s=beginRun(newGame(),[]).state;
+  s.run.enemies=[{id:"test-hunter",kind:"charognard",x:3,y:5,hp:3}];
+  s=move(s,"up").state;
+  s=move(s,"right").state;
+  const monster=enemyAt(s.run,2,5);
+  assert.ok(monster);
+  assert.equal(monster.kind,"charognard");
+  assert.ok(s.journal.some(e=>e.type==="danger"));
+});
+test("graphic pack offers original sprites for both enemies and important tiles", () => {
+  for (const name of ["floor","wall","hero","loot","hazard","exit","charognard","guardian"]) {
+    assert.ok(TILE_SPRITES[name].startsWith("data:image/svg+xml;charset=UTF-8,"));
+  }
+  const first=decodeURIComponent(TILE_SPRITES.hero.split(",")[1]);
+  const second=decodeURIComponent(TILE_SPRITES.charognard.split(",")[1]);
+  assert.notEqual(first,second);
 });

@@ -1,86 +1,101 @@
-// ROGOV VISUAL PACK v0.2 — six original, scalable pixel-art sprites.
-// Inline SVG: no external images, no network dependency, no third-party license.
-import { MAP } from "./game.js";
-
-const svg = (body) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + body + '</svg>';
-
-const floor = svg(
-  '<rect width="24" height="24" fill="#202c34"/>' +
-  '<path d="M0 7h8l3-3h13M5 24v-7l4-2M17 0v7l7 2M12 14l3 3-2 7" stroke="#2e3d45" fill="none" stroke-width="1"/>' +
-  '<rect x="4" y="4" width="2" height="1" fill="#34444b"/><rect x="19" y="18" width="2" height="2" fill="#111b22"/>' +
-  '<path d="M0 23h24" stroke="#111920"/>'
+// ROGOV ORIGINAL ART v0.4 — functional pixel readability before decorative detail.
+// All sprites are written for ROGOV in inline SVG; no external images or licenses.
+import { MAP, ENEMY_TYPES, enemyAt } from "./game.js";
+const svg = (parts) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + parts + '</svg>';
+const floor=svg(
+  '<rect width="24" height="24" fill="#202c33"/>'+
+  '<rect x="4" y="6" width="4" height="1" fill="#293840"/>'+
+  '<rect x="16" y="18" width="3" height="1" fill="#283740"/>'
 );
-const wall = svg(
-  '<rect width="24" height="24" fill="#0c151b"/>' +
-  '<rect x="1" y="2" width="22" height="8" fill="#526268"/><rect x="1" y="12" width="11" height="10" fill="#3c5057"/><rect x="14" y="12" width="9" height="10" fill="#40545b"/>' +
-  '<path d="M2 3h20M2 13h10M14 13h9" stroke="#708187" stroke-width="1"/>' +
-  '<path d="M1 10h22M12 11v12" stroke="#0c151b" stroke-width="2"/>' +
-  '<rect x="5" y="7" width="3" height="2" fill="#263a40"/><rect x="18" y="16" width="2" height="4" fill="#22373a"/>'
+const wall=svg(
+  '<rect width="24" height="24" fill="#131d24"/>'+
+  '<rect x="1" y="1" width="22" height="10" fill="#455b65"/>'+
+  '<rect x="1" y="13" width="10" height="10" fill="#394e59"/>'+
+  '<rect x="13" y="13" width="10" height="10" fill="#394e59"/>'+
+  '<path d="M1 2h22M1 14h10M13 14h10" stroke="#77909a" stroke-width="1"/>'+
+  '<path d="M0 12h24M12 12v12" stroke="#0c161c" stroke-width="2"/>'
 );
-const hero = svg(
-  '<path d="M7 7L11 2h3l4 5-1 5 3 7-5 3H8l-5-3 4-7z" fill="#192527" stroke="#87a9a2" stroke-width="1"/>' +
-  '<path d="M8 6l4-3 4 3v8H8z" fill="#476965"/>' +
-  '<path d="M8 10h8v5H8z" fill="#101a1b"/>' +
-  '<rect x="9" y="11" width="2" height="1" fill="#c3ebaa"/><rect x="13" y="11" width="2" height="1" fill="#c3ebaa"/>' +
-  '<path d="M7 14l-3 5 5 3h6l5-3-3-5-5 2z" fill="#2f534b"/>' +
-  '<rect x="11" y="16" width="2" height="6" fill="#a4b99b"/>' +
-  '<path d="M18 8v11" stroke="#d3c18c" stroke-width="2"/><path d="M16 11h4" stroke="#d3c18c" stroke-width="2"/>'
+const hero=svg(
+  '<path d="M5 23L5 10 9 4 11 1h3l5 9 1 13z" fill="#182a2c" stroke="#ebf0d0" stroke-width="2"/>'+
+  '<path d="M7 10L11 4h3l4 6v4H7z" fill="#6e9d85"/>'+
+  '<path d="M8 12h8v4H8z" fill="#112125"/>'+
+  '<rect x="9" y="13" width="2" height="2" fill="#f6ffbc"/>'+
+  '<rect x="14" y="13" width="2" height="2" fill="#f6ffbc"/>'+
+  '<path d="M7 18l5-3 5 3 1 4H6z" fill="#437367"/>'+
+  '<rect x="20" y="5" width="2" height="17" fill="#ddca8e"/>'+
+  '<rect x="18" y="10" width="6" height="2" fill="#ddca8e"/>'
 );
-const loot = svg(
-  '<ellipse cx="12" cy="20" rx="9" ry="2" fill="#0c1317" opacity=".7"/>' +
-  '<rect x="4" y="11" width="16" height="9" fill="#74552d" stroke="#d1ad66" stroke-width="1"/>' +
-  '<path d="M4 11V8c0-5 16-5 16 0v3" fill="#8b6a3a" stroke="#d1ad66" stroke-width="1"/>' +
-  '<path d="M4 12h16" stroke="#2b1e14" stroke-width="2"/>' +
-  '<rect x="10" y="11" width="4" height="5" fill="#f4d078"/><rect x="11" y="13" width="2" height="2" fill="#765522"/>'
+const loot=svg(
+  '<path d="M3 12L5 8h14l2 4v9H3z" fill="#72552e" stroke="#f4d389" stroke-width="2"/>'+
+  '<path d="M4 12h16" stroke="#392b19" stroke-width="2"/>'+
+  '<rect x="10" y="12" width="4" height="6" fill="#ffe5a2"/>'+
+  '<rect x="11" y="14" width="2" height="2" fill="#76551a"/>'
 );
-const hazard = svg(
-  '<path d="M12 1l10 11-10 11L2 12z" fill="#3b1720" stroke="#ba4656" stroke-width="2"/>' +
-  '<path d="M12 5l5 7-5 7-5-7z" fill="#7d303d"/>' +
-  '<path d="M12 5v14M7 12h10" stroke="#f39b8e" stroke-width="1"/>' +
-  '<rect x="10" y="10" width="4" height="4" fill="#1b0d14"/><rect x="11" y="11" width="2" height="2" fill="#ffb5a3"/>'
+const hazard=svg(
+  '<path d="M12 1L23 12 12 23 1 12Z" fill="#401925" stroke="#ff8b8f" stroke-width="2"/>'+
+  '<path d="M12 5l6 7-6 7-6-7Z" fill="#8e3640"/>'+
+  '<path d="M11 6l1 6-3 7M14 9l-2 3 3 5" stroke="#ffd2a9" stroke-width="2" fill="none"/>'
 );
-const exit = svg(
-  '<path d="M4 23V8l3-5h10l3 5v15" fill="#18353b" stroke="#7fbab5" stroke-width="2"/>' +
-  '<path d="M8 22V10l4-4 4 4v12" fill="#56a3a0" opacity=".85"/>' +
-  '<path d="M10 19l2-9 2 9-2 3z" fill="#c0e6c3"/>' +
-  '<path d="M2 22h20" stroke="#c5dcb4" stroke-width="2"/>' +
-  '<rect x="11" y="3" width="2" height="2" fill="#d0efc7"/>'
+const exit=svg(
+  '<path d="M2 23V8L7 2h10l5 6v15" fill="#113d3d" stroke="#b9f2d7" stroke-width="2"/>'+
+  '<path d="M7 23V10l5-5 5 5v13" fill="#479c96"/>'+
+  '<path d="M11 10h2v13h-2" fill="#efffe4"/>'+
+  '<path d="M1 23h22" stroke="#b9f2d7" stroke-width="2"/>'
 );
-
-export const TILE_SPRITES = Object.freeze(Object.fromEntries(
-  Object.entries({ floor, wall, hero, loot, hazard, exit }).map(([name, source]) => [
-    name, "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(source)
-  ])
+const charognard=svg(
+  '<path d="M1 19L4 12 8 15 12 9l8 4 3 8-7 1-7-3-5 3Z" fill="#6a442f" stroke="#f1aa78" stroke-width="2"/>'+
+  '<path d="M8 14L5 5l9 8 7-9-2 13" fill="#995c3c" stroke="#e5a275" stroke-width="1"/>'+
+  '<path d="M15 15h3v3h-3" fill="#fff1ab"/>'+
+  '<path d="M2 22l3-5M18 22l3-5" stroke="#e9ab7f" stroke-width="2"/>'
+);
+const guardian=svg(
+  '<path d="M4 23L3 10l5-4 2-4h5l3 4 3 4-1 13Z" fill="#576271" stroke="#c2d6df" stroke-width="2"/>'+
+  '<path d="M7 8L10 4h5l2 4-2 7H9Z" fill="#273a47" stroke="#d5d8d5" stroke-width="1"/>'+
+  '<path d="M9 12h7" stroke="#f49f8d" stroke-width="3"/>'+
+  '<path d="M7 16h10M8 21h8" stroke="#9eabb7" stroke-width="2"/>'+
+  '<path d="M21 1v22" stroke="#dbd1ae" stroke-width="2"/>'
+);
+const SPRITE_SVGS={ floor, wall, hero, loot, hazard, exit, charognard, guardian };
+export const TILE_SPRITES=Object.freeze(Object.fromEntries(
+  Object.entries(SPRITE_SVGS).map(([id,source])=>[id,"data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(source)])
 ));
-
-export function drawTileMap(state, host) {
+export const LEGEND_ITEMS=Object.freeze([
+  ["hero","Joueur"],["charognard","Charognard"],["guardian","Gardien déchu"],
+  ["loot","Butin"],["hazard","Danger"],["exit","Extraction"]
+]);
+export function drawTileMap(state,host) {
   host.replaceChildren();
-  if (!state.run) return;
-  const run = state.run;
-  host.style.gridTemplateColumns = "repeat(" + MAP[0].length + ", minmax(0, 1fr))";
-  const fragment = document.createDocumentFragment();
-  MAP.forEach((row, y) => {
-    for (let x = 0; x < row.length; x++) {
-      const symbol = row[x];
-      const wall = symbol === "#";
-      const cell = document.createElement("div");
-      cell.className = "pixel-tile";
-      cell.style.backgroundImage = "url('" + (wall ? TILE_SPRITES.wall : TILE_SPRITES.floor) + "')";
-      let object = null;
-      if (x === run.x && y === run.y) object = "hero";
-      else if (symbol === "$" && !run.collected.includes(x + "," + y)) object = "loot";
-      else if (symbol === "^") object = "hazard";
-      else if (symbol === "E") object = "exit";
-      if (object) {
-        const sprite = document.createElement("img");
-        sprite.alt = "";
-        sprite.draggable = false;
-        sprite.src = TILE_SPRITES[object];
-        sprite.decoding = "async";
-        cell.append(sprite);
+  if(!state.run)return;
+  const run=state.run;
+  host.style.gridTemplateColumns="repeat("+MAP[0].length+", minmax(0, 1fr))";
+  const fragment=document.createDocumentFragment();
+  MAP.forEach((line,y)=>line.split("").forEach((tile,x)=>{
+    const cell=document.createElement("div");
+    cell.className="pixel-tile";
+    cell.dataset.x=String(x);cell.dataset.y=String(y);
+    cell.style.backgroundImage="url('"+(tile==="#"?TILE_SPRITES.wall:TILE_SPRITES.floor)+"')";
+    let spriteId=null;
+    if(x===run.x&&y===run.y)spriteId="hero";
+    else {
+      const enemy=enemyAt(run,x,y);
+      if(enemy) {
+        spriteId=enemy.kind;
+        cell.dataset.entity="enemy";
+        cell.classList.add("hostile-tile");
+        cell.dataset.hp=String(enemy.hp);
       }
-      fragment.append(cell);
+      else if(tile==="$"&&!run.collected.includes(x+","+y))spriteId="loot";
+      else if(tile==="^")spriteId="hazard";
+      else if(tile==="E")spriteId="exit";
     }
-  });
+    if(spriteId) {
+      const img=document.createElement("img");
+      img.alt="";img.draggable=false;img.decoding="async";
+      img.src=TILE_SPRITES[spriteId];
+      cell.append(img);
+      cell.classList.add("tile-"+spriteId);
+    }
+    fragment.append(cell);
+  }));
   host.append(fragment);
 }

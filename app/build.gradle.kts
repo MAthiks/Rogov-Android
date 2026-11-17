@@ -10,18 +10,24 @@ android {
     defaultConfig {
         applicationId = "com.rogov.android"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 3
-        versionName = "0.1.2"
+        targetSdk = 33
+        versionCode = 4
+        versionName = "0.1.3"
         testInstrumentationRunner = "android.test.InstrumentationTestRunner"
     }
 
-    // Diagnostic install package, separate from any previous ROGOV installation.
-    // Production package remains com.rogov.android.
+    signingConfigs {
+        getByName("debug") {
+            enableV1Signing = true
+            enableV2Signing = true
+        }
+    }
+
     buildTypes {
         getByName("debug") {
-            applicationIdSuffix = ".installtest"
-            versionNameSuffix = "-test"
+            // Distinct diagnostic package: does not replace a prior ROGOV build.
+            applicationIdSuffix = ".compat"
+            versionNameSuffix = "-compat"
         }
     }
 

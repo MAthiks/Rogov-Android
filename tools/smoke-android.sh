@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 APK="app/build/outputs/apk/debug/app-debug.apk"
-PACKAGE="com.rogov.android.installtest"
+PACKAGE="com.rogov.android.compat"
 ACTIVITY="com.rogov.android.MainActivity"
 
 echo "Installing ROGOV on Android emulator"

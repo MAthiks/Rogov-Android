@@ -184,7 +184,13 @@ export function validateLayout(map,loot){
   if(map.some((line,y)=>y===0||y===8?line!=="###############":
     line[0]!=="#"||line[14]!=="#"))return false;
   if(!loot||typeof loot!=="object"||Array.isArray(loot))return false;
+  const tiles=new Set();
+  for(let y=0;y<map.length;y++)for(let x=0;x<map[y].length;x++){
+    if(map[y][x]==="$")tiles.add(x+","+y);
+  }
+  if(tiles.size!==Object.keys(loot).length)return false;
   for(const [pos,item] of Object.entries(loot)){
+    if(!tiles.has(pos))return false;
     if(!["relic.ashen_fragment","consumable.dusk_tonic"].includes(item))return false;
     const m=/^(\d+),(\d+)$/.exec(pos);
     if(!m||map[Number(m[2])]?.[Number(m[1])]!=="$")return false;

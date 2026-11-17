@@ -1,4 +1,4 @@
-name: Publish ROGOV diagnostic APK
+name: Publish ROGOV compatibility APK
 
 on:
   push:
@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
-      - name: Download Android-13 tested artifact
+      - name: Download Android-13 tested compatibility APK
         uses: actions/download-artifact@v4
         with:
-          name: ROGOV-0.1.2-install-tested-apk
-          run-id: 44078045769
+          name: ROGOV-0.1.3-compat-android13-tested-apk
+          run-id: 44108577480
           github-token: ${{ github.token }}
           path: dist
       - name: Prepare direct APK download
@@ -27,13 +27,13 @@ jobs:
         run: |
           APK=$(find dist -type f -name 'app-debug.apk' -print -quit)
           test -n "$APK"
-          cp "$APK" dist/ROGOV-v0.1.2-diagnostic.apk
-          sha256sum dist/ROGOV-v0.1.2-diagnostic.apk
-      - name: Publish diagnostic GitHub release
+          cp "$APK" dist/ROGOV-v0.1.3-COMPAT.apk
+          sha256sum dist/ROGOV-v0.1.3-COMPAT.apk
+      - name: Publish compatibility release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v0.1.2-diagnostic dist/ROGOV-v0.1.2-diagnostic.apk \
+          gh release create v0.1.3-compat dist/ROGOV-v0.1.3-COMPAT.apk \
             --repo "$GITHUB_REPOSITORY" \
-            --title "ROGOV 0.1.2 — diagnostic installation Android" \
-            --notes "APK de diagnostic : com.rogov.android.installtest, indépendant de toute ancienne installation de ROGOV. Installé, lancé et validé par GitHub Actions sur émulateur Android 13. Ne contient ni suivi ni connexion réseau. Télécharger uniquement l'APK joint à cette release. Si le téléphone affiche « Application non installée », vérifier la permission Installer les applications inconnues pour Mes fichiers et la protection Auto Blocker si disponible."
+            --title "ROGOV v0.1.3 — COMPAT Android 13" \
+            --notes "Version de diagnostic originale, testée par installation et démarrage sur émulateur Android 13. Application ID : com.rogov.android.compat. Target SDK 33. Signatures APK v1 et v2. Elle n'écrase pas les anciennes installations. Télécharger le .apk directement. Si l'installation refuse encore sur votre téléphone, relever le code d'erreur via le système d'installation ou ADB, la source de l'APK et le stockage disponible. Ne pas désactiver les protections système pour forcer l'installation."

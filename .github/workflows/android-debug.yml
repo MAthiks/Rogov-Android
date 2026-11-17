@@ -39,11 +39,20 @@ jobs:
           "$SDKMANAGER" --sdk_root="$SDKROOT" --install 'platforms;android-36' 'build-tools;36.0.0'
       - name: Unit tests + debug APK
         run: gradle --no-daemon :app:testDebugUnitTest :app:assembleDebug
+      - name: Verify APK signature, alignment and Android compatibility
+        shell: bash
+        run: |
+          TOOLS="${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools/36.0.0"
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          "$TOOLS/apksigner" verify --verbose --print-certs "$APK"
+          "$TOOLS/zipalign" -c -v 4 "$APK"
+          "$TOOLS/aapt" dump badging "$APK" | grep -E "^(package|sdkVersion|targetSdkVersion|application-label)"
+          sha256sum "$APK"
       - name: Publish downloadable APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: ROGOV-0.1.1-debug-apk
+          name: ROGOV-0.1.1-verified-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

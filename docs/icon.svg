@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="ROGOV">
+<rect width="256" height="256" rx="40" fill="#0d131a"/>
+<rect x="17" y="17" width="222" height="222" rx="32" fill="#172b2b" stroke="#6a9479" stroke-width="5"/>
+<path d="M67 196V60h62c37 0 58 18 58 48 0 24-14 40-39 46l45 42h-41l-39-38H101v38H67zm34-70h25c18 0 26-5 26-17 0-11-9-17-27-17h-24z" fill="#a4cb9f"/>
+<path d="M57 216h141" stroke="#6a9479" stroke-width="4" stroke-linecap="round"/>
+</svg>

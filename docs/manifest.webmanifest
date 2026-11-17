@@ -1,0 +1,36 @@
+{
+  "name": "ROGOV — Extraction Roguelike",
+  "short_name": "ROGOV",
+  "description": "Un jeu tactique d'extraction et de résurrection au tour par tour. Veyr et Nhal.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d131a",
+  "theme_color": "#0d131a",
+  "lang": "fr",
+  "categories": [
+    "games"
+  ],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    }
+  ]
+}

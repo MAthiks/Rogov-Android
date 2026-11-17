@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "docs/**"
-      - "tests/web-game.test.mjs"
+      - "tests/**"
       - "tools/make-icons.mjs"
       - "package.json"
       - ".github/workflows/rogov-web.yml"

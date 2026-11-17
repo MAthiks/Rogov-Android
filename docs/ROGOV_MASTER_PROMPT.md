@@ -52,6 +52,14 @@ Référence : docs/VISUAL_BIBLE_V0.6.md.
 - **WIP = 1.** Avancer par lots verticaux testés, avec historique documenté.
 - Le prototype natif Kotlin/Android existe dans app/, mais reste une voie historique, pas la diffusion prioritaire.
 
+## Exigence qualité : passer de 6/10 à 8/10
+
+Le bilan de studio de référence est conservé dans [QUALITY_REVIEW_6_TO_8.md](QUALITY_REVIEW_6_TO_8.md). Le concept a de bonnes bases, mais le gameplay, la rejouabilité, la valeur du butin, l'ergonomie et notre rigueur de tests doivent progresser. Priorité : **rendre dix minutes de descente réellement intéressantes**, pas seulement livrer des versions.
+
+Mesures minimales : tests automatiques, sauvegardes préservées, essais Android réels, au moins cinq testeurs sur deux descentes et une majorité exprimant l'envie de rejouer. La cible 8/10 reste **un objectif**, pas une note atteinte.
+
+**DEV-070 terminé :** le contrat pur du combat est dans `combat.js`, avec tests de sélection, portées et intentions. Le jeu en production conserve encore son combat simplifié ; panneau et actions sont à implémenter.
+
 ## Règle de suivi
 
 Ne jamais annoncer une fonction v0.7 comme publiée tant qu'elle n'est pas codée, testée et déployée. Conserver la distinction **décidé / en cours / livré**.

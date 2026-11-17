@@ -1,3 +1,10 @@
+## Fondation du combat v0.7 — DEV-070 (2026-11-17)
+
+- Nouveau module pur `docs/combat.js` : distances CONTACT/PROCHE/LOIN, lignes de vue rectilignes, sélection/désélection de cible sans coût de tour, aperçu de l'IA actuelle, états de défense contrôlés et modèle de données pour le futur panneau.
+- 12 nouveaux tests `tests/combat-contract.test.mjs` ; les 37 tests précédents restent actifs.
+- Le gameplay publié v0.6.1, le format des sauvegardes et le Rappel restent inchangés. Le combat hybride complet n'est pas encore disponible.
+- Bilan de studio 6/10 et objectifs qualité 8/10 sauvegardés dans `docs/QUALITY_REVIEW_6_TO_8.md`.
+
 ## Préparation v0.7 — décision de conception (NON PUBLIÉE, 2026-11-17)
 
 - Adoption du **combat hybride sur carte**, avec panneau tactique contextuel plutôt qu'une arène séparée.

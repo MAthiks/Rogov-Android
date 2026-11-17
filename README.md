@@ -30,10 +30,13 @@ Le déploiement public Web passe par GitHub Pages et le workflow « ROGOV Web �
 
 Rester sur **la carte**, avec un **panneau tactique contextuel** plutôt qu'une arène séparée. Choisir explicitement une cible et une action : **Attaquer**, **Esquiver**, **Parer/Bloquer**, **Reculer**. Tenir compte des distances CONTACT / PROCHE / LOIN, des intentions ennemies et du risque de perdre le sac. Le simple déplacement vers un ennemi ne devra plus provoquer une attaque automatique.
 
+**DEV-070 réalisé :** un contrat de combat indépendant dans `docs/combat.js`, vérifié par des tests de distance, sélection, intentions et anciennes sauvegardes. **L'interface et la résolution tactique restent à développer.**
+
 Cette orientation reprend des principes fonctionnels de combat tactique, sans reproduire visuellement Darkest Dungeon ni emprunter des ressources à des jeux tiers.
 
 ### Documents de référence
 
+- [Bilan du studio et objectif Alpha 8/10](docs/QUALITY_REVIEW_6_TO_8.md) — points faibles, critères qualité et tests joueurs
 - [GDD de combat hybride v0.7](docs/COMBAT_DESIGN_V0.7.md) — règles, flux de tour, UI, sauvegardes, tests
 - [Prompt de développement v0.7](docs/DEV_PROMPT_V0.7.md) — étapes d'implémentation
 - [Master Prompt](docs/ROGOV_MASTER_PROMPT.md) — objectifs et contraintes communs

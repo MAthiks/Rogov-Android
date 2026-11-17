@@ -1,6 +1,6 @@
 # ROGOV — GDD de combat tactique hybride v0.7
 
-**Statut : conception approuvée le 17 novembre 2026 ; contrat DEV-070 et panneau informatif DEV-071 implémentés, actions/intentions v0.7 complètes non implémentées.**  
+**Statut : conception approuvée le 17 novembre 2026 ; contrat DEV-070, panneau DEV-071 et actions explicites DEV-072 implémentés ; intentions avancées DEV-073 et équilibrage non finalisés.**  
 **Version jouable de référence : Web Alpha v0.6.1.**  
 **Références d'intention :** Darkest Dungeon (pression tactique, choix et lecture des intentions), roguelike sur grille (exploration continue), extraction à risque (éviter un combat peut sauver l'équipement). Aucune copie d'UI, d'illustrations, de personnages ou de règles propriétaires.
 
@@ -83,7 +83,7 @@ Le panneau présente la dernière action et le danger imminent, tandis que l'his
 
 - **Lot 1 — Contrat de combat : TERMINÉ** dans `docs/combat.js` (distance, portée, sélection, intentions, états défensifs, tests). Aucun changement visuel ni modification des règles de combat en production.
 - **Lot 2 — Panneau contextuel : TERMINÉ en prévisualisation**, sélection et désélection tactiles, portée, intentions actuelles, modes graphique/ASCII. **Les boutons d'attaque et défense sont encore des aperçus** ; la marche vers un ennemi attaque toujours en v0.6.2.
-- **Lot 3 — Actions explicites :** attaque, esquive, parade, blocage, repli ; suppression du coup automatique sur collision.
+- **Lot 3 — Actions explicites : TERMINÉ au niveau prototype** — attaque de contact avec cible, esquive contre la mêlée, parade avec épée (réduit 1 dégât et riposte 1), blocage absorbe 1 dégât (mêlée ou onde), repli d'une case libre augmentant la distance. Aucun coût en cas d'action impossible. La collision sélectionne la cible sans tour ni dégâts.
 - **Lot 4 — IA et équilibrage :** intentions distinctes pour Charognard, Gardien et Larve ; journaux lisibles ; essais terrain sur Samsung.
 - **Lot 5 — Livraison :** tests, sauvegarde, mode hors ligne, accessibilité, déploiement GitHub Pages.
 

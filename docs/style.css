@@ -190,3 +190,14 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 .tactic-preview-warning{font-size:11px;line-height:1.55;color:#c6b9a4;margin:11px 0 0}
 .tactic-preview-warning strong{color:#e2c49d}
 @media(max-width:390px){.target-choices{gap:4px}.target-choice{padding:4px 3px}.target-choice img{width:22px;height:22px}.target-choice strong{font-size:9px}.target-choice small{font-size:8px}}
+
+/* DEV-072 — active tactical controls, explicit turn-based combat. */
+.tactic-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.tactic-actions button{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;min-height:56px;padding:9px 7px;border-radius:8px;border:1px solid #7d9c86;color:#edf0de;background:linear-gradient(170deg,#365046,#233b39);font-weight:750;font-size:14px;line-height:1.2}
+.tactic-actions button:first-child{background:linear-gradient(165deg,#b3cea7,#809e88);color:#122521}
+.tactic-actions button small{display:block;font-size:10px;font-weight:550;opacity:.82}
+.tactic-actions button:disabled{opacity:.4;filter:grayscale(.7);cursor:not-allowed}
+.tactic-actions button:focus-visible{outline:2px solid #f4daab;outline-offset:2px}
+.tactic-actions button:last-child{grid-column:1/-1}
+@media(max-width:380px){.tactic-actions{gap:6px}.tactic-actions button{padding:7px 4px;font-size:12px}}
+.event-defense{--event-accent:#b5d8bf}

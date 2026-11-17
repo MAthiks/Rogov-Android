@@ -1,4 +1,4 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, move, useItem, waitTurn, mapText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, move, attackTarget, defend, retreat, useItem, waitTurn, mapText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { selectTarget, clearTarget, combatSnapshot, rangeBand, tileDistance } from "./combat.js";
 
@@ -12,7 +12,7 @@ let transientMessage = null;
 let hasStoredGame = false;
 const EVENT_LABELS = Object.freeze({
   system:"SYSTÈME", action:"ACTION", loot:"BUTIN", danger:"DANGER",
-  extraction:"EXTRACTION", recall:"RAPPEL", combat:"COMBAT", heal:"SOIN"
+  extraction:"EXTRACTION", recall:"RAPPEL", combat:"COMBAT", heal:"SOIN", defense:"DÉFENSE"
 });
 const VIEW_KEY = "rogov-renderer-v1";
 let renderMode = "tiles";
@@ -205,9 +205,12 @@ function renderCombatPreview() {
   $("combat-weapon").textContent=(state.run.carried["weapon.rusty_sword"]||0)>0
     ? "Épée usée" : "Sans arme";
   $("combat-defense").textContent=snapshot.defense==="none" ? "Aucune" : snapshot.defense;
+  $("combat-attack").disabled=!snapshot.meleeAvailable;
+  $("combat-parry").disabled=(state.run.carried["weapon.rusty_sword"]||0)<1;
   $("combat-range-note").textContent=snapshot.meleeAvailable
-    ? "Cible au contact. Les commandes tactiques arrivent dans DEV-072."
-    : "Hors de portée de mêlée. Observe l'ennemi et rapproche-toi prudemment.";
+    ? "Cible au CONTACT : tu peux attaquer. Chaque action valide consomme un tour."
+    : "Hors de portée de mêlée : rapproche-toi, prépare une défense ou recule.";
+
 }
 function render() {
   const run = state.run;
@@ -346,6 +349,11 @@ $("wait-btn").addEventListener("click", () => act(waitTurn(state)));
 $("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.bandage")));
 $("use-tonic").addEventListener("click", () => act(useItem(state, "consumable.dusk_tonic")));
 $("target-clear").addEventListener("click", unselectTarget);
+$("combat-attack").addEventListener("click",()=>act(attackTarget(state)));
+$("combat-dodge").addEventListener("click",()=>act(defend(state,"dodge")));
+$("combat-parry").addEventListener("click",()=>act(defend(state,"parry")));
+$("combat-block").addEventListener("click",()=>act(defend(state,"block")));
+$("combat-retreat").addEventListener("click",()=>act(retreat(state)));
 window.addEventListener("keydown", (event) => {
   if (!state.run) return;
   const target = event.target;
@@ -365,12 +373,17 @@ window.addEventListener("keydown", (event) => {
     }
     return;
   }
-  const action = { " ":"wait", "1":"bandage", "2":"tonic" }[event.key];
+  const action = { " ":"wait", "1":"bandage", "2":"tonic", "f":"attack", "e":"dodge", "p":"parry", "b":"block", "r":"retreat" }[event.key.toLowerCase()];
   if (action && target?.tagName !== "BUTTON") {
     event.preventDefault();
     if (action === "wait") act(waitTurn(state));
     if (action === "bandage") act(useItem(state, "consumable.bandage"));
     if (action === "tonic") act(useItem(state, "consumable.dusk_tonic"));
+    if (action === "attack") act(attackTarget(state));
+    if (action === "dodge") act(defend(state,"dodge"));
+    if (action === "parry") act(defend(state,"parry"));
+    if (action === "block") act(defend(state,"block"));
+    if (action === "retreat") act(retreat(state));
   }
 });
 renderLegend();

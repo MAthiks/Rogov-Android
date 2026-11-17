@@ -28,3 +28,7 @@ Ce lot vise la **lisibilité et l'interaction**, pas encore l'équilibrage du co
 7. Sur mobile étroit, vérifier l'absence de débordement et la visibilité de la carte ; tester en navigation hors ligne après un premier chargement.
 
 **Critère de validation :** aucune attaque au simple toucher d'une cible, aucune perte de sauvegarde, aucun changement involontaire du moteur v0.6, nouvelles informations compréhensibles.
+
+## Extension DEV-072
+
+Le panneau était une prévisualisation en v0.6.2. **En v0.7a ses cinq boutons sont actifs.** Pour les règles actuelles : lire `docs/COMBAT_DESIGN_V0.7.md` et `docs/TACTICAL_COMBAT_DEV072.md`. Les descriptions de commandes non interactives de la version DEV-071 ci-dessus sont conservées comme historique, pas comme état actuel.

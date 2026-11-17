@@ -8,7 +8,7 @@
   <title>ROGOV — Veyr / Nhal</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css?v=0.6.2">
+  <link rel="stylesheet" href="./style.css?v=0.7a">
   <!-- Critical responsive shell: renders correctly even if Chrome serves an older PWA stylesheet. -->
   <style id="title-critical-style">
     html,body{max-width:100%;overflow-x:hidden}
@@ -32,7 +32,7 @@
     .title-screen .title-footer a,.title-screen .title-footer button{color:#cce2d3;font:inherit}
     @media(max-width:360px){.title-screen{padding:8px 6px}.title-screen .title-shell{padding:12px}.title-screen .title-brand h1{letter-spacing:.07em}}
   </style>
-  <script type="module" src="./app.js?v=0.6.2"></script>
+  <script type="module" src="./app.js?v=0.7a"></script>
 </head>
 <body>
   <section id="title-screen" class="title-screen" aria-labelledby="title-logo">
@@ -40,7 +40,7 @@
       <header class="title-top">
         <span>VEYR / NHAL</span>
         <span class="title-sigil" aria-hidden="true">◈</span>
-        <span>WEB ALPHA 0.6.2</span>
+        <span>WEB ALPHA 0.7a</span>
       </header>
       <div class="title-brand">
         <h1 id="title-logo">ROGOV</h1>
@@ -117,14 +117,14 @@
         <section class="tactical-targets" aria-labelledby="target-choices-title">
           <div class="target-choices-heading">
             <strong id="target-choices-title">Menaces identifiées</strong>
-            <span>Toucher une créature ou appuyer sur C pour cibler</span>
+            <span>Toucher une créature ou appuyer sur C pour cibler sans dépenser de tour</span>
           </div>
           <div id="target-choices" class="target-choices" role="group" aria-label="Choisir une cible sans perdre de tour"></div>
         </section>
         <section id="combat-panel" class="combat-preview" aria-labelledby="combat-panel-title" hidden>
           <div class="combat-preview-heading">
             <div>
-              <span class="eyebrow">ENGAGEMENT — APERÇU TACTIQUE</span>
+              <span class="eyebrow">ENGAGEMENT — COMBAT TACTIQUE</span>
               <h3 id="combat-panel-title">CIBLE VERROUILLÉE</h3>
             </div>
             <button type="button" id="target-clear" class="target-clear">✕ Désélectionner</button>
@@ -148,10 +148,14 @@
             <span>DÉFENSE : <strong id="combat-defense">Aucune</strong></span>
           </div>
           <p id="combat-range-note" class="hint">Le combat tactique arrive dans une prochaine mise à jour.</p>
-          <div class="tactic-preview-actions" aria-label="Actions de combat en préparation">
-            <span>⚔ Attaquer</span><span>◈ Esquiver</span><span>⛨ Parer / Bloquer</span><span>↙ Reculer</span>
+          <div class="tactic-actions" role="group" aria-label="Actions tactiques au tour par tour">
+            <button id="combat-attack" type="button">⚔ Attaquer <small>F · CONTACT</small></button>
+            <button id="combat-dodge" type="button">◈ Esquiver <small>E · évite la mêlée</small></button>
+            <button id="combat-parry" type="button">⛨ Parer <small>P · avec arme</small></button>
+            <button id="combat-block" type="button">▣ Bloquer <small>B · amortit 1 dégât</small></button>
+            <button id="combat-retreat" type="button">↙ Reculer <small>R · case libre</small></button>
           </div>
-          <p class="tactic-preview-warning"><strong>APERÇU UNIQUEMENT :</strong> les nouvelles actions ne sont pas encore jouables. Le combat actuel s'effectue toujours en marchant vers l'ennemi.</p>
+          <p class="tactic-preview-warning"><strong>COMBAT ACTIF :</strong> toucher un adversaire le cible sans perdre de tour. Seule l'action Attaquer inflige des dégâts. Esquive, parade, blocage et recul ont des effets différents.</p>
         </section>
 
         <div id="inspect-panel" class="inspect-panel" data-kind="floor" aria-live="polite">
@@ -165,7 +169,7 @@
           <button type="button" data-direction="down" class="down" aria-label="Descendre">↓</button>
           <button type="button" data-direction="right" class="right" aria-label="Aller à droite">→</button>
         </div>
-        <p class="hint center">Le combat tactique est en préparation : dans cette version, marche encore vers un ennemi pour l'attaquer. La Larve projette une onde tous les 3 tours.</p>
+        <p class="hint center">Avancer contre un ennemi le cible sans dépenser de tour. Attaque avec le panneau tactique (F au clavier). La Larve projette une onde tous les 3 tours : bloque ou évite son axe.</p>
         <div class="survival-actions" role="group" aria-label="Actions de survie">
           <button id="wait-btn" type="button" class="survival-action">Attendre <small>1 tour</small></button>
           <button id="use-bandage" type="button" class="survival-action" disabled>Bandage +4 PV (0)</button>

@@ -1,6 +1,6 @@
 # ROGOV — Roguelike d'extraction tactique
 
-**Version Web : v0.6.2 — aperçu tactique, combat actuel inchangé (HTML/PWA).**  
+**Version Web : v0.7a — prototype de combat tactique (HTML/PWA).**  
 **Prochaine version en développement : v0.7 — combat tactique hybride (non jouable intégralement).**
 
 Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-Android/**
@@ -20,17 +20,17 @@ ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il
 
 | Branche produit | État | Sources |
 |---|---|---|
-| **Web HTML/PWA** | **Jouable v0.6.2** : carte, sprites, trois ennemis, combat de collision simple, journal, soins, Rappel et extraction | `docs/` |
+| **Web HTML/PWA** | **Jouable v0.7a** : carte, sprites, trois ennemis, combat de collision simple, journal, soins, Rappel et extraction | `docs/` |
 | **Android natif Kotlin** | Prototype de compatibilité APK **v0.1.3** ; installation sur Samsung non confirmée | `app/` |
-| **Combat hybride v0.7** | **DEV-070 et DEV-071 livrés : ciblage et panneau informatif ; DEV-072 à venir**, pas encore présent sur le site | documents de conception v0.7 |
+| **Combat hybride v0.7** | **DEV-070 à 072 livrés : ciblage et actions tactiques, intentions avancées DEV-073 à venir**, pas encore présent sur le site | documents de conception v0.7 |
 
 Le déploiement public Web passe par GitHub Pages et le workflow « ROGOV Web — Tests and GitHub Pages ». Chaque navigateur garde sa propre sauvegarde locale. Le mode PWA permet une utilisation hors ligne après chargement initial.
 
 ## Nouvelle orientation du combat — v0.7 (prévue)
 
-Rester sur **la carte**, avec un **panneau tactique contextuel** plutôt qu'une arène séparée. Choisir explicitement une cible et une action : **Attaquer**, **Esquiver**, **Parer/Bloquer**, **Reculer**. Tenir compte des distances CONTACT / PROCHE / LOIN, des intentions ennemies et du risque de perdre le sac. Le simple déplacement vers un ennemi ne devra plus provoquer une attaque automatique.
+Rester sur **la carte**, avec un **panneau tactique contextuel** plutôt qu'une arène séparée. Choisir explicitement une cible et une action : **Attaquer**, **Esquiver**, **Parer/Bloquer**, **Reculer**. Tenir compte des distances CONTACT / PROCHE / LOIN, des intentions ennemies et du risque de perdre le sac. Le simple déplacement vers un ennemi ne provoque plus d'attaque automatique dans la v0.7a.
 
-**DEV-070 et DEV-071 réalisés :** module indépendant `docs/combat.js` (distance, sélection, intentions) et panneau contextuel en jeu (sélection tactile ou touche C, PV, distance, intentions). **Les commandes tactiques affichées sont des aperçus et le combat v0.6 par collision demeure, jusqu'à DEV-072.**
+**DEV-070 à DEV-072 réalisés :** module `docs/combat.js` (distance, sélection, intentions), panneau contextuel en jeu, attaque explicite et défenses différenciées. **Le combat par collision a été supprimé**. Les intentions avancées, l'équilibrage et la vérification sur Samsung sont encore à faire.
 
 Cette orientation reprend des principes fonctionnels de combat tactique, sans reproduire visuellement Darkest Dungeon ni emprunter des ressources à des jeux tiers.
 

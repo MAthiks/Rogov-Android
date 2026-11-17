@@ -1,8 +1,8 @@
 # Backlog de production — ROGOV (WIP maximal = 1)
 
-**Base web en cours de mise à jour : v0.6.2 (aperçu tactique DEV-071).**  
+**Version cible : Web Alpha v0.7a — actions de combat explicites (DEV-072).**  
 **Décision actée : Combat hybride v0.7.**  
-**État actuel : DEV-070 et DEV-071 intégrés ; les règles de combat restent celles de la v0.6.1.**
+**État actuel : DEV-070, DEV-071 et DEV-072 développés ; DEV-073 (intentions ennemies avancées) et validation Android sont les prochaines étapes.**
 
 ## Priorité P0 — v0.7, un lot à la fois
 
@@ -10,11 +10,11 @@
 - [x] **DOC-008 — Documenter** : GDD combat, prompt d'implémentation, Master Prompt et roadmap
 - [x] **DEV-070 — Contrat du combat et tests** : distance CONTACT/PROCHE/LOIN, sélection explicite, intention, états défensifs, sauvegarde
 - [x] **DEV-071 — Panneau contextuel Android** : cible, PV, distance, intentions et actions, carte toujours visible
-- [ ] **DEV-072 — Actions tactiques** : attaque explicite (sans attaque par déplacement), esquive, parade, blocage, repli
+- [x] **DEV-072 — Actions tactiques** : attaque explicite (sans attaque par déplacement), esquive, parade, blocage, repli
 - [ ] **DEV-073 — IA et annonces** : Charognard, Gardien déchu, Larve de faille ; contre-jeu lisible
 - [ ] **QA-074 — Compatibilité et livraison** : tests combat/Rappel/extraction/sauvegarde, ASCII, PWA, Android, GitHub Pages
 
-**Prochain lot actif : DEV-072 — résolution des actions tactiques**. Le panneau DEV-071 présente les cibles et intentions ; les 4 commandes affichées sont des aperçus NON interactifs tant que le moteur n'est pas prêt. Il faut d'abord valider le confort du panneau en test sur Samsung.
+**Prochain lot actif : DEV-073 — intentions ennemies avancées.** Le nouveau moteur permet les actions Attaquer, Esquiver, Parer, Bloquer et Reculer ; il reste à télégraphier plus finement la préparation du Gardien et à vérifier le contre-jeu au téléphone. Les tests sur Samsung restent à réaliser avant d'augmenter la note qualitative.
 
 **Objectif de qualité :** [bilan 6/10 → 8/10](docs/QUALITY_REVIEW_6_TO_8.md) ; aucune note de 8/10 ne sera attribuée sans tests sur téléphone et retours de joueurs.
 

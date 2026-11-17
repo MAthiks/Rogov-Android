@@ -1,3 +1,15 @@
+## Web Alpha v0.7a — DEV-072 : vrai combat tactique (17 novembre 2026)
+
+- Se déplacer dans un ennemi ne l'attaque plus : il devient cible sans tour dépensé.
+- Attaquer n'est possible qu'au CONTACT contre une cible vivante sélectionnée ; dégâts 3 avec épée, 2 sans arme.
+- Esquive : annule la première attaque de mêlée du tour, n'annule pas l'onde de Faille.
+- Parade : requiert l'épée ; réduit le premier coup de mêlée de 1 et riposte de 1.
+- Blocage : absorbe 1 dégât du premier coup, mêlée ou onde.
+- Recul : une case libre s'éloignant de l'ennemi, sans traverser pièges, murs ou créatures.
+- Actions valides : un tour ; actions impossibles : aucun tour ni PV consommé.
+- Panneau tactique activé, clavier F/E/P/B/R, couleurs distinctes et boutons de taille tactile.
+- Sauvegardes existantes compatibles ; Rappel et extraction inchangés. IA et équilibrage à compléter en DEV-073.
+
 ## Web Alpha v0.6.2 — DEV-071 : ciblage et panneau tactique (2026-11-17)
 
 - Sélection sans coût de tour depuis la carte graphique ou une bande de cibles accessible en mode ASCII.

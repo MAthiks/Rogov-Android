@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {newGame, validateSave, normalizeJournal, JOURNAL_LIMIT, MAX_HP, HEALING_ITEMS, ENEMY_TYPES, enemyAt, inspectTile, beginRun, move, useItem, waitTurn, recall, extract, inventoryCount, mapText} from "../docs/game.js";
+import {newGame, validateSave, normalizeJournal, JOURNAL_LIMIT, MAX_HP, HEALING_ITEMS, ENEMY_TYPES, enemyAt, inspectTile, beginRun, move, attackTarget, useItem, waitTurn, recall, extract, inventoryCount, mapText} from "../docs/game.js";
 
 test("fresh refuge is stable", () => {
   const s = newGame();
@@ -152,28 +152,37 @@ test("three enemy families spawn with distinct ASCII symbols and visual identiti
   assert.equal(inspectTile(s,8,2).kind,"loot");
   assert.ok(validateSave(s));
 });
-test("walking into a guardian attacks without moving the hero; killing grants XP", () => {
+test("walking into a guardian only selects; explicit attacks give XP", () => {
   let s=beginRun(newGame(),["weapon.rusty_sword"]).state;
   s.run.enemies=[{id:"test-guardian",kind:"guardian",x:2,y:7,hp:5}];
   s=move(s,"right").state;
   assert.equal(s.run.x,1);
   assert.equal(s.run.y,7);
+  assert.equal(s.run.turns,0);
+  assert.equal(s.run.targetId,"test-guardian");
+  assert.equal(s.run.enemies[0].hp,5);
+  assert.equal(s.run.hp,12);
+  s=attackTarget(s).state;
   assert.equal(s.run.turns,1);
   assert.equal(s.run.enemies[0].hp,2);
   assert.equal(s.run.hp,10);
   assert.ok(s.journal.some(e=>e.type==="combat"));
-  s=move(s,"right").state;
+  s=attackTarget(s).state;
   assert.equal(s.run.enemies.length,0);
   assert.equal(s.run.hp,10);
+  assert.equal(s.run.targetId,null);
   assert.equal(s.meta.hero.xp,4);
   assert.ok(s.journal.some(e=>e.text.includes("Victoire sur Gardien déchu")));
   assert.ok(validateSave(s));
 });
-test("enemy combat can cause a Rappel without losing the persistent hero or stash", () => {
+test("explicit combat can cause a Rappel without losing hero or safe stash", () => {
   let s=beginRun(newGame(),["weapon.rusty_sword"]).state;
   s.run.hp=2;
   s.run.enemies=[{id:"test-guardian",kind:"guardian",x:2,y:7,hp:5}];
   s=move(s,"right").state;
+  assert.ok(s.run);
+  assert.equal(s.run.turns,0);
+  s=attackTarget(s).state;
   assert.equal(s.run,null);
   assert.equal(s.meta.recalls,1);
   assert.equal(s.meta.hero.level,1);
@@ -302,7 +311,7 @@ test("title screen contains functional controls and separate game shell", async 
 test("title scene is included in PWA cache manifest", async () => {
   const {readFileSync} = await import("node:fs");
   const sw=readFileSync(new URL("../docs/sw.js", import.meta.url),"utf8");
-  assert.match(sw,/rogov-v0\.6\.2/);
+  assert.match(sw,/rogov-v0\.7a/);
   assert.match(sw,/title-scene\.webp/);
 });
 
@@ -356,8 +365,12 @@ test("rift larva can be defeated with original weapons and gives experience", ()
   s.run.x=5;s.run.y=2;
   s.run.enemies=[{id:"larva-test",kind:"rift_larva",x:6,y:2,hp:4}];
   s=move(s,"right").state;
+  assert.equal(s.run.turns,0);
+  assert.equal(s.run.targetId,"larva-test");
+  assert.equal(s.run.enemies[0].hp,4);
+  s=attackTarget(s).state;
   assert.equal(s.run.enemies[0].hp,1);
-  s=move(s,"right").state;
+  s=attackTarget(s).state;
   assert.equal(s.run.enemies.length,0);
   assert.equal(s.run.x,5);
   assert.equal(s.meta.hero.xp,3);
@@ -382,8 +395,8 @@ test("mobile title stays legible even when a stale PWA CSS file is loaded", asyn
   assert.match(html,/id="title-critical-style"/);
   assert.match(html,/title-screen \.title-scene img\{display:block;width:100%;max-width:100%/);
   assert.match(html,/title-screen \.title-button\{display:block;width:100%/);
-  assert.match(html,/\.\/style\.css\?v=0\.6\.2/);
-  assert.match(html,/\.\/app\.js\?v=0\.6\.2/);
+  assert.match(html,/\.\/style\.css\?v=0\.7a/);
+  assert.match(html,/\.\/app\.js\?v=0\.7a/);
   assert.match(sw,/criticalAsset =/);
   assert.match(sw,/fetch\(request\)\.then\(\(response\) =>/);
 });

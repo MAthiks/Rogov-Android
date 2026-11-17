@@ -8,8 +8,9 @@ export const HEALING_ITEMS = Object.freeze({
   "consumable.dusk_tonic": 6
 });
 export const JOURNAL_LIMIT = 30;
-export const EVENT_TYPES = Object.freeze(["system", "action", "loot", "danger", "extraction", "recall", "combat", "heal"]);
+export const EVENT_TYPES = Object.freeze(["system", "action", "loot", "danger", "extraction", "recall", "combat", "heal", "defense"]);
 const MOVEMENT_CODE = "move";
+const TACTICAL_DEFENSES = Object.freeze(["none", "dodge", "parry", "block"]);
 
 /** Accept older saved string messages and structured v0.3 messages. */
 function validJournalEntry(entry) {
@@ -118,6 +119,47 @@ function canRiftPulse(enemy, run) {
   if (enemy.x!==run.x && enemy.y!==run.y) return false;
   return tileAt((enemy.x+run.x)/2,(enemy.y+run.y)/2)!=="#";
 }
+
+/**
+ * DEV-072: a defensive stance can mitigate the first matching enemy hit this turn.
+ * Dodge avoids melee, parry (with sword) deflects 1 melee damage and ripostes 1,
+ * block absorbs 1 damage from either melee or a rift pulse.
+ * Invalid or mismatched attacks do not consume the stance until turn end.
+ */
+function receiveEnemyAttack(s, enemy, type, amount, source) {
+  const run=s.run;
+  const mode=run.defense || "none";
+  let damage=amount;
+  if (source==="melee" && mode==="dodge") {
+    damage=0;
+    run.defense="none";
+    recordEvent(s,"defense","Esquive réussie contre "+type.name+".",run.turns);
+  } else if (source==="melee" && mode==="parry" &&
+             (run.carried["weapon.rusty_sword"]||0)>0) {
+    damage=Math.max(0,amount-1);
+    run.defense="none";
+    enemy.hp-=1;
+    recordEvent(s,"defense","Parade contre "+type.name+" : -1 dégât, riposte 1.",run.turns);
+    if (enemy.hp<=0) {
+      run.enemies=run.enemies.filter(e=>e.id!==enemy.id);
+      gainXp(s,type.xp);
+      if(run.targetId===enemy.id) run.targetId=null;
+      recordEvent(s,"combat",type.name+" vaincu en riposte : +"+type.xp+" XP.",run.turns);
+    }
+  } else if (mode==="block") {
+    damage=Math.max(0,amount-1);
+    run.defense="none";
+    recordEvent(s,"defense","Blocage : 1 dégât absorbé ("+type.name+").",run.turns);
+  }
+  if (damage>0) {
+    run.hp=Math.max(0,run.hp-damage);
+    recordEvent(s,"combat",type.name+
+      (source==="rift" ? " libère une onde" : " te touche")+
+      " : -"+damage+" PV. ("+run.hp+"/"+MAX_HP+")",run.turns);
+  }
+  if(run.hp<=0) return recall(s).state;
+  return s;
+}
 function enemyPhase(s) {
   const run=s.run;
   if (!run) return s;
@@ -127,17 +169,13 @@ function enemyPhase(s) {
     // Distinct v0.6 AI: immobile Larva pulses at range 2 on turns 3, 6, 9...
     if (enemy.kind==="rift_larva" && run.turns>0 &&
         run.turns%3===0 && canRiftPulse(enemy,run)) {
-      run.hp=Math.max(0,run.hp-1);
-      recordEvent(s,"combat","La Larve de faille libère une onde : -1 PV. ("+run.hp+"/"+MAX_HP+")",run.turns);
-      if(run.hp<=0) return recall(s).state;
+      s=receiveEnemyAttack(s,enemy,type,1,"rift");
+      if(!s.run) return s;
       continue;
     }
     if (d===1) {
-      run.hp = Math.max(0,run.hp-type.damage);
-      recordEvent(s,"combat",type.name+" te touche : -"+type.damage+" PV. ("+run.hp+"/"+MAX_HP+")",run.turns);
-      if(run.hp<=0) {
-        return recall(s).state;
-      }
+      s=receiveEnemyAttack(s,enemy,type,type.damage,"melee");
+      if(!s.run) return s;
     } else if (type.aggro > 0 && d<=type.aggro) {
       const dx=Math.sign(run.x-enemy.x),dy=Math.sign(run.y-enemy.y);
       const options=Math.abs(run.x-enemy.x)>=Math.abs(run.y-enemy.y)
@@ -155,6 +193,8 @@ function enemyPhase(s) {
       }
     }
   }
+  // A preparation lasts only one enemy phase, never indefinitely.
+  run.defense="none";
   return s;
 }
 
@@ -205,6 +245,9 @@ export function validateSave(s) {
       if (!ITEMS[id] || !Number.isSafeInteger(count) || count < 0) return false;
     }
     if (quantity(r.carried) > INVENTORY_LIMIT) return false;
+    if (r.targetId!==undefined && r.targetId!==null &&
+        (typeof r.targetId!=="string" || r.targetId.length===0)) return false;
+    if (r.defense!==undefined && !TACTICAL_DEFENSES.includes(r.defense)) return false;
     if (r.enemies !== undefined) {
       if (!Array.isArray(r.enemies)) return false;
       for (const enemy of r.enemies) {
@@ -258,7 +301,7 @@ export function extract(state) {
   gainXp(s, 2);
   return info(s, "EXTRACTION RÉUSSIE — Ton butin rejoint le coffre. +2 XP.", true, "extraction", finalTurn);
 }
-export function move(state, direction) {
+export function move(state, direction, context="move") {
   if (!state.run) return info(state, "Commence une descente depuis Veyr.", false);
   const vector = DIRECTIONS[direction];
   if (!vector) return info(state, "Déplacement inconnu.", false);
@@ -266,27 +309,22 @@ export function move(state, direction) {
   const y = state.run.y + vector[1];
   const tile = tileAt(x,y);
   if (tile === "#") return info(state, "Un mur barre le passage.", false);
+  const blocking=enemyAt(state.run,x,y);
+  if (blocking) {
+    if (state.run.targetId===blocking.id)
+      return info(state, ENEMY_TYPES[blocking.kind].name+" bloque le passage : choisis Attaquer.", false);
+    const s=copy(state);
+    s.run.targetId=blocking.id;
+    return {state:s,changed:true,message:ENEMY_TYPES[blocking.kind].name+
+      " ciblé (aucun tour perdu). Utilise Attaquer pour combattre."};
+  }
   const s = copy(state);
   s.run.turns += 1;
-  const enemy=enemyAt(s.run,x,y);
-  if(enemy) {
-    const type=ENEMY_TYPES[enemy.kind];
-    const damage=(s.run.carried["weapon.rusty_sword"]||0)>0 ? 3 : 2;
-    enemy.hp-=damage;
-    const killed=enemy.hp<=0;
-    recordEvent(s,"combat","Tu frappes "+type.name+" : "+damage+" dégâts"+(killed?" (vaincu).":"."),s.run.turns);
-    if(killed) {
-      s.run.enemies=s.run.enemies.filter(e=>e.id!==enemy.id);
-      gainXp(s,type.xp);
-      recordEvent(s,"loot","Victoire sur "+type.name+" : +"+type.xp+" XP.",s.run.turns);
-    }
-    const after=enemyPhase(s);
-    return {state:after,message:after.journal[0]?.text||"Combat.",changed:true};
-  }
   s.run.x=x; s.run.y=y;
   if(tile==="^") return recall(s);
   if(tile==="E") return extract(s);
-  let message="Déplacement dans Nhal.",type="action";
+  let message=context==="retreat" ? "Repli tactique vers une case libre." : "Déplacement dans Nhal.";
+  let type=context==="retreat" ? "combat" : "action";
   if(tile==="$"&&!s.run.collected.includes(positionKey(x,y))) {
     if(quantity(s.run.carried)>=INVENTORY_LIMIT) {
       message="Sac plein : laisse le butin pour le moment.";type="danger";
@@ -302,6 +340,68 @@ export function move(state, direction) {
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||message,changed:true};
 }
+
+/** Explicit one-tile melee attack; target must be selected and adjacent. */
+export function attackTarget(state) {
+  if (!state.run) return info(state,"Prépare une descente.",false);
+  const enemy=state.run.enemies?.find(e=>e.id===state.run.targetId && e.hp>0);
+  if (!enemy) return info(state,"Sélectionne une cible vivante.",false);
+  if (distance(state.run,enemy)!==1)
+    return info(state,"Cible hors de portée : approche au CONTACT.",false);
+  const s=copy(state);
+  const target=s.run.enemies.find(e=>e.id===enemy.id);
+  const type=ENEMY_TYPES[target.kind];
+  const damage=(s.run.carried["weapon.rusty_sword"]||0)>0?3:2;
+  s.run.turns+=1;
+  target.hp-=damage;
+  const defeated=target.hp<=0;
+  recordEvent(s,"combat","Tu frappes "+type.name+" : "+damage+
+    " dégâts"+(defeated?" (vaincu).":"."),s.run.turns);
+  if(defeated){
+    s.run.enemies=s.run.enemies.filter(e=>e.id!==target.id);
+    s.run.targetId=null;
+    gainXp(s,type.xp);
+    recordEvent(s,"loot","Victoire sur "+type.name+" : +"+type.xp+" XP.",s.run.turns);
+  }
+  const after=enemyPhase(s);
+  return {state:after,message:after.journal[0]?.text||"Attaque résolue.",changed:true};
+}
+
+/** A defensive preparation consumes one turn and is resolved by the enemy phase. */
+export function defend(state, mode) {
+  if (!state.run) return info(state,"Prépare une descente.",false);
+  if (!["dodge","parry","block"].includes(mode))
+    return info(state,"Défense inconnue.",false);
+  if (mode==="parry" && (state.run.carried["weapon.rusty_sword"]||0)<1)
+    return info(state,"Parade impossible sans une arme de mêlée.",false);
+  const s=copy(state);
+  s.run.turns+=1;
+  s.run.defense=mode;
+  const labels={dodge:"Esquive",parry:"Parade",block:"Blocage"};
+  recordEvent(s,"defense",labels[mode]+" préparé(e) pour le tour "+s.run.turns+".",s.run.turns);
+  const after=enemyPhase(s);
+  return {state:after,message:after.journal[0]?.text||"Défense résolue.",changed:true};
+}
+
+/**
+ * Retreat attempts a deterministic free step that increases distance from the
+ * selected foe. Avoid lethal rifts and enemy collisions; enemies still react.
+ */
+export function retreat(state) {
+  if (!state.run) return info(state,"Prépare une descente.",false);
+  const enemy=state.run.enemies?.find(e=>e.id===state.run.targetId && e.hp>0);
+  if (!enemy) return info(state,"Sélectionne un ennemi avant de reculer.",false);
+  const previous=distance(state.run,enemy);
+  const moves=Object.entries(DIRECTIONS).map(([direction,[dx,dy]])=>{
+    const x=state.run.x+dx,y=state.run.y+dy;
+    return {direction,x,y,range:distance({x,y},enemy),tile:tileAt(x,y)};
+  }).filter(m=>m.tile!=="#" && m.tile!=="^" &&
+    !enemyAt(state.run,m.x,m.y) && m.range>previous);
+  if(!moves.length) return info(state,"Repli impossible : aucune case libre pour s'éloigner.",false);
+  moves.sort((a,b)=>b.range-a.range);
+  return move(state,moves[0].direction,"retreat");
+}
+
 /** Spend a carried healing item. Consuming it costs one turn and triggers enemy reactions. */
 export function useItem(state, itemId) {
   if (!state.run) return info(state, "Prépare d'abord une descente.", false);

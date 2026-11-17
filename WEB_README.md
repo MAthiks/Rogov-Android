@@ -88,3 +88,9 @@ La référence de conception est [docs/COMBAT_DESIGN_V0.7.md](docs/COMBAT_DESIGN
 Les ennemis de Nhal peuvent être sélectionnés sur la carte graphique (toucher le sprite) ou dans la bande « Menaces identifiées », accessible aussi en ASCII. La sélection n'use ni tour ni équipement. Le panneau tactique montre les PV, la portée, l'intention du prochain tour, l'arme et la défense. Sur clavier, **C** passe à la cible suivante.
 
 **Limite volontaire :** les commandes Attaquer, Esquiver, Parer/Bloquer et Reculer sont uniquement présentées visuellement ; elles ne sont pas encore actives. Le moteur actuel attaque toujours en marchant sur une case ennemie. Le prochain lot DEV-072 corrigera ce point avec de nouvelles règles. Aucun nouveau format de sauvegarde ou APK requis.
+
+## v0.7a — Combat tactique actif (DEV-072)
+
+Le panneau de combat devient interactif : Attaquer (F), Esquiver (E), Parer (P), Bloquer (B) et Reculer (R) en mode clavier, ou boutons tactiles. Toucher un ennemi ou avancer dans sa case le cible **sans dépenser de tour**. Une attaque n'est possible qu'à CONTACT ; la parade requiert l'épée, l'esquive évite un coup de mêlée, le blocage absorbe 1 dégât d'une attaque (y compris l'onde de Faille) et reculer cherche une case libre qui augmente la distance. Les actions invalides ne coûtent rien.
+
+Les règles de Rappel, extraction, coffre et sac sont inchangées ; les anciennes sauvegardes restent compatibles. **À vérifier en conditions réelles sur Samsung.** L'IA actuelle est conservée ; les nouvelles préparations et indications ennemies restent à travailler en DEV-073.

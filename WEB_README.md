@@ -60,3 +60,15 @@ Pour envoyer un lien de jeu au testeur, activer GitHub Pages dans **Settings →
 ## v0.5.1 — Écran titre validé
 
 Un écran d'accueil original et sombre présente ROGOV, l'Arche de Nhal et l'Égaré (sans croix). Les boutons Commencer/Continuer et Nouvelle partie sont fonctionnels. « Continuer » reprend l'état sauvegardé en conservant les règles actuelles et les paramètres d'affichage. « Nouvelle partie » demande confirmation avant d'effacer une progression existante. Un bouton « Retour à l'écran titre » est disponible depuis les options en jeu. La scène a été recadrée à partir de la maquette approuvée et optimisée pour une PWA.
+
+
+## Web Alpha v0.6 — Lignées de Nhal
+
+La v0.6 applique une bible artistique inspirée de l'horreur cosmique, avec des sprites originaux 24×24 :
+- **Charognard** : silhouette basse, pattes asymétriques, cuivre maladif. Poursuite à courte distance.
+- **Gardien déchu** : silhouette verticale en pierre ancienne, tête à fente lumineuse, couleur os/ardoise. Reste sur place et frappe au contact.
+- **Larve de faille** : silhouette incomplète et membrane spectrale vert pâle, avec fissure lumineuse centrale. Se tient immobile ; émet une onde (-1 PV) en ligne droite à deux cases tous les trois tours si aucun mur ne bloque.
+
+Les murs, la faille et l'arche d'extraction reprennent les mêmes matériaux, tout en restant immédiatement lisibles. La légende graphique et l'inspection tactile identifient les trois ennemis.
+
+Aucune modification du format de sauvegarde : les descentes v0.5.1 déjà en cours gardent leur population d'ennemis d'origine, les nouvelles descentes commencent avec la Larve. Le personnage, l'XP et le coffre restent persistants ; la mort fait perdre le sac. Les sprites sont embarqués, sans police ni image externe. Le jeu fonctionne hors ligne après le premier chargement.

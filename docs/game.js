@@ -71,14 +71,22 @@ export const MAP = Object.freeze([
   "###############"
 ]);
 
-/** Original ROGOV enemy families — readable silhouettes, deterministic v0.4 AI. */
+/** v0.6 Creature bible: low / tall / anomalous silhouettes; all original to ROGOV. */
 export const ENEMY_TYPES = Object.freeze({
-  charognard: { name:"Charognard", symbol:"c", hp:3, damage:1, xp:2, aggro:2, description:"Petite créature des ruines. Elle chasse les intrus à courte distance." },
-  guardian: { name:"Gardien déchu", symbol:"G", hp:5, damage:2, xp:4, aggro:0, description:"Guerrier en armure, lent mais dangereux au contact." }
+  charognard: { name:"Charognard", symbol:"c", hp:3, damage:1, xp:2, aggro:2,
+    family:"Charognards de Nhal",
+    description:"Fouisseur aux pattes inégales et aux yeux d'ivoire. Il te traque de près." },
+  guardian: { name:"Gardien déchu", symbol:"G", hp:5, damage:2, xp:4, aggro:0,
+    family:"Gardiens déchus",
+    description:"Sentinelle de pierre et d'os, scellée à une armure rituelle. Elle garde sa position." },
+  rift_larva: { name:"Larve de faille", symbol:"L", hp:4, damage:1, xp:3, aggro:0,
+    family:"Choses de la Faille",
+    description:"Corps fendu d'une lueur spectrale. Émet une onde à deux cases tous les trois tours, en ligne droite." }
 });
 const ENEMY_START = Object.freeze([
   { id:"nhal-charognard-01", kind:"charognard", x:3, y:2, hp:3 },
-  { id:"nhal-guardian-01", kind:"guardian", x:11, y:2, hp:5 }
+  { id:"nhal-guardian-01", kind:"guardian", x:11, y:2, hp:5 },
+  { id:"nhal-rift-larva-01", kind:"rift_larva", x:6, y:2, hp:4 }
 ]);
 const distance = (a,b) => Math.abs(a.x-b.x) + Math.abs(a.y-b.y);
 export function enemyAt(run, x, y) {
@@ -88,7 +96,11 @@ export function inspectTile(state, x, y) {
   if (!state.run || !Number.isInteger(x) || !Number.isInteger(y)) return null;
   if (x === state.run.x && y === state.run.y) return { kind:"hero", name:"L'Égaré", description:"Ton personnage. PV : "+state.run.hp+"/"+MAX_HP+"." };
   const enemy = enemyAt(state.run,x,y);
-  if (enemy) return { kind:"enemy", name:ENEMY_TYPES[enemy.kind].name, description:"PV "+enemy.hp+"/"+ENEMY_TYPES[enemy.kind].hp+" · "+ENEMY_TYPES[enemy.kind].description };
+  if (enemy) {
+    const creature=ENEMY_TYPES[enemy.kind];
+    return { kind:"enemy", name:creature.name,
+      description:creature.family+" · PV "+enemy.hp+"/"+creature.hp+" · "+creature.description };
+  }
   const tile = tileAt(x,y);
   if (tile==="#") return { kind:"wall", name:"Mur de pierre", description:"Obstacle infranchissable." };
   if (tile==="^") return { kind:"danger", name:"Faille mortelle", description:"La traverser déclenche le Rappel. Le sac sera perdu." };
@@ -100,12 +112,26 @@ export function inspectTile(state, x, y) {
   if (tile==="#") return null;
   return { kind:"floor", name:"Sol de Nhal", description:"Terrain praticable." };
 }
+/** A rift pulse travels straight through open floor, never through walls or corners. */
+function canRiftPulse(enemy, run) {
+  if (distance(enemy,run)!==2) return false;
+  if (enemy.x!==run.x && enemy.y!==run.y) return false;
+  return tileAt((enemy.x+run.x)/2,(enemy.y+run.y)/2)!=="#";
+}
 function enemyPhase(s) {
   const run=s.run;
   if (!run) return s;
   for (const enemy of run.enemies || []) {
     const type=ENEMY_TYPES[enemy.kind];
     const d=distance(enemy,{x:run.x,y:run.y});
+    // Distinct v0.6 AI: immobile Larva pulses at range 2 on turns 3, 6, 9...
+    if (enemy.kind==="rift_larva" && run.turns>0 &&
+        run.turns%3===0 && canRiftPulse(enemy,run)) {
+      run.hp=Math.max(0,run.hp-1);
+      recordEvent(s,"combat","La Larve de faille libère une onde : -1 PV. ("+run.hp+"/"+MAX_HP+")",run.turns);
+      if(run.hp<=0) return recall(s).state;
+      continue;
+    }
     if (d===1) {
       run.hp = Math.max(0,run.hp-type.damage);
       recordEvent(s,"combat",type.name+" te touche : -"+type.damage+" PV. ("+run.hp+"/"+MAX_HP+")",run.turns);
@@ -123,7 +149,7 @@ function enemyPhase(s) {
         if((tile==="."||tile==="S") && !(nx===run.x&&ny===run.y) &&
            !enemyAt(run,nx,ny)) {
           enemy.x=nx;enemy.y=ny;
-          recordEvent(s,"danger","Un charognard approche.",run.turns);
+          recordEvent(s,"danger",type.name+" approche.",run.turns);
           break;
         }
       }

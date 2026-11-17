@@ -131,3 +131,13 @@
  .title-footer{gap:5px}
 }
 @media(prefers-reduced-motion:reduce){.title-button{transition:none}}
+
+
+/* v0.6 visual bible — silhouettes, linework and complementary accent semantics. */
+.tile-rift_larva{z-index:2}
+.hostile-tile.tile-rift_larva:before{border-color:#9dd7c4;box-shadow:inset 0 0 0 1px #0b2324}
+.hostile-tile.tile-rift_larva:after{background:#17413e;color:#e3f8e9}
+.hostile-tile.tile-charognard:before{border-color:#e0a078}
+.hostile-tile.tile-guardian:before{border-color:#ccd0bb}
+.graphic-legend{border-top:1px solid #31484b;margin-top:10px}
+.legend-chip{color:#d1dfd7}

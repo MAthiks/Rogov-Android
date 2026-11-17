@@ -67,7 +67,7 @@ test("extraction away from E is not allowed", () => {
   assert.ok(s.run);
 });
 
-import { TILE_SPRITES } from "../docs/tiles.js";
+import { TILE_SPRITES, LEGEND_ITEMS } from "../docs/tiles.js";
 
 test("six original scalable graphical sprites are included", () => {
   for (const name of ["floor", "wall", "hero", "loot", "hazard", "exit"]) {
@@ -134,16 +134,19 @@ test("journal is capped at 30 while the hero remains persistent", () => {
 });
 
 
-test("the two enemy families spawn with distinct ASCII symbols and visual identities", () => {
+test("three enemy families spawn with distinct ASCII symbols and visual identities", () => {
   const s=beginRun(newGame(),[]).state;
-  assert.deepEqual(s.run.enemies.map(e=>e.kind),["charognard","guardian"]);
+  assert.deepEqual(s.run.enemies.map(e=>e.kind),["charognard","guardian","rift_larva"]);
   assert.equal(ENEMY_TYPES.charognard.symbol,"c");
   assert.equal(ENEMY_TYPES.guardian.symbol,"G");
+  assert.equal(ENEMY_TYPES.rift_larva.symbol,"L");
   const map=mapText(s);
   assert.ok(map.includes("c"));
   assert.ok(map.includes("G"));
+  assert.ok(map.includes("L"));
   assert.equal(inspectTile(s,3,2).name,"Charognard");
   assert.equal(inspectTile(s,11,2).name,"Gardien déchu");
+  assert.equal(inspectTile(s,6,2).name,"Larve de faille");
   assert.equal(inspectTile(s,9,4).kind,"danger");
   assert.equal(inspectTile(s,12,7).kind,"extraction");
   assert.equal(inspectTile(s,8,2).kind,"loot");
@@ -202,7 +205,7 @@ test("charognards pursue the hero only at short distance", () => {
   assert.ok(s.journal.some(e=>e.type==="danger"));
 });
 test("graphic pack offers original sprites for both enemies and important tiles", () => {
-  for (const name of ["floor","wall","hero","loot","hazard","exit","charognard","guardian"]) {
+  for (const name of ["floor","wall","hero","loot","hazard","exit","charognard","guardian","rift_larva"]) {
     assert.ok(TILE_SPRITES[name].startsWith("data:image/svg+xml;charset=UTF-8,"));
   }
   const first=decodeURIComponent(TILE_SPRITES.hero.split(",")[1]);
@@ -301,4 +304,72 @@ test("title scene is included in PWA cache manifest", async () => {
   const sw=readFileSync(new URL("../docs/sw.js", import.meta.url),"utf8");
   assert.match(sw,/rogov-v0\.5\.1/);
   assert.match(sw,/title-scene\.webp/);
+});
+
+test("rift larva uses its own low-range spectral pulse every third turn", () => {
+  let s=beginRun(newGame(),[]).state;
+  s.run.x=4; s.run.y=2;
+  s.run.enemies=[{id:"larva-test",kind:"rift_larva",x:6,y:2,hp:4}];
+  s=waitTurn(s).state;
+  assert.equal(s.run.hp,12);
+  s=waitTurn(s).state;
+  assert.equal(s.run.hp,12);
+  s=waitTurn(s).state;
+  assert.equal(s.run.hp,11);
+  assert.ok(s.journal.some(e=>e.type==="combat" && e.text.includes("onde")));
+  assert.equal(s.run.enemies[0].x,6); // immobile, unlike the scavenger
+  assert.equal(s.run.turns,3);
+  assert.ok(validateSave(s));
+});
+test("rift pulses do not pass diagonally or through stone", () => {
+  let s=beginRun(newGame(),[]).state;
+  s.run.enemies=[{id:"larva-test",kind:"rift_larva",x:6,y:2,hp:4}];
+  s.run.x=5; s.run.y=1; // diagonal, Manhattan range 2
+  for(let i=0;i<3;i++)s=waitTurn(s).state;
+  assert.equal(s.run.hp,12);
+  s.run.x=6;s.run.y=4; // wall at (6,3) blocks a vertical rift pulse
+  for(let i=0;i<3;i++)s=waitTurn(s).state;
+  assert.equal(s.run.hp,12);
+  assert.ok(validateSave(s));
+});
+test("rift larva remains an ordinary melee threat at contact", () => {
+  let s=beginRun(newGame(),[]).state;
+  s.run.x=5;s.run.y=2;
+  s.run.enemies=[{id:"larva-test",kind:"rift_larva",x:6,y:2,hp:4}];
+  s=waitTurn(s).state;
+  assert.equal(s.run.hp,11);
+  assert.ok(s.journal.some(e=>e.text.includes("Larve de faille te touche")));
+});
+test("older v0.5.1 active runs keep their own two-enemy population", () => {
+  const original=beginRun(newGame(),[]).state;
+  original.run.enemies=original.run.enemies.filter(e=>e.kind!=="rift_larva");
+  original.run.x=3;original.run.y=6;
+  original.run.turns=9;
+  const upgraded=normalizeJournal(original);
+  assert.equal(upgraded.run.enemies.length,2);
+  assert.equal(upgraded.run.turns,9);
+  assert.deepEqual(upgraded.run.enemies.map(e=>e.kind),["charognard","guardian"]);
+  assert.equal(validateSave(upgraded),true);
+});
+test("rift larva can be defeated with original weapons and gives experience", () => {
+  let s=beginRun(newGame(),["weapon.rusty_sword"]).state;
+  s.run.x=5;s.run.y=2;
+  s.run.enemies=[{id:"larva-test",kind:"rift_larva",x:6,y:2,hp:4}];
+  s=move(s,"right").state;
+  assert.equal(s.run.enemies[0].hp,1);
+  s=move(s,"right").state;
+  assert.equal(s.run.enemies.length,0);
+  assert.equal(s.run.x,5);
+  assert.equal(s.meta.hero.xp,3);
+  assert.equal(s.meta.stash["weapon.rusty_sword"],0);
+});
+test("v0.6 creature art is self-contained and distinct by silhouette", () => {
+  for (const id of ["charognard","guardian","rift_larva"]) {
+    assert.ok(LEGEND_ITEMS.some(([key])=>key===id));
+    const svg=decodeURIComponent(TILE_SPRITES[id].split(",")[1]);
+    assert.ok(svg.includes('viewBox="0 0 24 24"'));
+    assert.ok(svg.includes('shape-rendering="crispEdges"'));
+  }
+  assert.notEqual(TILE_SPRITES.charognard,TILE_SPRITES.guardian);
+  assert.notEqual(TILE_SPRITES.guardian,TILE_SPRITES.rift_larva);
 });

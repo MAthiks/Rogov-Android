@@ -1,6 +1,6 @@
 # ROGOV — Master Prompt v1.3 (référence de production)
 
-**Dernière mise à jour : 17 novembre 2026.**  
+**Dernière mise à jour : 18 novembre 2026.**  
 **Canal prioritaire : HTML5/CSS/JavaScript/PWA jouable sur Android.**  
 **Version Web : v0.7f (combat statistique, cartes variables et forge de Veyr), cible 8/10 : équilibrage économique et recette Android/humaine validés.**
 
@@ -15,6 +15,12 @@ Les Fragments de cendre n'ont de valeur artisanale **qu'une fois sécurisés au 
 ## Règle procédurale VAR-077
 
 Après une descente d'introduction stable, Nhal change de tracé, d'Arche, de dangers, d'ennemis et de récompenses via un générateur déterministe. Les cartes sont sauvegardées **par descente**, jamais régénérées au rechargement. Tout plan doit disposer d'au moins deux itinéraires de retour topologiquement indépendants entre zones de butin et extraction, et d'au moins une sortie atteignable sans combat imposé. Pas d'effondrement ou de verrouillage de sortie soudain. **Source de vérité : [VAR077_PROCEDURAL_NHAL.md](VAR077_PROCEDURAL_NHAL.md)**. Ne pas prétendre que le système de récompense et les tests humains sont déjà validés.
+
+## Exploration profonde de Nhal — conception v0.8 (DOC-079)
+
+**Source de vérité : [GDD_EXPLORATION_NHAL_V0.8.md](GDD_EXPLORATION_NHAL_V0.8.md).** Projet de passage de la petite carte procédurale VAR-077 à un véritable réseau de salles et couloirs, portes, brouillard de guerre et caméra suivant le héros sur Android. Introduire ensuite des **passages secrets optionnels** et des **pièges annoncés/contournables** (fouille, désamorçage, synergies futures PER/AGI/INT et classes), sans jamais rendre une découverte cachée obligatoire pour rejoindre l'Arche ou le seul chemin de retour.
+
+**Statut : GDD uniquement, non implémenté dans v0.7f.** Maintenir deux itinéraires de retour indépendants depuis les zones de butin, ne jamais créer de piège arbitraire ou d'effondrement bloquant, préserver l'état des anciennes descentes et la cohérence du mode ASCII. Lots futurs : DEV-080 salles/couloirs, DEV-081 visibilité/mémoire, DEV-082 secrets, DEV-083 pièges, QA-084 exploration. WIP maximal = 1 ; QA-074 reste ouverte.
 
 ## Boucle de jeu non négociable
 

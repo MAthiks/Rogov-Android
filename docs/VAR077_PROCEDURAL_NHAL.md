@@ -57,3 +57,7 @@ Toute future mécanique d'effondrement ou de voie à sens unique devra être ann
 7. Noter toute impasse perçue comme injuste, tout chemin impossible à distinguer visuellement et tout déséquilibre de récompenses.
 
 **La qualité visée 8/10 n'est pas déclarée atteinte tant que ECO-078 et la validation réelle du plaisir de jeu ne sont pas réussis.**
+
+## Direction d'extension décidée le 18 novembre 2026 — DOC-079
+
+Ce document décrit les **garanties du générateur actuellement jouable**. Pour la future exploration de **vraies salles et couloirs**, du brouillard de guerre, des passages secrets optionnels et des pièges lisibles, lire le [GDD exploration profonde de Nhal v0.8](GDD_EXPLORATION_NHAL_V0.8.md). **Ces éléments sont en conception seulement** et ne sont pas implémentés dans VAR-077 ou l'Alpha v0.7f. Les deux voies de retour indépendantes et l'absence de pièges mortels obligatoires restent des invariants.

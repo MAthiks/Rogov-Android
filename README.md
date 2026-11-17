@@ -7,6 +7,10 @@ Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-An
 
 ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il conjugue exploration au tour par tour, combat, équipement à risque, extraction et horreur cosmique originale.
 
+## Exploration profonde — futur GDD v0.8
+
+Le [GDD Exploration profonde de Nhal](docs/GDD_EXPLORATION_NHAL_V0.8.md) définit un futur donjon de **salles et couloirs**, avec **brouillard de guerre**, **passages secrets facultatifs** et **pièges détectables/désamorçables**, sans blocage arbitraire du retour. **Il s'agit d'un plan de conception, non de fonctionnalités présentes dans la v0.7f**. Les tests réels Android de la boucle actuelle restent prioritaires.
+
 ## Descentes variables dès la deuxième expédition
 
 La première descente reste une initiation au combat et à l'extraction. Dès la deuxième, les murs, les failles, le butin, les positions des créatures et l'emplacement de l'Arche changent selon une graine propre à la descente. Le générateur vérifie la présence de routes de retour alternatives et d'une extraction atteignable sans combattre. Les anciennes sauvegardes en cours utilisent toujours leur carte historique. **ECO-078 ajoute désormais une première économie au refuge : les Fragments de cendre servent à fabriquer une arme ou des soins. Les coûts doivent encore être équilibrés avec des testeurs.**

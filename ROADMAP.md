@@ -29,6 +29,21 @@
 
 **Audit Alpha 8/10 (QA-074, 17/11/2026) :** [résultats détaillés](docs/QA074_ALPHA_8_ASSESSMENT.md). Les 129 tests sont verts mais **la note 8/10 n'est pas validée** : variété insuffisante (trois extractions identiques sans dégâts), Fragment de cendre non utilisé, absence de validation mobile et de 5 testeurs. VAR-077 et ECO-078 sont implémentés en prototypes. La **recette Android réelle**, l'équilibrage des coûts et les retours de **5 testeurs × 2 descentes** priment sur les nouvelles classes/sorts.
 
+## Exploration profonde de Nhal — nouvelle direction (conception v0.8)
+
+Le **[GDD exploration v0.8](docs/GDD_EXPLORATION_NHAL_V0.8.md)** a été intégré le 18 novembre 2026. **Aucune de ces nouveautés n'est encore jouable.** Le plan est de passer des petits secteurs VAR-077 à une carte de donjon plus vaste (cible initiale ~40×30 cases, 8–12 salles) et une caméra Android ; puis brouillard de guerre, passages secrets optionnels et pièges lisibles/désamorçables.
+
+| Lot futur | Statut | Livrable |
+|---|---|---|
+| DOC-079 | **GDD rédigé** | Contraintes procédurales, exploration, anti-frustration, recettes de tests |
+| DEV-080 | À faire | Salles, portes/couloirs, caméra et routes de fuite garanties |
+| DEV-081 | À faire | Brouillard, mémoire des cases, ligne de vue et mode ASCII |
+| DEV-082 | À faire | Cache/raccourci secret, indice et révélation non obligatoires |
+| DEV-083 | À faire | Pièges annoncés : dalle, alarme, contournement/désamorçage |
+| QA-084 | À faire | Tests graines, Rappel/extraction, migration, Android et testeurs |
+
+**WIP = 1 ; priorité immédiate conservée : QA-074 de la boucle v0.7f.** Un piège ou passage secret ne peut jamais être indispensable pour sortir, ni détruire silencieusement la dernière voie de retour.
+
 ## Principes de production
 
 - WIP = 1 : un lot actif, tests automatisés avant déploiement.

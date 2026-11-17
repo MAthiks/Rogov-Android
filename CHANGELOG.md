@@ -1,3 +1,11 @@
+## GDD v0.8 — DOC-079 : exploration profonde de Nhal (2026-11-18)
+
+- Chapitre de conception ajouté : salles/couloirs, portes, carte large, caméra et brouillard de guerre.
+- Passages secrets facultatifs : indices, fouille, caches, raccourcis et salles de lore ; aucune sortie obligatoire cachée.
+- Pièges proposés avec indices, contournement, désamorçage, états sauvegardés et garde-fous anti-mort arbitraire.
+- Découpage de production DOC-079 / DEV-080 à DEV-083 / QA-084 et renvoi dans Master Prompt, roadmap et backlog.
+- **Documentation uniquement : aucune mécanique d'exploration nouvelle jouable par ce commit.** La v0.7f reste la version publiée.
+
 ## Web Alpha v0.7f — ECO-078 : économie de Veyr (2026-11-18)
 
 - Le Fragment de cendre a désormais deux usages à la forge du refuge : 2 Fragments -> 1 Lame cendrée, ou 1 Fragment -> 2 Bandages.

@@ -125,7 +125,8 @@ test("QA-074: selection is harmless and the guardian heavy must be telegraphed",
   assert.equal(currentEnemyIntent(s.run,guardian).kind,"guardian_prepare");
   s=waitTurn(s).state;
   assert.equal(s.run.hp,originalHp);
-  assert.equal(currentEnemyIntent(s.run,guardian).kind,"guardian_heavy");
+  const currentGuardian=s.run.enemies.find(e=>e.id===guardian.id);
+  assert.equal(currentEnemyIntent(s.run,currentGuardian).kind,"guardian_heavy");
 });
 
 test("QA-074: retreating from a prepared guardian preserves the option to extract",()=>{

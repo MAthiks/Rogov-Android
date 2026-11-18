@@ -58,3 +58,89 @@ test("DEV-080: invalid maps fail validation, original objects stay untouched",()
   assert.equal(isDeepMap(["##"]),false);
   assert.throws(()=>generateDeepLayout(1),RangeError);
 });
+
+import {newGame,beginRun,recall,move,toggleDoor,inspectTile,validateSave,
+  normalizeJournal,mapText,mapViewportText,cameraBounds} from "../docs/game.js";
+
+test("DEV-080: second descent is deep; tutorial and started old saves remain original",()=>{
+  let s=beginRun(newGame()).state;
+  assert.equal(s.run.map.length,9);
+  const old=structuredClone(s);
+  delete old.run.map;delete old.run.loot;delete old.run.layoutId;
+  assert.ok(validateSave(old));
+  assert.equal(normalizeJournal(old).run.map,undefined);
+  s=recall(s).state;
+  s=beginRun(s).state;
+  const l=generateDeepLayout(2);
+  assert.deepEqual(s.run.map,l.map);
+  assert.deepEqual(s.run.rooms,l.rooms);
+  assert.deepEqual(s.run.doors,l.doors);
+  assert.ok(validateSave(s));
+  assert.equal(s.run.map.length,32);
+  assert.equal(mapText(s).split("\n").length,32);
+  assert.equal(mapViewportText(s).split("\n").length,11);
+});
+
+test("DEV-080: camera follows the hero, clamps at edges and shares ASCII coordinates",()=>{
+  const base=newGame();base.meta.descents=1;
+  const s=beginRun(base).state;
+  assert.deepEqual(cameraBounds(s.run),{left:1,top:20,width:11,height:11});
+  assert.equal(mapViewportText(s).split("\n")[5][5],"@");
+  s.run.x=22;s.run.y=16;
+  assert.deepEqual(cameraBounds(s.run),{left:17,top:11,width:11,height:11});
+  assert.equal(mapViewportText(s).split("\n")[5][5],"@");
+  s.run.x=43;s.run.y=31;
+  assert.deepEqual(cameraBounds(s.run),{left:33,top:21,width:11,height:11});
+  assert.equal(mapViewportText(s).split("\n")[10][10],"@");
+});
+
+test("DEV-080: door inspection is free; deliberate toggle takes a turn and survives reload",()=>{
+  const base=newGame();base.meta.descents=1;
+  let s=beginRun(base).state;
+  const d=s.run.doors[0];
+  s.run.x=d.x-1;s.run.y=d.y;
+  if(s.run.map[s.run.y]?.[s.run.x]==="#"){
+    s.run.x=d.x+1;s.run.y=d.y;
+  }
+  assert.equal(Math.abs(s.run.x-d.x)+Math.abs(s.run.y-d.y),1);
+  assert.equal(inspectTile(s,d.x,d.y).kind,"door");
+  assert.equal(s.run.turns,0);
+  s.run.enemies=[]; // isolate geometry / door actions from AI
+  const close=toggleDoor(s,d.x,d.y);
+  assert.ok(close.changed);
+  s=close.state;
+  assert.equal(s.run.turns,1);
+  assert.equal(s.run.doors[0].open,false);
+  assert.ok(validateSave(s));
+  s=normalizeJournal(JSON.parse(JSON.stringify(s)));
+  assert.equal(s.run.doors[0].open,false);
+  const direction=d.x>s.run.x?"right":d.x<s.run.x?"left":d.y>s.run.y?"down":"up";
+  const blocked=move(s,direction);
+  assert.equal(blocked.changed,false);
+  assert.equal(blocked.state.run.turns,1);
+  s=toggleDoor(s,d.x,d.y).state;
+  assert.equal(s.run.turns,2);
+  assert.ok(s.run.doors[0].open);
+  assert.ok(validateSave(s));
+});
+
+test("DEV-080: a full non-secret path reaches extraction and secures the bag",()=>{
+  const base=newGame();base.meta.descents=1;
+  let s=beginRun(base,["weapon.rusty_sword"]).state;
+  const l=generateDeepLayout(2);
+  s.run.enemies=[]; // validate the geography independently of enemy initiative
+  const route=deepRoute(l.map,l.start,l.exit);
+  assert.ok(route);
+  const dirs={"1,0":"right","-1,0":"left","0,1":"down","0,-1":"up"};
+  for(let i=1;i<route.length;i++){
+    const dx=route[i].x-route[i-1].x;
+    const dy=route[i].y-route[i-1].y;
+    const step=move(s,dirs[dx+","+dy]);
+    assert.ok(step.changed,"step "+i);
+    s=step.state;
+  }
+  assert.equal(s.run,null);
+  assert.equal(s.meta.extractions,1);
+  assert.equal(s.meta.stash["weapon.rusty_sword"],1);
+  assert.ok(validateSave(s));
+});

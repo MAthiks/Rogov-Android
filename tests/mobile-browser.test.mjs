@@ -756,3 +756,62 @@ test("QA-084 feedback mobile: an actual new descent shows an enemy, chest and ri
     console.log("QA-084 MOBILE FEEDBACK: entry enemy / chest / rift / tactile open / persistence PASS");
   }finally{await context.close();}
 });
+
+test("DEV-083 mobile: visible clue, tactile search, disarm, ASCII and reload", {timeout:40000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const position=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const fog=await import("./exploration-visibility.js");
+      const base=game.newGame();base.meta.descents=1;
+      const s=game.beginRun(base).state;
+      const trap=s.run.traps.find(t=>t.kind==="unstable_slab");
+      s.run.enemies=[];s.run.x=trap.clue.x;s.run.y=trap.clue.y;
+      fog.revealAround(s.run);
+      if(!game.validateSave(s))throw Error("DEV-083 preloaded state invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+      return {x:trap.x,y:trap.y,clue:trap.clue};
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#trap-clue").isVisible(),true);
+    assert.equal(await page.locator("#trap-search").isEnabled(),true);
+    assert.equal(await page.locator("#trap-disarm").isHidden(),true);
+    const turns=Number(await page.locator("#turns").textContent());
+    await page.locator("#trap-search").tap();
+    assert.equal(Number(await page.locator("#turns").textContent()),turns+1);
+    assert.equal(await page.locator("#trap-disarm").isEnabled(),true);
+    let saved=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(saved.run.traps[1].status,"revealed");
+    const rng=saved.run.rngState;
+    await page.locator("#trap-disarm").tap();
+    saved=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.ok(["disabled","revealed"].includes(saved.run.traps[1].status));
+    assert.equal(saved.run.traps[1].attempts,1);
+    assert.notEqual(saved.run.rngState,rng);
+    assert.equal(Number(await page.locator("#turns").textContent()),turns+2);
+    await page.locator("#renderer-toggle").tap();
+    const map=await page.locator("#dungeon-map").textContent();
+    assert.match(map,saved.run.traps[1].status==="disabled"?/x/:/!/);
+    await page.reload();await page.locator("#title-continue").tap();
+    const reloaded=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return {run:JSON.parse(localStorage.getItem(game.SAVE_KEY)).run,
+        valid:game.validateSave(JSON.parse(localStorage.getItem(game.SAVE_KEY)))};
+    });
+    assert.ok(reloaded.valid);
+    assert.equal(reloaded.run.traps[1].attempts,1);
+    assert.equal(reloaded.run.traps[1].status,saved.run.traps[1].status);
+    assert.deepEqual(errors,[]);
+    console.log("DEV-083 MOBILE TRAPS: visible hint / tactile search / disarm / ASCII / reload PASS");
+  }finally{await context.close();}
+});

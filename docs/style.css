@@ -283,3 +283,14 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 #chest-action:disabled{opacity:.5}
 .pixel-tile.tile-chest_open{box-shadow:inset 0 0 0 1px #b99d75}
 .inspect-panel[data-kind="chest"]{border-left-color:#deb879}
+
+/* DEV-083 — warning is text-first; touch actions stay usable in portrait. */
+.trap-controls{max-width:450px;margin:10px auto;text-align:left}
+.trap-clue{margin:6px 0;padding:10px 12px;border-left:3px solid #d5b57a;
+  border-radius:5px;background:#252f2c;color:#f1dfad;font-size:12px;line-height:1.55}
+.trap-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.trap-buttons button{min-width:0;white-space:normal;line-height:1.35;font-size:12px}
+.trap-buttons button[hidden],.trap-clue[hidden]{display:none!important}
+@media(max-width:390px){.trap-buttons{grid-template-columns:1fr}}
+.pixel-tile.tile-trap_clue{box-shadow:inset 0 0 0 1px #b49a64}
+.pixel-tile.tile-trap_revealed{box-shadow:inset 0 0 0 2px #e4ad69}

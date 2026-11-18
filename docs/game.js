@@ -2,12 +2,13 @@
 import { DEFAULT_HERO_STATS, ENEMY_STATS, migrateHero, migrateEnemy, migrateRunStats,
   validAttributes, validClassId, validLoadout, heroDerivedStats, enemyDerivedStats } from "./stats.js";
 import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDefense,
-  regenEndurance } from "./combat-rules.js";
+  regenEndurance,roll } from "./combat-rules.js";
 import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS} from "./enemy-ai.js";
 import {BASE_MAP,BASE_LOOT,generateLayout,validateLayout} from "./dungeon.js";
 import {generateDeepLayout,validateDeepLayout,isDeepMap} from "./deep-dungeon.js";
 import {visibleCells,explorationState,visionKey,validExploration,revealAround,hasFog} from "./exploration-visibility.js";
 import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
+import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
 import {RECIPES,canCraft} from "./economy.js";
 import {EQUIPMENT_CATALOG} from "./stats.js";
 export const SAVE_KEY = "rogov-web-v1";
@@ -129,6 +130,15 @@ export function inspectTile(state, x, y) {
     return { kind:"enemy", name:creature.name,
       description:creature.family+" · PV "+enemy.hp+"/"+creature.hp+" · "+creature.description };
   }
+  const mark=trapAppearance(state.run,x,y);
+  if(mark)return {kind:"trap",name:mark.name,
+    description:trapAt(state.run,x,y).status==="hidden"
+      ?"Des marques inhabituelles sur le sol. Approche et fouille pour connaître le danger."
+      :trapAt(state.run,x,y).status==="disabled"
+        ?"Ce mécanisme est définitivement neutralisé. Passage sûr."
+        :trapAt(state.run,x,y).status==="triggered"
+          ?"Ce mécanisme a déjà été déclenché et ne peut pas se réarmer."
+          :trapHintText(trapAt(state.run,x,y))};
   const tile = tileAt(x,y,state.run);
   if (tile==="+") {
     const door=doorAt(state.run,x,y);
@@ -249,7 +259,8 @@ function enemyPhase(s) {
     if (d===1) {
       s=receiveEnemyAttack(s,enemy,type,type.damage,"melee");
       if(!s.run) return s;
-    } else if (type.aggro > 0 && d<=type.aggro) {
+    } else if (type.aggro > 0 &&
+        d<=(enemy.kind==="charognard"&&run.alarmUntil>run.turns?4:type.aggro)) {
       const dx=Math.sign(run.x-enemy.x),dy=Math.sign(run.y-enemy.y);
       const options=Math.abs(run.x-enemy.x)>=Math.abs(run.y-enemy.y)
         ? [[dx,0],[0,dy]] : [[0,dy],[dx,0]];
@@ -267,7 +278,7 @@ function enemyPhase(s) {
         const tile=tileAt(nx,ny,run);
         if((tile==="."||tile==="S"||(tile==="+"&&doorAt(run,nx,ny)?.open)) &&
            !(nx===run.x&&ny===run.y) &&
-           !enemyAt(run,nx,ny)) {
+           !enemyAt(run,nx,ny) && !trapAt(run,nx,ny)) {
           enemy.x=nx;enemy.y=ny;
           if(explorationState(run,nx,ny)==="visible")
             recordEvent(s,"danger",type.name+" approche.",run.turns);
@@ -333,7 +344,7 @@ export function validateSave(s) {
     if (r.map!==undefined && !(isDeepMap(r.map)?
         validateDeepLayout(r,true):validateLayout(r.map,r.loot))) return false;
     if(r.exploration!==undefined && !validExploration(r))return false;
-    if(!validSecrets(r))return false;
+    if(!validSecrets(r)||!validTraps(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
     if (!r.carried || !Array.isArray(r.collected) || !Number.isSafeInteger(r.turns)) return false;
     if (!Number.isInteger(r.hp) || r.hp < 1 || r.hp > MAX_HP) return false;
@@ -408,7 +419,8 @@ export function beginRun(state, equipment=[]) {
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       start:layout.start,exit:layout.exit,exploration:{seen:[]},
-      ...(layout.secrets?{secrets:layout.secrets}:{})}:{}) },s.meta);
+      ...(layout.secrets?{secrets:layout.secrets}:{}),
+      ...(layout.traps?{traps:layout.traps}:{})}:{}) },s.meta);
   if(s.run.exploration)revealAround(s.run);
   return info(s,"Descente "+s.meta.descents+
     (s.meta.descents===1?" : les profondeurs de Nhal s'ouvrent.":
@@ -456,6 +468,19 @@ export function move(state, direction, context="move") {
     return {state:s,changed:true,message:ENEMY_TYPES[blocking.kind].name+
       " ciblé (aucun tour perdu). Utilise Attaquer pour combattre."};
   }
+  const firstWarning=trapAt(state.run,x,y);
+  if(firstWarning?.status==="hidden"){
+    // The first attempted step into an unidentified trap is always safe.
+    // Reveal the visible warning before ANY turn or displacement; the second
+    // deliberate step can trigger it. No invisible surprise damage.
+    const s=copy(state);
+    trapAt(s.run,x,y).status="revealed";
+    const msg="ATTENTION — "+TRAP_KINDS[firstWarning.kind].name+
+      ". "+TRAP_KINDS[firstWarning.kind].description+
+      " Contourne-le, désamorce-le ou entre volontairement.";
+    recordEvent(s,"danger",msg,s.run.turns);
+    return {state:s,message:msg,changed:true};
+  }
   const s = copy(state);
   s.run.turns += 1;
   regenEndurance(s,1);
@@ -464,6 +489,23 @@ export function move(state, direction, context="move") {
   if(tile==="E") return extract(s);
   let message=context==="retreat" ? "Repli tactique vers une case libre." : "Déplacement dans Nhal.";
   let type=context==="retreat" ? "combat" : "action";
+  const mechanism=trapAt(s.run,x,y);
+  if(mechanism?.status==="revealed"){
+    mechanism.status="triggered"; // Never arms again, including after reload.
+    type="danger";
+    if(mechanism.kind==="unstable_slab"){
+      const con=s.meta.hero.attributes?.constitution??5;
+      const damage=con>=8?1:2;
+      s.run.hp=Math.max(0,s.run.hp-damage);
+      message="DALLE INSTABLE — Tu as choisi de traverser : -"+damage+
+        " PV. Le mécanisme est maintenant hors service.";
+      if(s.run.hp<=0)return recall(s); // Rappel keeps the secure stash.
+    }else{
+      s.run.alarmUntil=s.run.turns+3;
+      message="FIL D'ALARME — Tu as choisi de traverser : les Charognards"+
+        " peuvent repérer tes mouvements de plus loin pendant 3 tours.";
+    }
+  }
   if(tile==="$"&&!s.run.collected.includes(positionKey(x,y))) {
     if(quantity(s.run.carried)>=INVENTORY_LIMIT) {
       message="Sac plein : laisse le butin pour le moment.";type="danger";
@@ -572,6 +614,64 @@ export function searchSecret(state){
   revealAround(s.run);
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text,changed:true};
+}
+
+/** Search a visible, adjacent trace. PER improves passive detection range;
+ * the active confirmation is deterministic and can never be farmed. */
+export function searchTrap(state,x,y){
+  const run=state.run,trap=trapAt(run,x,y);
+  const per=state.meta.hero.attributes?.perception??5;
+  const hint=nearbyTrapHintForAction(run,per,x,y);
+  if(!trap||trap.status!=="hidden"||!hint)
+    return info(state,"Aucun indice de piège visible à portée.",false);
+  const s=copy(state),target=trapAt(s.run,x,y);
+  target.status="revealed";
+  s.run.turns+=1;
+  regenEndurance(s,1);
+  const message="FOUILLE — "+TRAP_KINDS[target.kind].name+
+    " identifié. Tu peux l'éviter ou le désamorcer.";
+  recordEvent(s,"danger",message,s.run.turns);
+  revealAround(s.run);
+  const after=enemyPhase(s);
+  return {state:after,message,changed:true};
+}
+function nearbyTrapHintForAction(run,per,x,y){
+  const trap=trapAt(run,x,y);
+  if(!trap||distance(run,trap)!==1||!trapVisible(run,trap))return false;
+  const sight=visibleCells(run);
+  return sight.has(visionKey(run,trap.clue.x,trap.clue.y))&&
+    distance(run,trap.clue)<=(per>=7?4:3);
+}
+
+/** AGI + INT govern disarming. A failed attempt consumes one turn, stamina
+ * and seeded combat RNG, but never detonates without a separate step. */
+export function disarmTrap(state,x,y){
+  const trap=trapAt(state.run,x,y);
+  if(!trap||trap.status!=="revealed"||
+     !state.run||distance(state.run,trap)!==1||!trapVisible(state.run,trap))
+    return info(state,"Approche d'un piège identifié pour le désamorcer.",false);
+  if((state.run.endurance??0)<2)
+    return info(state,"Désamorçage : il te faut 2 points d'Endurance.",false);
+  const s=copy(state),t=trapAt(s.run,x,y);
+  const agi=s.meta.hero.attributes?.agility??5;
+  const intellect=s.meta.hero.attributes?.intellect??5;
+  const chance=Math.max(30,Math.min(90,55+(agi-5)*5+(intellect-5)*4));
+  s.run.turns+=1;
+  s.run.endurance-=2;
+  t.attempts+=1;
+  const success=roll(s)<=chance;
+  if(success){
+    t.status="disabled";
+    gainXp(s,1);
+  }
+  const message=success
+    ?"DÉSAMORÇAGE RÉUSSI — "+TRAP_KINDS[t.kind].name+" neutralisé. +1 XP."
+    :"DÉSAMORÇAGE ÉCHOUÉ — Le mécanisme reste actif (chance "+chance+
+      " %). Aucun déclenchement surprise. Tu peux réessayer ou contourner.";
+  recordEvent(s,success?"loot":"danger",message,s.run.turns);
+  revealAround(s.run);
+  const after=enemyPhase(s);
+  return {state:after,message,changed:true};
 }
 
 /** Explicit one-tile melee attack; target must be selected and adjacent. */
@@ -732,6 +832,10 @@ export function mapText(state) {
     if(visible){
       const enemy=enemyAt(run,x,y);
       if(enemy)return ENEMY_TYPES[enemy.kind].symbol;
+    }
+    if(visible){
+      const trap=trapAppearance(run,x,y);
+      if(trap)return trap.symbol;
     }
     if(tile==="S")return visible?".":":";
     if(revealedSecretAt(run,x,y))return "?";

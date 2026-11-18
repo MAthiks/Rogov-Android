@@ -2,6 +2,7 @@
 // No secret or trap is required to escape. Generation is independent of combat RNG.
 import {descentSeed,nextRandom} from "./combat-rules.js";
 import {placeOptionalSecret} from "./secrets.js";
+import {placeOptionalTraps,validTraps} from "./traps.js";
 
 export const DEEP_WIDTH=44;
 export const DEEP_HEIGHT=32;
@@ -323,6 +324,19 @@ export function validateDeepLayout(layout,live=false){
       ch==="^"&&distance({x,y},start)>=2&&distance({x,y},start)<=4)))return false;
   }
   if(!deepTwoReturnWays(map,start,exit))return false;
+  if(layout.traps!==undefined){
+    if(!validTraps(layout))return false;
+    const trapped=new Set(layout.traps.map(key));
+    const withoutFoes=new Set([...trapped,...enemies.map(key)]);
+    if(!deepTwoReturnWays(map,start,exit,trapped)||
+       !deepRoute(map,start,exit,withoutFoes))return false;
+    for(const pos of Object.keys(loot)){
+      const [x,y]=pos.split(",").map(Number),p={x,y};
+      if(!deepTwoReturnWays(map,p,exit,trapped)||
+         !deepRoute(map,p,exit,withoutFoes)||
+         !deepRoute(map,start,p,withoutFoes))return false;
+    }
+  }
   const blocked=new Set(enemies.map(key));
   if(!live&&!deepRoute(map,start,exit,blocked))return false;
   for(const p of lootKeys){
@@ -341,6 +355,10 @@ export function generateDeepLayout(index){
     if(validateDeepLayout(layout)){
       layout.layoutId="nhal-deep-"+index+"-"+attempt;
       layout.secrets=placeOptionalSecret(layout,index,deepRoute);
+      // The two optional traps are generated only AFTER architecture, rifts,
+      // enemies, loot and secrets have passed their independent safety checks.
+      layout.traps=placeOptionalTraps(layout,index,deepRoute,deepTwoReturnWays);
+      if(!validateDeepLayout(layout))continue;
       return layout;
     }
   }

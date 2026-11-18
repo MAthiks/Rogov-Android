@@ -43,6 +43,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dev080-android13-chrome-qa
-          path: rogov-dev080-android13.png
+          path: |
+            rogov-dev080-android13.png
+            rogov-android-onboarding.png
           if-no-files-found: ignore
           retention-days: 14

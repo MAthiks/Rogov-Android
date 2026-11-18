@@ -1,6 +1,6 @@
 # QA-084 — Échec réel d'exploration : rencontres, coffres et failles
 
-**État : échec terrain confirmé, correction expérimentale en [PR #4](https://github.com/MAthiks/Rogov-Android/pull/4) (brouillon), jamais publiée sur `main`.** Ne pas convertir cette PR en version publique avant une nouvelle session réelle.
+**Historique : échec terrain initial, corrigé puis recette acceptée le 18 novembre 2026 ; correctif expérimental en [PR #4](https://github.com/MAthiks/Rogov-Android/pull/4) (brouillon), jamais publiée sur `main`.** Ne pas convertir cette PR en version publique avant une nouvelle session réelle.
 
 ## Signalement de l'utilisateur
 > « OK le test est un échec aucun ennemie générer dans le donjon. Aucun coffre. Aucune faille. »
@@ -22,6 +22,16 @@ Ce constat ne prouve pas quelle URL ni quelle descente l'utilisateur testait ; l
 - **Placement juste :** chacun des emplacements n'est accepté que si le retour normal par au moins deux itinéraires, la sortie sans combat imposé et l'accès au butin restent vrais.
 - Les sauvegardes profondes **déjà commencées** (3 ennemis, 2 objets et zéro faille) restent chargeables et **ne sont pas modifiées rétroactivement**. La nouvelle génération s'applique à la **nouvelle descente profonde**.
 - Cache hors ligne du prototype isolé : `rogov-v0.7f-qa084-encounters`.
+
+## Clôture de la recette terrain — stabilité
+
+**18 novembre 2026 — confirmation supplémentaire du joueur :** « Stabilité ok », en réponse à la demande d'essai de stabilité après les cinq scénarios fonctionnels validés.
+
+**État de QA-084 : recette fonctionnelle et stabilité acceptées par le joueur sur Android physique.** Les cinq scénarios précédemment confirmés restent validés : présence des entités, coffre et sauvegarde, combat Charognard, extraction et conservation, faille et Rappel.
+
+La confirmation de stabilité est **globale** ; elle ne détaille pas isolément la durée exacte, la coupure réseau ou les gestes de fermeture/réouverture de Chrome. Ne pas inventer ces observations. Les précédents tests CI ont validé le hors-ligne sur émulateur, et toute anomalie nouvelle sur téléphone doit rouvrir le point concerné.
+
+**Décision de production :** la recette QA-084 est acceptée, mais cette validation **n'autorise pas à elle seule une fusion ou une publication**. Les PR empilées #1 → #2 → #3, puis #4, doivent rester en brouillon jusqu'à accord explicite de l'utilisateur sur l'intégration ; préserver la version publique v0.7f, les migrations et le déploiement.
 
 ## Bilan QA-084 — parcours fonctionnel Android physique
 

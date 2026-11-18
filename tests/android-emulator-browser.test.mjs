@@ -125,3 +125,118 @@ test("DEV-080: Android 13 Chrome runs the deep PWA, doors, persistence and offli
     await browser.close();
   }
 });
+
+
+test("DEV-081: Android 13 Chrome tests opaque doors, remembered fog, no target leak and offline reload", {timeout:115000}, async()=>{
+  const browser=await androidBrowser();
+  let forwarding=true;
+  try{
+    const context=browser.contexts()[0];
+    assert.ok(context,"Chrome Android browser context");
+    const page=context.pages().find(p=>p.url().includes("127.0.0.1:8765"))||await context.newPage();
+    await page.goto(URL,{waitUntil:"load",timeout:20000});
+    const scenario=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const fog=await import("./exploration-visibility.js");
+      const start=game.newGame();start.meta.descents=1;
+      const state=game.beginRun(start).state;
+      const run=state.run;
+      const enemy=structuredClone(run.enemies[0]);
+      run.enemies=[];
+      let chosen=null;
+      for(const door of run.doors){
+        for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+          const from={x:door.x-dx,y:door.y-dy};
+          const behind={x:door.x+dx,y:door.y+dy};
+          if(![".","S","$"].includes(run.map[from.y]?.[from.x]))continue;
+          if(![".","S","$"].includes(run.map[behind.y]?.[behind.x]))continue;
+          door.open=false;
+          run.x=from.x;run.y=from.y;
+          run.exploration.seen=[];
+          fog.revealAround(run);
+          if(fog.explorationState(run,behind.x,behind.y)==="unknown"){
+            chosen={door:{x:door.x,y:door.y},behind,from};
+            break;
+          }
+          door.open=true;
+        }
+        if(chosen)break;
+      }
+      if(!chosen)throw Error("No closed door with unknown safe tile behind it");
+      if(!game.validateSave(state))throw Error("Invalid DEV-081 door scenario");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {...chosen,enemy};
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
+    assert.ok(await page.locator("#tile-map .tile-unknown").count()>0,
+      "Unexplored room is black on actual Android Chrome");
+    assert.equal(await page.locator("#exploration-map-panel").isHidden(),false);
+    const first=await page.evaluate(async loc=>{
+      const game=await import("./game.js");
+      const saved=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const fog=await import("./exploration-visibility.js");
+      return {inspection:game.inspectTile(saved,loc.x,loc.y),
+        knowledge:fog.explorationState(saved.run,loc.x,loc.y)};
+    },scenario.behind);
+    assert.equal(first.inspection.kind,"unknown");
+    assert.equal(first.knowledge,"unknown");
+    const mini0=(await page.locator("#exploration-mini-map").textContent()).split("\n");
+    assert.equal(mini0[scenario.behind.y][scenario.behind.x]," ",
+      "Door opacity hides its room in the minimap");
+
+    await page.locator("#door-select").tap();
+    assert.match(await page.locator("#door-action").textContent(),/Ouvrir/);
+    await page.locator("#door-action").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    const seen=await page.evaluate(async loc=>{
+      const game=await import("./game.js");
+      const fog=await import("./exploration-visibility.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return fog.explorationState(s.run,loc.x,loc.y);
+    },scenario.behind);
+    assert.equal(seen,"visible","Opened door makes the room visible");
+    await page.locator("#door-action").tap();
+    assert.equal(await page.locator("#turns").textContent(),"2");
+    const mini1=(await page.locator("#exploration-mini-map").textContent()).split("\n");
+    assert.equal(mini1[scenario.behind.y][scenario.behind.x],":",
+      "Door closed again: knowledge persists, but vision stops");
+    await page.locator("#renderer-toggle").tap();
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes(":"));
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    assert.equal(await page.locator("#turns").textContent(),"2");
+    assert.equal((await page.locator("#exploration-mini-map").textContent()).split("\n")
+      [scenario.behind.y][scenario.behind.x],":");
+
+    await page.evaluate(({behind,enemy})=>{
+      const saveKey="rogov-web-v1";
+      const s=JSON.parse(localStorage.getItem(saveKey));
+      s.run.enemies=[{...enemy,x:behind.x,y:behind.y}];
+      s.run.targetId=enemy.id;
+      localStorage.setItem(saveKey,JSON.stringify(s));
+    },scenario);
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    assert.equal(await page.locator("#tile-map [data-enemy-id]").count(),0);
+    assert.equal(await page.locator("#target-choices button").count(),0);
+    assert.equal(await page.locator("#combat-panel").isHidden(),true);
+    assert.equal(await page.locator("#threat-forecast").isHidden(),true);
+    assert.match(await page.locator("#threat-state").textContent(),/AUCUNE MENACE VISIBLE/);
+
+    await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller),null,{timeout:10000});
+    adb("reverse","--remove","tcp:8765");
+    forwarding=false;
+    await page.reload({waitUntil:"load",timeout:20000});
+    await page.locator("#title-continue").click();
+    assert.equal(await page.locator("#turns").textContent(),"2");
+    assert.equal((await page.locator("#exploration-mini-map").textContent()).split("\n")
+      [scenario.behind.y][scenario.behind.x],":");
+    assert.equal(await page.locator("#target-choices button").count(),0);
+    console.log("DEV-081 ANDROID FOG: door LOS / memory / hidden threats / offline PASS");
+  }finally{
+    if(!forwarding)adb("reverse","tcp:8765","tcp:8765");
+    await browser.close();
+  }
+});

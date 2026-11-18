@@ -232,3 +232,22 @@
 @media(min-width:731px){
   .ui092-sheet[hidden]{display:none}
 }
+
+
+/* UI-092A — Options remain reachable from the mobile expedition menu.
+ * The desktop aside is hidden only when it is outside the open sheet. */
+.ui092-menu-toggle{display:none}
+@media(max-width:730px){
+  .frame.is-expedition #jump-menu{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:78px;min-height:44px;margin:0;padding:6px 9px;
+    border:1px solid #88768d;border-radius:8px;background:#30283a;
+    color:#e8dfdf;font:700 11px/1.2 system-ui,sans-serif;
+  }
+  .frame.is-expedition .ui092-sheet-body>.panel-aside{
+    display:block!important;max-width:none;width:100%;
+    margin:0;padding:10px;border:0;box-shadow:none;
+    background:transparent;
+  }
+  .frame.is-expedition .ui092-sheet-body>.panel-aside h2{font-size:18px}
+}

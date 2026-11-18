@@ -101,7 +101,10 @@ test("DEV-080: Android 13 Chrome runs the deep PWA, doors, persistence and offli
     await page.locator("#door-action").click();
     assert.equal(await page.locator("#turns").textContent(),"2");
     await page.locator("#renderer-toggle").click();
-    await page.screenshot({path:"rogov-dev080-android13.png"});
+    // Android Chrome CDP may disconnect on Page.captureScreenshot.
+    // Use the emulator's native screenshot API without forcing a CDP render.
+    adb("shell","screencap","-p","/sdcard/rogov-dev080-android13.png");
+    adb("pull","/sdcard/rogov-dev080-android13.png","rogov-dev080-android13.png");
 
     // Make the local host unreachable from the device, with Chrome still alive:
     // the document and ES modules must be served from the PWA cache.

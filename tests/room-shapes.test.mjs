@@ -19,7 +19,7 @@ test("DEV-089A: 240 seeded maps include real shaped rooms and remain fair",()=>{
     const layout=generateDeepLayout(seed);
     assert.ok(validateDeepLayout(layout),"invalid seed "+seed);
     assert.equal(layout.geometryVersion,ROOM_GEOMETRY_VERSION);
-    assert.equal(layout.rooms.length,12);
+    assert.ok(layout.rooms.length>=8&&layout.rooms.length<=12);
     assert.equal(layout.doors.length,6);
     assert.equal(layout.sites.length,3);
     for(const kind of shapeKinds){
@@ -97,8 +97,10 @@ test("DEV-089A: original saves and first descent keep their old geometry",()=>{
     .substring(0,pillar.obstacles[0].x)+"."+
     bad.run.map[pillar.obstacles[0].y].substring(pillar.obstacles[0].x+1);
   assert.equal(validateSave(bad),false,"corrupted room obstacle should be rejected");
-  const prior=structuredClone(shaped);
-  delete prior.run.geometryVersion;
-  for(const room of prior.run.rooms){delete room.shape;delete room.obstacles;}
-  assert.ok(validateSave(prior),"an existing save without new shape metadata is accepted");
+  const stripped=structuredClone(shaped);
+  delete stripped.run.topologyVersion;
+  delete stripped.run.links;
+  delete stripped.run.networkKind;
+  assert.equal(validateSave(stripped),false,
+    "a new variable network must retain its version and links");
 });

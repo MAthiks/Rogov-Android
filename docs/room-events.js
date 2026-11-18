@@ -51,8 +51,8 @@ export function specialRoomPlan(index){
   return {echoRoomId:[0,1,2,4,7][index%5],
     cacheRoomId:[6,9,11][Math.floor(index/5)%3]};
 }
-const definition=rooms=>[
-  {kind:"atelier",roomId:10},
+const definition=(rooms,graph=false)=>[
+  {kind:"atelier",roomId:graph?rooms.find(r=>r.role==="atelier_abandonne")?.id:10},
   {kind:"echo",roomId:rooms.find(r=>r.role==="chambre_echo")?.id},
   {kind:"cache",roomId:rooms.find(r=>r.role==="cache_scellee")?.id}
 ];
@@ -68,7 +68,7 @@ export function placeRoomSites(layout,index,route){
     ...(layout.secrets||[]).flatMap(s=>[key(s),key(s.clue)])]);
   const blocked=new Set([...(layout.traps||[]),...layout.enemies].map(key));
   const sites=[];
-  for(const {kind,roomId} of definition(layout.rooms)){
+  for(const {kind,roomId} of definition(layout.rooms,layout.topologyVersion===1)){
     const room=layout.rooms[roomId],candidates=[];
     if(!room)throw new Error("Missing special room");
     for(let y=room.y+1;y<room.y+room.height-1;y++)
@@ -98,10 +98,12 @@ export function placeRoomSites(layout,index,route){
 export function validRoomSites(run){
   if(run?.sites===undefined)return true;
   if(!Array.isArray(run.sites)||run.sites.length!==3||
-      !Array.isArray(run.rooms)||run.rooms.length!==12||
+      !Array.isArray(run.rooms)||
+      (run.topologyVersion===1?
+        (run.rooms.length<8||run.rooms.length>12):run.rooms.length!==12)||
       !Array.isArray(run.map))return false;
   const seen=new Set();
-  return definition(run.rooms).every((expected,i)=>{
+  return definition(run.rooms,run.topologyVersion===1).every((expected,i)=>{
     const s=run.sites[i],room=run.rooms[expected.roomId];
     if(!s||s.id!=="nhal-site-"+expected.kind+"-01"||
         s.kind!==expected.kind||s.roomId!==expected.roomId||

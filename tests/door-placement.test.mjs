@@ -31,16 +31,16 @@ function thresholdList(layout){
   }
   return found;
 }
-test("DEV-085: 240 deterministic seeds have 34 framed passage mouths and only 6 deliberate doors",()=>{
+test("DEV-089C: 240 variable graphs retain two architectural mouths per link and 6 deliberate doors",()=>{
   const layouts=new Set();
   for(let seed=2;seed<=241;seed++){
     const l=generateDeepLayout(seed);
     assert.equal(l.doorPlanVersion,1);
     assert.ok(validateDeepLayout(l),"invalid map "+seed);
-    assert.equal(l.rooms.length,12);
+    assert.ok(l.rooms.length>=8&&l.rooms.length<=12);
     assert.equal(l.doors.length,6);
     const thresholds=thresholdList(l);
-    assert.equal(thresholds.length,34,"17 links each have 2 architectural mouths, seed "+seed);
+    assert.equal(thresholds.length,l.links.length*2,"2 framed mouths per graph link, seed "+seed);
     assert.equal(thresholds.filter(p=>p.door).length,6);
     assert.ok(l.rooms.every(r=>r.width>=7&&r.width<=9&&
       r.height>=7&&r.height<=9));
@@ -51,7 +51,8 @@ test("DEV-085: 240 deterministic seeds have 34 framed passage mouths and only 6 
       caps.set(owner.room,(caps.get(owner.room)||0)+1);
     }
     assert.ok([...caps.values()].every(count=>count<=2));
-    const entryDoors=thresholds.filter(t=>t.room===8&&t.door);
+    const entrance=l.rooms.find(r=>r.slot===8);
+    const entryDoors=thresholds.filter(t=>t.room===entrance.id&&t.door);
     assert.equal(entryDoors.length,2,"entry has two visible choices, "+seed);
     const blockers=new Set(l.enemies.map(key));
     assert.ok(deepTwoReturnWays(l.map,l.start,l.exit),"two public routes "+seed);
@@ -158,6 +159,7 @@ test("DEV-085: legacy deep save with 34 doors remains loadable, without regenera
   old.run.rooms=rooms;old.run.doors=doors;
   old.run.start=start;old.run.exit=exit;
   delete old.run.doorPlanVersion;delete old.run.geometryVersion; // Pre-089A save.
+  delete old.run.topologyVersion;delete old.run.links;delete old.run.networkKind; // Pre-089C.
   delete old.run.secrets;delete old.run.traps;
   delete old.run.sites; // DEV-087: legacy 34-door runs predate special sites.
   old.run.loot={ [key(fragment)]:"relic.ashen_fragment",

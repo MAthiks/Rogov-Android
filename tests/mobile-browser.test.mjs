@@ -1032,3 +1032,47 @@ test("DEV-089B mobile: masonry palette, floor diversity and fog-safe tiles remai
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("DEV-089C mobile: eight-room network and expedition UI survive reload", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const first=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      // Seed 4 intentionally selects the smallest supported graph.
+      const newState=game.newGame();newState.meta.descents=3;
+      const state=game.beginRun(newState).state;
+      if(state.run.rooms.length!==8||state.run.topologyVersion!==1)
+        throw Error("Eight-room graph seed no longer reproducible");
+      if(!game.validateSave(state))throw Error("New topology rejected by save validation");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {layoutId:state.run.layoutId,rooms:state.run.rooms.length,
+        links:state.run.links.length,start:state.run.start};
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
+    assert.ok(await page.locator("#tile-map .tile-unknown").count()>0);
+    assert.equal(await page.locator("#expedition-report").isVisible(),true);
+    const geometry=await page.evaluate(()=>({
+      scroll:document.documentElement.scrollWidth,
+      viewport:document.documentElement.clientWidth}));
+    assert.ok(geometry.scroll<=geometry.viewport+1,
+      "Variable networks must not overflow mobile portrait");
+    await page.locator("#expedition-report summary").tap();
+    assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.reload();await page.locator("#title-continue").tap();
+    const restored=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),layoutId:s.run.layoutId,
+        rooms:s.run.rooms.length,links:s.run.links.length};
+    });
+    assert.ok(restored.valid);
+    assert.deepEqual(restored,{valid:true,layoutId:first.layoutId,
+      rooms:first.rooms,links:first.links});
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

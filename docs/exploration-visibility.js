@@ -65,8 +65,9 @@ export function revealAround(run){
   return run;
 }
 export function explorationState(run,x,y,visible=null){
-  if(!run?.map||!inBounds(run,x,y))return "unknown";
-  if(!hasFog(run))return "visible"; // legacy active runs remain unchanged
+  if(!run)return "unknown";
+  if(!hasFog(run))return "visible"; // legacy saves can omit run.map entirely
+  if(!run.map||!inBounds(run,x,y))return "unknown";
   const position=visionKey(run,x,y);
   if((visible||visibleCells(run)).has(position))return "visible";
   return run.exploration.seen.includes(position)?"remembered":"unknown";

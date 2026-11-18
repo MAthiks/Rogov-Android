@@ -131,7 +131,9 @@ test("DEV-080: a full non-secret path reaches extraction and secures the bag",()
   let s=beginRun(base,["weapon.rusty_sword"]).state;
   const l=generateDeepLayout(2);
   s.run.enemies=[]; // validate the geography independently of enemy initiative
-  const route=deepRoute(l.map,l.start,l.exit);
+  // DEV-086: the shortest route may intentionally cross a warned corridor trap.
+  // Verify ordinary extraction through a safe alternate path.
+  const route=deepRoute(l.map,l.start,l.exit,new Set(l.traps.map(key)));
   assert.ok(route);
   const dirs={"1,0":"right","-1,0":"left","0,1":"down","0,-1":"up"};
   for(let i=1;i<route.length;i++){

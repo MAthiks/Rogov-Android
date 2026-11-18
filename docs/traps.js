@@ -23,84 +23,115 @@ const adjacent=(p)=>[
 ];
 const floor=(map,p)=>tile(map,p)===".";
 
-/** Return exactly two traps on *optional floor*, never on a mandatory exit,
- * chest, enemy, door, rift, or secret. Reject candidates that destroy either
- * independent ordinary return route, treating BOTH traps as blocked.
+/** DEV-086: place an alarm across a real corridor and a pressure slab beside
+ * an optional deep chest. Both must offer a visible, reachable warning tile.
+ * Any proposed pair is treated as BLOCKED for extraction and loot validation:
+ * there is always a reasonable route that does not require taking the risk.
+ * Existing run.traps are never regenerated or migrated.
  */
 export function placeOptionalTraps(layout,index,route,twoWays){
-  if(!layout?.map||!layout.rooms||!Array.isArray(layout.enemies)||
+  if(!layout?.map||!Array.isArray(layout.rooms)||!Array.isArray(layout.enemies)||
       !Number.isSafeInteger(index)||index<2)throw new TypeError("Invalid deep trap layout");
-  const forbidden=new Set([
-    key(layout.start),key(layout.exit),
-    ...Object.keys(layout.loot),...layout.enemies.map(key),
-    ...layout.doors.map(key),...(layout.secrets||[]).flatMap(s=>[key(s),key(s.clue)])
-  ]);
-  const trapped=[];
-  // Keep canonical public routes entirely free of traps. Risk is found by
-  // exploring side floors, not on the direct route to loot or extraction.
-  const protectedPaths=new Set();
-  const lootPoints=Object.keys(layout.loot).map(pos=>{
-    const [x,y]=pos.split(",").map(Number);return {x,y};
+  const {map,start,exit,rooms,enemies}=layout;
+  const lootPoints=Object.entries(layout.loot).map(([pos,item])=>{
+    const [x,y]=pos.split(",").map(Number);return {x,y,item};
   });
-  for(const [from,to] of [[layout.start,layout.exit],
-    ...lootPoints.flatMap(p=>[[layout.start,p],[p,layout.exit]])]){
-    for(const p of route(layout.map,from,to)||[])protectedPaths.add(key(p));
+  const forbidden=new Set([
+    key(start),key(exit),
+    ...Object.keys(layout.loot),...enemies.map(key),
+    ...layout.doors.map(key),
+    ...(layout.secrets||[]).flatMap(s=>[key(s),key(s.clue)])
+  ]);
+  const enemyKeys=enemies.map(key);
+  const deepChests=lootPoints.filter(p=>p.item!=="consumable.bandage");
+  // Traffic is where a player would naturally walk to extract or reach loot.
+  // Unlike DEV-083 we deliberately allow traps on these routes, provided
+  // independent, trap-free alternatives remain available.
+  const traffic=new Set();
+  const approaches=new Map();
+  for(const [from,to] of [[start,exit],
+      ...lootPoints.flatMap(p=>[[start,p],[p,exit]])]){
+    const path=route(map,from,to)||[];
+    for(const p of path)traffic.add(key(p));
+    if(from===start&&deepChests.includes(to))
+      approaches.set(key(to),new Set(path.map(key)));
   }
-  const safe=(blockers)=>{
-    if(!twoWays(layout.map,layout.start,layout.exit,blockers)||
-       !route(layout.map,layout.start,layout.exit,new Set([...blockers,...layout.enemies.map(key)])))return false;
-    for(const pos of Object.keys(layout.loot)){
-      const [x,y]=pos.split(",").map(Number),p={x,y};
-      if(!twoWays(layout.map,p,layout.exit,blockers)||
-         !route(layout.map,p,layout.exit,new Set([...blockers,...layout.enemies.map(key)]))||
-         !route(layout.map,layout.start,p,new Set([...blockers,...layout.enemies.map(key)])))
-        return false;
-    }
-    return true;
-  };
-  // Side rooms with a non-mandatory public detour. Prefer one near entry,
-  // the other deeper in the network. Keep the entrance tutorial untouched.
-  const specs=[
-    {kind:"alarm_wire",rooms:[9,4,11,7]},
-    {kind:"unstable_slab",rooms:[5,10,6,1,2]}
-  ];
-  for(const {kind,rooms} of specs){
-    const candidates=[];
-    for(const id of rooms){
-      const r=layout.rooms[id];
-      for(let y=r.y+1;y<r.y+r.height-1;y++)
-        for(let x=r.x+1;x<r.x+r.width-1;x++){
-          const p={x,y};
-          if(!floor(layout.map,p)||forbidden.has(key(p))||
-             protectedPaths.has(key(p))||
-             dist(p,layout.start)<5||dist(p,layout.exit)<4||
-             [...forbidden].some(s=>{
-               const [fx,fy]=s.split(",").map(Number);
-               return dist(p,{x:fx,y:fy})<2;
-             }))continue;
-          const clue=adjacent(p).find(q=>floor(layout.map,q)&&
-            !forbidden.has(key(q))&&
-            !trapped.some(t=>key(t)===key(q)));
-          if(clue)candidates.push({p,clue});
-        }
-    }
-    if(!candidates.length)throw new Error("No optional "+kind+" trap candidate");
-    const offset=(index*31+(kind==="unstable_slab"?7:13))%candidates.length;
-    let chosen=null;
-    for(let i=0;i<candidates.length;i++){
-      const item=candidates[(i+offset)%candidates.length];
-      if(safe(new Set([...trapped.map(key),key(item.p)]))){
-        chosen=item;break;
+  const insideRoom=p=>rooms.some(r=>p.x>=r.x&&p.x<r.x+r.width&&
+    p.y>=r.y&&p.y<r.y+r.height);
+  // Corridor floor is a genuine inter-room connector, NOT a room threshold
+  // or a door tile. Never place hazards on the first safe entry chamber.
+  const corridor=p=>floor(map,p)&&!insideRoom(p);
+  const noise=p=>(p.x*97+p.y*389+index*131)%101;
+  function option(p){
+    if(!floor(map,p)||forbidden.has(key(p))||
+        dist(p,start)<5||dist(p,exit)<4||
+        enemies.some(e=>dist(e,p)<2))return null;
+    const blockers=new Set([...enemyKeys,key(p)]);
+    // Reachability is tested without stepping onto the trap or an enemy.
+    // Choose the closest accessible hint tile, making the warning visible
+    // from the safe side of the approach rather than behind the mechanism.
+    const clues=adjacent(p).filter(q=>floor(map,q)&&!forbidden.has(key(q)))
+      .sort((a,b)=>dist(a,start)-dist(b,start)||noise(a)-noise(b));
+    // Most candidates have a safe approach on the first side; test them
+    // lazily rather than calculating up to four full BFS routes per tile.
+    const clue=clues.find(q=>route(map,start,q,blockers));
+    return clue?{p,clue}:null;
+  }
+  const alarms=[],slabs=[];
+  for(let y=1;y<map.length-1;y++)for(let x=1;x<map[y].length-1;x++){
+    const p={x,y};
+    if(corridor(p)){
+      const candidate=option(p);
+      if(candidate){
+        candidate.score=(traffic.has(key(p))?1000:0)+
+          (traffic.has(key(candidate.clue))?100:0)+noise(p);
+        alarms.push(candidate);
       }
     }
-    if(!chosen)throw new Error("No safe "+kind+" trap location");
-    const trap={id:"nhal-trap-"+kind+"-01",kind,
-      x:chosen.p.x,y:chosen.p.y,
-      clue:{x:chosen.clue.x,y:chosen.clue.y},
-      status:"hidden",attempts:0};
-    trapped.push(trap);forbidden.add(key(trap));forbidden.add(key(trap.clue));
   }
-  return trapped;
+  for(const chest of deepChests){
+    for(const p of adjacent(chest)){
+      if(insideRoom(p)){
+        const candidate=option(p);
+        if(candidate){
+          candidate.score=(approaches.get(key(chest))?.has(key(p))?1000:0)+
+            (chest.item==="relic.ashen_fragment"?50:0)+noise(p);
+          slabs.push(candidate);
+        }
+      }
+    }
+  }
+  alarms.sort((a,b)=>b.score-a.score||key(a.p).localeCompare(key(b.p)));
+  slabs.sort((a,b)=>b.score-a.score||key(a.p).localeCompare(key(b.p)));
+  function safePair(a,b){
+    const positions=new Set([key(a.p),key(b.p)]);
+    const noCombat=new Set([...positions,...enemyKeys]);
+    if(dist(a.p,b.p)<3||
+        positions.has(key(a.clue))||positions.has(key(b.clue))||
+        key(a.clue)===key(b.clue)||
+        !route(map,start,a.clue,noCombat)||
+        !route(map,start,b.clue,noCombat)||
+        !route(map,start,exit,noCombat)||
+        !twoWays(map,start,exit,positions))return false;
+    return lootPoints.every(chest=>
+      twoWays(map,chest,exit,positions)&&
+      route(map,start,chest,noCombat)&&
+      route(map,chest,exit,noCombat));
+  }
+  for(const alarm of alarms)for(const slab of slabs){
+    if(!safePair(alarm,slab))continue;
+    const result=[
+      {kind:"alarm_wire",...alarm},
+      {kind:"unstable_slab",...slab}
+    ];
+    return result.map(t=>({
+      id:"nhal-trap-"+t.kind+"-01",kind:t.kind,x:t.p.x,y:t.p.y,
+      clue:{x:t.clue.x,y:t.clue.y},status:"hidden",attempts:0
+    }));
+  }
+  // The caller can try the next deterministic layout, rather than ever
+  // falling back to invisible, meaningless or mandatory trap placements.
+  throw new Error("No safe DEV-086 corridor and chest trap pair");
 }
 
 export function validTraps(run){

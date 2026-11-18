@@ -44,14 +44,39 @@ export function deepRoute(map,from,to,blocked=new Set()){
   }
   return null;
 }
+// Equivalent to testing the removal of every internal tile of a route,
+// but linear in traversable cells. Articulation vertices on the DFS chain
+// from 'from' to 'to' are the only tiles that can break their connection.
+// DEV-086: 200-seed generation must remain practical on Android CPUs.
 export function deepTwoReturnWays(map,from,to,blocked=new Set()){
-  const first=deepRoute(map,from,to,blocked);
-  if(!first||first.length<2)return false;
-  for(const cell of first.slice(1,-1)){
-    const obstruction=new Set(blocked);obstruction.add(key(cell));
-    if(!deepRoute(map,from,to,obstruction))return false;
+  const source=key(from),target=key(to);
+  if(source===target||!traversable(map,from,blocked)||
+      !traversable(map,to,blocked))return false;
+  const discovered=new Map(),low=new Map();
+  const parent=new Map();
+  let clock=0,critical=false;
+  function visit(p){
+    const current=key(p);
+    discovered.set(current,++clock);
+    low.set(current,clock);
+    let containsTarget=current===target;
+    for(const q of neighbors(p)){
+      if(!traversable(map,q,blocked))continue;
+      const adjacent=key(q);
+      if(!discovered.has(adjacent)){
+        parent.set(adjacent,current);
+        const childHasTarget=visit(q);
+        low.set(current,Math.min(low.get(current),low.get(adjacent)));
+        if(childHasTarget&&current!==source&&current!==target&&
+            low.get(adjacent)>=discovered.get(current))critical=true;
+        containsTarget=containsTarget||childHasTarget;
+      }else if(adjacent!==parent.get(current)){
+        low.set(current,Math.min(low.get(current),discovered.get(adjacent)));
+      }
+    }
+    return containsTarget;
   }
-  return true;
+  return visit(from)&&!critical;
 }
 const inRoom=(p,r)=>p.x>=r.x&&p.x<r.x+r.width&&p.y>=r.y&&p.y<r.y+r.height;
 function roomPoint(room,rand){
@@ -357,7 +382,12 @@ export function generateDeepLayout(index){
       layout.secrets=placeOptionalSecret(layout,index,deepRoute);
       // The two optional traps are generated only AFTER architecture, rifts,
       // enemies, loot and secrets have passed their independent safety checks.
-      layout.traps=placeOptionalTraps(layout,index,deepRoute,deepTwoReturnWays);
+      try{
+        layout.traps=placeOptionalTraps(layout,index,deepRoute,deepTwoReturnWays);
+      }catch(error){
+        if(error?.message!=="No safe DEV-086 corridor and chest trap pair")throw error;
+        continue; // Reject unsafe seeds; never force a mandatory trap.
+      }
       if(!validateDeepLayout(layout))continue;
       return layout;
     }

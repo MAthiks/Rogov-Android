@@ -11,13 +11,16 @@ const key=p=>p.x+","+p.y;
 const directions={"1,0":"right","-1,0":"left","0,1":"down","0,-1":"up"};
 const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
 const asPoint=key=>{const [x,y]=key.split(",").map(Number);return {x,y};};
+// DEV-086: real movement includes warned traps on corridor/chest approaches.
+// Preserve full AI and trap state; choose safe public alternatives instead.
+const safeBlockers=run=>new Set([...run.enemies,...(run.traps||[])].map(key));
 
 function routeAvoidingCreatures(run,target){
-  const blocked=new Set(run.enemies.map(key));
+  const blocked=safeBlockers(run);
   return deepRoute(run.map,{x:run.x,y:run.y},target,blocked);
 }
 function approachLiveTarget(run,enemy){
-  const blocked=new Set(run.enemies.map(key));
+  const blocked=safeBlockers(run);
   const choices=[[1,0],[-1,0],[0,1],[0,-1]]
     .map(([dx,dy])=>({x:enemy.x+dx,y:enemy.y+dy}))
     .map(p=>deepRoute(run.map,{x:run.x,y:run.y},p,blocked))
@@ -39,25 +42,53 @@ function moveOne(state,to){
   }
   return result.state;
 }
+// Tactical QA traveller: real orthogonal moves, no teleports and no deleted
+// enemies. Slightly longer paths are preferable to oscillating next to a
+// territorial Charognard or stepping onto the optional DEV-086 traps.
+function cautiousPublicRoute(run,destination,visited){
+  const start={x:run.x,y:run.y},goal=key(destination),source=key(start);
+  const blocked=safeBlockers(run);
+  const queue=[{point:start,cost:0,estimate:0}];
+  const costs=new Map([[source,0]]);
+  const parent=new Map(),points=new Map([[source,start]]);
+  while(queue.length){
+    queue.sort((a,b)=>a.cost+a.estimate-b.cost-b.estimate);
+    const {point,cost}=queue.shift(),id=key(point);
+    if(cost!==costs.get(id))continue;
+    if(id===goal){
+      const path=[];let cursor=id;
+      while(cursor){path.push(points.get(cursor));cursor=parent.get(cursor);}
+      return path.reverse();
+    }
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const next={x:point.x+dx,y:point.y+dy},nextKey=key(next);
+      const terrain=run.map[next.y]?.[next.x];
+      if(!terrain||terrain==="#"||terrain==="^"||blocked.has(nextKey))continue;
+      let threatCost=0;
+      for(const e of run.enemies){
+        const gap=dist(next,e);
+        threatCost+=gap===1?16:gap===2?4:0;
+      }
+      const nextCost=cost+1+(visited.get(nextKey)||0)*12+threatCost;
+      if(nextCost>=(costs.get(nextKey)??Infinity))continue;
+      costs.set(nextKey,nextCost);
+      parent.set(nextKey,id);points.set(nextKey,next);
+      queue.push({point:next,cost:nextCost,
+        estimate:dist(next,destination)});
+    }
+  }
+  return null;
+}
 function walkReplanning(state,destination,limit=150){
-  let moves=0,previous=null;
+  let moves=0;
+  const visits=new Map();
   while(state.run && (state.run.x!==destination.x||state.run.y!==destination.y)){
     assert.ok(moves++<limit,"Unable to find safe public route with active enemies");
-    const route=routeAvoidingCreatures(state.run,destination);
+    const where=key(state.run);
+    visits.set(where,(visits.get(where)||0)+1);
+    const route=cautiousPublicRoute(state.run,destination,visits);
     assert.ok(route&&route.length>=2,"Genuine public route lost because of enemies");
-    let next=route[1];
-    // A reactive foe can change which of two routes is momentarily shortest.
-    // A human can keep a chosen direction rather than ping-ponging every turn.
-    // Prefer a legitimate alternate public route without stepping backwards.
-    if(previous&&next.x===previous.x&&next.y===previous.y){
-      const blocked=new Set(state.run.enemies.map(key));
-      blocked.add(key(previous));
-      const alternative=deepRoute(state.run.map,
-        {x:state.run.x,y:state.run.y},destination,blocked);
-      if(alternative?.length>=2)next=alternative[1];
-    }
-    previous={x:state.run.x,y:state.run.y};
-    state=moveOne(state,next);
+    state=moveOne(state,route[1]);
     if(state.run&&state.run.hp<=7&&(state.run.carried["consumable.bandage"]||0)>0)
       state=useItem(state,"consumable.bandage").state;
   }

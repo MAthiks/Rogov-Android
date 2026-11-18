@@ -44,14 +44,20 @@ test("DEV-083: 200 deterministic seeds place two optional traps without blocking
       assert.ok(deepRoute(l.map,p,l.exit,noEnemy),"loot safe exit "+seed+":"+pos);
       assert.ok(deepRoute(l.map,l.start,p,noEnemy),"loot safe entry "+seed+":"+pos);
     }
-    const canonical=[deepRoute(l.map,l.start,l.exit),
-      ...Object.keys(l.loot).flatMap(pos=>{
-        const [x,y]=pos.split(",").map(Number),p={x,y};
-        return [deepRoute(l.map,l.start,p),deepRoute(l.map,p,l.exit)];
-      })].flat();
+    const alarm=l.traps[0],slab=l.traps[1];
+    const insideRoom=(p,r)=>p.x>=r.x&&p.x<r.x+r.width&&
+      p.y>=r.y&&p.y<r.y+r.height;
+    assert.ok(!l.rooms.some(r=>insideRoom(alarm,r)),
+      "alarm belongs to an actual inter-room corridor "+seed);
+    assert.ok(Object.entries(l.loot).some(([pos,item])=>{
+      if(item==="consumable.bandage")return false;
+      const [x,y]=pos.split(",").map(Number);
+      return dist(slab,{x,y})===1;
+    }),"slab guards an optional deep chest approach "+seed);
+    const noCombat=new Set([...blocked,...l.enemies.map(key)]);
     for(const trap of l.traps){
-      assert.ok(!canonical.some(p=>key(p)===key(trap)),
-        "canonical loot/exit route never contains trap "+seed);
+      assert.ok(deepRoute(l.map,l.start,trap.clue,noCombat),
+        "player can approach an exposed clue without triggering traps "+seed);
       assert.equal(l.map[trap.y][trap.x],".");
       assert.equal(dist(trap,trap.clue),1);
       assert.equal(trap.status,"hidden");
@@ -62,6 +68,32 @@ test("DEV-083: 200 deterministic seeds place two optional traps without blocking
     assert.deepEqual(generateDeepLayout(seed),l,"seed reproducibility "+seed);
   }
   assert.ok(locations.size>90,"procedural trap positions vary");
+});
+
+test("DEV-086: fast two-way validator matches historical tile-removal checks",()=>{
+  const key=p=>p.x+","+p.y;
+  const reference=(map,from,to,blocked=new Set())=>{
+    const first=deepRoute(map,from,to,blocked);
+    if(!first||first.length<2)return false;
+    for(const tile of first.slice(1,-1)){
+      if(!deepRoute(map,from,to,new Set([...blocked,key(tile)])))return false;
+    }
+    return true;
+  };
+  for(let seed=2;seed<14;seed++){
+    const l=generateDeepLayout(seed);
+    const chests=Object.keys(l.loot).map(pos=>{
+      const [x,y]=pos.split(",").map(Number);return {x,y};
+    });
+    const pairs=[[l.start,l.exit],...chests.flatMap(c=>[[l.start,c],[c,l.exit]])];
+    const blockedSets=[new Set(),new Set(l.traps.map(key)),
+      new Set([...l.traps,...l.enemies].map(key))];
+    for(const [from,to] of pairs)for(const blocked of blockedSets){
+      assert.equal(deepTwoReturnWays(l.map,from,to,blocked),
+        reference(l.map,from,to,blocked),
+        "articulation and historical checks agree for seed "+seed);
+    }
+  }
 });
 
 test("DEV-083: passive clue is not a free map reveal; search costs a turn",()=>{

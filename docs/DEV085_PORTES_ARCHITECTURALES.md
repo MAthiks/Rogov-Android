@@ -16,6 +16,7 @@ L'ancien générateur DEV-080 plaçait mécaniquement **34 portes sur 17 connexi
 - Seules les **portes ordinaires** déjà implémentées sont concernées ; ouverture/fermeture **explicite en un tour**, état mémorisé. Pas de nouvelles grilles verrouillées, barrières obligatoires ou exigences de clefs introduites.
 - Les **passages secrets restent entièrement facultatifs**. Les portes sont toutes ouvertes à la création ; les deux routes de retour, l'accès aux coffres et l'extraction ne nécessitent ni secret, ni combat, ni piège imposé.
 - Placement des **quatre ennemis, trois coffres et deux failles** issu du correctif QA-084 conservé, en particulier la visibilité d'au moins un de chaque dans le vestibule.
+- **Sécurité des goulots :** les failles et le Charognard du départ ne peuvent plus apparaître dans une bouche de passage. Sur les nouvelles cartes à murs cadrés, les Charognards poursuivent le héros **à l'intérieur de leur salle** mais ne s'installent pas dans l'étroit seuil d'extraction (comportement territorial explicite) ; l'IA des anciennes sauvegardes reste intacte.
 - Génération déterministe : le plan et les choix de portes sont intégralement enregistrés lors d'une descente, **jamais régénérés au chargement**.
 
 ## Sauvegardes et compatibilité

@@ -97,8 +97,23 @@ function renderInventory(container, items, selectable=false) {
     empty.textContent = selectable ? "Le coffre est vide. Une descente sans équipement reste possible." : "Ton sac est vide.";
     container.append(empty);
   }
+  // The expedition bag is sorted by material type. The Veyr stash keeps
+  // its original selection order and checkbox semantics.
+  if(!selectable)entries.sort(([a],[b])=>
+    (ITEMS[a]?.type||"").localeCompare(ITEMS[b]?.type||"")||
+    (ITEMS[a]?.name||"").localeCompare(ITEMS[b]?.name||""));
+  let previousType=null;
   for (const [id, count] of entries) {
-    if (ITEMS[id]) container.append(infoItem(id,count,selectable));
+    if(!ITEMS[id])continue;
+    const type=ITEMS[id].type;
+    if(!selectable&&type!==previousType){
+      const heading=document.createElement("strong");
+      heading.className="bag-category";
+      heading.textContent=type;
+      container.append(heading);
+    }
+    container.append(infoItem(id,count,selectable));
+    previousType=type;
   }
 }
 function eventRow(entry) {
@@ -217,6 +232,45 @@ function updateRoomSiteActions(){
     options.append(button);
   }
 }
+// DEV-090C: only *existing, locally known* interactions enter the dock.
+// No new entity scanning and no persistent state, combat RNG or turns.
+function updateInteractionDock(){
+  const run=state.run;
+  const dock=$("interaction-dock");
+  const nearbyDoor=run?adjacentDoors().length:0;
+  const visible={
+    secret:run&&!$("secret-clue").hidden,
+    trap:run&&!$("trap-clue").hidden,
+    site:run&&!$("room-site-panel").hidden,
+    chest:run&&!$("chest-action").disabled&&!$("chest-action").hidden,
+    door:Boolean(nearbyDoor)
+  };
+  dock.querySelector(".secret-controls").hidden=!visible.secret;
+  dock.querySelector(".trap-controls").hidden=!visible.trap;
+  dock.querySelector(".room-site-panel").hidden=!visible.site;
+  dock.querySelector(".chest-controls").hidden=!visible.chest;
+  dock.querySelector(".door-controls").hidden=!visible.door;
+  const labels=[];
+  if(visible.secret)labels.push("Indice");
+  if(visible.trap)labels.push("Piège");
+  if(visible.site)labels.push("Lieu");
+  if(visible.chest)labels.push("Coffre");
+  if(visible.door)labels.push("Porte");
+  dock.hidden=labels.length===0;
+  $("interaction-summary").textContent=labels.length
+    ?labels.join(" · "):"Aucune interaction proche";
+  $("jump-action").disabled=dock.hidden;
+}
+function updateBagStatus(){
+  const count=inventoryCount(state);
+  const full=count>=8;
+  $("bag-summary").textContent=full?"SAC PLEIN · "+count+" / 8":
+    count+" / 8 objets";
+  $("bag-summary").dataset.full=String(full);
+  $("bag-meter").value=count;
+  $("bag-meter").setAttribute("aria-valuetext",
+    count+" objets transportés sur 8 places");
+}
 function inspect(x,y) {
   const details=inspectTile(state,x,y);
   if(!details) return;
@@ -225,6 +279,7 @@ function inspect(x,y) {
   $("inspect-panel").dataset.kind=details.kind;
   selectedDoor=details.kind==="door"?{x,y}:null;
   updateDoorAction();
+  updateInteractionDock();
 }
 /**
  * DEV-071: selecting a target is informational only. Combat rules still belong
@@ -446,6 +501,7 @@ function render() {
     $("use-tonic").textContent = "Tonique +6 PV (" + (run.carried["consumable.dusk_tonic"] || 0) + ")";
     $("turns").textContent = String(run.turns);
     $("bag-count").textContent = inventoryCount(state) + " / 8";
+    updateBagStatus();
     updateExpeditionReport();
     $("route-hint").textContent = !run.map || run.layoutId==="nhal-introduction"
       ? "Première descente : repère les dangers et l'Arche d'extraction. Tu peux éviter le combat."
@@ -470,6 +526,7 @@ function render() {
     if (renderMode === "tiles") drawTileMap(state, $("tile-map"));
     updateDoorAction();
     updateChestAction();
+    updateInteractionDock();
     renderActorStats();
     renderTargetChoices();
     renderThreatForecast();
@@ -590,9 +647,10 @@ const jumpDestinations={
   "jump-map":()=>renderMode==="ascii"?$("dungeon-map"):$("tile-map"),
   "jump-combat":()=>!$("combat-dock").hidden?$("combat-dock"):
     (renderMode==="ascii"?$("dungeon-map"):$("tile-map")),
+  "jump-action":()=>$("interaction-dock"),
   "jump-report":()=>{if(!$("expedition-report").hidden)$("expedition-report").open=true;
     return $("expedition-report");},
-  "jump-bag":()=>$("bag-items")
+  "jump-bag":()=>{$("bag-panel").open=true;return $("bag-panel");}
 };
 for(const [id,getTarget] of Object.entries(jumpDestinations)){
   $(id).addEventListener("click",()=>{

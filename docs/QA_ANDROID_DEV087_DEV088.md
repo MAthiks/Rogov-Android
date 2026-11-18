@@ -1,8 +1,7 @@
 # ROGOV — Recette Android combinée DEV-087 + DEV-088
 
-**Version de recette :** `dev/dev-088-extraction-decisions` (inclut DEV-087).
-**Destination GitHub :** [PR #9](https://github.com/MAthiks/Rogov-Android/pull/9). La [PR #8](https://github.com/MAthiks/Rogov-Android/pull/8) reste indépendante et non fusionnée.
-**Statut :** CI automatisée verte pour les deux PR ; recette Android réelle à confirmer avant fusion.
+**Version livrée sur GitHub :** branche `main` — les deux PR sont fusionnées dans l'ordre : [DEV-087 #8](https://github.com/MAthiks/Rogov-Android/pull/8) puis [DEV-088 #9](https://github.com/MAthiks/Rogov-Android/pull/9).
+**Statut :** CI automatisée verte avant fusion ; recette sur téléphone réel toujours recommandée. La publication GitHub Pages doit être vérifiée indépendamment.
 
 ## Démarrage sur le téléphone
 
@@ -10,7 +9,7 @@ Installer Termux, puis exécuter :
 
 ```sh
 pkg install -y git python
-git clone --depth 1 --branch dev/dev-088-extraction-decisions https://github.com/MAthiks/Rogov-Android.git rogov-qa-088
+git clone --depth 1 --branch main https://github.com/MAthiks/Rogov-Android.git rogov-qa-088
 cd rogov-qa-088
 python -m http.server 8788 --bind 127.0.0.1 --directory docs
 ```
@@ -36,7 +35,7 @@ Si le répertoire `rogov-qa-088` existe déjà, ouvrir Termux et exécuter `cd r
 
 Répondre avec **« DEV-087 et DEV-088 validés »** si les étapes ci-dessus fonctionnent, ou envoyer une capture et le dernier message affiché si une étape échoue.
 
-**Ne pas fusionner tant que la validation réelle n'est pas communiquée.** Si validation réussie, fusionner d'abord la PR #8, puis actualiser la base de la PR #9 et relancer les contrôles CI sur le nouveau contexte de `main`.
+**Les deux fusions ont été effectuées à la demande explicite de l'utilisateur.** Ce document reste un protocole de validation sur Android réel ; il ne certifie pas que cette validation a déjà été exécutée.
 
 ## CI du dernier code vérifié
 

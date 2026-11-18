@@ -146,12 +146,16 @@
             <pre id="exploration-mini-map" aria-label="Mini-carte des seules zones découvertes"></pre>
             <p class="hint">Légende : @ Égaré · # mur · + porte · E Arche connue · : sol mémorisé · . sol visible</p>
           </details>
+          <div class="secret-controls" role="group" aria-label="Indices et fouille de secrets">
+            <p id="secret-clue" class="secret-clue" hidden></p>
+            <button id="secret-search" class="secondary full" type="button" hidden disabled>Fouiller attentivement · 1 tour</button>
+          </div>
           <div class="door-controls" role="group" aria-label="Portes : sélectionner puis confirmer sans mouvement involontaire">
             <button id="door-select" type="button" class="secondary door-action" disabled>Aucune porte voisine</button>
             <button id="door-action" type="button" class="secondary door-action" disabled>Sélectionner une porte voisine</button>
           </div>
           <div id="graphic-legend" class="graphic-legend" aria-label="Légende illustrée du donjon"></div>
-          <div id="ascii-legend" class="legend" hidden>@ Joueur · : Sol mémorisé · Espace vide Inexploré · + Porte fermée · / Porte ouverte · c Charognard · G Gardien · $ Butin · ^ Mort · E Extraction · # Mur</div>
+          <div id="ascii-legend" class="legend" hidden>@ Joueur · : Sol mémorisé · Espace vide Inexploré · ? Passage secret révélé · + Porte fermée · / Porte ouverte · c Charognard · G Gardien · $ Butin · ^ Mort · E Extraction · # Mur</div>
         </div>
 
         <section class="tactical-targets" aria-labelledby="target-choices-title">

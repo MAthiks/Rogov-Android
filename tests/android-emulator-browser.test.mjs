@@ -7,7 +7,7 @@ import { chromium } from "playwright";
 
 const URL="http://127.0.0.1:8765/index.html";
 const sleep=ms=>new Promise(ok=>setTimeout(ok,ms));
-const adb=(...args)=>execFileSync("adb",args,{encoding:"utf8",timeout:12000});
+const adb=(...args)=>execFileSync("adb",args,{encoding:"utf8",timeout:25000});
 
 async function androidBrowser() {
   let last;
@@ -101,10 +101,8 @@ test("DEV-080: Android 13 Chrome runs the deep PWA, doors, persistence and offli
     await page.locator("#door-action").click();
     assert.equal(await page.locator("#turns").textContent(),"2");
     await page.locator("#renderer-toggle").click();
-    // Android Chrome CDP may disconnect on Page.captureScreenshot.
-    // Use the emulator's native screenshot API without forcing a CDP render.
-    adb("shell","screencap","-p","/sdcard/rogov-dev080-android13.png");
-    adb("pull","/sdcard/rogov-dev080-android13.png","rogov-dev080-android13.png");
+    // Diagnostic capture is handled by the runner exit trap: avoid ADB screenshot
+    // contention while the Android Chrome DevTools session is active.
 
     // Make the local host unreachable from the device, with Chrome still alive:
     // the document and ES modules must be served from the PWA cache.

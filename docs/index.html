@@ -127,12 +127,13 @@
       <section id="expedition" class="panel" hidden aria-labelledby="exp-title">
         <div class="section-head"><span class="eyebrow">02 — Territoire hostile</span><h2 id="exp-title">Profondeurs de Nhal</h2></div>
         <div class="run-bar"><span>VIE <strong id="hp">12 / 12</strong></span><span>TOURS <strong id="turns">0</strong></span><span>SAC <strong id="bag-count">0 / 8</strong></span></div>
-        <nav class="expedition-shortcuts" aria-label="Accès rapide aux éléments de l'expédition">
+        <nav id="expedition-shortcuts" class="expedition-shortcuts" aria-label="Accès rapide aux éléments de l'expédition">
           <button type="button" id="jump-map" aria-controls="tile-map">Carte</button>
           <button type="button" id="jump-combat" aria-controls="combat-dock">Combat</button>
           <button type="button" id="jump-action" aria-controls="interaction-dock">À portée</button>
           <button type="button" id="jump-report" aria-controls="expedition-report">Rapport</button>
-          <button type="button" id="jump-bag" aria-controls="bag-items">Sac</button>
+          <button type="button" id="jump-bag" aria-controls="bag-panel">Sac</button>
+          <button type="button" id="jump-journal" aria-controls="history-details">Journal</button>
         </nav>
         <div class="survival-hud" aria-label="État de santé et danger">
           <div class="health-header"><span>SANTÉ <strong id="health-state" data-health="healthy">STABLE</strong></span><span id="threat-state" data-threat="danger">2 HOSTILES</span></div>
@@ -164,6 +165,13 @@
               <small>Soigner ou attendre consomme 1 tour.</small>
             </div>
           </div>
+        </section>
+        <section id="ui092-sheet" class="ui092-sheet" aria-labelledby="ui092-sheet-title" hidden>
+          <header class="ui092-sheet-head">
+            <strong id="ui092-sheet-title">ACTIONS DE NHAL</strong>
+            <button type="button" id="ui092-sheet-close" aria-label="Fermer le panneau et revenir à la carte">✕ Fermer</button>
+          </header>
+          <div id="ui092-sheet-body" class="ui092-sheet-body"></div>
         </section>
         <section id="combat-dock" class="combat-dock" aria-label="Commandes de combat contextuelles" hidden>
           <header class="combat-dock-head">

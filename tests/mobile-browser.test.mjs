@@ -329,3 +329,206 @@ test("DEV-082 mobile: visible clue, deliberate one-turn search, opened cache and
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+/**
+ * QA-084 vertical slice: genuine touch-control travel from the title screen
+ * through tutorial, deep descent, public loot, clue, search, optional cache,
+ * regular-door interaction, extraction, title return and saved resume.
+ * Only mobile-browser enemies are disabled to isolate pathing/UI from combat:
+ * no teleportation, fast-forwarded turns, debug action dispatch or pre-revealed
+ * secrets. Combat is covered by dedicated tactical suites.
+ */
+test("QA-084 mobile: end-to-end two descents, discovered secret, public extraction and saved loot", {timeout:150000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage();
+    const errors=[];
+    page.on("pageerror",err=>errors.push(err.message));
+    await page.goto(origin);
+    await page.locator("#title-continue").tap();
+    await page.locator('#stash-items input[type="checkbox"]').first().check();
+    await page.locator("#start-btn").tap();
+
+    const saved=()=>page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    const clearOnlyEnemies=async()=>{
+      await page.evaluate(async()=>{
+        const game=await import("./game.js");
+        const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+        if(!state.run)throw Error("No active run for QA scenario");
+        state.run.enemies=[];
+        if(!game.validateSave(state))throw Error("QA scenario save invalid");
+        localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      });
+      await page.reload({waitUntil:"load"});
+      await page.locator("#title-continue").tap();
+    };
+    const directions={"1,0":"right","-1,0":"left","0,1":"down","0,-1":"up"};
+    const routeTo=(destination)=>page.evaluate(async dest=>{
+      const {SAVE_KEY}=await import("./game.js");
+      const {deepRoute}=await import("./deep-dungeon.js");
+      const state=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return deepRoute(state.run.map,{x:state.run.x,y:state.run.y},dest);
+    },destination);
+    const moveOne=async(a,b)=>{
+      const direction=directions[(b.x-a.x)+","+(b.y-a.y)];
+      assert.ok(direction,"Path must use ordinary adjacent tiles");
+      await page.locator('[data-direction="'+direction+'"]').tap();
+      const now=await saved();
+      if(now.run)assert.deepEqual([now.run.x,now.run.y],[b.x,b.y],
+        "Every real UI movement must match its public route");
+      return now;
+    };
+    const walk=async(target,{verifyDoor=false}={})=>{
+      const route=await routeTo(target);
+      assert.ok(route&&route.length>1,
+        "Public route must exist to "+JSON.stringify(target));
+      let visitedDoor=false;
+      for(let i=1;i<route.length;i++){
+        const [a,b]=[route[i-1],route[i]];
+        const state=await saved();
+        assert.ok(state.run,"The player must remain in Nhal until the exit tile");
+        if(verifyDoor&&!visitedDoor&&state.run.map[b.y][b.x]==="+"){
+          const cell=page.locator('#tile-map .pixel-tile[data-x="'+b.x+'"][data-y="'+b.y+'"]');
+          assert.equal(await cell.count(),1,"Adjacent ordinary door must be in the camera");
+          const before=state.run.turns;
+          await cell.tap();
+          assert.equal((await saved()).run.turns,before,"Inspecting a door is free");
+          await page.locator("#door-action").tap();
+          assert.equal((await saved()).run.turns,before+1,"Closing a door costs one turn");
+          await page.locator('[data-direction="'+directions[(b.x-a.x)+","+(b.y-a.y)]+'"]').tap();
+          const blocked=await saved();
+          assert.equal(blocked.run.turns,before+1,"A blocked move must not waste a turn");
+          assert.deepEqual([blocked.run.x,blocked.run.y],[a.x,a.y]);
+          await page.reload({waitUntil:"load"});
+          await page.locator("#title-continue").tap();
+          assert.equal((await saved()).run.doors.find(d=>d.x===b.x&&d.y===b.y).open,
+            false,"The closed door persists after reload");
+          await page.locator("#door-select").tap();
+          assert.match(await page.locator("#door-action").textContent(),/Ouvrir/);
+          await page.locator("#door-action").tap();
+          assert.equal((await saved()).run.turns,before+2,"Reopening costs one turn");
+          visitedDoor=true;
+        }
+        await moveOne(a,b);
+      }
+      return {visitedDoor,steps:route.length-1};
+    };
+
+    // The first descent is the genuine tutorial; its exit must lead to Veyr.
+    let state=await saved();
+    assert.equal(state.meta.descents,1);
+    assert.ok(state.run);
+    await clearOnlyEnemies();
+    state=await saved();
+    const tutorialExit=state.run.map.flatMap((row,y)=>
+      [...row].map((tile,x)=>tile==="E"?{x,y}:null).filter(Boolean))[0];
+    assert.ok(tutorialExit);
+    await walk(tutorialExit);
+    state=await saved();
+    assert.equal(state.run,null,"Tutorial must end in Veyr");
+    assert.equal(state.meta.extractions,1,"Tutorial extraction is recorded");
+    assert.equal(state.meta.stash["weapon.rusty_sword"],1,
+      "Equipment chosen on the title/refuge survives extraction");
+
+    // A second normal GUI start is the first deep procedural dungeon.
+    await page.locator('#stash-items input[type="checkbox"]').first().check();
+    await page.locator("#start-btn").tap();
+    await clearOnlyEnemies();
+    state=await saved();
+    assert.equal(state.meta.descents,2);
+    assert.equal(state.run.map.length,32);
+    assert.equal(state.run.map[0].length,44);
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
+    const bounds=await page.evaluate(()=>({
+      page:document.documentElement.scrollWidth,
+      screen:document.documentElement.clientWidth
+    }));
+    assert.ok(bounds.page<=bounds.screen+1,"No portrait horizontal overflow");
+    const clue=state.run.secrets[0].clue;
+    const secret={x:state.run.secrets[0].x,y:state.run.secrets[0].y};
+    assert.equal(state.run.secrets[0].revealed,false);
+    assert.equal(await page.locator("#secret-search").isHidden(),true);
+    const lootPos=Object.entries(state.run.loot)
+      .find(([,id])=>id==="relic.ashen_fragment")?.[0];
+    assert.ok(lootPos);
+    const [lx,ly]=lootPos.split(",").map(Number);
+    const publicLoot=await walk({x:lx,y:ly});
+    assert.ok(publicLoot.steps>5);
+    state=await saved();
+    assert.equal(state.run.carried["relic.ashen_fragment"],1,
+      "Public loot enters the bag by normal movement");
+    assert.equal(state.run.secrets[0].revealed,false,
+      "Public treasure never forces secret discovery");
+
+    const toClue=await walk(clue);
+    assert.ok(toClue.steps>0);
+    state=await saved();
+    assert.equal(await page.locator("#secret-clue").isVisible(),true);
+    assert.equal(await page.locator("#secret-search").isEnabled(),true);
+    const turnBeforeSearch=state.run.turns;
+    const secretCell=page.locator('#tile-map .pixel-tile[data-x="'+secret.x+
+      '"][data-y="'+secret.y+'"]');
+    assert.equal(await secretCell.count(),1);
+    await secretCell.tap();
+    assert.equal((await saved()).run.turns,turnBeforeSearch,
+      "Examining the wall costs no turn");
+    assert.equal(await page.locator("#inspect-title").textContent(),"Mur de pierre");
+    await page.locator("#secret-search").tap();
+    state=await saved();
+    assert.equal(state.run.turns,turnBeforeSearch+1,
+      "A confirmed search costs exactly one turn");
+    assert.equal(state.run.secrets[0].revealed,true);
+    assert.equal(state.run.map[secret.y][secret.x],".");
+    assert.equal(await page.locator("#tile-map .tile-secret_open").count(),1);
+    assert.equal((await page.locator("#exploration-mini-map").textContent())
+      .split("\n")[secret.y][secret.x],"?");
+
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("?"));
+    await page.locator("#renderer-toggle").tap();
+    await moveOne(clue,secret);
+    state=await saved();
+    assert.equal(state.run.secrets[0].claimed,true);
+    assert.equal(state.run.carried["consumable.bandage"],1);
+    const xpAfterCache=state.meta.hero.xp;
+    await moveOne(secret,clue);
+    await moveOne(clue,secret);
+    state=await saved();
+    assert.equal(state.run.carried["consumable.bandage"],1,
+      "Repeated visits never duplicate a secret reward");
+    assert.equal(state.meta.hero.xp,xpAfterCache);
+
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").tap();
+    state=await saved();
+    assert.ok(state.run.secrets[0].claimed);
+    assert.equal(state.run.carried["consumable.bandage"],1);
+    assert.equal(state.run.exploration.seen.length>0,true);
+    assert.equal(state.run.secrets[0].revealed,true);
+    const exit=state.run.exit;
+    const finalPath=await walk(exit,{verifyDoor:true});
+    assert.ok(finalPath.visitedDoor,"Full return route must encounter a real door");
+    state=await saved();
+    assert.equal(state.run,null,"Return to Veyr through the ordinary Arche");
+    assert.equal(state.meta.extractions,2);
+    assert.equal(state.meta.stash["weapon.rusty_sword"],1);
+    assert.equal(state.meta.stash["relic.ashen_fragment"],1);
+    assert.equal(state.meta.stash["consumable.bandage"],3,
+      "The hidden cache's single bandage is secured in the permanent stash");
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").tap();
+    const persisted=await saved();
+    assert.equal(persisted.run,null);
+    assert.equal(persisted.meta.extractions,2);
+    assert.equal(persisted.meta.stash["consumable.bandage"],3);
+    assert.deepEqual(errors,[],"No browser error during both complete journeys");
+    console.log("QA-084 FULL SESSION: tutorial + deep public loot + secret + "+
+      "door + return + persist PASS; UI steps="+
+      (publicLoot.steps+toClue.steps+finalPath.steps+4));
+  }finally{await context.close();}
+});

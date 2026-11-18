@@ -1076,3 +1076,71 @@ test("DEV-089C mobile: eight-room network and expedition UI survive reload", {ti
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("DEV-090A mobile cockpit: map touches controls, shortcuts cost no turns and layout fits 360px", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const geometry=await page.evaluate(()=>{
+      const rect=id=>document.getElementById(id).getBoundingClientRect();
+      const map=rect("tile-map"),control=rect("field-controls");
+      const nav=rect("jump-map"),dpad=rect("wait-btn"),quick=rect("use-bandage");
+      const expedition=document.querySelector("#expedition");
+      return {
+        mapBottom:map.bottom,controlTop:control.top,
+        dpadWithin: dpad.top>=control.top&&dpad.bottom<=control.bottom+1,
+        healingWithin:quick.top>=control.top&&quick.bottom<=control.bottom+1,
+        mapWidth:map.width,navHeight:nav.height,
+        width:document.documentElement.clientWidth,
+        scroll:document.documentElement.scrollWidth,
+        visible:!expedition.hidden,
+        reportAfter:document.getElementById("expedition-report")
+          .compareDocumentPosition(document.getElementById("field-controls"))
+          & Node.DOCUMENT_POSITION_PRECEDING
+      };
+    });
+    assert.equal(geometry.visible,true);
+    assert.ok(geometry.mapBottom<=geometry.controlTop&&
+      geometry.controlTop-geometry.mapBottom<42,
+      "movement controls must immediately follow the visible map");
+    assert.ok(geometry.dpadWithin&&geometry.healingWithin);
+    assert.ok(geometry.navHeight>=42);
+    assert.ok(geometry.scroll<=geometry.width+1,
+      "new cockpit must not cause horizontal overflow");
+    assert.equal(await page.locator("#map-legend-details").evaluate(n=>n.open),false,
+      "legend is collapsed by default");
+    const before=await page.locator("#turns").textContent();
+    await page.locator("#jump-report").tap();
+    assert.equal(await page.locator("#expedition-report").evaluate(n=>n.open),true);
+    await page.locator("#jump-bag").tap();
+    await page.locator("#jump-combat").tap();
+    await page.locator("#jump-map").tap();
+    assert.equal(await page.locator("#turns").textContent(),before,
+      "navigation never consumes a turn");
+    await page.locator("#wait-btn").tap();
+    assert.equal(await page.locator("#turns").textContent(),String(Number(before)+1),
+      "waiting in the dpad is one deliberate turn");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("DEV-090A cockpit remains functional in ASCII and after reload", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage();
+    await preloadDeepRun(page);
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    await page.locator("#jump-map").tap();
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.locator("#map-legend-details summary").tap();
+    assert.equal(await page.locator("#ascii-legend").isVisible(),true);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#field-controls").isVisible(),true);
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    assert.equal(await page.locator("#wait-btn").isEnabled(),true);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+  }finally{await context.close();}
+});

@@ -179,7 +179,9 @@ function makePlan(index){
   for(let y=entry.y;y<entry.y+entry.height;y++)
     for(let x=entry.x;x<entry.x+entry.width;x++){
       const p={x,y},d=distance(p,start);
-      if(grid[y][x]==="."&&!occupied.has(key(p))&&d>=4&&d<=5)
+      if(x>entry.x&&x<entry.x+entry.width-1&&
+          y>entry.y&&y<entry.y+entry.height-1&&
+          grid[y][x]==="."&&!occupied.has(key(p))&&d>=4&&d<=5)
         scouts.push(p);
     }
   if(!scouts.length)throw new Error("Entry chamber has no safe enemy tile");
@@ -203,8 +205,9 @@ function makePlan(index){
   // hazard blocks the last path or spawns under a hero, foe or chest.
   function placeCrack(room,nearEntry){
     const candidates=[];
-    for(let y=room.y;y<room.y+room.height;y++)
-      for(let x=room.x;x<room.x+room.width;x++){
+    // Hazards belong INSIDE a room, never on one-cell public threshold.
+    for(let y=room.y+1;y<room.y+room.height-1;y++)
+      for(let x=room.x+1;x<room.x+room.width-1;x++){
         const p={x,y},d=distance(p,start);
         if(grid[y][x]!=="."||occupied.has(key(p))||
           distance(p,exit)<4||

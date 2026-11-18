@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {newGame,beginRun,recall,move,extract,normalizeJournal,validateSave,mapText,inspectTile} from "../docs/game.js";
 import {BASE_MAP,BASE_LOOT,generateLayout,validateLayout,safeRoute,twoReturnWays} from "../docs/dungeon.js";
+import {generateDeepLayout,deepRoute} from "../docs/deep-dungeon.js";
 
 const point=p=>p.split(",").map(Number);
 const key=p=>p.x+","+p.y;
@@ -82,16 +83,16 @@ test("VAR-077: dynamic ASCII, tile inspection and extraction use run.map and run
   let s=newGame();
   s.meta.descents=1; // next entry is generated, not tutorial
   s=beginRun(s).state;
-  const l=generateLayout(2);
+  const l=generateDeepLayout(2);
   assert.deepEqual(s.run.map,l.map);
   assert.deepEqual(s.run.loot,l.loot);
-  assert.equal(mapText(s).split("\n").length,9);
+  assert.equal(mapText(s).split("\n").length,32);
   for(const [pos,id] of Object.entries(l.loot)){
     const [x,y]=point(pos);
     assert.equal(inspectTile(s,x,y).name,
       id==="relic.ashen_fragment"?"Fragment de cendre":"Tonique du crépuscule");
   }
-  const route=safeRoute(l.map,l.start,l.exit,new Set(s.run.enemies.map(key)));
+  const route=deepRoute(l.map,l.start,l.exit,new Set(s.run.enemies.map(key)));
   assert.ok(route);
   s.run.enemies=[]; // isolate geometry from the combat AI
   for(let i=1;i<route.length;i++){
@@ -107,14 +108,14 @@ test("VAR-077: dynamic ASCII, tile inspection and extraction use run.map and run
 
 test("VAR-077: lethal hazards are optional and fixed before entry, never spawned mid-run",()=>{
   for(let n=2;n<=30;n++){
-    const l=generateLayout(n),grid=JSON.stringify(l.map);
+    const l=generateDeepLayout(n),grid=JSON.stringify(l.map);
     let s=newGame();s.meta.descents=n-1;s=beginRun(s).state;
     for(let i=0;i<3;i++) {
       const next=move(s,"up");
       if(next.changed&&next.state.run)s=next.state;
     }
     if(s.run)assert.equal(JSON.stringify(s.run.map),grid);
-    assert.deepEqual(generateLayout(n).map,l.map);
+    assert.deepEqual(generateDeepLayout(n).map,l.map);
   }
 });
 

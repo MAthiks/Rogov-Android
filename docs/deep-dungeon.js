@@ -344,11 +344,14 @@ export function validateDeepLayout(layout,live=false){
       map[DEEP_HEIGHT-1]!=="#".repeat(DEEP_WIDTH)||
       map.some(row=>row[0]!=="#"||row[DEEP_WIDTH-1]!=="#"))return false;
   const legacy=layout.doorPlanVersion===undefined;
+  const graph=layout.topologyVersion===GRAPH_VERSION;
+  if(layout.topologyVersion!==undefined&&!graph)return false;
   if(layout.doorPlanVersion!==undefined&&layout.doorPlanVersion!==1)return false;
   if(layout.geometryVersion!==undefined&&
       layout.geometryVersion!==ROOM_GEOMETRY_VERSION)return false;
-  if(!Array.isArray(rooms)||rooms.length!==12||!Array.isArray(doors)||
-      (legacy?doors.length!==34:doors.length!==6))return false;
+  if(!Array.isArray(rooms)||!Array.isArray(doors)||
+      (graph?(rooms.length<8||rooms.length>12||doors.length!==6):
+        (rooms.length!==12||(legacy?doors.length!==34:doors.length!==6))))return false;
   if(!start||!exit||tile(map,start)!=="S"||tile(map,exit)!=="E")return false;
   if(map.join("").split("S").length!==2||map.join("").split("E").length!==2)return false;
   if(!rooms.every((r,i)=>r?.id===i&&Number.isInteger(r.x)&&Number.isInteger(r.y)&&
@@ -356,6 +359,30 @@ export function validateDeepLayout(layout,live=false){
       r.width>=(legacy?5:7)&&r.width<=(legacy?7:9)&&
       r.height>=(legacy?5:7)&&r.height<=(legacy?7:9)&&
       inRoom({x:r.cx,y:r.cy},r)))return false;
+  if(graph){
+    if(!Array.isArray(layout.links)||typeof layout.networkKind!=="string"||
+        !Array.isArray(rooms)||rooms.some(r=>!Number.isInteger(r.slot)||
+          r.slot<0||r.slot>11))return false;
+    const slots=rooms.map(r=>r.slot);
+    if(new Set(slots).size!==slots.length||
+        CORE_SLOTS.some(slot=>!slots.includes(slot))||
+        !slots.every((slot,i)=>i===0||slot>slots[i-1]))return false;
+    const canonical=(a,b)=>Math.min(a,b)+","+Math.max(a,b);
+    const actual=layout.links.map(l=>l&&Number.isInteger(l.a)&&
+      Number.isInteger(l.b)&&rooms[l.a]&&rooms[l.b]&&l.a!==l.b?
+      canonical(rooms[l.a].slot,rooms[l.b].slot):null);
+    const expected=topologyEdges(slots).map(l=>canonical(l.a,l.b));
+    if(actual.length!==expected.length||new Set(actual).size!==actual.length||
+        actual.some(key=>!key||!expected.includes(key)))return false;
+    const entry=rooms.find(r=>r.slot===8),extraction=rooms.find(r=>r.slot===3);
+    if(!entry||!extraction||entry.role!=="vestibule"||
+        extraction.role!=="extraction"||
+        rooms.find(r=>r.slot===10)?.role!=="atelier_abandonne"||
+        start.x!==entry.cx||start.y!==entry.cy||
+        exit.x!==extraction.cx||exit.y!==extraction.cy)return false;
+    if(rooms.filter(r=>r.role==="chambre_echo").length!==1||
+        rooms.filter(r=>r.role==="cache_scellee").length!==1)return false;
+  }
   if(layout.geometryVersion===ROOM_GEOMETRY_VERSION){
     const validShapes=new Set(ROOM_SHAPES);
     for(const kind of ["l","pillar","collapsed","alcove"])
@@ -435,7 +462,8 @@ export function validateDeepLayout(layout,live=false){
       (()=>{const [x,y]=pos.split(",").map(Number);return distance({x,y},start)<=3;})()))
       return false;
     if(!enemies.some(e=>distance(e,start)>=4&&distance(e,start)<=5))return false;
-    if(!rooms[8]||!map.some((row,y)=>[...row].some((ch,x)=>
+    if(!(graph?rooms.some(r=>r.slot===8):rooms[8])||
+        !map.some((row,y)=>[...row].some((ch,x)=>
       ch==="^"&&distance({x,y},start)>=2&&distance({x,y},start)<=4)))return false;
   }
   if(!deepTwoReturnWays(map,start,exit))return false;
@@ -467,7 +495,16 @@ export function generateDeepLayout(index){
   if(!Number.isSafeInteger(index)||index<2)throw new RangeError("Invalid deep descent");
   // Deterministic, bounded attempts; stop rather than publish an unfair plan.
   for(let attempt=0;attempt<12;attempt++){
-    const layout=makePlan(index+attempt*100003);
+    let layout;
+    try{
+      layout=makePlan(index+attempt*100003);
+    }catch(error){
+      // A rare incompatible alignment is rejected rather than published.
+      // The attempt budget is deterministic and bounded for Android CPUs.
+      if(error instanceof Error&&!/Invalid deep|Maximum call stack/.test(error.message))
+        continue;
+      throw error;
+    }
     if(validateDeepLayout(layout)){
       layout.layoutId="nhal-deep-"+index+"-"+attempt;
       layout.secrets=placeOptionalSecret(layout,index,deepRoute);

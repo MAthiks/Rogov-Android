@@ -13,7 +13,7 @@
 ## Tests vérifiés sur le dernier commit DEV-082
 
 - **181/181 tests Node** (dont rencontre avec IA active et extraction), **7/7 tests Chromium mobile** (dont parcours de 59 déplacements, et combat/retour avec 52 déplacements tactiles et les ennemis actifs) : [workflow 44266128653](https://github.com/MAthiks/Rogov-Android/actions/runs/44266128653) — succès sur SHA `15f200458d18fdf12c57c7a14784b15928482c71`.
-- **3/3 scénarios sur véritable Chrome exécuté dans un émulateur Android 13** : [workflow 44251118876](https://github.com/MAthiks/Rogov-Android/actions/runs/44251118876) — succès. Cas : caméra/portes/sauvegardes et offline (DEV-080), fog/LOS/mémoire/anti-fuite (DEV-081), indice/fouille/ouverture/butin unique/offline (DEV-082).
+- **3/3 scénarios sur Chrome en émulateur Android 13** : [workflow 44266128672](https://github.com/MAthiks/Rogov-Android/actions/runs/44266128672), validé sur le même commit de code que QA-084B — succès. Cas : caméra/portes/sauvegardes et offline (DEV-080), fog/LOS/mémoire/anti-fuite (DEV-081), indice/fouille/ouverture/butin unique/offline (DEV-082).
 - **240 graines procédurales** validées dans la campagne DEV-082, avec vérification d'itinéraires ordinaires.
 - La CI « Android APK » verte ne démontre **pas** que la PWA DEV-082 a été intégrée à l'ancien projet natif `app/`.
 

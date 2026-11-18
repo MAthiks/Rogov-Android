@@ -92,6 +92,9 @@ export function minimapText(run){
     const knownTrap=run.traps?.find(t=>t.x===x&&t.y===y&&t.status!=="hidden");
     if(knownTrap)return knownTrap.status==="disabled"?"x":
       knownTrap.status==="triggered"?";":"!";
+    const site=run.sites?.find(s=>s.x===x&&s.y===y);
+    if(site)return site.status==="resolved"?"v":
+      ({atelier:"a",echo:"e",cache:"k"}[site.kind]||".");
     if(tile==="$"&&run.rooms)return (run.collected||[]).includes(x+","+y)?"o":"C";
     return live.has(pos)?".":":";
   }).join("")).join("\n");

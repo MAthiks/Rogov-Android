@@ -3,6 +3,7 @@
 import { MAP, ENEMY_TYPES, enemyAt, cameraBounds } from "./game.js";
 import { hasFog,visibleCells,visionKey } from "./exploration-visibility.js";
 import {trapAppearance} from "./traps.js";
+import {roomSiteAppearance} from "./room-events.js";
 const svg = (parts) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + parts + '</svg>';
 const floor=svg(
   '<rect width="24" height="24" fill="#202d33"/>'+
@@ -101,14 +102,28 @@ const trap_disabled=svg('<rect x="2" y="2" width="20" height="20" fill="#233e36"
   '<path d="M5 12l5 5L20 7" stroke="#c3ead0" stroke-width="3" fill="none"/>');
 const trap_triggered=svg('<rect x="2" y="2" width="20" height="20" fill="#31383c" stroke="#76838b" stroke-width="1"/>'+
   '<path d="M5 7l14 10M19 7L5 17" stroke="#b3b6ab" stroke-width="2"/>');
-const SPRITE_SVGS={ floor, wall, hero, loot, hazard, exit, door_open, door_closed, secret_open, chest_open, charognard, guardian, rift_larva, trap_clue, trap_revealed, trap_disabled, trap_triggered };
+// Original, offline-first SVG markers for the three DEV-087 rooms.
+const site_atelier=svg('<rect x="2" y="13" width="20" height="8" fill="#654c36" stroke="#c1a17b" stroke-width="2"/>'+
+  '<path d="M3 10h18M6 10v4M18 10v4" stroke="#d2bd91" stroke-width="2"/>'+
+  '<path d="M8 4l8 4M12 3l-4 9" stroke="#b6d7c1" stroke-width="2"/>'+
+  '<rect x="15" y="13" width="4" height="5" fill="#b3a67a"/>');
+const site_echo=svg('<rect x="2" y="2" width="20" height="20" rx="2" fill="#263440" stroke="#89b5ba" stroke-width="2"/>'+
+  '<path d="M6 19V5h12v14M9 8l6 8M15 8l-6 8" fill="none" stroke="#a5ded8" stroke-width="2"/>'+
+  '<path d="M3 12h4M17 12h4" stroke="#e4d1ac" stroke-width="2"/>');
+const site_cache=svg('<path d="M3 20V6L8 2h12v18Z" fill="#37362f" stroke="#cfb484" stroke-width="2"/>'+
+  '<rect x="7" y="10" width="13" height="8" fill="#715b3e" stroke="#e7ce90" stroke-width="1.5"/>'+
+  '<rect x="12" y="12" width="3" height="4" fill="#b7ddbe"/>');
+const site_resolved=svg('<rect x="3" y="3" width="18" height="18" rx="2" fill="#243c38" stroke="#6d9889" stroke-width="2"/>'+
+  '<path d="M7 12l4 4 7-8" fill="none" stroke="#a3d4b6" stroke-width="2"/>');
+const SPRITE_SVGS={ floor, wall, hero, loot, hazard, exit, door_open, door_closed, secret_open, chest_open, charognard, guardian, rift_larva, trap_clue, trap_revealed, trap_disabled, trap_triggered, site_atelier, site_echo, site_cache, site_resolved };
 export const TILE_SPRITES=Object.freeze(Object.fromEntries(
   Object.entries(SPRITE_SVGS).map(([id,source])=>[id,"data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(source)])
 ));
 export const LEGEND_ITEMS=Object.freeze([
   ["hero","Joueur"],["charognard","Charognard"],["guardian","Gardien déchu"],["rift_larva","Larve de faille"],
   ["loot","Coffre / butin"],["chest_open","Coffre ouvert"],["hazard","Faille mortelle"],["exit","Extraction"],["secret_open","Secret découvert"],
-  ["trap_clue","Sol suspect"],["trap_revealed","Piège identifié"],["trap_disabled","Piège désamorcé"]
+  ["trap_clue","Sol suspect"],["trap_revealed","Piège identifié"],["trap_disabled","Piège désamorcé"],
+  ["site_atelier","Atelier"],["site_echo","Chambre de l’Écho"],["site_cache","Cache oubliée"],["site_resolved","Lieu exploré"]
 ]);
 export function drawTileMap(state,host) {
   host.replaceChildren();
@@ -151,6 +166,8 @@ export function drawTileMap(state,host) {
       }
       else if(visible&&trapAppearance(run,x,y))
         spriteId=trapAppearance(run,x,y).sprite;
+      else if(visible&&roomSiteAppearance(run,x,y))
+        spriteId=roomSiteAppearance(run,x,y).sprite;
       else if(run.secrets?.some(s=>s.revealed&&s.x===x&&s.y===y))
         spriteId="secret_open";
       else if(tile==="$"&&run.rooms)

@@ -9,6 +9,7 @@ import {generateDeepLayout,validateDeepLayout,isDeepMap} from "./deep-dungeon.js
 import {visibleCells,explorationState,visionKey,validExploration,revealAround,hasFog} from "./exploration-visibility.js";
 import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
+import {ROOM_SITES,validRoomSites,roomSiteVisible,roomSiteAppearance} from "./room-events.js";
 import {RECIPES,canCraft} from "./economy.js";
 import {EQUIPMENT_CATALOG} from "./stats.js";
 export const SAVE_KEY = "rogov-web-v1";
@@ -157,6 +158,8 @@ export function inspectTile(state, x, y) {
     const id=lootAt(state.run,positionKey(x,y));
     return { kind:"loot", name:ITEMS[id].name, description:"Butin récupérable. Tu dois te déplacer sur cette case." };
   }
+  const roomSite=roomSiteAppearance(state.run,x,y);
+  if(roomSite)return {kind:"room-site",name:roomSite.name,description:roomSite.description};
   if (tile==="#") return null;
   return { kind:"floor", name:"Sol de Nhal", description:"Terrain praticable." };
 }
@@ -344,7 +347,7 @@ export function validateSave(s) {
     if (r.map!==undefined && !(isDeepMap(r.map)?
         validateDeepLayout(r,true):validateLayout(r.map,r.loot))) return false;
     if(r.exploration!==undefined && !validExploration(r))return false;
-    if(!validSecrets(r)||!validTraps(r))return false;
+    if(!validSecrets(r)||!validTraps(r)||!validRoomSites(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
     if (!r.carried || !Array.isArray(r.collected) || !Number.isSafeInteger(r.turns)) return false;
     if (!Number.isInteger(r.hp) || r.hp < 1 || r.hp > MAX_HP) return false;
@@ -420,7 +423,8 @@ export function beginRun(state, equipment=[]) {
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       start:layout.start,exit:layout.exit,exploration:{seen:[]},
       ...(layout.secrets?{secrets:layout.secrets}:{}),
-      ...(layout.traps?{traps:layout.traps}:{})}:{}) },s.meta);
+      ...(layout.traps?{traps:layout.traps}:{}),
+      ...(layout.sites?{sites:layout.sites}:{})}:{}) },s.meta);
   if(s.run.exploration)revealAround(s.run);
   return info(s,"Descente "+s.meta.descents+
     (s.meta.descents===1?" : les profondeurs de Nhal s'ouvrent.":
@@ -532,6 +536,37 @@ export function move(state, direction, context="move") {
     }
   }
   recordEvent(s,type,message,s.run.turns);
+  revealAround(s.run);
+  const after=enemyPhase(s);
+  return {state:after,message:after.journal[0]?.text||message,changed:true};
+}
+
+/** DEV-087: a visible room encounter is an exclusive, deterministic choice.
+ * Inspection is free. Choice consumes exactly one turn and provokes enemy AI.
+ * It never rolls combat RNG, modifies architecture, or grants duplicate loot.
+ */
+export function resolveRoomSite(state,siteId,optionId){
+  const run=state.run,site=run?.sites?.find(s=>s.id===siteId);
+  if(!site||site.status!=="untouched"||distance(run,site)>1||
+      !roomSiteVisible(run,site))
+    return info(state,"Aucun lieu interactif visible et inexploré à portée.",false);
+  const option=ROOM_SITES[site.kind]?.options?.[optionId];
+  if(!option)return info(state,"Cette interaction n'existe pas.",false);
+  if(option.endurance>(run.endurance??0))
+    return info(state,"Endurance insuffisante : cette action demande "+
+      option.endurance+" END.",false);
+  if(option.item&&quantity(run.carried)>=INVENTORY_LIMIT)
+    return info(state,"Sac plein : reviens avec une place pour emporter ce butin.",false);
+  const s=copy(state),target=s.run.sites.find(v=>v.id===siteId);
+  target.status="resolved";target.choice=optionId;
+  s.run.turns+=1;
+  if(option.endurance)s.run.endurance-=option.endurance;
+  else regenEndurance(s,1);
+  if(option.item)s.run.carried[option.item]=(s.run.carried[option.item]||0)+1;
+  gainXp(s,option.xp);
+  const message=option.text+(option.item?" +1 "+ITEMS[option.item].name+".":"")+
+    " +"+option.xp+" XP.";
+  recordEvent(s,"loot",message,s.run.turns);
   revealAround(s.run);
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||message,changed:true};
@@ -836,6 +871,8 @@ export function mapText(state) {
     if(visible){
       const trap=trapAppearance(run,x,y);
       if(trap)return trap.symbol;
+      const site=roomSiteAppearance(run,x,y);
+      if(site)return site.symbol;
     }
     if(tile==="S")return visible?".":":";
     if(revealedSecretAt(run,x,y))return "?";

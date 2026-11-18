@@ -3,6 +3,7 @@
 import {descentSeed,nextRandom} from "./combat-rules.js";
 import {placeOptionalSecret} from "./secrets.js";
 import {placeOptionalTraps,validTraps} from "./traps.js";
+import {specialRoomPlan,placeRoomSites,validRoomSites} from "./room-events.js";
 
 export const DEEP_WIDTH=44;
 export const DEEP_HEIGHT=32;
@@ -95,6 +96,7 @@ function makePlan(index){
   const rand=randomStream(index);
   const grid=Array.from({length:DEEP_HEIGHT},()=>Array(DEEP_WIDTH).fill("#"));
   const rooms=[];
+  const {echoRoomId,cacheRoomId}=specialRoomPlan(index);
   for(let row=0;row<ROWS;row++)for(let col=0;col<COLUMNS;col++){
     const id=row*COLUMNS+col;
     const cx=6+col*10,cy=5+row*10;
@@ -102,6 +104,7 @@ function makePlan(index){
     const width=id===8?9:7+rand(3),height=id===8?9:7+rand(3);
     const x=cx-Math.floor(width/2),y=cy-Math.floor(height/2);
     const role=id===8?"vestibule":id===3?"extraction":
+      id===echoRoomId?"chambre_echo":id===cacheRoomId?"cache_scellee":
       id===5?"ruines_occupees":id===10?"atelier_abandonne":
       ["traversee","chambre_echo","ruines","passage_service"][rand(4)];
     const room={id,x,y,width,height,cx,cy,role};
@@ -349,6 +352,7 @@ export function validateDeepLayout(layout,live=false){
       ch==="^"&&distance({x,y},start)>=2&&distance({x,y},start)<=4)))return false;
   }
   if(!deepTwoReturnWays(map,start,exit))return false;
+  if(!validRoomSites(layout))return false;
   if(layout.traps!==undefined){
     if(!validTraps(layout))return false;
     const trapped=new Set(layout.traps.map(key));
@@ -387,6 +391,15 @@ export function generateDeepLayout(index){
       }catch(error){
         if(error?.message!=="No safe DEV-086 corridor and chest trap pair")throw error;
         continue; // Reject unsafe seeds; never force a mandatory trap.
+      }
+      if(!validateDeepLayout(layout))continue;
+      // DEV-087 arrives after loot, enemies, doors, hazards, secrets and traps.
+      // An unsafe or unreachable site rejects this seed without touching saves.
+      try{
+        layout.sites=placeRoomSites(layout,index,deepRoute);
+      }catch(error){
+        if(error?.message!=="No safe DEV-087 room site")throw error;
+        continue;
       }
       if(!validateDeepLayout(layout))continue;
       return layout;

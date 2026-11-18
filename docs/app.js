@@ -1,7 +1,8 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { nearbySecretHint } from "./secrets.js";
 import {nearbyTrapHint,trapHintText} from "./traps.js";
+import {ROOM_SITES,nearbyRoomSite} from "./room-events.js";
 import { hasFog,explorationState,visibleCells,minimapText } from "./exploration-visibility.js";
 import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
@@ -193,6 +194,27 @@ function updateTrapActions(){
   $("trap-search").disabled=!adjacent||trap?.status!=="hidden";
   $("trap-disarm").disabled=!adjacent||trap?.status!=="revealed"||
     (run?.endurance??0)<2;
+}
+function updateRoomSiteActions(){
+  const panel=$("room-site-panel"),options=$("room-site-options");
+  const site=nearbyRoomSite(state.run);
+  panel.hidden=!site;
+  options.replaceChildren();
+  if(!site)return; // Never include unexplored site text or rewards in the DOM.
+  const event=ROOM_SITES[site.kind];
+  $("room-site-title").textContent=event.name;
+  $("room-site-description").textContent=event.description;
+  for(const [choice,rule] of Object.entries(event.options)){
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="secondary room-site-choice";
+    button.dataset.roomChoice=choice;
+    button.textContent=rule.label;
+    button.disabled=(rule.item&&inventoryCount(state)>=8)||
+      (state.run.endurance??0)<rule.endurance;
+    button.addEventListener("click",()=>act(resolveRoomSite(state,site.id,choice)));
+    options.append(button);
+  }
 }
 function inspect(x,y) {
   const details=inspectTile(state,x,y);
@@ -394,6 +416,7 @@ function render() {
     $("secret-search").hidden=!clue;
     $("secret-search").disabled=!clue?.canSearch;
     updateTrapActions();
+    updateRoomSiteActions();
     $("dungeon-map").textContent = mapViewportText(state);
     $("exploration-map-panel").hidden = !hasFog(run);
     $("exploration-mini-map").textContent = hasFog(run)?minimapText(run):"";

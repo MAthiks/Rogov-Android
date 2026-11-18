@@ -89,6 +89,9 @@ export function minimapText(run){
     if(tile==="E")return "E";
     if(run.secrets?.some(s=>s.revealed&&s.x===x&&s.y===y))return "?";
     if(tile==="^")return "^";
+    const knownTrap=run.traps?.find(t=>t.x===x&&t.y===y&&t.status!=="hidden");
+    if(knownTrap)return knownTrap.status==="disabled"?"x":
+      knownTrap.status==="triggered"?";":"!";
     if(tile==="$"&&run.rooms)return (run.collected||[]).includes(x+","+y)?"o":"C";
     return live.has(pos)?".":":";
   }).join("")).join("\n");

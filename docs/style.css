@@ -294,3 +294,12 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 @media(max-width:390px){.trap-buttons{grid-template-columns:1fr}}
 .pixel-tile.tile-trap_clue{box-shadow:inset 0 0 0 1px #b49a64}
 .pixel-tile.tile-trap_revealed{box-shadow:inset 0 0 0 2px #e4ad69}
+
+/* DEV-087: contextual explorations remain readable above the mobile D-pad. */
+.room-site-panel{margin:10px 0;padding:13px;border:1px solid #627a74;border-radius:12px;background:linear-gradient(135deg,#1a302f,#19242b);min-width:0}
+.room-site-panel h3{margin:4px 0 5px;font-size:16px;color:#dbe7ce}
+.room-site-description{margin:0 0 10px;color:#c3d4ca;font-size:14px;line-height:1.45}
+.room-site-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:8px}
+.room-site-choice{min-width:0;min-height:44px;padding:10px;text-align:left;white-space:normal;line-height:1.35}
+.room-site-choice:disabled{opacity:.5;cursor:not-allowed}
+.room-site-panel .hint{margin:9px 0 0}

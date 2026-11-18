@@ -7,6 +7,10 @@ Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-An
 
 ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il conjugue exploration au tour par tour, combat, équipement à risque, extraction et horreur cosmique originale.
 
+## UI-092A — cockpit de descente Android
+
+La première étape de l'interface v2 est intégrée en prototype : écran de descente centré sur la carte, HUD compact, pavé de déplacement et soins **ancrés en bas**, raccourcis vers les véritables panneaux Combat/À portée/Rapport/Sac/Journal en tiroirs contextuels. Moteur, actions, sauvegardes, mode ASCII et compatibilité hors ligne inchangés. [Contrat et recette UI-092A](docs/UI092A_ANDROID_COCKPIT.md). Les prochains écrans UI-092B/C/D (refuge, inventaire, personnage) restent à développer ; recette visuelle sur Android physique à confirmer.
+
 ## Maquette UI v2 — conception sauvegardée
 
 [Lire le checkpoint de refonte Android](docs/UI_V2_MAQUETTE_V1.md) : quatre écrans, HUD de descente compact, inventaire et fiche personnage séparés. **Maquette uniquement, non implémentée** ; préserver le jeu existant, l'ASCII, les sauvegardes et le mode hors ligne.

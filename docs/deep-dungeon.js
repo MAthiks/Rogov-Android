@@ -116,8 +116,17 @@ function makePlan(index){
     [order[i],order[j]]=[order[j],order[i]];
   }
   const roomDoorCount=Array(rooms.length).fill(0);
+  // Both exits from the entry chamber have an intelligible framed door.
+  // A player can choose either return route; closing one is always optional.
+  for(const link of connections.filter(c=>c.a===8||c.b===8)){
+    const p=link.a===8?link.first:link.second;
+    grid[p.y][p.x]="+";
+    doors.push({x:p.x,y:p.y,open:true});
+    roomDoorCount[8]++;
+  }
   for(const i of order){
     if(doors.length>=6)break;
+    if(connections[i].a===8||connections[i].b===8)continue;
     const link=connections[i];
     const candidates=rand(2)===0
       ? [{room:link.a,point:link.first},{room:link.b,point:link.second}]

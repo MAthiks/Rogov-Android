@@ -139,8 +139,24 @@ function renderLegend() {
     target.append(chip);
   }
 }
+function adjacentDoors(){
+  const run=state.run;
+  return (run?.doors||[]).filter(d=>Math.abs(d.x-run.x)+Math.abs(d.y-run.y)===1);
+}
+function selectNextDoor(){
+  const nearby=adjacentDoors();
+  if(!nearby.length)return;
+  const at=nearby.findIndex(d=>d.x===selectedDoor?.x&&d.y===selectedDoor?.y);
+  const next=nearby[(at+1)%nearby.length];
+  inspect(next.x,next.y); // Inspection is free: separate confirmation button spends the turn.
+}
 function updateDoorAction(){
   const button=$("door-action");
+  const select=$("door-select");
+  const nearby=adjacentDoors();
+  select.disabled=nearby.length===0;
+  select.textContent=nearby.length?
+    "Choisir porte voisine ("+nearby.length+")":"Aucune porte voisine";
   const run=state.run;
   const door=selectedDoor&&run?.doors?.find(d=>d.x===selectedDoor.x&&d.y===selectedDoor.y);
   const adjacent=door&&Math.abs(run.x-door.x)+Math.abs(run.y-door.y)===1;
@@ -457,6 +473,7 @@ $("wait-btn").addEventListener("click", () => act(waitTurn(state)));
 $("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.bandage")));
 $("use-tonic").addEventListener("click", () => act(useItem(state, "consumable.dusk_tonic")));
 $("target-clear").addEventListener("click", unselectTarget);
+$("door-select").addEventListener("click",selectNextDoor);
 $("door-action").addEventListener("click",()=>{
   if(selectedDoor)act(toggleDoor(state,selectedDoor.x,selectedDoor.y));
 });
@@ -473,6 +490,11 @@ window.addEventListener("keydown", (event) => {
   if (direction) {
     event.preventDefault();
     act(move(state,direction));
+    return;
+  }
+  if(event.key.toLowerCase()==="o"&&target?.tagName!=="BUTTON"){
+    event.preventDefault();
+    selectNextDoor();
     return;
   }
   if (event.key.toLowerCase()==="c" && target?.tagName!=="BUTTON") {

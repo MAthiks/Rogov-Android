@@ -43,24 +43,29 @@ function moveOne(state,to){
   return result.state;
 }
 function walkReplanning(state,destination,limit=150){
-  let moves=0,previous=null;
+  let moves=0,previous=null,plan=null;
   while(state.run && (state.run.x!==destination.x||state.run.y!==destination.y)){
     assert.ok(moves++<limit,"Unable to find safe public route with active enemies");
-    const route=routeAvoidingCreatures(state.run,destination);
-    assert.ok(route&&route.length>=2,"Genuine public route lost because of enemies");
-    let next=route[1];
-    // A reactive foe can change which of two routes is momentarily shortest.
-    // A human can keep a chosen direction rather than ping-ponging every turn.
-    // Prefer a legitimate alternate public route without stepping backwards.
-    if(previous&&next.x===previous.x&&next.y===previous.y){
-      const blocked=safeBlockers(state.run);
-      blocked.add(key(previous));
-      const alternative=deepRoute(state.run.map,
-        {x:state.run.x,y:state.run.y},destination,blocked);
-      if(alternative?.length>=2)next=alternative[1];
+    const current={x:state.run.x,y:state.run.y};
+    const blocked=safeBlockers(state.run);
+    // Keep a valid chosen corridor instead of switching to every new shortest
+    // path when a territorial Charognard shifts by one tile. Replan only when
+    // a real obstruction appears on the next square.
+    if(!plan||plan.length<2||key(plan[0])!==key(current)||
+        blocked.has(key(plan[1]))){
+      plan=routeAvoidingCreatures(state.run,destination);
     }
-    previous={x:state.run.x,y:state.run.y};
+    assert.ok(plan&&plan.length>=2,"Genuine public route lost because of enemies");
+    let next=plan[1];
+    if(previous&&key(next)===key(previous)){
+      const alternateBlocked=new Set(blocked);
+      alternateBlocked.add(key(previous));
+      const alternative=deepRoute(state.run.map,current,destination,alternateBlocked);
+      if(alternative?.length>=2){plan=alternative;next=alternative[1];}
+    }
+    previous=current;
     state=moveOne(state,next);
+    if(state.run)plan=plan.slice(1);
     if(state.run&&state.run.hp<=7&&(state.run.carried["consumable.bandage"]||0)>0)
       state=useItem(state,"consumable.bandage").state;
   }

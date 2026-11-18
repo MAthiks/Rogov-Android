@@ -138,7 +138,7 @@ test("DEV-087: legacy saves never gain room sites; tampered choices cannot enter
     t=>t[0].status="resolved",
     t=>{t[0].status="resolved";t[0].choice="another_choice";},
     t=>{t[0].choice="fragment";},
-    t=>t[1].x=t[0].x,
+    t=>{t[1].x=t[0].x;t[1].y=t[0].y;},
     t=>t.pop()
   ]){
     const forged=structuredClone(baseline);

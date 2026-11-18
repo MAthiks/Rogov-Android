@@ -33,7 +33,7 @@
 
 Le [GDD exploration v0.9](docs/GDD_EXPLORATION_NHAL_V0.9.md) est la référence courante. La [v0.8](docs/GDD_EXPLORATION_NHAL_V0.8.md) reste archivée comme jalon initial. **DEV-080 à DEV-088 sont intégrés à la version Web jouable** (salles/couloirs/portes, visibilité, secrets, pièges, événements, extraction). Ils ont été validés par les suites de tests et le déploiement GitHub Pages ; l'utilisateur a confirmé le fonctionnement de DEV-088 sur Android.
 
-**DEV-089A et DEV-089B sont fusionnés** le 18 novembre 2026 : salles aux obstacles intérieurs réels, nouveau tileset original 24×24, variation de sols, autotiling et portes plus lisibles. Les phases suivantes restent à développer : graphe variable DEV-089C puis styles de secteurs DEV-089D.
+**DEV-089A, DEV-089B et DEV-089C sont fusionnés** le 18 novembre 2026 : nouvelles formes de salles, textures SVG 24×24, graphes de 8 à 12 salles, liaisons transversales et itinéraires de retour validés. Reste **DEV-089D** pour les familles de secteurs ; les impasses facultatives dotées de récompenses spécifiques restent un chantier de design futur.
 
 | Lot | Statut | Livrable |
 |---|---|---|
@@ -41,7 +41,7 @@ Le [GDD exploration v0.9](docs/GDD_EXPLORATION_NHAL_V0.9.md) est la référence 
 | DEV-080 à DEV-088 | **Livrés** | Donjon profond, secrets, pièges, salles spéciales et rapport d'extraction |
 | **DEV-089A** | **Livré — PR #10** | Salles en L, piliers, alcôves et secteurs effondrés avec géométrie réelle |
 | **DEV-089B** | **Livré — PR #11** | Direction artistique « ruines de pierre froide », tiles SVG 24 × 24, palette et états lisibles |
-| **DEV-089C** | À développer | Graphe de salles variable, embranchements, boucles et impasses facultatives |
+| **DEV-089C** | **Livré — PR #12** | Graphe variable de 8 à 12 salles, liaisons et boucles ; deux voies de retour sécurisées |
 | **DEV-089D** | À développer | Ruines, galeries, forteresse enfouie et complexe fracturé comme familles architecturales |
 
 **WIP = 1.** Deux trajets de retour indépendants, aucun secret ni piège obligatoire, tests multi-graines, compatibilité des sauvegardes, cohérence ASCII/graphique, consultation du brouillard et recette Android réelle à chaque étape.

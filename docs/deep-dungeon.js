@@ -173,7 +173,9 @@ export function validateDeepLayout(layout,live=false){
   for(const e of enemies){
     if(!["charognard","guardian","rift_larva"].includes(e.kind)||
       !Number.isInteger(e.x)||!Number.isInteger(e.y)||!Number.isInteger(e.hp)||
-      !(tile(map,e)==="."||(live&&tile(map,e)==="S"))||(!live&&distance(e,start)<4))return false;
+      !(tile(map,e)==="."||(live&&(tile(map,e)==="S"||
+      (tile(map,e)==="+"&&doors.some(d=>d.x===e.x&&d.y===e.y&&d.open)))))||
+      (!live&&distance(e,start)<4))return false;
   }
   if(!deepTwoReturnWays(map,start,exit))return false;
   const blocked=new Set(enemies.map(key));

@@ -33,7 +33,7 @@
 
 **DEV-090A livré et fusionné (PR #13, 18 novembre 2026)** : le terrain, le pavé directionnel, l'attente et les soins sont regroupés ; quatre raccourcis de navigation sans tour et une légende pliable réduisent le défilement sur Android. CI : **220/220 tests moteur, 16/16 tests Chromium mobile, Chrome Android 13 et APK réussis**. Recette sur appareil physique encore à confirmer.
 
-**Prochain lot : DEV-090B**, rationaliser l'interface de combat (cibles, intentions, actions) sans altérer les règles. **DEV-089D** (familles architecturales) reste suspendu au profit de la lisibilité et de l'ergonomie.
+**DEV-090B livré et fusionné (PR #14, 18 novembre 2026)** : dock de combat à proximité de la carte, cible et intention visibles, PV ennemis, cinq actions sur deux rangées et détails repliables. CI : **221/221 tests moteur, 18/18 Chromium mobile, Android 13 Chrome et APK réussis**. La mécanique du combat et la compatibilité des sauvegardes sont inchangées. **Prochain lot : DEV-090C** — interactions, inventaire et confort tactile. **DEV-089D** reste suspendu pour l'instant.
 
 ## Exploration profonde de Nhal — GDD v0.9
 

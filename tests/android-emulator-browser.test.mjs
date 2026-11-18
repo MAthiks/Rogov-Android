@@ -186,9 +186,9 @@ test("DEV-081: Android 13 Chrome tests opaque doors, remembered fog, no target l
     assert.equal(mini0[scenario.behind.y][scenario.behind.x]," ",
       "Door opacity hides its room in the minimap");
 
-    await page.locator("#door-select").tap();
+    await page.locator("#door-select").click();
     assert.match(await page.locator("#door-action").textContent(),/Ouvrir/);
-    await page.locator("#door-action").tap();
+    await page.locator("#door-action").click();
     assert.equal(await page.locator("#turns").textContent(),"1");
     const seen=await page.evaluate(async loc=>{
       const game=await import("./game.js");
@@ -197,12 +197,12 @@ test("DEV-081: Android 13 Chrome tests opaque doors, remembered fog, no target l
       return fog.explorationState(s.run,loc.x,loc.y);
     },scenario.behind);
     assert.equal(seen,"visible","Opened door makes the room visible");
-    await page.locator("#door-action").tap();
+    await page.locator("#door-action").click();
     assert.equal(await page.locator("#turns").textContent(),"2");
     const mini1=(await page.locator("#exploration-mini-map").textContent()).split("\n");
     assert.equal(mini1[scenario.behind.y][scenario.behind.x],":",
       "Door closed again: knowledge persists, but vision stops");
-    await page.locator("#renderer-toggle").tap();
+    await page.locator("#renderer-toggle").click();
     assert.ok((await page.locator("#dungeon-map").textContent()).includes(":"));
     await page.reload({waitUntil:"load"});
     await page.locator("#title-continue").click();

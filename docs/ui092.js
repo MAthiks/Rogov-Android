@@ -6,14 +6,16 @@ const PANEL_IDS=Object.freeze({
   "jump-action":"interaction-dock",
   "jump-report":"expedition-report",
   "jump-bag":"bag-panel",
-  "jump-journal":"history-details"
+  "jump-journal":"history-details",
+  "jump-menu":"options-panel"
 });
 const LABELS=Object.freeze({
   "jump-combat":"COMBAT TACTIQUE",
   "jump-action":"ACTIONS À PORTÉE",
   "jump-report":"RAPPORT DE DESCENTE",
   "jump-bag":"SAC DE DESCENTE",
-  "jump-journal":"JOURNAL"
+  "jump-journal":"JOURNAL",
+  "jump-menu":"OPTIONS ET TITRE"
 });
 export const UI092_PANEL_IDS=PANEL_IDS;
 
@@ -38,7 +40,7 @@ export function setupUi092({get,isRun,isAscii}){
     }
     placeholder=null;activeNode=null;activeId=null;
     sheet.hidden=true;
-    for(const button of navigation.querySelectorAll("button")){
+    for(const button of [...navigation.querySelectorAll("button"),get("jump-menu")]){
       button.setAttribute("aria-expanded","false");
       button.classList.remove("is-active");
     }

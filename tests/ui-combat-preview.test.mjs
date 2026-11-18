@@ -17,7 +17,8 @@ test("DEV-071 mobile target panel is inside the expedition below the map", () =>
   const targets=html.indexOf('id="target-choices"');
   const panel=html.indexOf('id="combat-panel"');
   const dpad=html.indexOf('class="dpad"');
-  assert.ok(map>=0 && map<targets && targets<panel && panel<dpad);
+  assert.ok(map>=0 && map<dpad && dpad<targets && targets<panel,
+    "DEV-090A puts movement next to the map before contextual combat");
   assert.match(html,/id="combat-panel"[^>]*hidden/);
   assert.match(html,/COMBAT TACTIQUE/);
 });

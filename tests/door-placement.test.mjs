@@ -157,7 +157,8 @@ test("DEV-085: legacy deep save with 34 doors remains loadable, without regenera
   old.run.map=grid.map(row=>row.join(""));
   old.run.rooms=rooms;old.run.doors=doors;
   old.run.start=start;old.run.exit=exit;
-  delete old.run.doorPlanVersion;delete old.run.secrets;delete old.run.traps;
+  delete old.run.doorPlanVersion;delete old.run.geometryVersion; // Pre-089A save.
+  delete old.run.secrets;delete old.run.traps;
   delete old.run.sites; // DEV-087: legacy 34-door runs predate special sites.
   old.run.loot={ [key(fragment)]:"relic.ashen_fragment",
     [key(tonic)]:"consumable.dusk_tonic" };

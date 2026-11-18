@@ -929,3 +929,52 @@ test("DEV-088 mobile: report is fog-safe, costs no turn and persists after reloa
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("DEV-089A mobile: actual interior pillar blocks touch movement, LOS and survives reload", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const p=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const {revealAround,lineOfSight}=await import("./exploration-visibility.js");
+      const state=game.newGame();state.meta.descents=1;
+      const active=game.beginRun(state).state;
+      const pillar=active.run.rooms.find(r=>r.shape==="pillar").obstacles[0];
+      active.run.enemies=[];
+      active.run.x=pillar.x-1;active.run.y=pillar.y;
+      revealAround(active.run);
+      if(!game.validateSave(active))throw new Error("Invalid interior wall saved state");
+      if(lineOfSight(active.run,pillar.x+1,pillar.y))throw new Error("Wall does not block LOS");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(active));
+      return pillar;
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    const wall=page.locator('#tile-map .pixel-tile[data-x="'+p.x+'"][data-y="'+p.y+'"]');
+    assert.equal(await wall.count(),1,"pillar must be inside mobile camera");
+    const wallImage=await wall.evaluate(node=>node.style.backgroundImage);
+    const adjacent=page.locator('#tile-map .pixel-tile[data-x="'+(p.x-1)+'"][data-y="'+p.y+'"]');
+    assert.notEqual(wallImage,await adjacent.evaluate(node=>node.style.backgroundImage),
+      "the pillar is drawn as solid masonry, not a cosmetic floor decal");
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.locator('[data-direction="right"]').tap();
+    assert.equal(await page.locator("#turns").textContent(),"0",
+      "walking into a pillar should not spend a turn");
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("#"),
+      "ASCII representation still shows walls");
+    await page.reload();await page.locator("#title-continue").tap();
+    const restored=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(state),geometry:state.run.geometryVersion,
+        shape:state.run.rooms.find(r=>r.shape==="pillar")?.shape};
+    });
+    assert.equal(restored.valid,true);
+    assert.equal(restored.geometry,1);
+    assert.equal(restored.shape,"pillar");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

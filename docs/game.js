@@ -421,6 +421,7 @@ export function beginRun(state, equipment=[]) {
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
+      ...(layout.geometryVersion?{geometryVersion:layout.geometryVersion}:{}),
       start:layout.start,exit:layout.exit,exploration:{seen:[]},
       ...(layout.secrets?{secrets:layout.secrets}:{}),
       ...(layout.traps?{traps:layout.traps}:{}),

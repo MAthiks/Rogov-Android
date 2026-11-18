@@ -44,7 +44,8 @@ before(async () => {
   });
   await new Promise((ok,fail) => server.once("error",fail).listen(0,"127.0.0.1",ok));
   origin = "http://127.0.0.1:" + server.address().port + "/";
-  browser = await chromium.launch({headless:true, args:["--no-sandbox"]});
+  browser = await chromium.launch({headless:true, args:["--no-sandbox"],
+    ...(process.env.ROGOV_USE_SYSTEM_CHROME==="1"?{channel:"chrome"}:{})});
 });
 
 after(async () => {

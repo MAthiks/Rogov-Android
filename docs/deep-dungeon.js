@@ -3,7 +3,7 @@
 import {descentSeed,nextRandom} from "./combat-rules.js";
 import {placeOptionalSecret} from "./secrets.js";
 import {placeOptionalTraps,validTraps} from "./traps.js";
-import {placeRoomSites,validRoomSites} from "./room-events.js";
+import {specialRoomPlan,placeRoomSites,validRoomSites} from "./room-events.js";
 
 export const DEEP_WIDTH=44;
 export const DEEP_HEIGHT=32;
@@ -96,6 +96,7 @@ function makePlan(index){
   const rand=randomStream(index);
   const grid=Array.from({length:DEEP_HEIGHT},()=>Array(DEEP_WIDTH).fill("#"));
   const rooms=[];
+  const {echoRoomId,cacheRoomId}=specialRoomPlan(index);
   for(let row=0;row<ROWS;row++)for(let col=0;col<COLUMNS;col++){
     const id=row*COLUMNS+col;
     const cx=6+col*10,cy=5+row*10;
@@ -103,7 +104,7 @@ function makePlan(index){
     const width=id===8?9:7+rand(3),height=id===8?9:7+rand(3);
     const x=cx-Math.floor(width/2),y=cy-Math.floor(height/2);
     const role=id===8?"vestibule":id===3?"extraction":
-      id===1?"chambre_echo":id===11?"cache_scellee":
+      id===echoRoomId?"chambre_echo":id===cacheRoomId?"cache_scellee":
       id===5?"ruines_occupees":id===10?"atelier_abandonne":
       ["traversee","chambre_echo","ruines","passage_service"][rand(4)];
     const room={id,x,y,width,height,cx,cy,role};

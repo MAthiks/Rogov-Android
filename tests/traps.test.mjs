@@ -175,7 +175,7 @@ test("DEV-083: malformed saved trap state rejected without corrupting source",()
     t=>t[0].status="armed",
     t=>t[1].id="injected",
     t=>t[1].x=0,
-    t=>t[0].clue.x=t[0].x,
+    t=>t[0].clue={x:t[0].x,y:t[0].y},
     t=>t[0].attempts=-1,
     t=>t[0].kind="instant_death",
     t=>t[1].x=t[0].x

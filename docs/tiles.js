@@ -54,6 +54,11 @@ const door_closed=svg(
   '<path d="M7 3v18M12 3v18M17 3v18" stroke="#756f59" stroke-width="2"/>'+
   '<circle cx="19" cy="12" r="1.5" fill="#f5e3a5"/>'
 );
+const chest_open=svg(
+  '<rect x="2" y="12" width="20" height="10" fill="#4c3928" stroke="#d1b789" stroke-width="2"/>'+
+  '<path d="M3 10L7 3h13l2 6-3 3H3Z" fill="#866239" stroke="#f4d389" stroke-width="2"/>'+
+  '<rect x="11" y="15" width="3" height="3" fill="#e9db9a"/>'
+);
 const secret_open=svg(
   '<rect x="1" y="1" width="22" height="22" fill="#233833" stroke="#bdac83" stroke-width="2"/>'+
   '<path d="M5 23L7 6l5-4 5 4 2 17" fill="#071c22" stroke="#d2c18c" stroke-width="2"/>'+
@@ -87,13 +92,13 @@ const rift_larva=svg(
   '<rect x="20" y="2" width="2" height="2" fill="#c7eee1"/>'+
   '<rect x="2" y="20" width="2" height="2" fill="#8dbeaa"/>'
 );
-const SPRITE_SVGS={ floor, wall, hero, loot, hazard, exit, door_open, door_closed, secret_open, charognard, guardian, rift_larva };
+const SPRITE_SVGS={ floor, wall, hero, loot, hazard, exit, door_open, door_closed, secret_open, chest_open, charognard, guardian, rift_larva };
 export const TILE_SPRITES=Object.freeze(Object.fromEntries(
   Object.entries(SPRITE_SVGS).map(([id,source])=>[id,"data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(source)])
 ));
 export const LEGEND_ITEMS=Object.freeze([
   ["hero","Joueur"],["charognard","Charognard"],["guardian","Gardien déchu"],["rift_larva","Larve de faille"],
-  ["loot","Butin"],["hazard","Danger"],["exit","Extraction"],["secret_open","Secret découvert"]
+  ["loot","Coffre / butin"],["chest_open","Coffre ouvert"],["hazard","Faille mortelle"],["exit","Extraction"],["secret_open","Secret découvert"]
 ]);
 export function drawTileMap(state,host) {
   host.replaceChildren();
@@ -136,6 +141,8 @@ export function drawTileMap(state,host) {
       }
       else if(run.secrets?.some(s=>s.revealed&&s.x===x&&s.y===y))
         spriteId="secret_open";
+      else if(tile==="$"&&run.rooms)
+        spriteId=run.collected.includes(x+","+y)?"chest_open":"loot";
       else if(tile==="$"&&!run.collected.includes(x+","+y))spriteId="loot";
       else if(tile==="^")spriteId="hazard";
       else if(tile==="E")spriteId="exit";

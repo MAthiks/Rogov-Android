@@ -27,6 +27,14 @@
 - L'extraction doit rester libre, les secrets optionnels, les deux voies publiques indépendantes, l'économie du coffre de Veyr préservée. Maintenir les tests à chaque prochain changement.
 - Ces opérations sont des **fusions de code dans `main`**, pas une vérification d'un déploiement public, d'un APK PWA correspondant au code ou d'une nouvelle version numérotée. La version précédemment affichée v0.7f ne doit pas être renommée sans décision distincte.
 
+## Retour utilisateur après intégration DEV-085 — 18 novembre 2026
+
+**Confirmation spontanée sur la version jouable :** « Tout fonctionne parfaitement ». Ce retour est donné immédiatement après la communication de l'adresse officielle GitHub Pages `https://mathiks.github.io/Rogov-Android/` et la fusion de DEV-085. **Statut : retour terrain global positif après intégration**, aucun dysfonctionnement déclaré.
+
+**Portée précise du retour :** le joueur ne décrit pas séparément chaque manipulation, graine, porte ou état de sauvegarde. Ne pas transformer cette appréciation globale en procès-verbal de tests détaillés des 6 portes, du rechargement offline ou de la compatibilité d'une sauvegarde historique. Les **tests automatisés DEV-085 sont verts**, et la précédente recette physique QA-084 était déjà acceptée ; le test physique spécifique de chaque nouveau seuil n'a pas été détaillé.
+
+**Décision :** considérer la nouvelle intégration comme fonctionnelle sur le parcours observé par le joueur, conserver le point de restauration `backup/main-pre-dev085-2026-11-18`, et préparer DEV-083 comme prochaine évolution distincte. Ne pas annoncer un numéro de version ou un déploiement technique indépendant non vérifié.
+
 ## Suite
 
 1. Réaliser un **contrôle post-fusion recommandé, non bloquant** du placement DEV-085 sur téléphone réel : nouvelle deuxième descente, seuils, portes ouvertes/fermées, extraction et reprise d'une ancienne sauvegarde.

@@ -25,14 +25,24 @@ Parcours réalisé :
 
 ## Résultats CI
 
-- **180/180 tests Node : réussite** (moteur, statistiques, combats, génération, sauvegardes).
-- **6/6 tests navigateur Chromium : réussite**, incluant cette nouvelle partie complète.
-- **Rapport CI validé :** https://github.com/MAthiks/Rogov-Android/actions/runs/44264813520
+- **181/181 tests Node : réussite** (moteur, statistiques, combats, génération, sauvegardes).
+- **7/7 tests navigateur Chromium : réussite**, incluant cette nouvelle partie complète.
+- **Rapport CI validé (code SHA `15f20045`) :** https://github.com/MAthiks/Rogov-Android/actions/runs/44266128653
 - Les trois scénarios Chrome **Android 13 émulé** de DEV-080/081/082 avaient déjà réussi sur le code applicatif de référence : https://github.com/MAthiks/Rogov-Android/actions/runs/44251118876. Ce sont des validations distinctes, **pas** un passage physique du nouveau scénario QA-084 sur Android.
+
+## QA-084B — Combat réel avec IA active et extraction
+
+Deux validations complémentaires ont été ajoutées **sans supprimer ni affaiblir les ennemis générés** :
+
+- **Moteur Node :** une deuxième descente générée conserve les trois ennemis initiaux. Le héros utilise son épée, approche normalement le Charognard, le sélectionne, le vainc en **2 attaques**, marche **52 cases**, récupère un Fragment de cendre et rejoint l'Arche avec les adversaires restants. Le coffre est vérifié après extraction et sauvegarde/rechargement.
+- **Interface Chromium mobile 360 × 780 :** même scénario, avec **52 déplacements tactiles**, sélection de cible et attaques via les boutons réels, rechargement du jeu et vérification de la persistance du butin. **Les deux ennemis non combattus restent actifs.**
+- **Réussite CI :** 181/181 tests Node et 7/7 tests Chromium, aucun échec ([workflow 44266128653](https://github.com/MAthiks/Rogov-Android/actions/runs/44266128653), SHA `15f200458d18fdf12c57c7a14784b15928482c71`).
+
+Ce scénario teste une rencontre réelle, **pas** une exploration libre de toutes les variantes ennemies. Il ne remplace ni une longue session avec plusieurs rencontres, ni l'évaluation manuelle des dégâts, de la tension et de l'ergonomie sur Android physique.
 
 ## Limites importantes
 
-Pour ce seul parcours complet, les ennemis sont neutralisés **dans la sauvegarde temporaire du navigateur de test** afin d'isoler les mouvements, l'interface, les tours, la visibilité, la récompense et le coffre. **Le code du jeu et les sauvegardes réelles n'ont pas été modifiés** par cette neutralisation. Les combats et le comportement de l'IA disposent de tests dédiés, mais une partie complète avec toutes les rencontres actives devra être observée sur appareil réel.
+Le premier parcours complet, celui des **deux descentes et du passage secret**, désactive les ennemis **uniquement dans sa sauvegarde temporaire de navigateur** afin d'isoler l'exploration. **Le code du jeu et les sauvegardes réelles ne sont pas modifiés.** Un **deuxième parcours séparé** conserve les trois ennemis actifs, combat un Charognard puis rejoint l'Arche avec les deux adversaires restants présents. La recette complète avec tous les dangers sur un **téléphone physique** reste nécessaire.
 
 Le test n'évalue pas encore le confort des doigts, la lisibilité prolongée, les performances de la batterie, la tension des rencontres, ni le plaisir de rejouer.
 

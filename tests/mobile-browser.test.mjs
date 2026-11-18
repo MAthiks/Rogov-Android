@@ -440,6 +440,7 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     await page.locator("#start-btn").tap();
     await clearOnlyEnemies();
     state=await saved();
+    console.log("QA-084 DEEP START",JSON.stringify({stash:state.meta.stash,carried:state.run.carried}));
     assert.equal(state.meta.descents,2);
     assert.equal(state.run.map.length,32);
     assert.equal(state.run.map[0].length,44);
@@ -511,11 +512,13 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     assert.equal(state.run.carried["consumable.bandage"],1);
     assert.equal(state.run.exploration.seen.length>0,true);
     assert.equal(state.run.secrets[0].revealed,true);
+    console.log("QA-084 BEFORE EXIT",JSON.stringify({stash:state.meta.stash,carried:state.run.carried}));
     const exit=state.run.exit;
     const finalPath=await walk(exit,{verifyDoor:true});
     assert.ok(finalPath.visitedDoor,"Full return route must encounter a real door");
     state=await saved();
     assert.equal(state.run,null,"Return to Veyr through the ordinary Arche");
+    console.log("QA-084 AFTER EXIT",JSON.stringify({stash:state.meta.stash,extractions:state.meta.extractions}));
     assert.equal(state.meta.extractions,2);
     assert.equal(state.meta.stash["weapon.rusty_sword"],1);
     assert.equal(state.meta.stash["relic.ashen_fragment"],1);

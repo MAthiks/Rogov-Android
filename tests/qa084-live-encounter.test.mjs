@@ -44,8 +44,10 @@ function moveOne(state,to){
 }
 function walkReplanning(state,destination,limit=150){
   let moves=0,previous=null,plan=null;
+  const history=[];
   while(state.run && (state.run.x!==destination.x||state.run.y!==destination.y)){
-    assert.ok(moves++<limit,"Unable to find safe public route with active enemies");
+    history.push({at:[state.run.x,state.run.y],turn:state.run.turns,enemies:state.run.enemies.map(e=>[e.x,e.y])});
+    assert.ok(moves++<limit,"Unable to find safe public route with active enemies; destination="+key(destination)+" recent="+JSON.stringify(history.slice(-12)));
     const current={x:state.run.x,y:state.run.y};
     const blocked=safeBlockers(state.run);
     // Keep a valid chosen corridor instead of switching to every new shortest

@@ -189,9 +189,12 @@ test("DEV-080 mobile: cached deep dungeon resumes offline after reload", {timeou
   const context=await mobileContext("allow");
   try {
     const page=await context.newPage();
-    await preloadDeepRun(page);
+    let initialLoads=0;
+    page.on("load",()=>{ initialLoads++; });
+    await page.goto(origin);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller),null,{timeout:25000});
-    await page.evaluate(() => navigator.serviceWorker.ready);
+    assert.equal(initialLoads,1,"First PWA installation must not interrupt the game");
+    await preloadDeepRun(page);
     await context.setOffline(true);
     await page.reload({waitUntil:"load"});
     await page.locator("#title-continue").click();

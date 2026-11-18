@@ -30,7 +30,7 @@ export function placeOptionalSecret(layout,index,route){
   // Geometry obstacles are structural masonry, not discoverable secret
   // doors. Protect them so revealing a secret cannot invalidate saved rooms.
   const structural=new Set(layout.rooms.flatMap(r=>(r.obstacles||[]).map(pointKey)));
-  for(let y=2;y<layout.map.length-2;y++
+  for(let y=2;y<layout.map.length-2;y++)
     for(let x=2;x<layout.map[0].length-2;x++){
       if(tile(layout.map,x,y)!=="#"||atEdge(layout,x,y)||
           structural.has(x+","+y))continue;

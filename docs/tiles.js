@@ -2,6 +2,7 @@
 // All sprites are written for ROGOV in inline SVG; no external images or licenses.
 import { MAP, ENEMY_TYPES, enemyAt, cameraBounds } from "./game.js";
 import { hasFog,visibleCells,visionKey } from "./exploration-visibility.js";
+import {trapAppearance} from "./traps.js";
 const svg = (parts) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + parts + '</svg>';
 const floor=svg(
   '<rect width="24" height="24" fill="#202d33"/>'+
@@ -92,13 +93,22 @@ const rift_larva=svg(
   '<rect x="20" y="2" width="2" height="2" fill="#c7eee1"/>'+
   '<rect x="2" y="20" width="2" height="2" fill="#8dbeaa"/>'
 );
-const SPRITE_SVGS={ floor, wall, hero, loot, hazard, exit, door_open, door_closed, secret_open, chest_open, charognard, guardian, rift_larva };
+const trap_clue=svg('<path d="M2 7h20M4 17h16" stroke="#b29c69" stroke-width="1.5" stroke-dasharray="4 3"/>'+
+  '<path d="M5 12l5-4 4 7 5-4" stroke="#d4c18b" stroke-width="2" fill="none"/>');
+const trap_revealed=svg('<rect x="2" y="2" width="20" height="20" fill="#4d392b" stroke="#e9b875" stroke-width="2"/>'+
+  '<path d="M12 4v11M12 19v2" stroke="#ffe5b4" stroke-width="3"/>');
+const trap_disabled=svg('<rect x="2" y="2" width="20" height="20" fill="#233e36" stroke="#7ac2a2" stroke-width="2"/>'+
+  '<path d="M5 12l5 5L20 7" stroke="#c3ead0" stroke-width="3" fill="none"/>');
+const trap_triggered=svg('<rect x="2" y="2" width="20" height="20" fill="#31383c" stroke="#76838b" stroke-width="1"/>'+
+  '<path d="M5 7l14 10M19 7L5 17" stroke="#b3b6ab" stroke-width="2"/>');
+const SPRITE_SVGS={ floor, wall, hero, loot, hazard, exit, door_open, door_closed, secret_open, chest_open, charognard, guardian, rift_larva, trap_clue, trap_revealed, trap_disabled, trap_triggered };
 export const TILE_SPRITES=Object.freeze(Object.fromEntries(
   Object.entries(SPRITE_SVGS).map(([id,source])=>[id,"data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(source)])
 ));
 export const LEGEND_ITEMS=Object.freeze([
   ["hero","Joueur"],["charognard","Charognard"],["guardian","Gardien déchu"],["rift_larva","Larve de faille"],
-  ["loot","Coffre / butin"],["chest_open","Coffre ouvert"],["hazard","Faille mortelle"],["exit","Extraction"],["secret_open","Secret découvert"]
+  ["loot","Coffre / butin"],["chest_open","Coffre ouvert"],["hazard","Faille mortelle"],["exit","Extraction"],["secret_open","Secret découvert"],
+  ["trap_clue","Sol suspect"],["trap_revealed","Piège identifié"],["trap_disabled","Piège désamorcé"]
 ]);
 export function drawTileMap(state,host) {
   host.replaceChildren();
@@ -139,6 +149,8 @@ export function drawTileMap(state,host) {
         if (run.targetId===enemy.id) cell.classList.add("selected-target-tile");
         cell.dataset.hp=String(enemy.hp);
       }
+      else if(visible&&trapAppearance(run,x,y))
+        spriteId=trapAppearance(run,x,y).sprite;
       else if(run.secrets?.some(s=>s.revealed&&s.x===x&&s.y===y))
         spriteId="secret_open";
       else if(tile==="$"&&run.rooms)

@@ -237,7 +237,8 @@ function enemyPhase(s) {
         if (!ox&&!oy)continue;
         const nx=enemy.x+ox,ny=enemy.y+oy;
         const tile=tileAt(nx,ny,run);
-        if((tile==="."||tile==="S") && !(nx===run.x&&ny===run.y) &&
+        if((tile==="."||tile==="S"||(tile==="+"&&doorAt(run,nx,ny)?.open)) &&
+           !(nx===run.x&&ny===run.y) &&
            !enemyAt(run,nx,ny)) {
           enemy.x=nx;enemy.y=ny;
           recordEvent(s,"danger",type.name+" approche.",run.turns);

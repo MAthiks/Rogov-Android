@@ -1,6 +1,6 @@
 # ROGOV — DEV-090C : interactions proches et inventaire Android
 
-**Statut :** développé sur `dev/dev-090c-context-bag`, à fusionner après CI, conformément à la demande d'avancer par livraisons directes.
+**Statut : fusionné dans `main` via [PR #15](https://github.com/MAthiks/Rogov-Android/pull/15), le 18 novembre 2026.** Tests validés : Node **222/222**, Chromium mobile **21/21**, Chrome Android 13 et APK. Recette sur téléphone physique à confirmer.
 
 ## Constat
 

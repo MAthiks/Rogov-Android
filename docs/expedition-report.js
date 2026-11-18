@@ -56,7 +56,8 @@ export function expeditionReport(state){
   const run=state?.run;
   if(!run?.map||!hasFog(run)||!Array.isArray(run.exploration?.seen))
     return {available:false};
-  const known=new Set([...run.exploration.seen,...visibleCells(run)]);
+  const currentlyVisible=visibleCells(run);
+  const known=new Set([...run.exploration.seen,...currentlyVisible]);
   const discovered=(x,y)=>known.has(visionKey(run,x,y));
   const exitKnown=Boolean(run.exit&&discovered(run.exit.x,run.exit.y));
   const path=knownRoute(run,known);
@@ -73,8 +74,8 @@ export function expeditionReport(state){
     .filter(site=>site.status==="untouched"&&discovered(site.x,site.y))
     .length;
   const enemies=(run.enemies||[])
-    .filter(enemy=>enemy.hp>0&&discovered(enemy.x,enemy.y)&&
-      visibleCells(run).has(visionKey(run,enemy.x,enemy.y))).length;
+    .filter(enemy=>enemy.hp>0&&
+      currentlyVisible.has(visionKey(run,enemy.x,enemy.y))).length;
   let advice;
   if(run.hp<=4)advice="Blessures importantes : un retour prudent mérite d'être envisagé.";
   else if(enemies>0)advice="Menaces actuellement visibles : chaque détour ou fouille consomme du temps.";

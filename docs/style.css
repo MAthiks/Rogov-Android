@@ -318,3 +318,92 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 .report-advice{color:var(--gold)}
 .expedition-report .hint{font-size:11px;margin:0}
 @media(max-width:350px){.expedition-report-values{grid-template-columns:1fr}}
+
+
+/* DEV-090A — Terrain-first cockpit: the map, movement and vital actions
+ * stay contiguous in Android portrait. No gameplay rules are changed. */
+.expedition-shortcuts{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;
+  margin:7px 0 10px;position:sticky;top:0;z-index:12;
+  padding:7px;border:1px solid #48615d;border-radius:10px;
+  background:#111f24f2;box-shadow:0 6px 18px #0009;
+}
+.expedition-shortcuts button{
+  min-width:0;min-height:42px;border:1px solid #5e796f;border-radius:8px;
+  background:#253833;color:#e7efdf;font:700 12px/1.2 system-ui,sans-serif;
+  padding:9px 4px;
+}
+.expedition-shortcuts button:focus-visible{outline-offset:2px}
+.field-controls{margin:12px auto 8px;padding:10px;max-width:450px;
+  text-align:left;border:1px solid #56746a;border-radius:12px;
+  background:linear-gradient(145deg,#1a302f,#142429)}
+.field-controls-heading{display:flex;justify-content:space-between;flex-wrap:wrap;
+  align-items:baseline;gap:5px 10px;margin:0 0 8px;
+  color:#dcead9;font:700 11px/1.35 ui-monospace,monospace}
+.field-controls-heading span{font-size:10px;font-weight:400;color:#b7c9bf}
+.field-controls-row{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);
+  align-items:center;gap:9px}
+.field-controls .dpad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-rows:repeat(3,46px);gap:5px;width:100%;max-width:192px;
+  margin:0;justify-content:stretch}
+.field-controls .dpad button{min-width:0;min-height:44px;
+  border:1px solid #759588;border-radius:9px;
+  color:#edf4e4;background:#29423c;font:800 24px/1 system-ui,sans-serif}
+.field-controls .dpad button:active{background:#456658}
+.field-controls .dpad .up{grid-column:2;grid-row:1}
+.field-controls .dpad .left{grid-column:1;grid-row:2}
+.field-controls .dpad .wait{grid-column:2;grid-row:2;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  gap:0;border-color:#82775d;background:#36382c;color:#f2e4b9;
+  font:900 19px/1 system-ui,sans-serif}
+.field-controls .dpad .wait small{font-size:9px;letter-spacing:.025em;font-weight:800}
+.field-controls .dpad .right{grid-column:3;grid-row:2}
+.field-controls .dpad .down{grid-column:2;grid-row:3}
+.field-quick-actions{display:flex;flex-direction:column;gap:7px;min-width:0}
+.field-quick-actions .field-quick-label{font:700 10px/1.3 ui-monospace,monospace;color:#d6dec1}
+.field-quick-actions button{margin:0;min-height:44px;width:100%;
+  padding:9px 5px;border:1px solid #728f7d;border-radius:8px;
+  font-size:11px;line-height:1.2;white-space:normal;overflow-wrap:break-word}
+.field-quick-actions button:disabled{opacity:.48}
+.field-quick-actions small{color:#afc4b9;font-size:10px;line-height:1.4}
+.map-legend-details{max-width:450px;margin:9px auto 0;text-align:left;
+  border-top:1px solid #334846;padding:7px 5px;color:#c8d5c7}
+.map-legend-details summary{cursor:pointer;min-height:36px;padding:7px 4px;
+  font-size:12px;font-weight:650}
+.map-legend-details .graphic-legend{text-align:center}
+#field-controls,#combat-panel,#target-choices,#bag-items,#expedition-report{
+  scroll-margin-top:78px;
+}
+@media(max-width:730px){
+  .frame.is-expedition .masthead{padding:3px 4px 9px}
+  .frame.is-expedition .masthead-left h1{font-size:32px}
+  .frame.is-expedition .subtitle{font-size:9px;margin-top:2px}
+  .frame.is-expedition .hero-bar{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:11px}
+  .frame.is-expedition .hero-bar .stat{min-width:0;padding:7px 6px;
+    border-bottom:0;border-right:1px solid var(--line)}
+  .frame.is-expedition .hero-bar .stat:last-child{border-right:0}
+  .frame.is-expedition .hero-bar .stat span{font-size:9px;line-height:1.2}
+  .frame.is-expedition .hero-bar .stat strong{font-size:12px;line-height:1.2}
+  #expedition>.section-head{margin-bottom:9px}
+  #expedition>.section-head h2{font-size:22px}
+  #expedition .run-bar{margin:3px 0 8px;padding:9px 10px}
+  #expedition .dungeon-wrap{padding:10px 3px 9px;overflow-x:hidden}
+  #expedition .render-controls{padding-bottom:7px}
+  #expedition .route-hint{margin:12px 0}
+  #expedition .actor-stats-sheet{margin-top:11px}
+}
+@media(max-width:370px){
+  .field-controls{padding:9px}
+  .field-controls-row{grid-template-columns:1fr;gap:8px}
+  .field-controls .dpad{margin:0 auto;max-width:186px;
+    grid-template-rows:repeat(3,49px)}
+  .field-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px}
+  .field-quick-actions .field-quick-label,.field-quick-actions small{grid-column:1/-1}
+  .field-quick-actions button{font-size:11px}
+  .expedition-shortcuts{gap:4px;padding:5px}
+  .expedition-shortcuts button{font-size:11px;padding-inline:2px}
+}
+@media(prefers-reduced-motion:reduce){
+  .expedition-shortcuts,.field-controls *{scroll-behavior:auto}
+}

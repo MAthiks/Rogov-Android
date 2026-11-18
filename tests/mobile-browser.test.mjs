@@ -1518,9 +1518,10 @@ test("ART-091B mobile: Sprite C enemies do not leak through unexplored Nhal fog"
     });
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#tile-map .hostile-tile").count(),setup.visible.length);
-    for(const kind of setup.hidden){
-      assert.equal(await page.locator("#tile-map .tile-"+kind).count(),0,
-        "Genuinely unseen "+kind+" must not gain a type class or sprite");
+    for(const kind of ["charognard","guardian","rift_larva"]){
+      const visibleCount=setup.visible.filter(name=>name===kind).length;
+      assert.equal(await page.locator("#tile-map .tile-"+kind).count(),visibleCount,
+        "Only visible "+kind+" tiles may receive enemy sprites");
     }
     const unknown=await page.evaluate(()=>{
       const cells=[...document.querySelectorAll("#tile-map .pixel-tile.tile-unknown")];

@@ -4,20 +4,12 @@ import { MAP, ENEMY_TYPES, enemyAt, cameraBounds } from "./game.js";
 import { hasFog,visibleCells,visionKey } from "./exploration-visibility.js";
 import {trapAppearance} from "./traps.js";
 import {roomSiteAppearance} from "./room-events.js";
+import {TERRAIN_SVGS,terrainSpriteAt} from "./terrain-art.js";
 const svg = (parts) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + parts + '</svg>';
-const floor=svg(
-  '<rect width="24" height="24" fill="#202d33"/>'+
-  '<path d="M3 6h5M17 17h4" stroke="#2b3b42" stroke-width="1"/>'+
-  '<rect x="11" y="12" width="1" height="1" fill="#334348"/>'
-);
-const wall=svg(
-  '<rect width="24" height="24" fill="#121f26"/>'+
-  '<path d="M1 1h22v10H1z" fill="#4b5c63"/>'+
-  '<path d="M1 13h10v10H1zM13 13h10v10H13z" fill="#364b55"/>'+
-  '<path d="M2 2h20M2 14h8M14 14h8" stroke="#89918b" stroke-width="1"/>'+
-  '<path d="M0 12h24M12 12v12" stroke="#101d22" stroke-width="2"/>'+
-  '<path d="M4 8l2-2M18 18l-2 3" stroke="#26373b" stroke-width="1"/>'
-);
+// Terrain is now sourced from the reusable, fog-safe DEV-089B atlas.
+// Preserve the original floor/wall sprite keys for the legend and older UI.
+const floor=TERRAIN_SVGS.floor[0];
+const wall=TERRAIN_SVGS.wall[0][0];
 const hero=svg(
   '<path d="M5 23L5 10 9 4 11 1h3l5 9 1 13z" fill="#182a2c" stroke="#ebf0d0" stroke-width="2"/>'+
   '<path d="M7 10L11 4h3l4 6v4H7z" fill="#6e9d85"/>'+
@@ -47,14 +39,22 @@ const exit=svg(
   '<path d="M12 2l-2 3 2 3 2-3Z" fill="#d4e7b9"/>'
 );
 const door_open=svg(
-  '<rect x="2" y="2" width="20" height="20" fill="#30463e" stroke="#b2bfaa" stroke-width="2"/>'+
-  '<path d="M6 3v18M11 3v18" stroke="#bcad7d" stroke-width="2"/>'+
-  '<circle cx="17" cy="12" r="2" fill="#f5e3a5"/>'
+  // Open doorway: truly dark passage between stone jambs, not a green door slab.
+  '<rect width="24" height="24" fill="#111c23"/>'+
+  '<path d="M2 23V5L6 2h12l4 3v18" stroke="#9eaaa0" stroke-width="3" fill="none"/>'+
+  '<rect x="4" y="6" width="3" height="17" fill="#495961"/>'+
+  '<rect x="17" y="6" width="3" height="17" fill="#495961"/>'+
+  '<path d="M8 21h8M9 17h6" stroke="#384a4a" stroke-width="1"/>'+
+  '<rect x="17" y="9" width="2" height="5" fill="#bcad7d"/>'
 );
 const door_closed=svg(
-  '<rect x="2" y="2" width="20" height="20" fill="#2c3533" stroke="#b2bfaa" stroke-width="2"/>'+
-  '<path d="M7 3v18M12 3v18M17 3v18" stroke="#756f59" stroke-width="2"/>'+
-  '<circle cx="19" cy="12" r="1.5" fill="#f5e3a5"/>'
+  // Closed is solid and opaque. Vertical timber stays distinct from stone.
+  '<rect width="24" height="24" fill="#18252c"/>'+
+  '<rect x="2" y="2" width="20" height="21" fill="#38444a" stroke="#9eaaa0" stroke-width="2"/>'+
+  '<rect x="5" y="4" width="14" height="18" fill="#4f5146"/>'+
+  '<path d="M8 4v18M13 4v18M17 4v18" stroke="#252f31" stroke-width="2"/>'+
+  '<path d="M5 10h14M5 18h14" stroke="#8c836a" stroke-width="1"/>'+
+  '<rect x="17" y="12" width="2" height="3" fill="#f5e3a5"/>'
 );
 const chest_open=svg(
   '<rect x="2" y="12" width="20" height="10" fill="#4c3928" stroke="#d1b789" stroke-width="2"/>'+
@@ -133,6 +133,15 @@ export function drawTileMap(state,host) {
   const viewport=cameraBounds(run);
   const live=hasFog(run)?visibleCells(run):null;
   const seen=live?new Set(run.exploration.seen):null;
+  // Known-only wall connectors prevent the artwork from hinting at unknown
+  // passages. The visual variant does not touch RNG, save state or turns.
+  const knows=(cx,cy)=>{
+    if(cy<0||cy>=map.length||cx<0||cx>=map[0].length)return false;
+    if(!live)return true;
+    const key=visionKey(run,cx,cy);
+    return live.has(key)||seen.has(key);
+  };
+  const artSeed=run.layoutId||"rogov-legacy";
   host.style.gridTemplateColumns="repeat("+viewport.width+", minmax(0, 1fr))";
   const fragment=document.createDocumentFragment();
   for(let y=viewport.top;y<viewport.top+viewport.height;y++)
@@ -151,7 +160,7 @@ export function drawTileMap(state,host) {
       continue; // No map texture, sprite or hidden entity data in the DOM.
     }
     if(remembered)cell.classList.add("tile-remembered");
-    cell.style.backgroundImage="url('"+(tile==="#"?TILE_SPRITES.wall:TILE_SPRITES.floor)+"')";
+    cell.style.backgroundImage="url('"+terrainSpriteAt(map,x,y,knows,artSeed)+"')";
     let spriteId=null;
     if(x===run.x&&y===run.y)spriteId="hero";
     else {

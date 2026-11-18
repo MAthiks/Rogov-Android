@@ -978,3 +978,57 @@ test("DEV-089A mobile: actual interior pillar blocks touch movement, LOS and sur
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("DEV-089B mobile: masonry palette, floor diversity and fog-safe tiles remain readable", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const sample=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      const {terrainSpriteAt}=await import("./terrain-art.js");
+      const run=JSON.parse(localStorage.getItem(SAVE_KEY)).run;
+      const cells=[...document.querySelectorAll("#tile-map .pixel-tile")];
+      const known=new Set([...run.exploration.seen]);
+      const {visibleCells,visionKey}=await import("./exploration-visibility.js");
+      const live=visibleCells(run);
+      const knows=(x,y)=>live.has(visionKey(run,x,y))||
+        known.has(visionKey(run,x,y));
+      const variants=new Set(),walls=[];
+      let hidden=0;
+      for(const node of cells){
+        const x=Number(node.dataset.x),y=Number(node.dataset.y),tile=run.map[y][x];
+        if(node.dataset.knowledge==="unknown"){
+          hidden++;
+          if(node.style.backgroundImage!=="none"&&node.style.backgroundImage!=="")
+            throw Error("Unexplored cell received hidden terrain data");
+          if(node.querySelector("img"))throw Error("Hidden entity leaked");
+          continue;
+        }
+        const expected=terrainSpriteAt(run.map,x,y,knows,run.layoutId);
+        if(!node.style.backgroundImage.includes(expected))
+          throw Error("Wrong known terrain texture at "+x+","+y);
+        if(tile==="#")walls.push(node);
+        else if(tile===".")variants.add(expected);
+      }
+      return {count:cells.length,hidden,walls:walls.length,
+        variants:variants.size,scroll:document.documentElement.scrollWidth,
+        viewport:document.documentElement.clientWidth};
+    });
+    assert.equal(sample.count,121,"11x11 Android dungeon viewport");
+    assert.ok(sample.hidden>0,"Fog continues to hide unknown tiles");
+    assert.ok(sample.walls>0,"New masonry walls appear in the visible viewport");
+    assert.ok(sample.variants>=3,"Floor patterns are varied without visual noise");
+    assert.ok(sample.scroll<=sample.viewport+1,"Art may not add horizontal scrolling");
+    await page.reload();await page.locator("#title-continue").tap();
+    const restored=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(state),turns:state.run.turns};
+    });
+    assert.equal(restored.valid,true);
+    assert.equal(restored.turns,0,"Rendering never advances gameplay turns");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

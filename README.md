@@ -21,7 +21,7 @@ Le [GDD Exploration profonde de Nhal v0.9](docs/GDD_EXPLORATION_NHAL_V0.9.md) d�
 
 ## DEV-089 — Diversité architecturale et direction artistique (GDD v0.9)
 
-**Conception validée dans le [GDD exploration v0.9](docs/GDD_EXPLORATION_NHAL_V0.9.md) ; développement non commencé.** Quatre lots prévus, indépendants et progressifs : **DEV-089A** (salles en L, piliers, alcôves, ruines), **DEV-089B** (nouveaux tiles et charte pixel art sombre 24 × 24 px), **DEV-089C** (graphe variable avec boucles/impasses facultatives), **DEV-089D** (quatre familles architecturales). Préserver les deux itinéraires d'extraction, les indices de pièges, le mode ASCII et les sauvegardes existantes. La [v0.8 historique](docs/GDD_EXPLORATION_NHAL_V0.8.md) reste consultable.
+**DEV-089A et DEV-089B fusionnés dans `main` le 18 novembre 2026** ([PR #10](https://github.com/MAthiks/Rogov-Android/pull/10) puis [PR #11](https://github.com/MAthiks/Rogov-Android/pull/11)). Le donjon dispose de quatre aménagements de salles aux obstacles réels (L, pilier, effondrement, alcôve), ainsi que de **6 variations de sols et 48 murs SVG 24 × 24**, des portes plus lisibles et un autotiling sans fuite du brouillard. Le [GDD exploration v0.9](docs/GDD_EXPLORATION_NHAL_V0.9.md) définit la suite : **DEV-089C** (graphe variable, boucles et impasses facultatives), **DEV-089D** (familles architecturales), encore à développer. Les sauvegardes historiques, les deux trajets de retour, les indices de piège et le mode ASCII restent prioritaires. [v0.8 historique](docs/GDD_EXPLORATION_NHAL_V0.8.md).
 
 ## Descentes variables dès la deuxième expédition
 

@@ -108,7 +108,8 @@ test("DEV-090B combat dock follows field controls, keeps enemy tells and folds o
   assert.match(app,/explorationState\(state\.run,e\.x,e\.y\)==="visible"/);
   assert.match(app,/\$\("combat-target-meter"\)\.max=snapshot\.maxHp/);
   assert.match(app,/\$\("combat-target-meter"\)\.value=Math\.max\(0,snapshot\.hp\)/);
-  assert.match(app,/"jump-combat":\(\)=>!\$\("combat-dock"\)\.hidden/);
+  assert.match(asset("ui092.js"),/"jump-combat":"combat-dock"/,
+    "UI-092A: the real combat dock is still the shortcut target");
   assert.match(html,/id="combat-attack"/);
   assert.match(html,/id="combat-retreat"/);
 });
@@ -136,5 +137,6 @@ test("DEV-090C context dock is between combat and legend; inventory is expandabl
   assert.match(app,/\$\("jump-action"\)\.disabled=dock\.hidden/);
   assert.match(app,/function updateBagStatus\(\)/);
   assert.match(app,/function renderInventory\(container, items, selectable=false\)/);
-  assert.match(app,/\$\("bag-panel"\)\.open=true/);
+  assert.match(asset("ui092.js"),/id==="jump-bag".*node\.open=true/,
+    "UI-092A: the real bag details are opened by the original shortcut");
 });

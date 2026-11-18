@@ -553,10 +553,10 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
       s.meta.descents=1;
       const state=game.beginRun(s,["weapon.rusty_sword","consumable.bandage"]).state;
       if(!game.validateSave(state))throw Error("Invalid original deep run");
-      if(state.run.enemies.length!==3)throw Error("All generated enemies must be present");
+      if(state.run.enemies.length!==4)throw Error("Four generated enemies must be present");
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
       return {ids:state.run.enemies.map(e=>e.id),
-        targetId:state.run.enemies.find(e=>e.kind==="charognard").id};
+        targetId:state.run.enemies.find(e=>e.id==="nhal-charognard-scout-01").id};
     });
     await page.reload({waitUntil:"load"});
     await page.locator("#title-continue").tap();
@@ -627,7 +627,7 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
     assert.ok(attacks>=1,"A real attack is required");
     assert.ok(!postFight.run.enemies.some(e=>e.id===init.targetId));
     assert.equal(postFight.run.enemies.length,init.ids.length-1,
-      "The other two original enemies remain alive");
+      "The other three original enemies remain alive");
 
     const lootKey=Object.entries(postFight.run.loot)
       .find(([,id])=>id==="relic.ashen_fragment")?.[0];

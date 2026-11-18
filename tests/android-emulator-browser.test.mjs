@@ -265,6 +265,11 @@ test("DEV-082: Android Chrome confirms visible clue, one-turn secret search, one
     });
     await page.reload({waitUntil:"load"});
     await page.locator("#title-continue").click();
+    // Tests share the same persistent Android Chrome profile: a previous test
+    // can leave ASCII selected, so explicitly select the graphics renderer.
+    if(await page.locator("#tile-map").isHidden())
+      await page.locator("#renderer-toggle").click();
+    assert.equal(await page.locator("#tile-map").isVisible(),true);
     assert.equal(await page.locator("#turns").textContent(),"0");
     assert.equal(await page.locator("#secret-clue").isVisible(),true);
     assert.equal(await page.locator("#secret-search").isEnabled(),true);
@@ -287,6 +292,10 @@ test("DEV-082: Android Chrome confirms visible clue, one-turn secret search, one
     assert.equal(revealed.run.map[scenario.y][scenario.x],".");
     assert.equal((await page.locator("#exploration-mini-map").textContent()).split("\n")
       [scenario.y][scenario.x],"?");
+    await page.locator("#renderer-toggle").click();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("?"),
+      "Revealed secret must also appear in ASCII on Android");
     await page.reload({waitUntil:"load"});
     await page.locator("#title-continue").click();
     assert.equal(await page.locator("#turns").textContent(),"1");

@@ -330,3 +330,71 @@ test("DEV-082: Android Chrome confirms visible clue, one-turn secret search, one
     await browser.close();
   }
 });
+
+
+test("QA-084 Android Chrome: first deep chamber visibly contains foe, chest, rift; tactile chest opens", {timeout:90000}, async()=>{
+  const browser=await androidBrowser();
+  try{
+    const context=browser.contexts()[0];
+    const page=context.pages().find(p=>p.url().includes("127.0.0.1:8765"))||await context.newPage();
+    await page.goto(URL,{waitUntil:"load",timeout:20000});
+    const chest=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();s.meta.descents=1;
+      const state=game.beginRun(s).state;
+      if(!game.validateSave(state))throw Error("QA-084 deep save invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      const k=Object.keys(state.run.loot).find(key=>state.run.loot[key]==="consumable.bandage");
+      const [x,y]=k.split(",").map(Number);
+      return {x,y};
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    if(await page.locator("#tile-map").isHidden())
+      await page.locator("#renderer-toggle").click();
+    assert.ok(await page.locator("#tile-map .tile-charognard").count()>0,"Missing visible first enemy on Android");
+    assert.ok(await page.locator("#tile-map .tile-loot").count()>0,"Missing visible first chest on Android");
+    assert.ok(await page.locator("#tile-map .tile-hazard").count()>0,"Missing visible first rift on Android");
+    const evidence=await page.evaluate(()=>{
+      return {
+        enemies:document.querySelectorAll("#tile-map .tile-charognard").length,
+        chests:document.querySelectorAll("#tile-map .tile-loot").length,
+        rifts:document.querySelectorAll("#tile-map .tile-hazard").length
+      };
+    });
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      state.run.enemies=[]; // isolate interaction once visual encounter confirmed
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    const route=await page.evaluate(async chest=>{
+      const game=await import("./game.js");
+      const {deepRoute}=await import("./deep-dungeon.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return deepRoute(state.run.map,{x:state.run.x,y:state.run.y},chest);
+    },chest);
+    assert.ok(route?.length>=3);
+    for(let i=1;i<route.length-1;i++){
+      const a=route[i-1],b=route[i];
+      const direction=b.x>a.x?"right":b.x<a.x?"left":b.y>a.y?"down":"up";
+      await page.locator('[data-direction="'+direction+'"]').click();
+    }
+    assert.equal(await page.locator("#chest-action").isEnabled(),true);
+    const before=Number(await page.locator("#turns").textContent());
+    await page.locator("#chest-action").click();
+    assert.equal(Number(await page.locator("#turns").textContent()),before+1);
+    const saved=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.ok(saved.run.collected.includes(chest.x+","+chest.y));
+    assert.equal(saved.run.carried["consumable.bandage"],1);
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    assert.equal(await page.locator("#chest-action").isDisabled(),true,"No chest reward duplication after reload");
+    console.log("QA-084 ANDROID ENTRY: "+JSON.stringify(evidence)+" / open chest / save PASS");
+  }finally{await browser.close();}
+});

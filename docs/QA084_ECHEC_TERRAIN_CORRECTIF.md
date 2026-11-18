@@ -23,6 +23,14 @@ Ce constat ne prouve pas quelle URL ni quelle descente l'utilisateur testait ; l
 - Les sauvegardes profondes **déjà commencées** (3 ennemis, 2 objets et zéro faille) restent chargeables et **ne sont pas modifiées rétroactivement**. La nouvelle génération s'applique à la **nouvelle descente profonde**.
 - Cache hors ligne du prototype isolé : `rogov-v0.7f-qa084-encounters`.
 
+## Retour terrain — 18 novembre 2026, 09:51 (Paris)
+
+**CONFIRMATION UTILISATEUR :** « Présence des entité confirmé ». Après le signalement initial d'absence d'ennemis, de coffres et de failles, le joueur confirme désormais la **présence des entités dans le donjon** pendant le nouvel essai physique. Le blocage de **présence / visibilité** est considéré comme résolu sur le parcours observé.
+
+**Cette confirmation ne vaut pas recette complète QA-084.** Aucun résultat terrain détaillé n'a encore été communiqué pour : interaction/combat avec un ennemi, ouverture et contenu d'un coffre, Rappel sur une faille, extraction, progression sur plusieurs descentes, rechargement/hors ligne et stabilité des sauvegardes. Ne pas marquer ces points « PASS » sans confirmation.
+
+**Prochaine observation prioritaire :** ouvrir un coffre (vérifier l'objet et l'unicité après rechargement), mener un combat, puis extraire du butin en évitant une faille. L'essai d'un Rappel via faille doit être volontaire et effectué sans sac précieux.
+
 ## Tests indispensables avant validation
 1. Graines déterministes, au moins **240 nouvelles grandes descentes** : quatre ennemis, trois coffres, deux failles et voies sûres.
 2. Dès **l'arrivée** : un ennemi, un coffre et une faille **visibles** à l'écran 11×11 en mode graphique / ASCII, et dans la minimap découverte sans révélation de positions cachées.

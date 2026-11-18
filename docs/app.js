@@ -1,6 +1,7 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, openChest, searchSecret, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { nearbySecretHint } from "./secrets.js";
+import {nearbyTrapHint,trapHintText} from "./traps.js";
 import { hasFog,explorationState,visibleCells,minimapText } from "./exploration-visibility.js";
 import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
@@ -180,6 +181,18 @@ function updateDoorAction(){
   button.disabled=!adjacent;
   button.textContent=adjacent?(door.open?"Fermer la porte · 1 tour":"Ouvrir la porte · 1 tour"):
     "Sélectionner une porte voisine";
+}
+function updateTrapActions(){
+  const run=state.run;
+  const trap=nearbyTrapHint(run,state.meta.hero.attributes?.perception??5);
+  $("trap-clue").hidden=!trap;
+  $("trap-clue").textContent=trap?trapHintText(trap):"";
+  $("trap-search").hidden=!trap||trap.status!=="hidden";
+  $("trap-disarm").hidden=!trap||trap.status!=="revealed";
+  const adjacent=Boolean(trap&&Math.abs(run.x-trap.x)+Math.abs(run.y-trap.y)===1);
+  $("trap-search").disabled=!adjacent||trap?.status!=="hidden";
+  $("trap-disarm").disabled=!adjacent||trap?.status!=="revealed"||
+    (run?.endurance??0)<2;
 }
 function inspect(x,y) {
   const details=inspectTile(state,x,y);
@@ -380,6 +393,7 @@ function render() {
     $("secret-clue").textContent=clue?clue.text+" "+clue.hint:"";
     $("secret-search").hidden=!clue;
     $("secret-search").disabled=!clue?.canSearch;
+    updateTrapActions();
     $("dungeon-map").textContent = mapViewportText(state);
     $("exploration-map-panel").hidden = !hasFog(run);
     $("exploration-mini-map").textContent = hasFog(run)?minimapText(run):"";
@@ -515,6 +529,14 @@ $("chest-action").addEventListener("click",()=>{
 });
 $("door-select").addEventListener("click",selectNextDoor);
 $("secret-search").addEventListener("click",()=>act(searchSecret(state)));
+$("trap-search").addEventListener("click",()=>{
+  const trap=nearbyTrapHint(state.run,state.meta.hero.attributes?.perception??5);
+  if(trap)act(searchTrap(state,trap.x,trap.y));
+});
+$("trap-disarm").addEventListener("click",()=>{
+  const trap=nearbyTrapHint(state.run,state.meta.hero.attributes?.perception??5);
+  if(trap)act(disarmTrap(state,trap.x,trap.y));
+});
 $("door-action").addEventListener("click",()=>{
   if(selectedDoor)act(toggleDoor(state,selectedDoor.x,selectedDoor.y));
 });
@@ -531,6 +553,15 @@ window.addEventListener("keydown", (event) => {
   if (direction) {
     event.preventDefault();
     act(move(state,direction));
+    return;
+  }
+  if(["t","y"].includes(event.key.toLowerCase())&&target?.tagName!=="BUTTON"){
+    const trap=nearbyTrapHint(state.run,state.meta.hero.attributes?.perception??5);
+    if(trap){
+      event.preventDefault();
+      act(event.key.toLowerCase()==="t"
+        ?searchTrap(state,trap.x,trap.y):disarmTrap(state,trap.x,trap.y));
+    }
     return;
   }
   if(event.key.toLowerCase()==="o"&&target?.tagName!=="BUTTON"){

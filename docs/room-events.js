@@ -122,7 +122,7 @@ export function roomSiteAppearance(run,x,y){
   if(!s||!roomSiteVisible(run,s))return null;
   const def=ROOM_SITES[s.kind];
   return s.status==="resolved"
-    ?{name:def.name+" (exploré)",symbol:";",sprite:"site_resolved",
+    ?{name:def.name+" (exploré)",symbol:"v",sprite:"site_resolved",
       description:"Ce lieu a livré son unique découverte. Aucune ressource supplémentaire n'y reste."}
     :{name:def.name,symbol:def.symbol,sprite:def.sprite,description:def.description};
 }

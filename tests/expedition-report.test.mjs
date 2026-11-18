@@ -79,6 +79,7 @@ test("DEV-088: report is derived from real exposed inventory, never a fictional 
   const state=fresh();
   revealAll(state.run);
   state.run.carried={"relic.ashen_fragment":2,"consumable.bandage":1};
+  state.run.enemies=[]; // Isolate the inventory recommendation from visible combat threats.
   assert.ok(validateSave(state));
   const report=expeditionReport(state);
   assert.equal(report.carried,3);

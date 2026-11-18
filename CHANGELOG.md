@@ -1,3 +1,11 @@
+## ART-091D — Veyr, concepts de PNJ et objets Sprite C (18 novembre 2026)
+
+- 8 nouveaux SVG originaux 24×24 : 3 concepts de PNJ de Veyr (non interactifs) et 5 icônes pour tous les objets existants.
+- Coffre sécurisé et sac utilisent les mêmes pictogrammes, avec repli sur symboles ASCII ; cases à cocher, libellés et quantités préservés.
+- Galerie repliable au refuge, sans dialogue, marchand, personnage actif ou mécanique supplémentaire.
+- Pack PWA hors ligne renouvelé ; tests Node, Chromium Android tactile, Android 13 et APK ; validation physique des visuels encore à effectuer.
+- Cycle ART-091A/B/C/D terminé techniquement. Prochains chantiers : QA mobile/équilibrage, DEV-090D et DEV-089D séparés.
+
 ## ART-091C — Interactifs et lieux de Nhal (18 novembre 2026)
 
 - Refonte des 15 sprites 24×24 dans docs/interaction-art.js : 2 portes, 2 coffres, 4 pièges, Arche, faille, secret, 4 marqueurs de sites.

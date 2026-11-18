@@ -1,5 +1,6 @@
 import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
+import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
 import {heroFacingFromStep} from "./hero-art.js";
 import { nearbySecretHint } from "./secrets.js";
 import {nearbyTrapHint,trapHintText} from "./traps.js";
@@ -77,6 +78,18 @@ function infoItem(id, count, checkable=false) {
   const icon = document.createElement("span");
   icon.className = "item-icon";
   icon.textContent = ITEMS[id].symbol;
+  if (ITEM_SPRITES[id]) {
+    const image = document.createElement("img");
+    image.src = ITEM_SPRITES[id];
+    image.alt = "";
+    image.width = 28;
+    image.height = 28;
+    image.draggable = false;
+    image.decoding = "async";
+    // Retain the legacy ASCII symbol if an SVG fails on a device.
+    image.addEventListener("error",()=>{icon.textContent=ITEMS[id].symbol;},{once:true});
+    icon.replaceChildren(image);
+  }
   const text = document.createElement("span");
   text.className = "item-label";
   const strong = document.createElement("strong");
@@ -89,6 +102,24 @@ function infoItem(id, count, checkable=false) {
   amount.textContent = "×" + count;
   row.append(icon,text,amount);
   return row;
+}
+// Display-only concepts: no NPC actor IDs, encounters, dialogue or actions.
+function renderVeyrConceptGallery() {
+  const host=$("veyr-concept-grid");
+  if(host.childElementCount)return; // Keep <details> state during game rerenders.
+  for(const id of VEYR_NPC_IDS){
+    const entry=VEYR_NPC_CONCEPTS[id];
+    const card=document.createElement("figure");
+    card.className="veyr-concept-card";
+    const img=document.createElement("img");
+    img.src=VEYR_NPC_SPRITES[id];
+    img.width=48;img.height=48;img.alt="";
+    img.draggable=false;img.decoding="async";
+    const caption=document.createElement("figcaption");
+    const name=document.createElement("strong");name.textContent=entry.name;
+    const note=document.createElement("small");note.textContent=entry.role;
+    caption.append(name,note);card.append(img,caption);host.append(card);
+  }
 }
 function renderInventory(container, items, selectable=false) {
   container.replaceChildren();
@@ -540,6 +571,7 @@ function render() {
     const available = new Set(Object.keys(state.meta.stash).filter((id) => state.meta.stash[id] > 0));
     selected = new Set([...selected].filter((id) => available.has(id)));
     renderInventory($("stash-items"), state.meta.stash, true);
+    renderVeyrConceptGallery();
     const fragments=state.meta.stash[RESOURCE_ID]||0;
     $("forge-fragments").textContent=fragments+" Fragment"+(fragments>1?"s":"")+" de cendre";
     for(const button of document.querySelectorAll("[data-recipe]")){

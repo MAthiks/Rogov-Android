@@ -1,6 +1,6 @@
 # ROGOV — DEV-087 : Salles spéciales et événements d'exploration
 
-**Statut : implémentation sur branche `dev/dev-087-room-events`, PR #8 en recette.**
+**Statut : fusionné dans `main` via [PR #8](https://github.com/MAthiks/Rogov-Android/pull/8), commit `6f017a7d4828743867e43cc04d835875e1ecb38f`, le 18 novembre 2026.**
 **Source :** GDD Exploration profonde de Nhal v0.8, section 2.3 (rôles de salles) et section 4 (observer/interagir).
 
 ## Problème de gameplay
@@ -41,8 +41,8 @@ Le module `docs/room-events.js` est inclus dans le cache PWA `rogov-v0.7f-dev087
 - `tests/room-events.test.mjs` : 200 graines, placement, accessibilité, non-divulgation, coûts, récompenses uniques, garde-fous et ancien format de sauvegarde.
 - `tests/mobile-browser.test.mjs` : bouton tactile, brouillard, effet en un tour et persistance après rechargement.
 - Workflow Android Chrome 13 et tests de compatibilité APK historique : **distincts du client PWA**.
-- **Recette physique souhaitée avant fusion :** deuxième descente neuve, découvrir les trois lieux, vérifier les choix exclusifs, vérifier leur persistance après rechargement et la sécurité du retour.
+- **Recette physique encore recommandée après fusion :** deuxième descente neuve, découvrir les trois lieux, vérifier les choix exclusifs, leur persistance après rechargement et la sécurité du retour. Les tests automatisés étaient verts avant fusion ; cela ne constitue pas une confirmation du téléphone physique.
 
 ## Statut de publication
 
-Aucun déploiement de cette branche sur GitHub Pages public avant validation et fusion. La version publique continue d'utiliser `main`. L'ancienne descente en cours n'est pas modifiée par cette évolution.
+Le code est intégré à `main`, mais le déploiement public GitHub Pages est distinct et nécessite une vérification spécifique. L'ancienne descente en cours n'est pas modifiée par cette évolution.

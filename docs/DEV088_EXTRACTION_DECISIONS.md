@@ -1,7 +1,7 @@
 # ROGOV — DEV-088 : Décider de continuer ou d'extraire
 
-**Statut : prototype de recette, branche `dev/dev-088-extraction-decisions` empilée sur DEV-087.**
-**Aucune fusion ni publication sur `main` sans validation.**
+**Statut : fusionné dans `main` via [PR #9](https://github.com/MAthiks/Rogov-Android/pull/9), commit `beda91b0655db9684f1ab579f789d61aa58061b7`, après DEV-087 le 18 novembre 2026.**
+**Publication GitHub Pages : à vérifier indépendamment de la fusion.**
 
 ## Intention de gameplay
 
@@ -32,8 +32,8 @@ Un volet repliable, gratuit à consulter et accessible durant les descentes prof
 - Tests unitaires `tests/expedition-report.test.mjs` : inconnues préservées, sorties repérées mais déconnectées de la carte connue, chemin tracé seulement dans les zones explorées, compteurs de butin, persistance et immutabilité.
 - Test Chromium tactile ajouté dans `tests/mobile-browser.test.mjs` : affichage au portrait, zéro tour dépensé, absence de spoiler, sauvegarde et rechargement.
 - `npm run check:web` et `npm run test:web` doivent rester verts, ainsi que Chrome Android 13 et la compilation APK de compatibilité.
-- **Recette physique nécessaire avant fusion :** se déplacer dans Nhal et vérifier que le rapport ne montre rien hors de la zone découverte, puis retourner à l'Arche avec du butin dans le sac.
+- **Recette physique recommandée après fusion :** se déplacer dans Nhal et vérifier que le rapport ne montre rien hors de la zone découverte, puis retourner à l'Arche avec du butin dans le sac. Les tests automatisés étaient verts avant fusion.
 
 ## Dépendance
 
-DEV-088 dépend des salles DEV-087. La branche de DEV-088 est basée sur `dev/dev-087-room-events` (PR #8), encore en attente de recette et de fusion. NE PAS fusionner DEV-088 indépendamment dans `main` avant de finaliser DEV-087.
+DEV-088 dépend des salles DEV-087. **Les deux PR sont fusionnées dans l'ordre : DEV-087 (#8), puis DEV-088 (#9).** Les sauvegardes historiques ne sont pas enrichies rétroactivement.

@@ -7,6 +7,10 @@ Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-An
 
 ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il conjugue exploration au tour par tour, combat, équipement à risque, extraction et horreur cosmique originale.
 
+## Direction artistique approuvée — Sprite C
+
+**Validation utilisateur du 18 novembre 2026 :** [Sprite C, PJ encapuchonné](docs/ART_DIRECTION_SPRITE_C_V1.md) est la référence artistique de production pour le héros, les PNJ, les trois ennemis et les assets. **ART-091A/B/C/D** répartira le remplacement des sprites par lots testables. **L'approbation ne signifie pas leur intégration dans la version jouable** ; le moteur continue d'utiliser ses sprites existants.
+
 ## Exploration profonde — DEV-080 à DEV-088 intégrés
 
 Le [GDD Exploration profonde de Nhal v0.9](docs/GDD_EXPLORATION_NHAL_V0.9.md) définit la génération de salles/couloirs, le brouillard de guerre, les passages secrets et les pièges détectables/désamorçables, sans blocage arbitraire du retour. **Ces fonctions sont intégrées au moteur Web sur `main`** après fusion des lots DEV-080/081/082, QA-084, DEV-085 et **DEV-083** le 18 novembre 2026. Les deux pièges initialement livrés sont la dalle instable et le fil d'alarme, avec indices, avertissement avant danger et désamorçage. [Spécification DEV-083](docs/DEV083_TRAPS_IMPLEMENTATION.md). **La fusion GitHub ne suffit pas à prouver le succès du déploiement Pages** : vérifier le workflow et le site avant d'annoncer la version publique. **DEV-086** place désormais le fil d'alarme dans un vrai couloir entre deux salles et la dalle instable à proximité immédiate d'un coffre profond. Les indices restent accessibles, les deux chemins de retour restent sûrs et les anciennes sauvegardes ne sont pas régénérées. [Compte-rendu DEV-086](docs/DEV086_STRATEGIC_TRAPS.md). Les descentes existantes restent inchangées ; les pièges apparaissent dans les nouvelles descentes profondes.

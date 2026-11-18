@@ -36,6 +36,16 @@ export function placeOptionalTraps(layout,index,route,twoWays){
     ...layout.doors.map(key),...(layout.secrets||[]).flatMap(s=>[key(s),key(s.clue)])
   ]);
   const trapped=[];
+  // Keep canonical public routes entirely free of traps. Risk is found by
+  // exploring side floors, not on the direct route to loot or extraction.
+  const protectedPaths=new Set();
+  const lootPoints=Object.keys(layout.loot).map(pos=>{
+    const [x,y]=pos.split(",").map(Number);return {x,y};
+  });
+  for(const [from,to] of [[layout.start,layout.exit],
+    ...lootPoints.flatMap(p=>[[layout.start,p],[p,layout.exit]])]){
+    for(const p of route(layout.map,from,to)||[])protectedPaths.add(key(p));
+  }
   const safe=(blockers)=>{
     if(!twoWays(layout.map,layout.start,layout.exit,blockers)||
        !route(layout.map,layout.start,layout.exit,new Set([...blockers,...layout.enemies.map(key)])))return false;
@@ -62,6 +72,7 @@ export function placeOptionalTraps(layout,index,route,twoWays){
         for(let x=r.x+1;x<r.x+r.width-1;x++){
           const p={x,y};
           if(!floor(layout.map,p)||forbidden.has(key(p))||
+             protectedPaths.has(key(p))||
              dist(p,layout.start)<5||dist(p,layout.exit)<4||
              [...forbidden].some(s=>{
                const [fx,fy]=s.split(",").map(Number);

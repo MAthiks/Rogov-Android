@@ -29,20 +29,22 @@
 
 **Audit Alpha 8/10 (QA-074, 17/11/2026) :** [résultats détaillés](docs/QA074_ALPHA_8_ASSESSMENT.md). Les 129 tests sont verts mais **la note 8/10 n'est pas validée** : variété insuffisante (trois extractions identiques sans dégâts), Fragment de cendre non utilisé, absence de validation mobile et de 5 testeurs. VAR-077 et ECO-078 sont implémentés en prototypes. La **recette Android réelle**, l'équilibrage des coûts et les retours de **5 testeurs × 2 descentes** priment sur les nouvelles classes/sorts.
 
-## Exploration profonde de Nhal — nouvelle direction (conception v0.8)
+## Exploration profonde de Nhal — GDD v0.9
 
-Le **[GDD exploration v0.8](docs/GDD_EXPLORATION_NHAL_V0.8.md)** a été intégré le 18 novembre 2026. **Aucune de ces nouveautés n'est encore jouable.** Le plan est de passer des petits secteurs VAR-077 à une carte de donjon plus vaste (cible initiale ~40×30 cases, 8–12 salles) et une caméra Android ; puis brouillard de guerre, passages secrets optionnels et pièges lisibles/désamorçables.
+Le [GDD exploration v0.9](docs/GDD_EXPLORATION_NHAL_V0.9.md) est la référence courante. La [v0.8](docs/GDD_EXPLORATION_NHAL_V0.8.md) reste archivée comme jalon initial. **DEV-080 à DEV-088 sont intégrés à la version Web jouable** (salles/couloirs/portes, visibilité, secrets, pièges, événements, extraction). Ils ont été validés par les suites de tests et le déploiement GitHub Pages ; l'utilisateur a confirmé le fonctionnement de DEV-088 sur Android.
 
-| Lot futur | Statut | Livrable |
+La phase suivante n'est **pas encore développée** : enrichir les formes des salles, varier la topologie et refaire la direction artistique des tiles sans créer de risque de sortie arbitraire.
+
+| Lot | Statut | Livrable |
 |---|---|---|
-| DOC-079 | **GDD rédigé** | Contraintes procédurales, exploration, anti-frustration, recettes de tests |
-| DEV-080 | À faire | Salles, portes/couloirs, caméra et routes de fuite garanties |
-| DEV-081 | À faire | Brouillard, mémoire des cases, ligne de vue et mode ASCII |
-| DEV-082 | À faire | Cache/raccourci secret, indice et révélation non obligatoires |
-| DEV-083 | À faire | Pièges annoncés : dalle, alarme, contournement/désamorçage |
-| QA-084 | À faire | Tests graines, Rappel/extraction, migration, Android et testeurs |
+| DOC-079 | GDD v0.8 archivé | Contrats d'exploration, sécurité du retour |
+| DEV-080 à DEV-088 | **Livrés** | Donjon profond, secrets, pièges, salles spéciales et rapport d'extraction |
+| **DEV-089A** | À développer | Salles en L, piliers, alcôves et secteurs effondrés avec géométrie réelle |
+| **DEV-089B** | À développer | Direction artistique « ruines de pierre froide », tiles SVG 24 × 24, palette et états lisibles |
+| **DEV-089C** | À développer | Graphe de salles variable, embranchements, boucles et impasses facultatives |
+| **DEV-089D** | À développer | Ruines, galeries, forteresse enfouie et complexe fracturé comme familles architecturales |
 
-**WIP = 1 ; priorité immédiate conservée : QA-074 de la boucle v0.7f.** Un piège ou passage secret ne peut jamais être indispensable pour sortir, ni détruire silencieusement la dernière voie de retour.
+**WIP = 1.** Deux trajets de retour indépendants, aucun secret ni piège obligatoire, tests multi-graines, compatibilité des sauvegardes, cohérence ASCII/graphique, consultation du brouillard et recette Android réelle à chaque étape.
 
 ## Principes de production
 

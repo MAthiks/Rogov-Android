@@ -357,7 +357,12 @@ export function generateDeepLayout(index){
       layout.secrets=placeOptionalSecret(layout,index,deepRoute);
       // The two optional traps are generated only AFTER architecture, rifts,
       // enemies, loot and secrets have passed their independent safety checks.
-      layout.traps=placeOptionalTraps(layout,index,deepRoute,deepTwoReturnWays);
+      try{
+        layout.traps=placeOptionalTraps(layout,index,deepRoute,deepTwoReturnWays);
+      }catch(error){
+        if(error?.message!=="No safe DEV-086 corridor and chest trap pair")throw error;
+        continue; // Reject unsafe seeds; never force a mandatory trap.
+      }
       if(!validateDeepLayout(layout))continue;
       return layout;
     }

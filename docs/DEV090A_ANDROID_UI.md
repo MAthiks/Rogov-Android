@@ -1,6 +1,6 @@
 # ROGOV — DEV-090A : refonte UI/UX du poste de pilotage Android
 
-**Statut : prototype isolé sur `dev/dev-090a-mobile-cockpit`, non fusionné dans `main`.**
+**Statut : fusionné dans `main` via [PR #13](https://github.com/MAthiks/Rogov-Android/pull/13) le 18 novembre 2026.** Les tests automatisés (220 moteur, 16 Chromium, Chrome Android 13 et APK) sont validés. La recette finale sur téléphone physique n'a pas encore été confirmée.
 
 ## Priorité de production
 

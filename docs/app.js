@@ -402,6 +402,7 @@ function updateExpeditionReport(){
 }
 function render() {
   const run = state.run;
+  $("game-shell").classList.toggle("is-expedition", Boolean(run));
   $("mode-status").textContent = run ? "DESCENTE" : "REFUGE";
   $("hero-name").textContent = state.meta.hero.title;
   $("hero-level").textContent = String(state.meta.hero.level);
@@ -568,6 +569,24 @@ $("start-btn").addEventListener("click", () => {
 });
 for (const button of document.querySelectorAll("[data-direction]")) {
   button.addEventListener("click", () => act(move(state,button.dataset.direction)));
+}
+// DEV-090A: in-game navigation is visual-only; it never spends a turn,
+// selects a target or uncovers information outside the current view.
+const jumpDestinations={
+  "jump-map":()=>renderMode==="ascii"?$("dungeon-map"):$("tile-map"),
+  "jump-combat":()=>!$("combat-panel").hidden?$("combat-panel"):$("target-choices"),
+  "jump-report":()=>{if(!$("expedition-report").hidden)$("expedition-report").open=true;
+    return $("expedition-report");},
+  "jump-bag":()=>$("bag-items")
+};
+for(const [id,getTarget] of Object.entries(jumpDestinations)){
+  $(id).addEventListener("click",()=>{
+    if(!state.run)return;
+    const target=getTarget();
+    if(target?.hidden)return;
+    const prefersReduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    target?.scrollIntoView({behavior:prefersReduced?"instant":"smooth",block:"start"});
+  });
 }
 $("wait-btn").addEventListener("click", () => act(waitTurn(state)));
 $("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.bandage")));

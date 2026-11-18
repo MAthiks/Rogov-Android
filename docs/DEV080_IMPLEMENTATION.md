@@ -34,7 +34,7 @@ npm run check:web
 npm run test:web
 ```
 
-La validation PR sous Node 22 exécute la syntaxe et **162 tests** dont les nouveaux cas DEV-080 : 240 cartes, traversabilité, caméra, portes, sérialisation/réouverture, migration, extraction, géométrie graphique et ASCII. Aucun déploiement GitHub Pages n'est déclenché par ce workflow.
+La validation PR sous Node 22 exécute la syntaxe et **163 tests** dont les nouveaux cas DEV-080 : 240 cartes, traversabilité, caméra, portes (y compris un ennemi sur une porte ouverte), sérialisation/réouverture, migration, extraction, géométrie graphique et ASCII. Aucun déploiement GitHub Pages n'est déclenché par ce workflow.
 
 ## Recette Android obligatoire avant fusion
 

@@ -276,3 +276,10 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 #secret-search:disabled{opacity:.48}
 .pixel-tile.tile-secret_open{box-shadow:inset 0 0 0 2px #ad9f74}
 .inspect-panel[data-kind="clue"],.inspect-panel[data-kind="secret"]{border-left-color:#e0bc78}
+
+/* QA-084: discovered chests are readable and operable without tapping tiny tiles. */
+.chest-controls{max-width:450px;margin:8px auto}
+#chest-action{min-height:48px;font-size:13px;font-weight:700}
+#chest-action:disabled{opacity:.5}
+.pixel-tile.tile-chest_open{box-shadow:inset 0 0 0 1px #b99d75}
+.inspect-panel[data-kind="chest"]{border-left-color:#deb879}

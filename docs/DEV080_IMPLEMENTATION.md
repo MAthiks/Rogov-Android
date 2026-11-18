@@ -46,7 +46,7 @@ Le workflow de PR lance désormais **165 tests Node et 3 scénarios Playwright C
 - Activation du **service worker**, rechargement d'une descente procédurale **hors ligne** avec ressources préchargées.
 - Deux tests Node supplémentaires vérifient la présence de tous les fichiers du cache et le format/dimensions des icônes.
 
-**Défaut corrigé au cours de la recette :** les fichiers PNG d'icônes `icon-192.png` et `icon-512.png` étaient absents, alors que le manifeste et la liste de préchargement les demandaient. L'échec de `cache.addAll` empêchait l'activation hors ligne. Les deux PNG valides ont été créés sur cette branche ; le scénario hors ligne passe désormais en CI.
+**Défaut du banc de test corrigé :** le pipeline GitHub Pages générait déjà les icônes PNG `icon-192.png` et `icon-512.png` via `tools/make-icons.mjs` avant publication. Notre nouveau serveur de recette servait les sources brutes sans cette étape, et `cache.addAll` échouait alors ; cela **ne prouvait pas** une panne de la PWA publique. Désormais `npm run test:web` exécute d'abord la génération des icônes puis les tests Node, et le scénario Chromium hors ligne passe. Les PNG générés ne sont pas versionnés.
 
 Ces contrôles Chromium ne valident pas la latence, le tactile, l'installation et l'ergonomie du **Samsung physique**. Le statut de PR reste brouillon et la recette terrain ci-dessous demeure obligatoire.
 

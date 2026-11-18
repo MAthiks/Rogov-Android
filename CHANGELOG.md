@@ -1,3 +1,11 @@
+## UI-092A — Cockpit de descente Android (19 novembre 2026)
+
+- Interface de descente refondue en portrait : carte prioritaire, en-tête et HUD réduits, pavé directionnel et soins fixés au bord inférieur.
+- Six raccourcis Carte/Combat/À portée/Rapport/Sac/Journal : vrai nœud DOM de chaque panneau présenté dans un tiroir au-dessus des commandes, restauré sans perte d'interactions.
+- Affichage responsive aux petits écrans, hauteur dynamique du dock et respect de la zone système ; mode ASCII et desktop préservés.
+- Contrats de tests Node et Chromium tactile adaptés à la nouvelle géométrie, validation Android 13 et APK, cache PWA mis à jour.
+- Aucun changement aux tours, sauvegardes, combat, génération, coût des actions ou brouillard ; UI-092B/C/D réservés.
+
 ## ART-091D — Veyr, concepts de PNJ et objets Sprite C (18 novembre 2026)
 
 - 8 nouveaux SVG originaux 24×24 : 3 concepts de PNJ de Veyr (non interactifs) et 5 icônes pour tous les objets existants.

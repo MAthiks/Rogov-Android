@@ -94,7 +94,7 @@ test("DEV-087: all three encounters offer genuinely exclusive, balanced choices"
       assert.equal(result.state.run.turns,turn+1);
       assert.equal(result.state.meta.hero.xp,initialXP+option.xp);
       assert.equal(result.state.run.endurance,
-        Math.min(stamina+1,state.run.enduranceMax)-(option.endurance?option.endurance+1:0));
+        option.endurance?stamina-option.endurance:Math.min(stamina+1,state.run.enduranceMax));
       assert.equal(result.state.run.rngState,rng,"events do not consume combat RNG");
       assert.equal(result.state.run.sites.find(s=>s.id===site.id).choice,choice);
       if(option.item)assert.equal(result.state.run.carried[option.item],1);

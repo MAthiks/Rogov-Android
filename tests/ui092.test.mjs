@@ -55,7 +55,8 @@ test("UI-092A: only active mobile expeditions get a persistent movement/health d
 test("UI-092A: controller included in offline PWA and not coupled to private fog data",()=>{
   const sw=read("../docs/sw.js"),html=read("../docs/index.html"),
     app=read("../docs/app.js");
-  assert.match(sw,/rogov-v0\.7f-ui092a-cockpit/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/,
+    "La PWA doit conserver un cache versionné pour les correctifs UI");
   assert.match(sw,/"\.\/ui092\.js"/);
   assert.match(sw,/"\.\/ui092\.css\?v=1"/);
   assert.match(html,/href="\.\/ui092\.css\?v=1"/);

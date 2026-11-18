@@ -144,18 +144,21 @@
             <summary>Plan mémorisé de Nhal <small>Zones découvertes uniquement</small></summary>
             <p class="hint">Ce plan conserve l'architecture explorée, sans dévoiler les ennemis hors de vue.</p>
             <pre id="exploration-mini-map" aria-label="Mini-carte des seules zones découvertes"></pre>
-            <p class="hint">Légende : @ Égaré · # mur · + porte · E Arche connue · : sol mémorisé · . sol visible</p>
+            <p class="hint">Légende : @ Égaré · # mur · C coffre connu · ^ faille mortelle · + porte · E Arche connue · : sol mémorisé · . sol visible</p>
           </details>
           <div class="secret-controls" role="group" aria-label="Indices et fouille de secrets">
             <p id="secret-clue" class="secret-clue" hidden></p>
             <button id="secret-search" class="secondary full" type="button" hidden disabled>Fouiller attentivement · 1 tour</button>
+          </div>
+          <div class="chest-controls" role="group" aria-label="Coffres de Nhal">
+            <button id="chest-action" type="button" class="secondary full" hidden disabled>Aucun coffre à portée</button>
           </div>
           <div class="door-controls" role="group" aria-label="Portes : sélectionner puis confirmer sans mouvement involontaire">
             <button id="door-select" type="button" class="secondary door-action" disabled>Aucune porte voisine</button>
             <button id="door-action" type="button" class="secondary door-action" disabled>Sélectionner une porte voisine</button>
           </div>
           <div id="graphic-legend" class="graphic-legend" aria-label="Légende illustrée du donjon"></div>
-          <div id="ascii-legend" class="legend" hidden>@ Joueur · : Sol mémorisé · Espace vide Inexploré · ? Passage secret révélé · + Porte fermée · / Porte ouverte · c Charognard · G Gardien · $ Butin · ^ Mort · E Extraction · # Mur</div>
+          <div id="ascii-legend" class="legend" hidden>@ Joueur · : Sol mémorisé · Espace vide Inexploré · ? Passage secret révélé · + Porte fermée · / Porte ouverte · c Charognard · G Gardien · C Coffre · o Coffre vide · ^ Mort · E Extraction · # Mur</div>
         </div>
 
         <section class="tactical-targets" aria-labelledby="target-choices-title">

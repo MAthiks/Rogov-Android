@@ -23,7 +23,8 @@ test("DEV-089B: original 24px SVG atlas has readable floors and 16 framed wall s
     const xml=decode(src);
     assert.match(xml,/viewBox="0 0 24 24"/);
     assert.match(xml,/shape-rendering="crispEdges"/);
-    assert.doesNotMatch(xml,/<script|<image|https?:\/\/|<foreignObject/i);
+    assert.doesNotMatch(xml,/<(?:script|image|foreignObject)\b|(?:xlink:)?href\s*=/i,
+      "No embedded scripts, linked images or externally referenced resources");
   }
   assert.equal(TERRAIN_PALETTE.floor,"#202d33");
   assert.equal(TERRAIN_PALETTE.wall,"#4b5c63");

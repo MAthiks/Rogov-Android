@@ -1,3 +1,11 @@
+## ART-091A — L'Égaré encapuchonné / Sprite C (2026-11-18)
+
+- Quatre vues directionnelles originales en SVG 24 × 24, capuche relevée et palette gris prune, compatibles avec les tiles de Nhal.
+- Orientation purement graphique sur mouvement réel ; aucune donnée de sauvegarde ni règle de combat ajoutée.
+- Clé de sprite historique et légende conservées, commandes tactiles/ASCII identiques, cache PWA incrémenté pour le jeu hors ligne.
+- Tests Node et Chromium portrait ajoutés ; validation esthétique sur téléphone physique encore à réaliser.
+- Prochains lots : ART-091B ennemis, ART-091C interactifs/lieux, ART-091D PNJ/objets.
+
 ## GDD v0.8 — DOC-079 : exploration profonde de Nhal (2026-11-18)
 
 - Chapitre de conception ajouté : salles/couloirs, portes, carte large, caméra et brouillard de guerre.

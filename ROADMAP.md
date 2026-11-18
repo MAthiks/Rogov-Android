@@ -33,7 +33,7 @@
 
 **Décision validée le 18 novembre 2026 :** la planche « Sprite C », **PJ avec capuche relevée dans les quatre directions**, constitue la nouvelle référence visuelle de ROGOV. Garder la palette sombre et la lisibilité tactique : personnages identifiables à 24×24 px, Charognard bas, Gardien massif, Larve segmentée, portes/coffres/pièges avec états distincts. PNJ du refuge en concepts, pas encore en gameplay. [Contrat graphique et lots ART-091A à ART-091D](docs/ART_DIRECTION_SPRITE_C_V1.md).
 
-**Statut : référence approuvée, sprites non encore remplacés dans `docs/tiles.js`.** Priorité de production : héros encapuchonné puis ennemis existants, interactifs/lieux et PNJ/objets. DEV-090D (interface de préparation) et DEV-089D (familles architecturales) sont des chantiers distincts.
+**ART-091A — L'Égaré encapuchonné implémenté** : quatre vues SVG 24×24 bas/haut/gauche/droite, direction selon déplacements réels, compatibilité ASCII, sauvegardes et PWA offline. [Contrat d'intégration et recette](docs/ART091A_IMPLEMENTATION.md). Les tests automatisés et la recette physique Android conditionnent la validation artistique finale. **ART-091B** (trois ennemis), **ART-091C** (interactifs/lieux) et **ART-091D** (PNJ/objets) restent dans cet ordre. DEV-090D (interface de préparation) et DEV-089D (familles architecturales) sont des chantiers distincts.
 
 ## Priorité UI Android — DEV-090
 

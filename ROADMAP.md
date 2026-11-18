@@ -35,6 +35,8 @@
 
 **ART-091A — L'Égaré encapuchonné implémenté** : quatre vues SVG 24×24 bas/haut/gauche/droite, direction selon déplacements réels, compatibilité ASCII, sauvegardes et PWA offline. [Contrat d'intégration et recette](docs/ART091A_IMPLEMENTATION.md). Les tests automatisés et la recette physique Android conditionnent la validation artistique finale. **ART-091B** (trois ennemis), **ART-091C** (interactifs/lieux) et **ART-091D** (PNJ/objets) restent dans cet ordre. DEV-090D (interface de préparation) et DEV-089D (familles architecturales) sont des chantiers distincts.
 
+**ART-091B — Silhouettes ennemies Sprite C intégrées en prototype** : Charognard bas à bec osseux et griffes, Gardien déchu massif et cuirassé, Larve de faille segmentée horizontale. Trois SVG 24×24 isolés dans `docs/enemy-art.js` ; tous les indicateurs de danger, PV, intentions, brouillard et mode ASCII restent conservés. [Contrat d'implémentation et QA](docs/ART091B_IMPLEMENTATION.md). La validation esthétique sur téléphone physique reste ouverte. **ART-091C** (interactifs et lieux) puis **ART-091D** (PNJ/objets) demeurent les deux prochains lots graphiques.
+
 ## Priorité UI Android — DEV-090
 
 **DEV-090A livré et fusionné (PR #13, 18 novembre 2026)** : le terrain, le pavé directionnel, l'attente et les soins sont regroupés ; quatre raccourcis de navigation sans tour et une légende pliable réduisent le défilement sur Android. CI : **220/220 tests moteur, 16/16 tests Chromium mobile, Chrome Android 13 et APK réussis**. Recette sur appareil physique encore à confirmer.

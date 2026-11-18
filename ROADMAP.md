@@ -29,6 +29,12 @@
 
 **Audit Alpha 8/10 (QA-074, 17/11/2026) :** [résultats détaillés](docs/QA074_ALPHA_8_ASSESSMENT.md). Les 129 tests sont verts mais **la note 8/10 n'est pas validée** : variété insuffisante (trois extractions identiques sans dégâts), Fragment de cendre non utilisé, absence de validation mobile et de 5 testeurs. VAR-077 et ECO-078 sont implémentés en prototypes. La **recette Android réelle**, l'équilibrage des coûts et les retours de **5 testeurs × 2 descentes** priment sur les nouvelles classes/sorts.
 
+## Direction artistique — Sprite C validé
+
+**Décision validée le 18 novembre 2026 :** la planche « Sprite C », **PJ avec capuche relevée dans les quatre directions**, constitue la nouvelle référence visuelle de ROGOV. Garder la palette sombre et la lisibilité tactique : personnages identifiables à 24×24 px, Charognard bas, Gardien massif, Larve segmentée, portes/coffres/pièges avec états distincts. PNJ du refuge en concepts, pas encore en gameplay. [Contrat graphique et lots ART-091A à ART-091D](docs/ART_DIRECTION_SPRITE_C_V1.md).
+
+**Statut : référence approuvée, sprites non encore remplacés dans `docs/tiles.js`.** Priorité de production : héros encapuchonné puis ennemis existants, interactifs/lieux et PNJ/objets. DEV-090D (interface de préparation) et DEV-089D (familles architecturales) sont des chantiers distincts.
+
 ## Priorité UI Android — DEV-090
 
 **DEV-090A livré et fusionné (PR #13, 18 novembre 2026)** : le terrain, le pavé directionnel, l'attente et les soins sont regroupés ; quatre raccourcis de navigation sans tour et une légende pliable réduisent le défilement sur Android. CI : **220/220 tests moteur, 16/16 tests Chromium mobile, Chrome Android 13 et APK réussis**. Recette sur appareil physique encore à confirmer.

@@ -120,7 +120,7 @@ test("DEV-082: invalid forged secrets fail save validation; no secrets on old ru
     s=>s.claimed=true,
     s=>s.reward="relic.ashen_fragment",
     s=>s.x=0,
-    s=>s.clue.x=s.x,
+    s=>{s.clue.x=s.x;s.clue.y=s.y;},
     s=>s.clueType=99,
     s=>s.kind="mandatory"
   ];
@@ -140,7 +140,8 @@ test("DEV-082: invalid forged secrets fail save validation; no secrets on old ru
 test("DEV-082: extraction remains reachable on the public route before search",()=>{
   const state=deepState(18);
   const l=generateDeepLayout(18);
-  const route=deepRoute(l.map,l.start,l.exit);
+  // DEV-086/087: avoid intentionally warned traps while validating the normal route.
+  const route=deepRoute(l.map,l.start,l.exit,new Set(l.traps.map(t=>t.x+","+t.y)));
   assert.ok(route);
   const secret=state.run.secrets[0];
   assert.ok(route.every(p=>p.x!==secret.x||p.y!==secret.y));

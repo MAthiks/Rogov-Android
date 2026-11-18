@@ -2,7 +2,7 @@
 ## Salles procédurales, réseaux, tiles, direction artistique et exploration
 
 **Référence : DOC-079 / DOC-090 — GDD exploration v0.9 (18 novembre 2026)**  
-**Statut : DEV-080 à DEV-088 intégrés et jouables en PWA ; DEV-089A à DEV-089D au stade de conception, non implémentés.**  
+**Statut actualisé le 18 novembre 2026 : DEV-080 à DEV-089B intégrés dans `main` ; DEV-089C et DEV-089D sont encore à développer.**  
 **Plateforme prioritaire : PWA hors ligne, Android portrait, compatible clavier et mode ASCII.**
 
 ### 0. Fondations et provenance
@@ -225,8 +225,8 @@ Avec **cinq testeurs, deux descentes chacun** : noter s'ils savent où se trouve
 | **DEV-085** | Placement architectural des portes, seuils uniques | **Livré** |
 | **DEV-087** | Trois lieux spéciaux à choix exclusif | **Livré** |
 | **DEV-088** | Rapport d'expédition, risque et route connue | **Livré** |
-| **DEV-089A** | Diversification des salles et obstacles intérieurs | **À développer** |
-| **DEV-089B** | Refonte artistique des tiles et sprites essentiels | **À développer** |
+| **DEV-089A** | Diversification des salles et obstacles intérieurs | **Livré, PR #10** |
+| **DEV-089B** | Refonte artistique des tiles et sprites essentiels | **Livré, PR #11** |
 | **DEV-089C** | Graphe de circulation variable et routes secondaires | **À développer après A/B** |
 | **DEV-089D** | Familles architecturales et variantes de matériaux | **À développer après C** |
 
@@ -239,7 +239,7 @@ Avec **cinq testeurs, deux descentes chacun** : noter s'ils savent où se trouve
 > **Nhal doit cacher des possibilités, jamais dissimuler une obligation.**  
 > Le joueur peut renoncer à une salle, éviter un piège, ignorer une porte secrète ou rentrer par une autre voie. Un bon aventurier gagne par observation et préparation, non parce qu'il connaît à l'avance les pièges du générateur.
 
-**Statut révisé v0.9 :** les fonctions DEV-080 à DEV-088 sont maintenant présentes dans le moteur Web sur `main`. L'ensemble DEV-089 ci-dessous est une spécification de travail, pas une fonctionnalité déjà jouable.
+**Statut révisé au 18 novembre 2026 :** DEV-080 à DEV-089B sont présents dans le moteur Web sur `main`, après fusion des [PR #10](https://github.com/MAthiks/Rogov-Android/pull/10) et [PR #11](https://github.com/MAthiks/Rogov-Android/pull/11). Les sections DEV-089C et DEV-089D restent des spécifications non implémentées. Les vérifications CI sont réussies ; la disponibilité publique est conditionnée au déploiement Pages de `main`.
 
 
 ---
@@ -373,7 +373,7 @@ Les familles ne transforment pas automatiquement un sol esthétique en piège ni
 | **3 — DEV-089C** | Réseau vraiment variable | Graphe non figé, boucles, impasses facultatives, options de retour et profondeurs diverses |
 | **4 — DEV-089D** | Styles de secteurs | Quatre familles architecturales dérivées des mêmes règles lisibles |
 
-**WIP = 1** : un seul chantier modifiant le moteur à la fois ; PR séparées, vérification automatisée et recette sur Android réel avant fusion. Le travail visuel n'est **pas** un prérequis de l'architecture, et réciproquement : les deux contrats doivent rester testables séparément.
+**WIP = 1** : DEV-089A et DEV-089B sont fusionnés à la demande de l'utilisateur après validation automatisée ; leur recette sur téléphone réel reste à confirmer. Pour DEV-089C/D, garder un seul chantier moteur actif à la fois, PR séparées, vérification CI et recette Android réelle recommandée avant fusion. Le travail visuel n'est **pas** un prérequis de l'architecture, et réciproquement : les deux contrats doivent rester testables séparément.
 
 ## 14. Critères de validation DEV-089
 

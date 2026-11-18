@@ -31,6 +31,14 @@ Ce constat ne prouve pas quelle URL ni quelle descente l'utilisateur testait ; l
 
 **Prochaine observation prioritaire :** ouvrir un coffre (vérifier l'objet et l'unicité après rechargement), mener un combat, puis extraire du butin en évitant une faille. L'essai d'un Rappel via faille doit être volontaire et effectué sans sac précieux.
 
+## Retour terrain complémentaire — test du coffre
+
+**Confirmation utilisateur :** « OK test réussi », en réponse au scénario prioritaire : ouvrir un coffre, vérifier la récupération de l'objet dans le sac, puis recharger pour contrôler l'absence de duplication.
+
+**Statut : PASS déclaré par le testeur physique pour le scénario coffre / butin / sauvegarde.** Le détail de chaque manipulation n'a pas été fourni séparément ; ne pas présenter comme vérifiés d'autres scénarios.
+
+**Toujours à tester physiquement :** combat, comportement des créatures, faille et Rappel, extraction et conservation du butin au coffre de Veyr, stabilité sur une session prolongée. Pas de fusion de la PR.
+
 ## Tests indispensables avant validation
 1. Graines déterministes, au moins **240 nouvelles grandes descentes** : quatre ennemis, trois coffres, deux failles et voies sûres.
 2. Dès **l'arrivée** : un ennemi, un coffre et une faille **visibles** à l'écran 11×11 en mode graphique / ASCII, et dans la minimap découverte sans révélation de positions cachées.

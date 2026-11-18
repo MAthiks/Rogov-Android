@@ -62,3 +62,10 @@ Charognards : Rôdeur caveux · Gardien : Veilleur brisé · Faille : Témoin av
 Le combat hybride reste **sur la carte** : aucune illustration d'arène séparée à prévoir. Les intentions ennemies (attaque courte, coup lourd préparé, onde spectrale de Larve) seront signalées par **formes, icônes et textes**, en complément des couleurs existantes. Le panneau tactique devra conserver la hiérarchie : cible et intention > options de défense / attaque > détails secondaires.
 
 Inspirations de tension tactique uniquement ; **aucune reprise des éléments graphiques ou du layout de Darkest Dungeon**. La v0.7 est en conception et cet ajout ne décrit pas une fonctionnalité déjà présente.
+
+
+## Addendum validé — Sprite C (18 novembre 2026)
+
+La **direction artistique Sprite C modifiée avec le PJ encapuchonné** est approuvée pour la production. Les quatre vues du héros porteront une **capuche relevée**, une cape de voyage gris prune/brun désaturé et des accents ivoire pour sa lisibilité sur sol sombre. Les PNJ conceptuels (gardien du refuge, forgeron, érudite), les trois silhouettes ennemies et les assets principaux suivront la planche C validée. Les signatures fonctionnelles demeurent impératives : **Arche turquoise distincte des failles rouges**, pièges reconnaissables, mode ASCII et brouillard sans fuite d'informations. Cet addendum affine la mention historique « vert-ivoire » du héros : **l'ivoire reste le contraste fonctionnel, mais la cape validée est gris prune**, pas une tenue verte obligatoire.
+
+**Spécification faisant foi :** [ART_DIRECTION_SPRITE_C_V1.md](ART_DIRECTION_SPRITE_C_V1.md). La planche est un **concept approuvé**, non un pack de sprites déjà intégré au jeu.

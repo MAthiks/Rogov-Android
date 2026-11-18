@@ -25,7 +25,12 @@ export function topologyEdges(slots){
   // Cross-links keep optional central chambers within two connected routes.
   if(chosen.has(5)){add(1,5);add(5,4);}
   if(chosen.has(6)){add(7,6);add(6,10);}
-  if(chosen.has(5)&&chosen.has(6))add(5,6);
+  // An ordinary, non-secret cross-gallery adds a third alternative route.
+  // Without it the eight-room ring loses both return options if its one
+  // corridor trap is treated as blocked, so such layouts would be rejected.
+  const middle=[4,...(chosen.has(5)?[5]:[]),
+    ...(chosen.has(6)?[6]:[]),7];
+  for(let i=0;i<middle.length-1;i++)add(middle[i],middle[i+1]);
   if(chosen.has(2)&&chosen.has(6))add(2,6);
   if(chosen.has(5)&&chosen.has(9))add(5,9);
   return edges;

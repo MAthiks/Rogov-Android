@@ -122,40 +122,43 @@
       <section id="expedition" class="panel" hidden aria-labelledby="exp-title">
         <div class="section-head"><span class="eyebrow">02 — Territoire hostile</span><h2 id="exp-title">Profondeurs de Nhal</h2></div>
         <div class="run-bar"><span>VIE <strong id="hp">12 / 12</strong></span><span>TOURS <strong id="turns">0</strong></span><span>SAC <strong id="bag-count">0 / 8</strong></span></div>
+        <nav class="expedition-shortcuts" aria-label="Accès rapide aux éléments de l'expédition">
+          <button type="button" id="jump-map" aria-controls="tile-map">Carte</button>
+          <button type="button" id="jump-combat" aria-controls="target-choices">Combat</button>
+          <button type="button" id="jump-report" aria-controls="expedition-report">Rapport</button>
+          <button type="button" id="jump-bag" aria-controls="bag-items">Sac</button>
+        </nav>
         <div class="survival-hud" aria-label="État de santé et danger">
           <div class="health-header"><span>SANTÉ <strong id="health-state" data-health="healthy">STABLE</strong></span><span id="threat-state" data-threat="danger">2 HOSTILES</span></div>
           <progress id="health-meter" aria-label="Points de vie" max="12" value="12">12/12</progress>
           <div class="endurance-header"><span>ENDURANCE <strong id="endurance-state">15 / 15</strong></span><small>Attaquer 1 · Défendre 2 · Attendre +3</small></div>
           <progress id="endurance-meter" aria-label="Endurance de combat" max="15" value="15">15/15</progress>
         </div>
-        <details class="actor-stats-sheet" id="actor-stats-sheet">
-          <summary><span>Fiche de l'Égaré</span><small>FOR · AGI · CON · PER · VOL · INT</small></summary>
-          <p class="actor-stats-caption">Caractéristiques actives : elles modifient précision, critiques, dégâts et défenses (équilibrage provisoire).</p>
-          <div id="actor-stat-values" class="actor-stat-values" aria-label="Caractéristiques du personnage"></div>
-          <div id="actor-derived-values" class="actor-derived-values"></div>
-          <p id="actor-class-label" class="actor-class-label"></p>
-        </details>
-        <p id="route-hint" class="route-hint" aria-live="polite">Nhal change entre les descentes. Observe les issues et choisis ton risque.</p>
-        <details id="expedition-report" class="expedition-report" hidden>
-          <summary><strong>Rapport d'expédition</strong><span id="expedition-report-summary">Évaluer le retour</span></summary>
-          <div class="expedition-report-details">
-            <div class="expedition-report-values">
-              <p>Dans le sac, non sécurisé <strong id="report-carried">—</strong></p>
-              <p>Fragments exposés <strong id="report-fragments">—</strong></p>
-              <p>Au coffre de Veyr <strong id="report-secured">—</strong></p>
-              <p>Butins déjà repérés <strong id="report-chests">—</strong></p>
-              <p>Lieux repérés à explorer <strong id="report-sites">—</strong></p>
-              <p>Menaces visibles <strong id="report-enemies">—</strong></p>
-            </div>
-            <p id="report-route" class="report-route">Arche non repérée.</p>
-            <p id="report-advice" class="report-advice"></p>
-            <p class="hint">Calcul fondé uniquement sur les zones déjà découvertes. Le trajet indique des cases connues, pas une garantie : ennemis mobiles, portes et dangers peuvent modifier le retour. Aucun déplacement automatique.</p>
-          </div>
-        </details>
         <div class="dungeon-wrap">
           <div class="render-controls"><span>PACK VISUEL / NHAL</span><button type="button" id="renderer-toggle" class="secondary" aria-pressed="true">Passer en ASCII</button></div>
           <div id="tile-map" class="pixel-map" role="group" aria-label="Carte graphique du donjon. Touchez un ennemi pour le cibler." tabindex="0"></div>
           <pre id="dungeon-map" aria-label="Carte ASCII du donjon" tabindex="0" hidden></pre>
+        <section id="field-controls" class="field-controls" aria-label="Commandes de déplacement et de survie">
+          <div class="field-controls-heading">
+            <strong>COMMANDES DE TERRAIN</strong>
+            <span>Un déplacement = un tour</span>
+          </div>
+          <div class="field-controls-row">
+            <div class="dpad" role="group" aria-label="Se déplacer ou attendre">
+              <button type="button" data-direction="up" class="up" aria-label="Monter">↑</button>
+              <button type="button" data-direction="left" class="left" aria-label="Aller à gauche">←</button>
+              <button type="button" id="wait-btn" class="wait" aria-label="Attendre un tour">·<small>ATT.</small></button>
+              <button type="button" data-direction="right" class="right" aria-label="Aller à droite">→</button>
+              <button type="button" data-direction="down" class="down" aria-label="Descendre">↓</button>
+            </div>
+            <div class="field-quick-actions" role="group" aria-label="Soins rapides">
+              <span class="field-quick-label">SOINS RAPIDES</span>
+              <button id="use-bandage" type="button" class="survival-action" disabled>Bandage +4 PV (0)</button>
+              <button id="use-tonic" type="button" class="survival-action" disabled>Tonique +6 PV (0)</button>
+              <small>Soigner ou attendre consomme 1 tour.</small>
+            </div>
+          </div>
+        </section>
           <details id="exploration-map-panel" class="exploration-map-panel" hidden>
             <summary>Plan mémorisé de Nhal <small>Zones découvertes uniquement</small></summary>
             <p class="hint">Ce plan conserve l'architecture explorée, sans dévoiler les ennemis hors de vue.</p>
@@ -187,8 +190,11 @@
             <button id="door-select" type="button" class="secondary door-action" disabled>Aucune porte voisine</button>
             <button id="door-action" type="button" class="secondary door-action" disabled>Sélectionner une porte voisine</button>
           </div>
+          <details class="map-legend-details" id="map-legend-details">
+            <summary>Symboles et légende de Nhal</summary>
           <div id="graphic-legend" class="graphic-legend" aria-label="Légende illustrée du donjon"></div>
           <div id="ascii-legend" class="legend" hidden>@ Joueur · : Sol mémorisé · Espace vide Inexploré · ? Passage secret révélé · + Porte fermée · / Porte ouverte · c Charognard · G Gardien · C Coffre · o Coffre vide · ~ trace suspecte · ! piège actif · x désamorcé · a Atelier · e Écho · k Cache · v visité · ^ Mort · E Extraction · # Mur</div>
+          </details>
         </div>
 
         <section class="tactical-targets" aria-labelledby="target-choices-title">
@@ -237,24 +243,35 @@
           <p class="tactic-preview-warning"><strong>COMBAT TACTIQUE :</strong> les intentions indiquent le danger du tour suivant. Le Gardien prépare ses coups lourds ; s'éloigner peut les interrompre. Après une frappe, sa garde peut bloquer ton attaque.</p>
         </section>
 
+        <details class="actor-stats-sheet" id="actor-stats-sheet">
+          <summary><span>Fiche de l'Égaré</span><small>FOR · AGI · CON · PER · VOL · INT</small></summary>
+          <p class="actor-stats-caption">Caractéristiques actives : elles modifient précision, critiques, dégâts et défenses (équilibrage provisoire).</p>
+          <div id="actor-stat-values" class="actor-stat-values" aria-label="Caractéristiques du personnage"></div>
+          <div id="actor-derived-values" class="actor-derived-values"></div>
+          <p id="actor-class-label" class="actor-class-label"></p>
+        </details>
+        <p id="route-hint" class="route-hint" aria-live="polite">Nhal change entre les descentes. Observe les issues et choisis ton risque.</p>
+        <details id="expedition-report" class="expedition-report" hidden>
+          <summary><strong>Rapport d'expédition</strong><span id="expedition-report-summary">Évaluer le retour</span></summary>
+          <div class="expedition-report-details">
+            <div class="expedition-report-values">
+              <p>Dans le sac, non sécurisé <strong id="report-carried">—</strong></p>
+              <p>Fragments exposés <strong id="report-fragments">—</strong></p>
+              <p>Au coffre de Veyr <strong id="report-secured">—</strong></p>
+              <p>Butins déjà repérés <strong id="report-chests">—</strong></p>
+              <p>Lieux repérés à explorer <strong id="report-sites">—</strong></p>
+              <p>Menaces visibles <strong id="report-enemies">—</strong></p>
+            </div>
+            <p id="report-route" class="report-route">Arche non repérée.</p>
+            <p id="report-advice" class="report-advice"></p>
+            <p class="hint">Calcul fondé uniquement sur les zones déjà découvertes. Le trajet indique des cases connues, pas une garantie : ennemis mobiles, portes et dangers peuvent modifier le retour. Aucun déplacement automatique.</p>
+          </div>
+        </details>
         <div id="inspect-panel" class="inspect-panel" data-kind="floor" aria-live="polite">
           <strong id="inspect-title">Identifier une case</strong>
           <p id="inspect-description">Touchez un élément de la carte pour connaître son rôle. Touchez une porte voisine, puis confirmez son ouverture ou sa fermeture.</p>
         </div>
         <div id="run-log-slot" class="log-slot"></div>
-        <div class="dpad" role="group" aria-label="Déplacements">
-          <button type="button" data-direction="up" class="up" aria-label="Monter">↑</button>
-          <button type="button" data-direction="left" class="left" aria-label="Aller à gauche">←</button>
-          <button type="button" data-direction="down" class="down" aria-label="Descendre">↓</button>
-          <button type="button" data-direction="right" class="right" aria-label="Aller à droite">→</button>
-        </div>
-        <p class="hint center">Avancer contre un ennemi le cible sans dépenser de tour. Attaque avec le panneau tactique (F au clavier). La Larve projette une onde tous les 3 tours : bloque ou évite son axe.</p>
-        <div class="survival-actions" role="group" aria-label="Actions de survie">
-          <button id="wait-btn" type="button" class="survival-action">Attendre <small>1 tour</small></button>
-          <button id="use-bandage" type="button" class="survival-action" disabled>Bandage +4 PV (0)</button>
-          <button id="use-tonic" type="button" class="survival-action" disabled>Tonique +6 PV (0)</button>
-        </div>
-        <p class="hint center">Attendre et se soigner consomment un tour : les ennemis peuvent en profiter.</p>
         <h3>Sac de descente</h3>
         <div id="bag-items" class="item-list"></div>
         <p class="notice danger-text">La faille rouge provoque le Rappel. La Larve de faille attaque à distance sur son axe. Rejoins l'arche verte pour sécuriser ton butin.</p>

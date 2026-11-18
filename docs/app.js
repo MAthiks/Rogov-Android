@@ -585,7 +585,7 @@ for(const [id,getTarget] of Object.entries(jumpDestinations)){
     const target=getTarget();
     if(target?.hidden)return;
     const prefersReduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    target?.scrollIntoView({behavior:prefersReduced?"instant":"smooth",block:"start"});
+    target?.scrollIntoView({behavior:prefersReduced?"auto":"smooth",block:"start"});
   });
 }
 $("wait-btn").addEventListener("click", () => act(waitTurn(state)));

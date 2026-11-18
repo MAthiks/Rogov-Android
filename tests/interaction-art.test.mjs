@@ -81,7 +81,8 @@ test("ART-091C: unknown cells remain asset-free and fresh art is offline-cached"
   assert.match(source,/s\.revealed&&s\.x===x&&s\.y===y/);
   assert.match(source,/run\.collected\.includes\(x\+","\+y\)\?"chest_open":"loot"/);
   const sw=readFileSync(new URL("../docs/sw.js",import.meta.url),"utf8");
-  assert.match(sw,/rogov-v0\.7f-art091c-interactives/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/,
+    "PWA cache stays versioned for later Sprite C modules");
   for(const asset of ['"./interaction-art.js"','"./hero-art.js"','"./enemy-art.js"'])
     assert.ok(sw.includes(asset),"Offline module not precached: "+asset);
 });

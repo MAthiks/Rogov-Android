@@ -422,6 +422,8 @@ export function beginRun(state, equipment=[]) {
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       ...(layout.geometryVersion?{geometryVersion:layout.geometryVersion}:{}),
+      ...(layout.topologyVersion?{topologyVersion:layout.topologyVersion,
+        links:layout.links,networkKind:layout.networkKind}:{}),
       start:layout.start,exit:layout.exit,exploration:{seen:[]},
       ...(layout.secrets?{secrets:layout.secrets}:{}),
       ...(layout.traps?{traps:layout.traps}:{}),

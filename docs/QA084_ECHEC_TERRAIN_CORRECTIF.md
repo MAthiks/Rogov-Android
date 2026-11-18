@@ -21,7 +21,7 @@ Ce constat ne prouve pas quelle URL ni quelle descente l'utilisateur testait ; l
 - **2 failles** `^` par carte, dont une dans la chambre de départ à distance 2–4. Elles restent visiblement dangereuses et entièrement évitables. Aucun secret, ennemi ou coffre n'est requis pour atteindre l'Arche.
 - **Placement juste :** chacun des emplacements n'est accepté que si le retour normal par au moins deux itinéraires, la sortie sans combat imposé et l'accès au butin restent vrais.
 - Les sauvegardes profondes **déjà commencées** (3 ennemis, 2 objets et zéro faille) restent chargeables et **ne sont pas modifiées rétroactivement**. La nouvelle génération s'applique à la **nouvelle descente profonde**.
-- Cache hors ligne du prototype isolé : `rogov-qa084-encounters-v1`.
+- Cache hors ligne du prototype isolé : `rogov-v0.7f-qa084-encounters`.
 
 ## Tests indispensables avant validation
 1. Graines déterministes, au moins **240 nouvelles grandes descentes** : quatre ennemis, trois coffres, deux failles et voies sûres.

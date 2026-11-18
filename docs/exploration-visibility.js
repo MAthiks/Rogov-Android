@@ -88,6 +88,8 @@ export function minimapText(run){
     if(tile==="+")return "+";
     if(tile==="E")return "E";
     if(run.secrets?.some(s=>s.revealed&&s.x===x&&s.y===y))return "?";
+    if(tile==="^")return "^";
+    if(tile==="$"&&run.rooms)return (run.collected||[]).includes(x+","+y)?"o":"C";
     return live.has(pos)?".":":";
   }).join("")).join("\n");
 }

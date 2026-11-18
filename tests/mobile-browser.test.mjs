@@ -437,6 +437,7 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     // The tutorial route may naturally pick up a fragment as well; use this
     // actual secured balance as the baseline, never assume the stash is empty.
     const relicBeforeDeep=state.meta.stash["relic.ashen_fragment"]||0;
+    const bandagesBeforeDeep=state.meta.stash["consumable.bandage"]||0;
 
     // A second normal GUI start is the first deep procedural dungeon.
     await page.locator('#stash-items input[type="checkbox"]').first().check();
@@ -474,6 +475,9 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     assert.equal(await page.locator("#secret-clue").isVisible(),true);
     assert.equal(await page.locator("#secret-search").isEnabled(),true);
     const turnBeforeSearch=state.run.turns;
+    const bandagesBeforeSecret=state.run.carried["consumable.bandage"]||0;
+    // QA-084 adds a real entry chest. A normal walk may legitimately collect it
+    // before the secret; only the increment from the secret must be exactly one.
     const secretCell=page.locator('#tile-map .pixel-tile[data-x="'+secret.x+
       '"][data-y="'+secret.y+'"]');
     assert.equal(await secretCell.count(),1);
@@ -498,12 +502,12 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     await moveOne(clue,secret);
     state=await saved();
     assert.equal(state.run.secrets[0].claimed,true);
-    assert.equal(state.run.carried["consumable.bandage"],1);
+    assert.equal(state.run.carried["consumable.bandage"],bandagesBeforeSecret+1);
     const xpAfterCache=state.meta.hero.xp;
     await moveOne(secret,clue);
     await moveOne(clue,secret);
     state=await saved();
-    assert.equal(state.run.carried["consumable.bandage"],1,
+    assert.equal(state.run.carried["consumable.bandage"],bandagesBeforeSecret+1,
       "Repeated visits never duplicate a secret reward");
     assert.equal(state.meta.hero.xp,xpAfterCache);
 
@@ -511,7 +515,7 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     await page.locator("#title-continue").tap();
     state=await saved();
     assert.ok(state.run.secrets[0].claimed);
-    assert.equal(state.run.carried["consumable.bandage"],1);
+    assert.equal(state.run.carried["consumable.bandage"],bandagesBeforeSecret+1);
     assert.equal(state.run.exploration.seen.length>0,true);
     assert.equal(state.run.secrets[0].revealed,true);
     const exit=state.run.exit;
@@ -523,14 +527,16 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     assert.equal(state.meta.stash["weapon.rusty_sword"],1);
     assert.equal(state.meta.stash["relic.ashen_fragment"],relicBeforeDeep+1,
       "A single extra public fragment is secured, never duplicated");
-    assert.equal(state.meta.stash["consumable.bandage"],3,
-      "The hidden cache's single bandage is secured in the permanent stash");
+    assert.ok(state.meta.stash["consumable.bandage"]>=
+      bandagesBeforeDeep+bandagesBeforeSecret+1,
+      "The hidden cache's single bandage is secured; optional public chest may add another");
     await page.reload({waitUntil:"load"});
     await page.locator("#title-continue").tap();
     const persisted=await saved();
     assert.equal(persisted.run,null);
     assert.equal(persisted.meta.extractions,2);
-    assert.equal(persisted.meta.stash["consumable.bandage"],3);
+    assert.equal(persisted.meta.stash["consumable.bandage"],
+      state.meta.stash["consumable.bandage"]);
     assert.equal(persisted.meta.stash["relic.ashen_fragment"],relicBeforeDeep+1);
     assert.deepEqual(errors,[],"No browser error during both complete journeys");
     console.log("QA-084 FULL SESSION: tutorial + deep public loot + secret + "+
@@ -553,10 +559,10 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
       s.meta.descents=1;
       const state=game.beginRun(s,["weapon.rusty_sword","consumable.bandage"]).state;
       if(!game.validateSave(state))throw Error("Invalid original deep run");
-      if(state.run.enemies.length!==3)throw Error("All generated enemies must be present");
+      if(state.run.enemies.length!==4)throw Error("Four generated enemies must be present");
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
       return {ids:state.run.enemies.map(e=>e.id),
-        targetId:state.run.enemies.find(e=>e.kind==="charognard").id};
+        targetId:state.run.enemies.find(e=>e.id==="nhal-charognard-scout-01").id};
     });
     await page.reload({waitUntil:"load"});
     await page.locator("#title-continue").tap();
@@ -627,7 +633,7 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
     assert.ok(attacks>=1,"A real attack is required");
     assert.ok(!postFight.run.enemies.some(e=>e.id===init.targetId));
     assert.equal(postFight.run.enemies.length,init.ids.length-1,
-      "The other two original enemies remain alive");
+      "The other three original enemies remain alive");
 
     const lootKey=Object.entries(postFight.run.loot)
       .find(([,id])=>id==="relic.ashen_fragment")?.[0];
@@ -665,5 +671,74 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
     assert.deepEqual(errors,[]);
     console.log("QA-084 LIVE MOBILE UI: "+attacks+" attack(s), "+
       movements+" touch moves, 2 remaining active enemies, extraction PASS");
+  }finally{await context.close();}
+});
+
+
+test("QA-084 feedback mobile: an actual new descent shows an enemy, chest and rift before any movement", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const chest=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();s.meta.descents=1;
+      const deep=game.beginRun(s).state;
+      if(!game.validateSave(deep))throw Error("Generated deep save invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(deep));
+      const pos=Object.keys(deep.run.loot).find(k=>
+        deep.run.loot[k]==="consumable.bandage");
+      const [x,y]=pos.split(",").map(Number);
+      return {x,y};
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    if(await page.locator("#tile-map").isHidden())
+      await page.locator("#renderer-toggle").tap();
+    assert.ok(await page.locator("#tile-map .tile-charognard").count()>0,
+      "At least one enemy must already be visible on entering Nhal");
+    assert.ok(await page.locator("#tile-map .tile-loot").count()>0,
+      "An actual chest must already be visible on entering Nhal");
+    assert.ok(await page.locator("#tile-map .tile-hazard").count()>0,
+      "A visible rift must already be in the entry viewport");
+    assert.equal(await page.locator("#chest-action").isDisabled(),true,
+      "Chest opening needs proximity");
+    // Isolate the chest interaction from combat while using real mobile D-pad.
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      state.run.enemies=[];
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    const steps=await page.evaluate(async(chest)=>{
+      const game=await import("./game.js");
+      const {deepRoute}=await import("./deep-dungeon.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return deepRoute(state.run.map,{x:state.run.x,y:state.run.y},chest);
+    },chest);
+    assert.ok(steps?.length>=3);
+    for(let i=1;i<steps.length-1;i++){
+      const a=steps[i-1],b=steps[i];
+      const dir=b.x>a.x?"right":b.x<a.x?"left":b.y>a.y?"down":"up";
+      await page.locator('[data-direction="'+dir+'"]').tap();
+    }
+    assert.equal(await page.locator("#chest-action").isEnabled(),true);
+    const before=Number(await page.locator("#turns").textContent());
+    await page.locator("#chest-action").tap();
+    assert.equal(Number(await page.locator("#turns").textContent()),before+1);
+    const stored=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(stored.run.carried["consumable.bandage"],1);
+    assert.ok(stored.run.collected.includes(chest.x+","+chest.y));
+    assert.ok(await page.locator("#tile-map .tile-chest_open").count()>0);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#chest-action").isDisabled(),true);
+    assert.deepEqual(errors,[]);
+    console.log("QA-084 MOBILE FEEDBACK: entry enemy / chest / rift / tactile open / persistence PASS");
   }finally{await context.close();}
 });

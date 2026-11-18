@@ -112,11 +112,24 @@ function makePlan(index){
   const exit={x:rooms[3].cx,y:rooms[3].cy};
   const valuable=roomPoint(rooms[5],rand);
   const tonic=roomPoint(rooms[10],rand);
+  // QA-084: a real chest is immediately discoverable in the entry chamber.
+  // Normal loot coordinates are retained, so old saves need no migration.
+  const entry=rooms[8],entryOptions=[];
+  for(let y=entry.y;y<entry.y+entry.height;y++)
+    for(let x=entry.x;x<entry.x+entry.width;x++)
+      if(grid[y][x]==="."&&distance({x,y},start)>=2&&distance({x,y},start)<=3&&
+          !doors.some(d=>d.x===x&&d.y===y))entryOptions.push({x,y});
+  if(!entryOptions.length)throw new Error("Entry chamber has no chest tile");
+  const entryChest=entryOptions[rand(entryOptions.length)];
   grid[start.y][start.x]="S";
   grid[exit.y][exit.x]="E";
-  grid[valuable.y][valuable.x]="$";
-  grid[tonic.y][tonic.x]="$";
-  const occupied=new Set([key(start),key(exit),key(valuable),key(tonic),...doors.map(key)]);
+  for(const p of [valuable,tonic,entryChest])grid[p.y][p.x]="$";
+  const loot={
+    [key(valuable)]:"relic.ashen_fragment",
+    [key(tonic)]:"consumable.dusk_tonic",
+    [key(entryChest)]:"consumable.bandage"
+  };
+  const occupied=new Set([key(start),key(exit),...Object.keys(loot),...doors.map(key)]);
   const enemySpecs=[
     ["charognard",rooms[5],valuable,2,3],
     ["guardian",rooms[6],{x:rooms[6].cx,y:rooms[6].cy},4,5],
@@ -129,12 +142,69 @@ function makePlan(index){
     occupied.add(key(p));
     enemies.push({id:"nhal-"+kind+"-01",kind,x:p.x,y:p.y,hp});
   }
+  // A first visible encounter is optional: place it on a perimeter tile
+  // four or five steps from the entry, never in the mandatory return route.
+  const scouts=[];
+  for(let y=entry.y;y<entry.y+entry.height;y++)
+    for(let x=entry.x;x<entry.x+entry.width;x++){
+      const p={x,y},d=distance(p,start);
+      if(grid[y][x]==="."&&!occupied.has(key(p))&&d>=4&&d<=5)
+        scouts.push(p);
+    }
+  if(!scouts.length)throw new Error("Entry chamber has no safe enemy tile");
+  const scout=scouts[rand(scouts.length)];
+  enemies.push({id:"nhal-charognard-scout-01",kind:"charognard",
+    x:scout.x,y:scout.y,hp:3});
+  occupied.add(key(scout));
+
+  function publicRoutesSafe(){
+    const map=grid.map(row=>row.join(""));
+    const blocked=new Set(enemies.map(key));
+    if(!deepTwoReturnWays(map,start,exit)||!deepRoute(map,start,exit,blocked))return false;
+    return Object.keys(loot).every(pos=>{
+      const [x,y]=pos.split(",").map(Number),p={x,y};
+      return deepTwoReturnWays(map,p,exit)&&
+        deepRoute(map,p,exit,blocked)&&deepRoute(map,start,p,blocked);
+    });
+  }
+  // First crack inside the entry LOS, second deeper in Nhal. Candidate
+  // acceptance explicitly proves two safe ordinary return routes; no
+  // hazard blocks the last path or spawns under a hero, foe or chest.
+  function placeCrack(room,nearEntry){
+    const candidates=[];
+    for(let y=room.y;y<room.y+room.height;y++)
+      for(let x=room.x;x<room.x+room.width;x++){
+        const p={x,y},d=distance(p,start);
+        if(grid[y][x]!=="."||occupied.has(key(p))||
+          distance(p,exit)<4||
+          Object.keys(loot).some(k=>{
+            const [lx,ly]=k.split(",").map(Number);
+            return distance(p,{x:lx,y:ly})<2;
+          })||
+          enemies.some(e=>distance(p,e)<2)||
+          doors.some(door=>distance(p,door)<2))continue;
+        if(nearEntry&&(d<2||d>4))continue;
+        candidates.push(p);
+      }
+    const offset=rand(Math.max(1,candidates.length));
+    for(let n=0;n<candidates.length;n++){
+      const p=candidates[(offset+n)%candidates.length];
+      grid[p.y][p.x]="^";
+      if(publicRoutesSafe()){occupied.add(key(p));return true;}
+      grid[p.y][p.x]=".";
+    }
+    return false;
+  }
+  const entryCrack=placeCrack(entry,true);
+  const deepCrack=placeCrack(rooms[5],false)||placeCrack(rooms[9],false)||
+    placeCrack(rooms[6],false);
   return {
     map:grid.map(row=>row.join("")),
     rooms,doors,
-    start,exit,
-    loot:{[key(valuable)]:"relic.ashen_fragment",[key(tonic)]:"consumable.dusk_tonic"},
-    enemies,layoutId:"nhal-deep-"+index
+    start,exit,loot,
+    enemies,layoutId:"nhal-deep-"+index,
+    // Rejected by strict new-layout validation if a fair location was absent.
+    hazardsComplete:entryCrack&&deepCrack
   };
 }
 export function isDeepMap(map){
@@ -143,7 +213,7 @@ export function isDeepMap(map){
 }
 /** Layout validation is intentionally stronger than shape checking. */
 export function validateDeepLayout(layout,live=false){
-  if(!layout||!isDeepMap(layout.map)||layout.map.some(row=>/[^#.+$SE]/.test(row)))return false;
+  if(!layout||!isDeepMap(layout.map)||layout.map.some(row=>/[^#.+$SE^]/.test(row)))return false;
   const {map,rooms,doors,start,exit,loot,enemies}=layout;
   if(map[0]!=="#".repeat(DEEP_WIDTH)||
       map[DEEP_HEIGHT-1]!=="#".repeat(DEEP_WIDTH)||
@@ -161,15 +231,20 @@ export function validateDeepLayout(layout,live=false){
     doorKeys.add(key(door));
   }
   if(map.join("").split("+").length-1!==doors.length)return false;
-  if(!loot||typeof loot!=="object"||Array.isArray(loot)||Object.keys(loot).length!==2)return false;
+  if(!loot||typeof loot!=="object"||Array.isArray(loot)||
+      (!live&&Object.keys(loot).length!==3)||
+      (live&&(Object.keys(loot).length<2||Object.keys(loot).length>3)))return false;
+  const hazardCount=map.join("").split("^").length-1;
+  if(!live&&(hazardCount!==2||layout.hazardsComplete!==true))return false;
+  if(live&&hazardCount>2)return false;
   const lootKeys=new Set(Object.keys(loot));
   if(map.join("").split("$").length-1!==lootKeys.size)return false;
   if(!Object.entries(loot).every(([pos,id])=>{
     const [x,y]=pos.split(",").map(Number);
     return /^\d+,\d+$/.test(pos)&&tile(map,{x,y})==="$"&&
-      ["relic.ashen_fragment","consumable.dusk_tonic"].includes(id);
+      ["relic.ashen_fragment","consumable.dusk_tonic","consumable.bandage"].includes(id);
   }))return false;
-  if(!Array.isArray(enemies)||(!live&&enemies.length!==3)||enemies.length>3||
+  if(!Array.isArray(enemies)||(!live&&enemies.length!==4)||enemies.length>4||
       new Set(enemies.map(e=>key(e))).size!==enemies.length)return false;
   for(const e of enemies){
     if(!["charognard","guardian","rift_larva"].includes(e.kind)||
@@ -177,6 +252,14 @@ export function validateDeepLayout(layout,live=false){
       !(tile(map,e)==="."||(live&&(tile(map,e)==="S"||
       (tile(map,e)==="+"&&doors.some(d=>d.x===e.x&&d.y===e.y&&d.open)))))||
       (!live&&distance(e,start)<4))return false;
+  }
+  if(!live){
+    if(!Object.entries(loot).some(([pos,id])=>id==="consumable.bandage"&&
+      (()=>{const [x,y]=pos.split(",").map(Number);return distance({x,y},start)<=3;})()))
+      return false;
+    if(!enemies.some(e=>distance(e,start)>=4&&distance(e,start)<=5))return false;
+    if(!rooms[8]||!map.some((row,y)=>[...row].some((ch,x)=>
+      ch==="^"&&distance({x,y},start)>=2&&distance({x,y},start)<=4)))return false;
   }
   if(!deepTwoReturnWays(map,start,exit))return false;
   const blocked=new Set(enemies.map(key));

@@ -1,4 +1,4 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, searchSecret, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, openChest, searchSecret, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { nearbySecretHint } from "./secrets.js";
 import { hasFog,explorationState,visibleCells,minimapText } from "./exploration-visibility.js";
@@ -140,6 +140,21 @@ function renderLegend() {
     chip.append(img,title);
     target.append(chip);
   }
+}
+function nearbyChest(){
+  const run=state.run;
+  if(!run?.rooms)return null;
+  return Object.keys(run.loot||{}).map(k=>{
+    const [x,y]=k.split(",").map(Number);
+    return {x,y,key:k};
+  }).find(p=>run.map[p.y]?.[p.x]==="$"&&!run.collected.includes(p.key)&&
+    Math.abs(p.x-run.x)+Math.abs(p.y-run.y)<=1)||null;
+}
+function updateChestAction(){
+  const button=$("chest-action"),chest=nearbyChest();
+  button.hidden=!state.run?.rooms;
+  button.disabled=!chest;
+  button.textContent=chest?"Ouvrir le coffre voisin · 1 tour":"Aucun coffre à portée";
 }
 function adjacentDoors(){
   const run=state.run;
@@ -358,7 +373,7 @@ function render() {
     $("bag-count").textContent = inventoryCount(state) + " / 8";
     $("route-hint").textContent = !run.map || run.layoutId==="nhal-introduction"
       ? "Première descente : repère les dangers et l'Arche d'extraction. Tu peux éviter le combat."
-      : run.rooms?"Secteur "+state.meta.descents+" : salles et couloirs réels. La caméra suit l'Égaré ; les portes ordinaires se traversent et se manipulent librement.":
+      : run.rooms?"Secteur "+state.meta.descents+" : les ennemis, coffres et failles doivent se découvrir dès la première salle. Ouvre les coffres proches ; les failles rouges sont mortelles. La caméra suit l'Égaré.":
       "Secteur historique : routes alternatives préservées. Observe avant de t'engager.";
     const clue=nearbySecretHint(run,state.meta.hero.attributes?.perception??5);
     $("secret-clue").hidden=!clue;
@@ -376,6 +391,7 @@ function render() {
     $("ascii-legend").hidden = renderMode !== "ascii";
     if (renderMode === "tiles") drawTileMap(state, $("tile-map"));
     updateDoorAction();
+    updateChestAction();
     renderActorStats();
     renderTargetChoices();
     renderThreatForecast();
@@ -493,6 +509,10 @@ $("wait-btn").addEventListener("click", () => act(waitTurn(state)));
 $("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.bandage")));
 $("use-tonic").addEventListener("click", () => act(useItem(state, "consumable.dusk_tonic")));
 $("target-clear").addEventListener("click", unselectTarget);
+$("chest-action").addEventListener("click",()=>{
+  const chest=nearbyChest();
+  if(chest)act(openChest(state,chest.x,chest.y));
+});
 $("door-select").addEventListener("click",selectNextDoor);
 $("secret-search").addEventListener("click",()=>act(searchSecret(state)));
 $("door-action").addEventListener("click",()=>{

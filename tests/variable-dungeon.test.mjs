@@ -97,8 +97,8 @@ test("VAR-077: dynamic ASCII, tile inspection and extraction use run.map and run
     assert.ok(neighbour);
     const probe=structuredClone(s);
     probe.run.x=neighbour.x;probe.run.y=neighbour.y;
-    assert.equal(inspectTile(probe,x,y).name,
-      id==="relic.ashen_fragment"?"Fragment de cendre":"Tonique du crépuscule");
+    assert.equal(inspectTile(probe,x,y).name,"Coffre de Nhal",
+      "Deep loot now appears as an explicit, inspectable chest");
   }
   const route=deepRoute(l.map,l.start,l.exit,new Set(s.run.enemies.map(key)));
   assert.ok(route);

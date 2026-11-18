@@ -1544,3 +1544,155 @@ test("ART-091B mobile: Sprite C enemies do not leak through unexplored Nhal fog"
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("ART-091C mobile: all 15 interactive assets decode at 24px with no overflow", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",err=>errors.push(err.message));
+    await preloadDeepRun(page);
+    const sample=await page.evaluate(async()=>{
+      const {INTERACTIVE_IDS,INTERACTIVE_SPRITES}=await import("./interaction-art.js");
+      const {TILE_SPRITES}=await import("./tiles.js");
+      const dimensions=[];
+      for(const id of INTERACTIVE_IDS){
+        const img=new Image();
+        img.src=TILE_SPRITES[id];
+        await img.decode();
+        dimensions.push({id,w:img.naturalWidth,h:img.naturalHeight,
+          mapped:img.src===INTERACTIVE_SPRITES[id]});
+      }
+      return {dimensions,scroll:document.documentElement.scrollWidth,
+        viewport:document.documentElement.clientWidth,
+        cells:document.querySelectorAll("#tile-map .pixel-tile").length};
+    });
+    assert.equal(sample.dimensions.length,15);
+    for(const image of sample.dimensions)
+      assert.deepEqual([image.w,image.h,image.mapped],[24,24,true],image.id);
+    assert.equal(sample.cells,121);
+    assert.ok(sample.scroll<=sample.viewport+1,"Android portrait must not overflow");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("ART-091C mobile: state-driven chests, traps, sites, secret, exit and rift use distinct graphics", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",err=>errors.push(err.message));
+    await preloadDeepRun(page);
+    const result=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const {drawTileMap,TILE_SPRITES}=await import("./tiles.js");
+      const baseline=JSON.parse(localStorage.getItem(SAVE_KEY));
+      const expected=[],shown=[];
+      const copy=()=>JSON.parse(JSON.stringify(baseline));
+      const adjacent=(run,p)=>{
+        const options=[[0,-1],[1,0],[0,1],[-1,0]]
+          .map(([dx,dy])=>({x:p.x+dx,y:p.y+dy}));
+        const safe=options.find(q=>run.map[q.y]?.[q.x]==="." &&
+          !run.sites.some(site=>site.x===q.x&&site.y===q.y)&&
+          !run.traps.some(t=>t.x===q.x&&t.y===q.y));
+        const fallback=options.find(q=>run.map[q.y]?.[q.x]===".");
+        if(!safe&&!fallback)throw Error("No nearby legal floor at "+p.x+","+p.y);
+        return safe||fallback;
+      };
+      const prove=(sprite,target,prepare=()=>{},preferred=null)=>{
+        const state=copy(),r=state.run;
+        prepare(r);
+        const player=preferred||adjacent(r,target);
+        r.x=player.x;r.y=player.y;
+        r.enemies=[]; // Existing game fixture is combat-free; isolate art only.
+        if(!validateSave(state))throw Error("Invalid scene "+sprite);
+        const host=document.createElement("div");
+        drawTileMap(state,host);
+        const cell=host.querySelector('.pixel-tile[data-x="'+target.x+'"][data-y="'+target.y+'"]');
+        if(!cell)throw Error("Target fell outside camera "+sprite);
+        if(!cell.classList.contains("tile-"+sprite))
+          throw Error("Wrong rendered sprite "+sprite+": "+cell.className);
+        if(cell.querySelector("img")?.src!==TILE_SPRITES[sprite])
+          throw Error("Wrong graphic for "+sprite);
+        const unknown=[...host.querySelectorAll(".tile-unknown")];
+        if(unknown.some(c=>c.querySelector("img")||c.dataset.entity||c.dataset.enemyId))
+          throw Error("Hidden tiles exposed visual data");
+        shown.push(sprite);
+      };
+      const r=baseline.run,door=r.doors[0];
+      const chestKey=Object.keys(r.loot)[0];
+      const [cx,cy]=chestKey.split(",").map(Number),chest={x:cx,y:cy};
+      const trap=r.traps[0],secret=r.secrets[0];
+      prove("door_open",door,r=>{r.doors[0].open=true;});
+      prove("door_closed",door,r=>{r.doors[0].open=false;});
+      prove("loot",chest);
+      prove("chest_open",chest,r=>{r.collected.push(chestKey);});
+      for(const [status,sprite] of [
+        ["hidden","trap_clue"],["revealed","trap_revealed"],
+        ["disabled","trap_disabled"],["triggered","trap_triggered"]
+      ]){
+        prove(sprite,trap,r=>{r.traps[0].status=status;},trap.clue);
+      }
+      for(let i=0;i<3;i++){
+        const site=r.sites[i];
+        prove("site_"+(site.kind==="atelier"?"atelier":
+          site.kind==="echo"?"echo":"cache"),site);
+        prove("site_resolved",site,r=>{
+          r.sites[i].status="resolved";
+          r.sites[i].choice=Object.keys({
+            atelier:{fragment:true},echo:{inscription:true},cache:{tonic:true}
+          }[site.kind])[0];
+        });
+      }
+      prove("exit",r.exit);
+      const hazard=r.map.flatMap((row,y)=>[...row].flatMap((cell,x)=>
+        cell==="^"?[{x,y}]:[])).find(point=>
+          [[0,-1],[1,0],[0,1],[-1,0]].some(([dx,dy])=>
+            r.map[point.y+dy]?.[point.x+dx]==="."));
+      if(!hazard)throw Error("No readable dangerous rift");
+      prove("hazard",hazard);
+      prove("secret_open",secret,r=>{
+        r.secrets[0].revealed=true;
+        r.map[secret.y]=r.map[secret.y].slice(0,secret.x)+"."+
+          r.map[secret.y].slice(secret.x+1);
+      },secret.clue);
+      return {shown,validBaseline:validateSave(baseline),turns:baseline.run.turns};
+    });
+    for(const expected of ["door_open","door_closed","loot","chest_open",
+      "trap_clue","trap_revealed","trap_disabled","trap_triggered",
+      "site_atelier","site_echo","site_cache","site_resolved","exit","hazard","secret_open"])
+      assert.ok(result.shown.includes(expected),"Missing art render: "+expected);
+    assert.equal(result.validBaseline,true);
+    assert.equal(result.turns,0,"Visual scene checks must never spend turns");
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("ART-091C mobile: real door action swaps silhouette, ASCII and saved state", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",err=>errors.push(err.message));
+    const {door}=await preloadDeepRun(page,true);
+    const cell=page.locator('#tile-map .pixel-tile[data-x="'+door.x+'"][data-y="'+door.y+'"]');
+    assert.equal(await cell.locator("img").count(),1);
+    assert.ok((await cell.locator("img").getAttribute("src")).includes("open-void"));
+    await cell.tap();
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.locator("#door-action").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.ok((await cell.locator("img").getAttribute("src")).includes("opaque-timber"));
+    await page.locator("#renderer-toggle").tap();
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("+"));
+    await page.reload();await page.locator("#title-continue").tap();
+    const saved=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(state),turns:state.run.turns};
+    });
+    assert.deepEqual(saved,{valid:true,turns:1});
+    await page.locator("#renderer-toggle").tap();
+    assert.ok((await cell.locator("img").getAttribute("src")).includes("opaque-timber"));
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

@@ -1,3 +1,10 @@
+## ART-091C — Interactifs et lieux de Nhal (18 novembre 2026)
+
+- Refonte des 15 sprites 24×24 dans docs/interaction-art.js : 2 portes, 2 coffres, 4 pièges, Arche, faille, secret, 4 marqueurs de sites.
+- États discernables par silhouette : passage noir vs panneau opaque, couvercle scellé vs relevé, indices vs pointes exposées vs neutralisation vs mécanisme usé.
+- Moteur, combats, visibilité, sauvegardes, ASCII et états de donjon inchangés ; nouveau module précaché PWA.
+- Tests SVG/Node et Chromium tactile, conservation de la QA Android 13 et APK ; ART-091D reste en attente.
+
 ## ART-091B — Trois silhouettes ennemies Sprite C (2026-11-18)
 
 - Charognard à corps bas et bec osseux, Gardien déchu de pierre et masse imposante, Larve de faille horizontale et segmentée ; trois nouveaux SVG originaux 24×24.

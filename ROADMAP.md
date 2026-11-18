@@ -37,6 +37,8 @@
 
 **ART-091B — Silhouettes ennemies Sprite C intégrées en prototype** : Charognard bas à bec osseux et griffes, Gardien déchu massif et cuirassé, Larve de faille segmentée horizontale. Trois SVG 24×24 isolés dans `docs/enemy-art.js` ; tous les indicateurs de danger, PV, intentions, brouillard et mode ASCII restent conservés. [Contrat d'implémentation et QA](docs/ART091B_IMPLEMENTATION.md). La validation esthétique sur téléphone physique reste ouverte. **ART-091C** (interactifs et lieux) puis **ART-091D** (PNJ/objets) demeurent les deux prochains lots graphiques.
 
+**ART-091C — Interactifs et lieux Sprite C développés** : 15 SVG originaux de 24×24 dans docs/interaction-art.js, portes ouvertes/fermées, coffres, quatre états de pièges, Arche/faille, secret révélé et salles de Nhal (atelier, Écho, cache, site résolu). Compatibilité sauvegardes, ASCII, brouillard et fonctionnement hors ligne. [Contrat et recette ART-091C](docs/ART091C_IMPLEMENTATION.md). Validation visuelle sur Android physique encore ouverte. **ART-091D** (PNJ et objets du refuge, icônes du sac) est le prochain lot, sans ajout de nouvelles mécaniques.
+
 ## Priorité UI Android — DEV-090
 
 **DEV-090A livré et fusionné (PR #13, 18 novembre 2026)** : le terrain, le pavé directionnel, l'attente et les soins sont regroupés ; quatre raccourcis de navigation sans tour et une légende pliable réduisent le défilement sur Android. CI : **220/220 tests moteur, 16/16 tests Chromium mobile, Chrome Android 13 et APK réussis**. Recette sur appareil physique encore à confirmer.

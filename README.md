@@ -9,7 +9,7 @@ ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il
 
 ## Direction artistique approuvée — Sprite C
 
-**Validation utilisateur du 18 novembre 2026 :** [Sprite C, PJ encapuchonné](docs/ART_DIRECTION_SPRITE_C_V1.md) est la référence artistique de production pour le héros, les PNJ, les trois ennemis et les assets. Les lots graphiques sont déployés progressivement : **ART-091A** a intégré le héros encapuchonné dans les quatre orientations ; **ART-091B** intègre les silhouettes du Charognard, du Gardien déchu et de la Larve de faille, avec [spécification et recette Android](docs/ART091B_IMPLEMENTATION.md). **ART-091C** (interactifs et lieux) puis **ART-091D** (PNJ et objets) restent à réaliser. L'ensemble de la planche n'est pas encore intégré.
+**Validation utilisateur du 18 novembre 2026 :** [Sprite C, PJ encapuchonné](docs/ART_DIRECTION_SPRITE_C_V1.md) est la référence artistique de production pour le héros, les PNJ, les trois ennemis et les assets. Les lots graphiques sont déployés progressivement : **ART-091A** a intégré le héros encapuchonné dans les quatre orientations ; **ART-091B** intègre les silhouettes du Charognard, du Gardien déchu et de la Larve de faille, avec [spécification et recette Android](docs/ART091B_IMPLEMENTATION.md). **ART-091C** intègre également 15 sprites d'interactifs et de lieux (portes, coffres, pièges, Arche, faille, secret et sites), documentés dans [ART-091C](docs/ART091C_IMPLEMENTATION.md) ; **ART-091D** (PNJ et objets) reste à réaliser. L'ensemble de la planche n'est pas encore intégré.
 
 ## Exploration profonde — DEV-080 à DEV-088 intégrés
 

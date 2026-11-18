@@ -52,7 +52,7 @@
 .pixel-map{border-color:#69817d;box-shadow:0 0 0 1px #c2d1b320,0 6px 22px #0008}
 .pixel-tile{background-color:#202c33}
 .tile-hero{z-index:2}
-.tile-hero:before{content:"";position:absolute;inset:0;border:2px solid #e7efd0;box-shadow:inset 0 0 0 1px #17272a;pointer-events:none}
+/* PJ Sprite C : aucun cadre, contour ni halo sur la case du héros. */
 .hostile-tile{z-index:2}
 .hostile-tile:before{content:"";position:absolute;inset:1px;border:1px solid #f1aa78;pointer-events:none}
 .tile-guardian:before{border-color:#cadde3}

@@ -1,0 +1,253 @@
+/* UI-092A — Android-first expedition view. Scoped to an ACTIVE run.
+ * Refuge, title, desktop, underlying engine and existing screen-reader labels
+ * intentionally retain their established layout and behavior. */
+@media(max-width:730px){
+  .frame.is-expedition{
+    --ui092-dock-height:185px;
+    max-width:none;width:100%;min-height:100dvh;
+    margin:0;padding:0;background:#0b1017;
+  }
+  .frame.is-expedition .masthead,
+  .frame.is-expedition .hero-bar,
+  .frame.is-expedition .panel-aside,
+  .frame.is-expedition>footer{display:none}
+  .frame.is-expedition main{display:block;width:100%;margin:0;padding:0}
+  .frame.is-expedition #warning{margin:4px 8px}
+  .frame.is-expedition #expedition{
+    position:relative;min-height:100dvh;max-width:100%;
+    margin:0;padding:8px 8px calc(var(--ui092-dock-height) + 38px);
+    border:0;border-radius:0;box-shadow:none;
+    background:radial-gradient(ellipse at 45% 15%,#252032 0%,#101923 32%,#090f18 78%);
+  }
+  .frame.is-expedition #expedition>.section-head{
+    display:flex;justify-content:space-between;align-items:center;
+    min-height:30px;margin:0 3px 5px;padding:0 3px;gap:7px;
+  }
+  .frame.is-expedition #expedition>.section-head .eyebrow{
+    font-size:9px;letter-spacing:.045em;color:#b7a3b9;
+  }
+  .frame.is-expedition #expedition>.section-head h2{
+    margin:0;font:700 16px/1.2 Georgia,serif;color:#e6dfdc;
+    letter-spacing:.015em;
+  }
+  .frame.is-expedition #expedition .run-bar{
+    display:flex;justify-content:space-around;align-items:center;
+    gap:4px;margin:0 0 5px;padding:5px 6px;
+    border:1px solid #54485d;border-radius:7px;background:#1a1d29;
+    font:700 10px/1.35 ui-monospace,monospace;
+  }
+  .frame.is-expedition #expedition .run-bar span{white-space:nowrap}
+  .frame.is-expedition #expedition .run-bar strong{
+    margin-left:3px;color:#f0e7d5;font-size:11px;
+  }
+  .frame.is-expedition .expedition-shortcuts{
+    position:sticky;top:0;z-index:35;
+    display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
+    gap:4px;margin:0 0 7px;padding:5px 3px;
+    border:1px solid #554664;border-radius:8px;
+    background:#151722f5;box-shadow:0 4px 12px #02040acc;
+  }
+  .frame.is-expedition .expedition-shortcuts button{
+    display:flex;align-items:center;justify-content:center;
+    min-width:0;min-height:44px;
+    margin:0;padding:5px 1px;
+    border:1px solid #5e5669;border-radius:7px;
+    background:#282333;color:#e3dfe1;
+    font:700 clamp(9px,2.65vw,12px)/1.1 system-ui,sans-serif;
+    overflow-wrap:anywhere;
+  }
+  .frame.is-expedition .expedition-shortcuts button.is-active{
+    color:#fff1d8;border-color:#bc94d0;background:#4c345d;
+  }
+  .frame.is-expedition .expedition-shortcuts button[data-available="false"]{
+    border-color:#3d4049;color:#8c9296;
+  }
+  .frame.is-expedition .survival-hud{
+    display:grid;grid-template-columns:minmax(0,1fr);
+    gap:3px;margin:0 0 6px;padding:6px 9px;
+    border:1px solid #4a5057;border-radius:8px;background:#151e28;
+  }
+  .frame.is-expedition .survival-hud .health-header,
+  .frame.is-expedition .survival-hud .endurance-header{
+    min-width:0;display:flex;gap:5px;justify-content:space-between;
+    font:700 10px/1.25 ui-monospace,monospace;
+  }
+  .frame.is-expedition .survival-hud .endurance-header{margin:3px 0 0}
+  .frame.is-expedition .survival-hud .endurance-header small{
+    font:400 9px/1.25 system-ui,sans-serif;color:#a4b4af;
+  }
+  .frame.is-expedition #health-meter,
+  .frame.is-expedition #endurance-meter{
+    display:block;width:100%;height:7px;min-height:7px;
+    margin:1px 0;max-width:none;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap{
+    margin:0;border:1px solid #594e64;border-radius:12px;
+    padding:5px 4px 9px;background:#070b12;
+    box-shadow:inset 0 0 0 1px #251d30,0 5px 18px #0008;
+    overflow-x:hidden;
+  }
+  .frame.is-expedition .render-controls{
+    margin:0 auto;padding:0 5px 5px;max-width:430px;min-height:29px;
+  }
+  .frame.is-expedition .render-controls span{
+    font-size:9px;color:#d6bca4;letter-spacing:.09em;
+  }
+  .frame.is-expedition .render-controls button{
+    min-height:34px;padding:6px 10px;margin:0;
+    background:#32283c;border-color:#796487;color:#e9dce9;
+    font:700 11px/1.2 system-ui,sans-serif;
+  }
+  .frame.is-expedition .pixel-map{
+    width:min(100%,42dvh,430px);
+    border:2px solid #76637a;
+    background:#101920;border-radius:5px;
+    box-shadow:0 0 0 1px #b7a0b51c,0 6px 20px #000a;
+  }
+  .frame.is-expedition #dungeon-map{
+    font-size:clamp(14px,4.5vw,19px);
+    line-height:1.4;letter-spacing:.035em;
+    max-width:100%;overflow-x:auto;
+  }
+  .frame.is-expedition .map-legend-details{
+    margin:5px auto 0;padding:2px 4px;
+    max-width:430px;border-color:#453b4d;
+  }
+  .frame.is-expedition .map-legend-details summary{
+    min-height:29px;padding:5px;font-size:11px;color:#bfb2bd;
+  }
+  /* Keep both movement AND emergency healing visible at screen bottom. */
+  .frame.is-expedition #field-controls{
+    position:fixed;z-index:75;
+    left:50%;right:auto;bottom:0;
+    transform:translateX(-50%);
+    width:min(100%,460px);max-width:none;
+    margin:0;padding:7px 9px calc(8px + env(safe-area-inset-bottom));
+    border:1px solid #806a87;border-bottom:0;
+    border-radius:14px 14px 0 0;
+    background:linear-gradient(165deg,#282034,#161d28 65%,#111b24);
+    box-shadow:0 -7px 24px #010309d9;
+  }
+  .frame.is-expedition .field-controls-heading{display:none}
+  .frame.is-expedition .field-controls-row{
+    display:grid;
+    grid-template-columns:minmax(0,1.03fr) minmax(0,.84fr);
+    align-items:center;gap:9px;
+  }
+  .frame.is-expedition .field-controls .dpad{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-rows:repeat(3,44px);
+    width:100%;max-width:180px;gap:4px;margin:0 auto;
+  }
+  .frame.is-expedition .field-controls .dpad button{
+    min-height:44px;padding:0;
+    border:1px solid #967da5;border-radius:8px;
+    background:#352943;color:#f5e9ed;font-size:23px;
+  }
+  .frame.is-expedition .field-controls .dpad button:active{
+    background:#56406e;
+  }
+  .frame.is-expedition .field-controls .dpad .wait{
+    border-color:#b79c74;background:#43352f;color:#f1deb5;
+  }
+  .frame.is-expedition .field-quick-actions{
+    display:flex;flex-direction:column;min-width:0;gap:5px;
+  }
+  .frame.is-expedition .field-quick-actions .field-quick-label{
+    display:block;color:#d7c5c9;font-size:10px;
+  }
+  .frame.is-expedition .field-quick-actions button{
+    display:block;min-width:0;min-height:50px;
+    padding:6px 4px;border-radius:8px;
+    background:#343340;border-color:#81758e;
+    color:#e9efe6;font:700 11px/1.2 system-ui,sans-serif;
+  }
+  .frame.is-expedition .field-quick-actions small{display:none}
+  /* Modal-like bottom context sheet only when a user asks for it. Other
+     panels remain in document flow and keep their original buttons/listeners. */
+  .frame.is-expedition .ui092-sheet{
+    position:fixed;z-index:68;
+    bottom:calc(var(--ui092-dock-height) - 1px);
+    left:50%;right:auto;
+    transform:translateX(-50%);
+    width:min(100%,460px);max-height:min(49dvh,410px);
+    margin:0;
+    display:flex;flex-direction:column;
+    border:1px solid #967b9f;border-radius:13px 13px 0 0;
+    background:linear-gradient(160deg,#231e2f,#141e28);
+    box-shadow:0 -8px 28px #000d;
+  }
+  .frame.is-expedition .ui092-sheet-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:8px;padding:6px 10px;
+    flex:none;border-bottom:1px solid #605268;
+  }
+  .frame.is-expedition .ui092-sheet-head strong{
+    color:#efe4dd;font:800 11px/1.3 ui-monospace,monospace;
+    letter-spacing:.07em;
+  }
+  .frame.is-expedition #ui092-sheet-close{
+    min-width:78px;min-height:44px;
+    padding:7px 9px;background:#49384c;color:#f1e4e7;
+    border:1px solid #957d95;border-radius:7px;
+    font:700 11px/1.2 system-ui,sans-serif;
+  }
+  .frame.is-expedition .ui092-sheet-body{
+    min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    padding:5px 9px 10px;
+  }
+  .frame.is-expedition .ui092-sheet-body>.combat-dock,
+  .frame.is-expedition .ui092-sheet-body>.interaction-dock,
+  .frame.is-expedition .ui092-sheet-body>.bag-panel,
+  .frame.is-expedition .ui092-sheet-body>.expedition-report,
+  .frame.is-expedition .ui092-sheet-body>.history-panel{
+    max-width:none;width:100%;margin:0;
+  }
+  .frame.is-expedition .ui092-sheet-body>.combat-dock,
+  .frame.is-expedition .ui092-sheet-body>.interaction-dock{
+    border:0;box-shadow:none;padding:5px;
+    background:transparent;
+  }
+  .frame.is-expedition .ui092-sheet-body .tactic-actions button{
+    min-height:50px;
+  }
+  .frame.is-expedition #expedition .actor-stats-sheet,
+  .frame.is-expedition #expedition .route-hint,
+  .frame.is-expedition #expedition .inspect-panel{
+    max-width:430px;margin-inline:auto;
+  }
+  .frame.is-expedition #expedition .notice{max-width:430px;margin-inline:auto}
+  .frame.is-expedition .combat-dock,
+  .frame.is-expedition .interaction-dock,
+  .frame.is-expedition .bag-panel,
+  .frame.is-expedition .expedition-report{scroll-margin-top:64px;scroll-margin-bottom:calc(var(--ui092-dock-height) + 10px)}
+}
+@media(max-width:350px){
+  .frame.is-expedition .expedition-shortcuts{gap:2px}
+  .frame.is-expedition .expedition-shortcuts button{font-size:9px;padding-inline:0}
+  .frame.is-expedition #expedition{padding-inline:5px}
+  .frame.is-expedition #field-controls{padding-inline:6px}
+  .frame.is-expedition .field-controls-row{gap:6px}
+}
+@media(min-width:731px){
+  .ui092-sheet[hidden]{display:none}
+}
+
+
+/* UI-092A — Options remain reachable from the mobile expedition menu.
+ * The desktop aside is hidden only when it is outside the open sheet. */
+.ui092-menu-toggle{display:none}
+@media(max-width:730px){
+  .frame.is-expedition #jump-menu{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:78px;min-height:44px;margin:0;padding:6px 9px;
+    border:1px solid #88768d;border-radius:8px;background:#30283a;
+    color:#e8dfdf;font:700 11px/1.2 system-ui,sans-serif;
+  }
+  .frame.is-expedition .ui092-sheet-body>.panel-aside{
+    display:block!important;max-width:none;width:100%;
+    margin:0;padding:10px;border:0;box-shadow:none;
+    background:transparent;
+  }
+  .frame.is-expedition .ui092-sheet-body>.panel-aside h2{font-size:18px}
+}

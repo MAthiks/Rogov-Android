@@ -1103,8 +1103,8 @@ test("DEV-090A mobile cockpit: map touches controls, shortcuts cost no turns and
     });
     assert.equal(geometry.visible,true);
     assert.ok(geometry.mapBottom<=geometry.controlTop&&
-      geometry.controlTop-geometry.mapBottom<42,
-      "movement controls must immediately follow the visible map");
+      geometry.controlTop-geometry.mapBottom<140,
+      "UI-092A: map and fixed controls share the first mobile viewport");
     assert.ok(geometry.dpadWithin&&geometry.healingWithin);
     assert.ok(geometry.navHeight>=42);
     assert.ok(geometry.scroll<=geometry.width+1,
@@ -1200,12 +1200,14 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
     const placement=await page.evaluate(()=>{
       const field=document.getElementById("field-controls").getBoundingClientRect();
       const dock=document.getElementById("combat-dock").getBoundingClientRect();
-      return {gap:dock.top-field.bottom,
+      const map=document.getElementById("tile-map").getBoundingClientRect();
+      return {dockAfterMap:dock.top>=map.bottom-1,
+        fixedAtBottom:Math.abs(field.bottom-window.innerHeight)<=2,
         width:document.documentElement.clientWidth,
         overflow:document.documentElement.scrollWidth};
     });
-    assert.ok(placement.gap>=0&&placement.gap<32,
-      "combat appears immediately after movement and first aid");
+    assert.ok(placement.dockAfterMap&&placement.fixedAtBottom,
+      "UI-092A: tactical dock remains in DOM and movement stays anchored");
     assert.ok(placement.overflow<=placement.width+1);
     assert.equal(await page.locator("#combat-panel").isHidden(),true,
       "combat actions require explicit target choice");
@@ -1261,13 +1263,16 @@ test("DEV-090C mobile: nearby doors surface in the action dock without spending 
       const controls=document.getElementById("field-controls").getBoundingClientRect();
       const action=document.getElementById("interaction-dock").getBoundingClientRect();
       const combat=document.getElementById("combat-dock");
+      const map=document.getElementById("tile-map").getBoundingClientRect();
       return {controlEnd:controls.bottom,actionTop:action.top,
+        mapBottom:map.bottom,viewHeight:window.innerHeight,
         combatHidden:combat.hidden,overflow:document.documentElement.scrollWidth,
         width:document.documentElement.clientWidth};
     });
     assert.equal(coordinates.combatHidden,true);
-    assert.ok(coordinates.actionTop-coordinates.controlEnd>=0&&
-      coordinates.actionTop-coordinates.controlEnd<42);
+    assert.ok(coordinates.actionTop>=coordinates.mapBottom-1&&
+      Math.abs(coordinates.controlEnd-coordinates.viewHeight)<=2,
+      "UI-092A: interactions remain accessible while the D-pad is fixed");
     assert.ok(coordinates.overflow<=coordinates.width+1);
     const before=await page.locator("#turns").textContent();
     await page.locator("#jump-action").tap();
@@ -1823,6 +1828,144 @@ test("ART-091D mobile: pictogram selection, bag, ASCII and save resume keep game
         carried:saved.run.carried["weapon.rusty_sword"]};
     });
     assert.deepEqual(restored,{valid:true,turns:0,carried:1});
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+
+test("UI-092A mobile: immersive screen gives map, HUD, navigation and fixed movement first-view priority", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const metrics=await page.evaluate(()=>{
+      const rect=id=>document.getElementById(id).getBoundingClientRect();
+      const m=rect("tile-map"),f=rect("field-controls"),nav=rect("expedition-shortcuts");
+      const hud=rect("health-meter");
+      return {map:m.toJSON(),field:f.toJSON(),nav:nav.toJSON(),hud:hud.toJSON(),
+        viewport:window.innerHeight,width:document.documentElement.clientWidth,
+        scrollWidth:document.documentElement.scrollWidth,
+        heroSize:document.querySelector(".tile-hero img")?.getBoundingClientRect().width,
+        headerHidden:getComputedStyle(document.querySelector(".masthead")).display==="none",
+        tabCount:document.querySelectorAll("#expedition-shortcuts button").length,
+        dockPosition:getComputedStyle(document.getElementById("field-controls")).position};
+    });
+    assert.equal(metrics.headerHidden,true,"Old desktop header must not displace the map");
+    assert.equal(metrics.tabCount,6);
+    assert.equal(metrics.dockPosition,"fixed");
+    assert.ok(Math.abs(metrics.field.bottom-metrics.viewport)<=2);
+    assert.ok(metrics.map.top<metrics.field.top);
+    assert.ok(metrics.map.bottom<=metrics.field.top+1,
+      "The visible 11×11 graphic map must not be covered by controls");
+    assert.ok(metrics.map.height>=245&&metrics.heroSize>=18,
+      "The game map remains useful at actual Android portrait scale");
+    assert.ok(metrics.nav.top>=0&&metrics.nav.bottom<metrics.map.top);
+    assert.ok(metrics.hud.top>=0&&metrics.hud.bottom<=metrics.map.top);
+    assert.ok(metrics.scrollWidth<=metrics.width+1,"No horizontal overflow");
+    for(const id of ["wait-btn","use-bandage","use-tonic"]){
+      const box=await page.locator("#"+id).boundingBox();
+      assert.ok(box.y>=metrics.field.top-1&&box.y+box.height<=metrics.viewport+1);
+      assert.ok(box.height>=44);
+    }
+    const before=await page.locator("#turns").textContent();
+    await page.locator("#wait-btn").tap();
+    assert.equal(await page.locator("#turns").textContent(),String(Number(before)+1));
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    assert.ok(await page.locator("#field-controls").isVisible());
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#turns").textContent(),String(Number(before)+1));
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("UI-092A mobile: contextual sheets reuse real doors, bag, journal and report without turns", {timeout:65000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page,true);
+    const sheet=page.locator("#ui092-sheet"),mount=page.locator("#ui092-sheet-body");
+    assert.equal(await sheet.isHidden(),true);
+    await page.locator("#jump-action").tap();
+    assert.equal(await sheet.isVisible(),true);
+    assert.equal(await mount.locator("#interaction-dock").count(),1);
+    assert.equal(await page.locator("#jump-action").getAttribute("aria-expanded"),"true");
+    const before=await page.locator("#turns").textContent();
+    await page.locator("#door-select").tap();
+    assert.equal(await page.locator("#turns").textContent(),before);
+    await page.locator("#door-action").tap();
+    assert.equal(await page.locator("#turns").textContent(),String(Number(before)+1));
+    await page.locator("#jump-bag").tap();
+    assert.equal(await mount.locator("#bag-panel").count(),1);
+    assert.equal(await mount.locator("#interaction-dock").count(),0);
+    assert.equal(await page.locator("#bag-panel").evaluate(e=>e.open),true);
+    await page.locator("#jump-report").tap();
+    assert.equal(await mount.locator("#expedition-report").count(),1);
+    assert.equal(await page.locator("#expedition-report").evaluate(e=>e.open),true);
+    await page.locator("#jump-journal").tap();
+    assert.equal(await mount.locator("#history-details").count(),1);
+    await page.locator("#ui092-sheet-close").tap();
+    assert.equal(await sheet.isHidden(),true);
+    assert.equal(await mount.locator("#history-details").count(),0);
+    assert.equal(await page.locator("#run-log-slot #history-details").count(),1,
+      "Existing journal returns to its original DOM position");
+    const after=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(s),turns:s.run.turns,
+        doorClosed:s.run.doors.some(d=>!d.open)};
+    });
+    assert.equal(after.valid,true);
+    assert.equal(after.turns,1);
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("UI-092A mobile: combat sheet keeps targeting and active tactical defenses intact", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js"),fog=await import("./exploration-visibility.js");
+      const s=game.newGame();s.meta.descents=1;
+      const state=game.beginRun(s).state;
+      const foe=state.run.enemies[0];
+      const adjacent=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>
+        ({x:foe.x+dx,y:foe.y+dy})).find(p=>state.run.map[p.y]?.[p.x]==="." &&
+          !state.run.enemies.some(e=>e.x===p.x&&e.y===p.y));
+      if(!adjacent)throw Error("No legal fighter start");
+      state.run.x=adjacent.x;state.run.y=adjacent.y;
+      state.run.enemies=[foe];fog.revealAround(state.run);
+      if(!game.validateSave(state))throw Error("Invalid tactical save");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#combat-dock").isVisible(),true);
+    const mapCount=await page.locator("#tile-map .pixel-tile").count();
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#ui092-sheet-body #combat-dock").count(),1);
+    await page.locator("#target-choices button").first().tap();
+    assert.equal(await page.locator("#combat-panel").isVisible(),true);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.locator("#combat-dodge").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),mapCount);
+    await page.locator("#jump-map").tap();
+    assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+    assert.equal(await page.locator("#combat-dock").count(),1);
+    const restored=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(state),turns:state.run.turns};
+    });
+    assert.deepEqual(restored,{valid:true,turns:1});
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });

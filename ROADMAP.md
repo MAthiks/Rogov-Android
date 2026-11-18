@@ -1,8 +1,12 @@
 # Roadmap ROGOV — état du 18 novembre 2026
 
+## UI-092A — descente plein écran mobile (prototype)
+
+**UI-092A** est le premier lot de la maquette UI v2 : carte centrale, HUD compact, commandes/déplacement/soins toujours disponibles en bas, six raccourcis de consultation et panneaux contextuels en tiroirs (sans duplication de commandes). [Document d'intégration et QA](docs/UI092A_ANDROID_COCKPIT.md). **Le gameplay et les sauvegardes restent inchangés** ; validation CI et recette sur Android physique nécessaires avant approbation visuelle. Les lots **UI-092B** (Refuge), **UI-092C** (inventaire), **UI-092D** (personnage et navigation) restent séparés.
+
 ## UI v2 — maquette de refonte Android enregistrée (conception)
 
-La [maquette de l'interface ROGOV v2](docs/UI_V2_MAQUETTE_V1.md) propose quatre écrans (Refuge de Veyr, descente Nhal, inventaire, personnage) avec HUD et pavé tactile fixes en descente, palette dark fantasy Sprite C et navigation sans longs défilements. **Statut : sauvegardé comme référence de conception ; non implémenté.** Les chiffres, objets et actions non présents dans le moteur sont illustratifs. Priorités proposées : **UI-092A** (HUD et descente), **UI-092B** (refuge), **UI-092C** (inventaire), **UI-092D** (personnage et navigation) ; DEV-090D et QA mobile seront réarticulés avec ces lots. Préserver ASCII, sauvegardes, mécanismes, PWA hors ligne et compatibilité Android. L'image de la maquette est fournie dans la conversation ; son original binaire n'est pas encore archivé dans ce dépôt.
+La [maquette de l'interface ROGOV v2](docs/UI_V2_MAQUETTE_V1.md) propose quatre écrans (Refuge de Veyr, descente Nhal, inventaire, personnage) avec HUD et pavé tactile fixes en descente, palette dark fantasy Sprite C et navigation sans longs défilements. **Statut : référence de conception ; première tranche UI-092A développée.** Les chiffres, objets et actions non présents dans le moteur sont illustratifs. Priorités proposées : **UI-092A** (HUD et descente), **UI-092B** (refuge), **UI-092C** (inventaire), **UI-092D** (personnage et navigation) ; DEV-090D et QA mobile seront réarticulés avec ces lots. Préserver ASCII, sauvegardes, mécanismes, PWA hors ligne et compatibilité Android. L'image de la maquette est fournie dans la conversation ; son original binaire n'est pas encore archivé dans ce dépôt.
 
 ## Produit prioritaire : Web HTML/PWA pour Android
 

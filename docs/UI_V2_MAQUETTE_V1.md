@@ -1,7 +1,7 @@
 # ROGOV — Maquette d'interface v2 (checkpoint de conception)
 
 **Date :** 18 novembre 2026.
-**Statut :** proposition de maquette retenue comme référence de travail, **non développée**.
+**Statut :** référence de maquette ; le lot **UI-092A** (descente / HUD / pavé fixe / tiroirs) est maintenant développé. Les écrans UI-092B/C/D ne le sont pas.
 **Référence visuelle :** image « Proposition de nouvelle interface — Direction UI v2 (Sprite C) », générée dans la conversation du projet *Rogue first build* et remise séparément au format PNG (1536 × 1024). L'image bitmap n'est **pas** encore importée dans ce dépôt ; ce document consigne les décisions et permet de reprendre le chantier.
 **Dépendances graphiques existantes :** ART-091A à ART-091D (Sprite C, personnages, monstres, interactifs, icônes) ; conserver leur identité.
 
@@ -63,13 +63,13 @@ Passer de l'interface Web à longs panneaux verticaux à une interface de **jeu 
 
 ## Plan de réalisation proposé, non commencé
 
-1. **UI-092A — Descente et HUD** : vraie vue mobile presque plein écran, carte prioritaire, contrôles bas, actions/contextes dans tiroirs ; garder les actions réelles et les tours.
+1. **UI-092A — Descente et HUD** : **implémenté en prototype** ([contrat](UI092A_ANDROID_COCKPIT.md)) ; carte prioritaire, contrôles bas et tiroirs sans nouvelle action de jeu.
 2. **UI-092B — Refuge** : hub compact, accès préparation, forge et coffre, sans inventer de PNJ actifs.
 3. **UI-092C — Inventaire** : coffre/sac distincts, filtres et pictogrammes, sélection et quantité intactes.
 4. **UI-092D — Personnage / navigation** : fiche existante, cohérence des barres, navigation, réglages ASCII et accessibilité.
 5. **QA UI v2** : Node, Chromium tactile, Android Chrome 13, install APK, PWA offline et contrôle sur téléphone physique.
 
-**Règle de production :** une étape isolée, tests automatisés et revue de la lisibilité, puis fusion. Cette sauvegarde **n'implémente pas** la nouvelle interface : elle fige seulement sa direction de travail, pas un cahier des charges verrouillé au pixel près.
+**Règle de production :** une étape isolée, tests automatisés et revue de la lisibilité, puis fusion. La sauvegarde initiale était un checkpoint de conception ; UI-092A constitue désormais sa première implémentation sans verrouiller les écrans UI-092B/C/D.
 
 ## Traçabilité
 

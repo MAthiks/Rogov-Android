@@ -1,4 +1,4 @@
-const CACHE_NAME = "rogov-v0.7f-ui092a-cockpit";
+const CACHE_NAME = "rogov-v0.7f-ui092a-hero-clean";
 const CORE = [
   "./", "./index.html", "./style.css?v=0.7f", "./ui092.css?v=1", "./app.js?v=0.7f", "./ui092.js", "./game.js", "./tiles.js", "./hero-art.js", "./enemy-art.js", "./interaction-art.js", "./veyr-art.js", "./terrain-art.js", "./combat.js", "./stats.js", "./combat-rules.js", "./enemy-ai.js", "./dungeon.js", "./deep-dungeon.js", "./deep-topology.js", "./exploration-visibility.js", "./secrets.js", "./traps.js", "./room-events.js", "./expedition-report.js", "./economy.js",
   "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./title-scene.webp"

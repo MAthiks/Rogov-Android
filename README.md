@@ -7,6 +7,10 @@ Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-An
 
 ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il conjugue exploration au tour par tour, combat, équipement à risque, extraction et horreur cosmique originale.
 
+## Maquette UI v2 — conception sauvegardée
+
+[Lire le checkpoint de refonte Android](docs/UI_V2_MAQUETTE_V1.md) : quatre écrans, HUD de descente compact, inventaire et fiche personnage séparés. **Maquette uniquement, non implémentée** ; préserver le jeu existant, l'ASCII, les sauvegardes et le mode hors ligne.
+
 ## Direction artistique approuvée — Sprite C
 
 **Validation utilisateur du 18 novembre 2026 :** [Sprite C, PJ encapuchonné](docs/ART_DIRECTION_SPRITE_C_V1.md) est la référence artistique de production pour le héros, les PNJ, les trois ennemis et les assets. Les lots graphiques sont déployés progressivement : **ART-091A** a intégré le héros encapuchonné dans les quatre orientations ; **ART-091B** intègre les silhouettes du Charognard, du Gardien déchu et de la Larve de faille, avec [spécification et recette Android](docs/ART091B_IMPLEMENTATION.md). **ART-091C** intègre également 15 sprites d'interactifs et de lieux (portes, coffres, pièges, Arche, faille, secret et sites), documentés dans [ART-091C](docs/ART091C_IMPLEMENTATION.md) ; **ART-091D** intègre désormais cinq icônes d'inventaire dans le coffre et le sac, plus une galerie repliable de trois **concepts** de PNJ de Veyr (aucun dialogue ni PNJ actif), documentés dans [ART-091D](docs/ART091D_IMPLEMENTATION.md). **Les quatre lots Sprite C sont intégrés techniquement** ; la recette esthétique sur téléphone Android physique reste ouverte.

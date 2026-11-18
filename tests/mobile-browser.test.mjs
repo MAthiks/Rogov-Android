@@ -44,7 +44,8 @@ before(async () => {
   });
   await new Promise((ok,fail) => server.once("error",fail).listen(0,"127.0.0.1",ok));
   origin = "http://127.0.0.1:" + server.address().port + "/";
-  browser = await chromium.launch({headless:true, args:["--no-sandbox"]});
+  browser = await chromium.launch({headless:true, args:["--no-sandbox"],
+    ...(process.env.ROGOV_USE_SYSTEM_CHROME==="1"?{channel:"chrome"}:{})});
 });
 
 after(async () => {
@@ -258,4 +259,411 @@ test("DEV-081 mobile: fog hides unseen enemies from DOM, target panel, ASCII and
     assert.equal(unknown.kind,"unknown");
     assert.deepEqual(errors,[]);
   } finally {await context.close();}
+});
+
+
+test("DEV-082 mobile: visible clue, deliberate one-turn search, opened cache and saved one-off loot", {timeout:45000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage();
+    const errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    await page.goto(origin);
+    const scenario=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const source=game.newGame();source.meta.descents=1;
+      const state=game.beginRun(source).state;
+      state.run.enemies=[];
+      const secret=state.run.secrets[0];
+      state.run.x=secret.clue.x;state.run.y=secret.clue.y;
+      if(!game.validateSave(state))throw Error("Invalid new secret save");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {secret,from:{x:secret.clue.x,y:secret.clue.y}};
+    });
+    await page.reload();
+    await page.locator("#title-continue").click();
+    await page.locator("#secret-clue").waitFor({state:"visible"});
+    assert.equal(await page.locator("#secret-search").isEnabled(),true);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    assert.ok((await page.locator("#secret-clue").textContent()).length>30);
+    const prior=await page.evaluate(async ({secret})=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return game.inspectTile(s,secret.x,secret.y).kind;
+    },scenario);
+    assert.equal(prior,"wall","undiscovered secret must look like a wall");
+    await page.locator("#secret-search").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.equal(await page.locator("#secret-clue").isHidden(),true);
+    assert.ok(await page.locator("#tile-map .tile-secret_open").count()>0);
+    const persisted=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(persisted.run.secrets[0].revealed,true);
+    assert.equal(persisted.run.secrets[0].claimed,false);
+    assert.equal(persisted.run.map[scenario.secret.y][scenario.secret.x],".");
+    await page.locator("#renderer-toggle").tap();
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("?"));
+    await page.reload();await page.locator("#title-continue").click();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("?"));
+    const deltaX=scenario.secret.x-scenario.from.x;
+    const deltaY=scenario.secret.y-scenario.from.y;
+    const dir=deltaX===1?"right":deltaX===-1?"left":deltaY===1?"down":"up";
+    await page.locator('[data-direction="'+dir+'"]').tap();
+    assert.equal(await page.locator("#turns").textContent(),"2");
+    const rewarded=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(rewarded.run.secrets[0].claimed,true);
+    assert.equal(rewarded.run.carried["consumable.bandage"],1);
+    assert.equal(rewarded.meta.hero.xp,1);
+    await page.reload();await page.locator("#title-continue").click();
+    const savedAgain=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(savedAgain.run.secrets[0].claimed,true);
+    assert.equal(savedAgain.run.carried["consumable.bandage"],1);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+
+/**
+ * QA-084 vertical slice: genuine touch-control travel from the title screen
+ * through tutorial, deep descent, public loot, clue, search, optional cache,
+ * regular-door interaction, extraction, title return and saved resume.
+ * Only mobile-browser enemies are disabled to isolate pathing/UI from combat:
+ * no teleportation, fast-forwarded turns, debug action dispatch or pre-revealed
+ * secrets. Combat is covered by dedicated tactical suites.
+ */
+test("QA-084 mobile: end-to-end two descents, discovered secret, public extraction and saved loot", {timeout:150000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage();
+    const errors=[];
+    page.on("pageerror",err=>errors.push(err.message));
+    await page.goto(origin);
+    await page.locator("#title-continue").tap();
+    await page.locator('#stash-items input[type="checkbox"]').first().check();
+    await page.locator("#start-btn").tap();
+
+    const saved=()=>page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    const clearOnlyEnemies=async()=>{
+      await page.evaluate(async()=>{
+        const game=await import("./game.js");
+        const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+        if(!state.run)throw Error("No active run for QA scenario");
+        state.run.enemies=[];
+        if(!game.validateSave(state))throw Error("QA scenario save invalid");
+        localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      });
+      await page.reload({waitUntil:"load"});
+      await page.locator("#title-continue").tap();
+    };
+    const directions={"1,0":"right","-1,0":"left","0,1":"down","0,-1":"up"};
+    const routeTo=(destination)=>page.evaluate(async dest=>{
+      const {SAVE_KEY}=await import("./game.js");
+      const {deepRoute}=await import("./deep-dungeon.js");
+      const state=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return deepRoute(state.run.map,{x:state.run.x,y:state.run.y},dest);
+    },destination);
+    const moveOne=async(a,b)=>{
+      const direction=directions[(b.x-a.x)+","+(b.y-a.y)];
+      assert.ok(direction,"Path must use ordinary adjacent tiles");
+      await page.locator('[data-direction="'+direction+'"]').tap();
+      const now=await saved();
+      if(now.run)assert.deepEqual([now.run.x,now.run.y],[b.x,b.y],
+        "Every real UI movement must match its public route");
+      return now;
+    };
+    const walk=async(target,{verifyDoor=false}={})=>{
+      const route=await routeTo(target);
+      assert.ok(route&&route.length>1,
+        "Public route must exist to "+JSON.stringify(target));
+      let visitedDoor=false;
+      for(let i=1;i<route.length;i++){
+        const [a,b]=[route[i-1],route[i]];
+        const state=await saved();
+        assert.ok(state.run,"The player must remain in Nhal until the exit tile");
+        if(verifyDoor&&!visitedDoor&&state.run.map[b.y][b.x]==="+"){
+          const cell=page.locator('#tile-map .pixel-tile[data-x="'+b.x+'"][data-y="'+b.y+'"]');
+          assert.equal(await cell.count(),1,"Adjacent ordinary door must be in the camera");
+          const before=state.run.turns;
+          await cell.tap();
+          assert.equal((await saved()).run.turns,before,"Inspecting a door is free");
+          await page.locator("#door-action").tap();
+          assert.equal((await saved()).run.turns,before+1,"Closing a door costs one turn");
+          await page.locator('[data-direction="'+directions[(b.x-a.x)+","+(b.y-a.y)]+'"]').tap();
+          const blocked=await saved();
+          assert.equal(blocked.run.turns,before+1,"A blocked move must not waste a turn");
+          assert.deepEqual([blocked.run.x,blocked.run.y],[a.x,a.y]);
+          await page.reload({waitUntil:"load"});
+          await page.locator("#title-continue").tap();
+          assert.equal((await saved()).run.doors.find(d=>d.x===b.x&&d.y===b.y).open,
+            false,"The closed door persists after reload");
+          await page.locator("#door-select").tap();
+          assert.match(await page.locator("#door-action").textContent(),/Ouvrir/);
+          await page.locator("#door-action").tap();
+          assert.equal((await saved()).run.turns,before+2,"Reopening costs one turn");
+          visitedDoor=true;
+        }
+        await moveOne(a,b);
+      }
+      return {visitedDoor,steps:route.length-1};
+    };
+
+    // The first descent is the genuine tutorial; its exit must lead to Veyr.
+    let state=await saved();
+    assert.equal(state.meta.descents,1);
+    assert.ok(state.run);
+    await clearOnlyEnemies();
+    state=await saved();
+    const tutorialExit=state.run.map.flatMap((row,y)=>
+      [...row].map((tile,x)=>tile==="E"?{x,y}:null).filter(Boolean))[0];
+    assert.ok(tutorialExit);
+    await walk(tutorialExit);
+    state=await saved();
+    assert.equal(state.run,null,"Tutorial must end in Veyr");
+    assert.equal(state.meta.extractions,1,"Tutorial extraction is recorded");
+    assert.equal(state.meta.stash["weapon.rusty_sword"],1,
+      "Equipment chosen on the title/refuge survives extraction");
+    // The tutorial route may naturally pick up a fragment as well; use this
+    // actual secured balance as the baseline, never assume the stash is empty.
+    const relicBeforeDeep=state.meta.stash["relic.ashen_fragment"]||0;
+
+    // A second normal GUI start is the first deep procedural dungeon.
+    await page.locator('#stash-items input[type="checkbox"]').first().check();
+    await page.locator("#start-btn").tap();
+    await clearOnlyEnemies();
+    state=await saved();
+    assert.equal(state.meta.descents,2);
+    assert.equal(state.run.map.length,32);
+    assert.equal(state.run.map[0].length,44);
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
+    const bounds=await page.evaluate(()=>({
+      page:document.documentElement.scrollWidth,
+      screen:document.documentElement.clientWidth
+    }));
+    assert.ok(bounds.page<=bounds.screen+1,"No portrait horizontal overflow");
+    const clue=state.run.secrets[0].clue;
+    const secret={x:state.run.secrets[0].x,y:state.run.secrets[0].y};
+    assert.equal(state.run.secrets[0].revealed,false);
+    assert.equal(await page.locator("#secret-search").isHidden(),true);
+    const lootPos=Object.entries(state.run.loot)
+      .find(([,id])=>id==="relic.ashen_fragment")?.[0];
+    assert.ok(lootPos);
+    const [lx,ly]=lootPos.split(",").map(Number);
+    const publicLoot=await walk({x:lx,y:ly});
+    assert.ok(publicLoot.steps>5);
+    state=await saved();
+    assert.equal(state.run.carried["relic.ashen_fragment"],1,
+      "Public loot enters the bag by normal movement");
+    assert.equal(state.run.secrets[0].revealed,false,
+      "Public treasure never forces secret discovery");
+
+    const toClue=await walk(clue);
+    assert.ok(toClue.steps>0);
+    state=await saved();
+    assert.equal(await page.locator("#secret-clue").isVisible(),true);
+    assert.equal(await page.locator("#secret-search").isEnabled(),true);
+    const turnBeforeSearch=state.run.turns;
+    const secretCell=page.locator('#tile-map .pixel-tile[data-x="'+secret.x+
+      '"][data-y="'+secret.y+'"]');
+    assert.equal(await secretCell.count(),1);
+    await secretCell.tap();
+    assert.equal((await saved()).run.turns,turnBeforeSearch,
+      "Examining the wall costs no turn");
+    assert.equal(await page.locator("#inspect-title").textContent(),"Mur de pierre");
+    await page.locator("#secret-search").tap();
+    state=await saved();
+    assert.equal(state.run.turns,turnBeforeSearch+1,
+      "A confirmed search costs exactly one turn");
+    assert.equal(state.run.secrets[0].revealed,true);
+    assert.equal(state.run.map[secret.y][secret.x],".");
+    assert.equal(await page.locator("#tile-map .tile-secret_open").count(),1);
+    assert.equal((await page.locator("#exploration-mini-map").textContent())
+      .split("\n")[secret.y][secret.x],"?");
+
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("?"));
+    await page.locator("#renderer-toggle").tap();
+    await moveOne(clue,secret);
+    state=await saved();
+    assert.equal(state.run.secrets[0].claimed,true);
+    assert.equal(state.run.carried["consumable.bandage"],1);
+    const xpAfterCache=state.meta.hero.xp;
+    await moveOne(secret,clue);
+    await moveOne(clue,secret);
+    state=await saved();
+    assert.equal(state.run.carried["consumable.bandage"],1,
+      "Repeated visits never duplicate a secret reward");
+    assert.equal(state.meta.hero.xp,xpAfterCache);
+
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").tap();
+    state=await saved();
+    assert.ok(state.run.secrets[0].claimed);
+    assert.equal(state.run.carried["consumable.bandage"],1);
+    assert.equal(state.run.exploration.seen.length>0,true);
+    assert.equal(state.run.secrets[0].revealed,true);
+    const exit=state.run.exit;
+    const finalPath=await walk(exit,{verifyDoor:true});
+    assert.ok(finalPath.visitedDoor,"Full return route must encounter a real door");
+    state=await saved();
+    assert.equal(state.run,null,"Return to Veyr through the ordinary Arche");
+    assert.equal(state.meta.extractions,2);
+    assert.equal(state.meta.stash["weapon.rusty_sword"],1);
+    assert.equal(state.meta.stash["relic.ashen_fragment"],relicBeforeDeep+1,
+      "A single extra public fragment is secured, never duplicated");
+    assert.equal(state.meta.stash["consumable.bandage"],3,
+      "The hidden cache's single bandage is secured in the permanent stash");
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").tap();
+    const persisted=await saved();
+    assert.equal(persisted.run,null);
+    assert.equal(persisted.meta.extractions,2);
+    assert.equal(persisted.meta.stash["consumable.bandage"],3);
+    assert.equal(persisted.meta.stash["relic.ashen_fragment"],relicBeforeDeep+1);
+    assert.deepEqual(errors,[],"No browser error during both complete journeys");
+    console.log("QA-084 FULL SESSION: tutorial + deep public loot + secret + "+
+      "door + return + persist PASS; UI steps="+
+      (publicLoot.steps+toClue.steps+finalPath.steps+4));
+  }finally{await context.close();}
+});
+
+
+test("QA-084 mobile: active AI charognard fight, public loot, extraction and reload via touch", {timeout:100000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage();
+    const errors=[];
+    page.on("pageerror",err=>errors.push(err.message));
+    await page.goto(origin);
+    const init=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();
+      s.meta.descents=1;
+      const state=game.beginRun(s,["weapon.rusty_sword","consumable.bandage"]).state;
+      if(!game.validateSave(state))throw Error("Invalid original deep run");
+      if(state.run.enemies.length!==3)throw Error("All generated enemies must be present");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {ids:state.run.enemies.map(e=>e.id),
+        targetId:state.run.enemies.find(e=>e.kind==="charognard").id};
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").tap();
+    const state=()=>page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    const delta=(a,b)=>({
+      "1,0":"right","-1,0":"left","0,1":"down","0,-1":"up"
+    })[(b.x-a.x)+","+(b.y-a.y)];
+    const step=async(a,b)=>{
+      const dir=delta(a,b);
+      assert.ok(dir,"Only legitimate 4-direction movements");
+      await page.locator('[data-direction="'+dir+'"]').tap();
+      const next=await state();
+      if(next.run){
+        assert.deepEqual([next.run.x,next.run.y],[b.x,b.y],
+          "The mobile control must perform a real move");
+      }
+      return next;
+    };
+    const plan=async(target,approachEnemy=false)=>page.evaluate(async({target,approachEnemy})=>{
+      const game=await import("./game.js");
+      const {deepRoute}=await import("./deep-dungeon.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const blocked=new Set(s.run.enemies.map(e=>e.x+","+e.y));
+      const origin={x:s.run.x,y:s.run.y};
+      if(approachEnemy){
+        const choices=[[1,0],[-1,0],[0,1],[0,-1]]
+          .map(([dx,dy])=>({x:target.x+dx,y:target.y+dy}))
+          .map(p=>deepRoute(s.run.map,origin,p,blocked))
+          .filter(Boolean).sort((a,b)=>a.length-b.length);
+        return choices[0]||null;
+      }
+      return deepRoute(s.run.map,origin,target,blocked);
+    },{target,approachEnemy});
+    let attacks=0,movements=0;
+    for(let turn=0;turn<100;turn++){
+      const now=await state();
+      assert.ok(now.run,"The live character must not die during encounter");
+      const foe=now.run.enemies.find(e=>e.id===init.targetId);
+      if(!foe)break;
+      const d=Math.abs(now.run.x-foe.x)+Math.abs(now.run.y-foe.y);
+      if(d===1){
+        if(now.run.targetId!==foe.id){
+          await page.locator("#target-choices button")
+            .filter({hasText:"Charognard"}).first().tap();
+        }
+        if(now.run.endurance<1){
+          await page.locator("#wait-btn").tap();
+        }else{
+          const before=(await state()).run.turns;
+          await page.locator("#combat-attack").tap();
+          const after=await state();
+          assert.ok(after.run,"Player survived a real combat round");
+          assert.equal(after.run.turns,before+1);
+          attacks++;
+        }
+      }else{
+        const route=await plan(foe,true);
+        assert.ok(route?.length>=2,"Mobile player can approach the live target");
+        await step(now.run,route[1]);
+        movements++;
+      }
+    }
+    const postFight=await state();
+    assert.ok(postFight.run);
+    assert.ok(attacks>=1,"A real attack is required");
+    assert.ok(!postFight.run.enemies.some(e=>e.id===init.targetId));
+    assert.equal(postFight.run.enemies.length,init.ids.length-1,
+      "The other two original enemies remain alive");
+
+    const lootKey=Object.entries(postFight.run.loot)
+      .find(([,id])=>id==="relic.ashen_fragment")?.[0];
+    assert.ok(lootKey,"Public fragment exists");
+    const [x,y]=lootKey.split(",").map(Number);
+    const walk=async(destination)=>{
+      for(let turn=0;turn<150;turn++){
+        const current=await state();
+        if(!current.run)return current;
+        if(current.run.x===destination.x&&current.run.y===destination.y)return current;
+        const route=await plan(destination);
+        assert.ok(route?.length>=2,"Ordinary route remains available with active enemies");
+        await step(current.run,route[1]);
+        movements++;
+        const next=await state();
+        if(next.run&&next.run.hp<=7&&(next.run.carried["consumable.bandage"]||0)>0)
+          await page.locator("#use-bandage").tap();
+      }
+      assert.fail("Live enemy route timed out");
+    };
+    const withLoot=await walk({x,y});
+    assert.ok(withLoot.run);
+    assert.equal(withLoot.run.carried["relic.ashen_fragment"],1);
+    const afterExit=await walk(withLoot.run.exit);
+    assert.equal(afterExit.run,null);
+    assert.equal(afterExit.meta.extractions,1);
+    assert.equal(afterExit.meta.recalls,0);
+    assert.equal(afterExit.meta.stash["weapon.rusty_sword"],1);
+    assert.equal(afterExit.meta.stash["relic.ashen_fragment"],1);
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").tap();
+    const persisted=await state();
+    assert.equal(persisted.run,null);
+    assert.equal(persisted.meta.stash["relic.ashen_fragment"],1);
+    assert.deepEqual(errors,[]);
+    console.log("QA-084 LIVE MOBILE UI: "+attacks+" attack(s), "+
+      movements+" touch moves, 2 remaining active enemies, extraction PASS");
+  }finally{await context.close();}
 });

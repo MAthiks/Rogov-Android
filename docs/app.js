@@ -1,5 +1,6 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, searchSecret, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
+import { nearbySecretHint } from "./secrets.js";
 import { hasFog,explorationState,visibleCells,minimapText } from "./exploration-visibility.js";
 import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
@@ -359,6 +360,11 @@ function render() {
       ? "Première descente : repère les dangers et l'Arche d'extraction. Tu peux éviter le combat."
       : run.rooms?"Secteur "+state.meta.descents+" : salles et couloirs réels. La caméra suit l'Égaré ; les portes ordinaires se traversent et se manipulent librement.":
       "Secteur historique : routes alternatives préservées. Observe avant de t'engager.";
+    const clue=nearbySecretHint(run,state.meta.hero.attributes?.perception??5);
+    $("secret-clue").hidden=!clue;
+    $("secret-clue").textContent=clue?clue.text+" "+clue.hint:"";
+    $("secret-search").hidden=!clue;
+    $("secret-search").disabled=!clue?.canSearch;
     $("dungeon-map").textContent = mapViewportText(state);
     $("exploration-map-panel").hidden = !hasFog(run);
     $("exploration-mini-map").textContent = hasFog(run)?minimapText(run):"";
@@ -488,6 +494,7 @@ $("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.
 $("use-tonic").addEventListener("click", () => act(useItem(state, "consumable.dusk_tonic")));
 $("target-clear").addEventListener("click", unselectTarget);
 $("door-select").addEventListener("click",selectNextDoor);
+$("secret-search").addEventListener("click",()=>act(searchSecret(state)));
 $("door-action").addEventListener("click",()=>{
   if(selectedDoor)act(toggleDoor(state,selectedDoor.x,selectedDoor.y));
 });

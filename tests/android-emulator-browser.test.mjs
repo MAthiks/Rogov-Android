@@ -240,3 +240,93 @@ test("DEV-081: Android 13 Chrome tests opaque doors, remembered fog, no target l
     await browser.close();
   }
 });
+
+
+test("DEV-082: Android Chrome confirms visible clue, one-turn secret search, one-off loot and offline save", {timeout:115000}, async()=>{
+  const browser=await androidBrowser();
+  let forwarded=true;
+  try{
+    const context=browser.contexts()[0];
+    assert.ok(context);
+    const page=context.pages().find(p=>p.url().includes("127.0.0.1:8765"))||await context.newPage();
+    await page.goto(URL,{waitUntil:"load",timeout:20000});
+    const scenario=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const init=game.newGame();
+      init.meta.descents=1;
+      const state=game.beginRun(init).state;
+      state.run.enemies=[];
+      const secret=state.run.secrets[0];
+      state.run.x=secret.clue.x;
+      state.run.y=secret.clue.y;
+      if(!game.validateSave(state))throw Error("Invalid DEV-082 secret layout");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {x:secret.x,y:secret.y,clue:secret.clue,kind:secret.kind};
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    // Tests share the same persistent Android Chrome profile: a previous test
+    // can leave ASCII selected, so explicitly select the graphics renderer.
+    if(await page.locator("#tile-map").isHidden())
+      await page.locator("#renderer-toggle").click();
+    assert.equal(await page.locator("#tile-map").isVisible(),true);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    assert.equal(await page.locator("#secret-clue").isVisible(),true);
+    assert.equal(await page.locator("#secret-search").isEnabled(),true);
+    const before=await page.evaluate(async({x,y})=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return game.inspectTile(state,x,y).kind;
+    },scenario);
+    assert.equal(before,"wall");
+    await page.locator("#secret-search").click();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.ok(await page.locator("#tile-map .tile-secret_open").count()>0);
+    assert.equal(await page.locator("#secret-clue").isHidden(),true);
+    const revealed=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(revealed.run.secrets[0].revealed,true);
+    assert.equal(revealed.run.secrets[0].claimed,false);
+    assert.equal(revealed.run.map[scenario.y][scenario.x],".");
+    assert.equal((await page.locator("#exploration-mini-map").textContent()).split("\n")
+      [scenario.y][scenario.x],"?");
+    await page.locator("#renderer-toggle").click();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("?"),
+      "Revealed secret must also appear in ASCII on Android");
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    const dx=scenario.x-scenario.clue.x;
+    const dy=scenario.y-scenario.clue.y;
+    const dir=dx===1?"right":dx===-1?"left":dy===1?"down":"up";
+    await page.locator('[data-direction="'+dir+'"]').click();
+    assert.equal(await page.locator("#turns").textContent(),"2");
+    const reward=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(reward.run.secrets[0].claimed,true);
+    assert.equal(reward.run.carried["consumable.bandage"],1);
+    assert.equal(reward.meta.hero.xp,1);
+
+    await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller),null,{timeout:10000});
+    adb("reverse","--remove","tcp:8765");
+    forwarded=false;
+    await page.reload({waitUntil:"load",timeout:20000});
+    await page.locator("#title-continue").click();
+    const offline=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(offline.run.secrets[0].claimed,true);
+    assert.equal(offline.run.carried["consumable.bandage"],1);
+    assert.equal(offline.run.turns,2);
+    console.log("DEV-082 ANDROID SECRET: clue / search / reveal / one-off loot / offline PASS");
+  }finally{
+    if(!forwarded)adb("reverse","tcp:8765","tcp:8765");
+    await browser.close();
+  }
+});

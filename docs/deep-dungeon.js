@@ -1,6 +1,7 @@
 // DEV-080 — deterministic connected rooms and corridors, isolated from v0.7f gameplay.
 // No secret or trap is required to escape. Generation is independent of combat RNG.
 import {descentSeed,nextRandom} from "./combat-rules.js";
+import {placeOptionalSecret} from "./secrets.js";
 
 export const DEEP_WIDTH=44;
 export const DEEP_HEIGHT=32;
@@ -195,6 +196,7 @@ export function generateDeepLayout(index){
     const layout=makePlan(index+attempt*100003);
     if(validateDeepLayout(layout)){
       layout.layoutId="nhal-deep-"+index+"-"+attempt;
+      layout.secrets=placeOptionalSecret(layout,index,deepRoute);
       return layout;
     }
   }

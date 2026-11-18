@@ -7,6 +7,7 @@ import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS} f
 import {BASE_MAP,BASE_LOOT,generateLayout,validateLayout} from "./dungeon.js";
 import {generateDeepLayout,validateDeepLayout,isDeepMap} from "./deep-dungeon.js";
 import {visibleCells,explorationState,visionKey,validExploration,revealAround,hasFog} from "./exploration-visibility.js";
+import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
 import {RECIPES,canCraft} from "./economy.js";
 import {EQUIPMENT_CATALOG} from "./stats.js";
 export const SAVE_KEY = "rogov-web-v1";
@@ -114,6 +115,14 @@ export function inspectTile(state, x, y) {
     description:"Cette zone n'a pas encore été explorée."};
   if(knowledge==="remembered")return {kind:"memory",name:"Zone déjà explorée",
     description:"Architecture mémorisée. Les créatures et objets mobiles ne sont pas repérables hors de vue."};
+  const clue=nearbySecretHint(state.run,state.meta.hero.attributes?.perception??5);
+  if(clue&&clue.clue.x===x&&clue.clue.y===y)return {
+    kind:"clue",name:"Trace inhabituelle",description:clue.text+" "+clue.hint
+  };
+  if(revealedSecretAt(state.run,x,y))return {
+    kind:"secret",name:"Passage révélé",
+    description:"Une cache facultative, accessible librement. Les chemins ordinaires restent ouverts."
+  };
   const enemy = enemyAt(state.run,x,y);
   if (enemy) {
     const creature=ENEMY_TYPES[enemy.kind];
@@ -311,6 +320,7 @@ export function validateSave(s) {
     if (r.map!==undefined && !(isDeepMap(r.map)?
         validateDeepLayout(r,true):validateLayout(r.map,r.loot))) return false;
     if(r.exploration!==undefined && !validExploration(r))return false;
+    if(!validSecrets(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
     if (!r.carried || !Array.isArray(r.collected) || !Number.isSafeInteger(r.turns)) return false;
     if (!Number.isInteger(r.hp) || r.hp < 1 || r.hp > MAX_HP) return false;
@@ -383,7 +393,8 @@ export function beginRun(state, equipment=[]) {
     turns:0,carried,collected:[],enemies:layout.enemies,
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
-      start:layout.start,exit:layout.exit,exploration:{seen:[]}}:{}) },s.meta);
+      start:layout.start,exit:layout.exit,exploration:{seen:[]},
+      ...(layout.secrets?{secrets:layout.secrets}:{})}:{}) },s.meta);
   if(s.run.exploration)revealAround(s.run);
   return info(s,"Descente "+s.meta.descents+
     (s.meta.descents===1?" : les profondeurs de Nhal s'ouvrent.":
@@ -450,6 +461,19 @@ export function move(state, direction, context="move") {
       message="Butin : "+ITEMS[id].name+". +1 XP.";type="loot";
     }
   }
+  const cache=revealedSecretAt(s.run,x,y);
+  if(cache&&!cache.claimed){
+    if(quantity(s.run.carried)>=INVENTORY_LIMIT){
+      message="Cache découverte, mais ton sac est plein. Reviens avec de la place.";
+      type="danger";
+    }else{
+      cache.claimed=true;
+      s.run.carried[SECRET_REWARD]=(s.run.carried[SECRET_REWARD]||0)+1;
+      gainXp(s,1);
+      message="CACHE SECRÈTE — "+ITEMS[SECRET_REWARD].name+" récupéré. +1 XP.";
+      type="loot";
+    }
+  }
   recordEvent(s,type,message,s.run.turns);
   revealAround(s.run);
   const after=enemyPhase(s);
@@ -476,6 +500,33 @@ export function toggleDoor(state,x,y){
   revealAround(s.run);
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||message,changed:true};
+}
+
+/** A confirmed search always costs one turn and never rolls new random chances.
+ * It is enabled only after a nearby, visible environmental clue is noticed.
+ */
+export function searchSecret(state){
+  if(!state.run)return info(state,"Fouille possible uniquement dans Nhal.",false);
+  const hint=nearbySecretHint(state.run,state.meta.hero.attributes?.perception??5);
+  if(!hint?.canSearch)return info(state,
+    "Aucune paroi suspecte à portée. Observe les indices avant de fouiller.",false);
+  const s=copy(state);
+  const secret=s.run.secrets.find(v=>!v.revealed);
+  if(!secret)return info(state,"Aucun autre secret à révéler ici.",false);
+  if(s.run.map[secret.y][secret.x]!=="#")return info(state,"Le mur a déjà été ouvert.",false);
+  secret.revealed=true;
+  const row=s.run.map[secret.y];
+  s.run.map[secret.y]=row.slice(0,secret.x)+"."+row.slice(secret.x+1);
+  s.run.turns+=1;
+  regenEndurance(s,1);
+  recordEvent(s,"loot",
+    secret.kind==="shortcut"
+      ?"PASSAGE SECRET — Un raccourci s'ouvre dans la pierre. Aucune issue obligatoire n'en dépend."
+      :"CACHE SECRÈTE — Une alcôve dissimulée apparaît. Un objet y attend.",
+    s.run.turns);
+  revealAround(s.run);
+  const after=enemyPhase(s);
+  return {state:after,message:after.journal[0]?.text,changed:true};
 }
 
 /** Explicit one-tile melee attack; target must be selected and adjacent. */
@@ -638,6 +689,7 @@ export function mapText(state) {
       if(enemy)return ENEMY_TYPES[enemy.kind].symbol;
     }
     if(tile==="S")return visible?".":":";
+    if(revealedSecretAt(run,x,y))return "?";
     if(tile==="+")return doorAt(run,x,y)?.open?"/":"+";
     if(tile==="$"&&collected.includes(positionKey(x,y)))return visible?".":":";
     if(!visible&&tile===".")return ":";

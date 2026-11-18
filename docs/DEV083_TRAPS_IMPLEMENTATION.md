@@ -60,3 +60,16 @@ python -m http.server 8770 --bind 127.0.0.1 --directory docs
 Ouvrir **http://127.0.0.1:8770/** dans Chrome. Ce port distinct évite de mélanger les essais avec la version officielle et les sauvegardes des autres copies.
 
 **Politique de publication :** PR en brouillon, `main` reste inchangée. La V0.7f/PWA publique n'est pas réputée enrichie tant que DEV-083 n'est pas fusionné et déployé. L'équilibrage des chances et du rythme des pièges exige encore des retours humains.
+
+
+## Retour de recette Android physique — 18 novembre 2026
+
+**QA-083 : VALIDATION TERRAIN DÉCLARÉE PAR LE JOUEUR.**
+Après l'essai de DEV-083 sur son téléphone, le joueur confirme explicitement : « Validation effectuée ».
+
+- Ce retour lève le blocage de principe « aucun essai Android physique ».
+- Le retour ne détaille pas séparément chaque scénario (indice, fouille, désamorçage, alarme, rechargement hors ligne) : ne pas inventer de résultats granulaires ni de durée de session.
+- Les contrôles automatisés existants sur `adf1ea62ada7b699260018dc69fc8436732aced5` sont verts : suite Node / navigateur mobile, Chrome Android 13 émulé (4/4), compilation de l'APK historique. Cette compilation n'implique pas que les nouveaux pièges existent dans l'APK Kotlin historique.
+- **Décision de fusion et publication distincte** : la confirmation de recette n'est pas une instruction de merger la branche ni de déployer GitHub Pages. `main` reste inchangée à ce checkpoint.
+
+**Étape suivante :** revue de diff / contrôles de merge, puis intégration autorisée et vérification du déploiement PWA, sans casser les sauvegardes existantes.

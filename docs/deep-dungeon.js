@@ -346,6 +346,8 @@ export function validateDeepLayout(layout,live=false){
   const legacy=layout.doorPlanVersion===undefined;
   const graph=layout.topologyVersion===GRAPH_VERSION;
   if(layout.topologyVersion!==undefined&&!graph)return false;
+  if(graph&&(legacy||layout.geometryVersion!==ROOM_GEOMETRY_VERSION))return false;
+  if(!graph&&rooms?.some(r=>Object.hasOwn(r||{},"slot")))return false;
   if(layout.doorPlanVersion!==undefined&&layout.doorPlanVersion!==1)return false;
   if(layout.geometryVersion!==undefined&&
       layout.geometryVersion!==ROOM_GEOMETRY_VERSION)return false;

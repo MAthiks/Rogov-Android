@@ -1353,3 +1353,72 @@ test("DEV-090C mobile: nearby secret clue remains visible without exposing the h
     assert.deepEqual(persisted,{valid:true,revealed:true});
   }finally{await context.close();}
 });
+
+
+test("ART-091A mobile: hooded 4-way renderer tracks steps, ASCII and saved resume", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const hero=page.locator("#tile-map .pixel-tile.tile-hero");
+    assert.equal(await hero.count(),1,"Exactly one player silhouette");
+    assert.equal(await hero.getAttribute("data-facing"),"down");
+    const first=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      const run=JSON.parse(localStorage.getItem(SAVE_KEY)).run;
+      const choices=[
+        {name:"up",back:"down",dx:0,dy:-1},
+        {name:"down",back:"up",dx:0,dy:1},
+        {name:"left",back:"right",dx:-1,dy:0},
+        {name:"right",back:"left",dx:1,dy:0}
+      ];
+      return choices.find(d=>run.map[run.y+d.dy]?.[run.x+d.dx]===".")||null;
+    });
+    assert.ok(first,"Starting room must have a traversable floor neighbor");
+    const before=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      return JSON.parse(localStorage.getItem(SAVE_KEY)).run.turns;
+    });
+    await page.locator('[data-direction="'+first.name+'"]').tap();
+    assert.equal(await hero.getAttribute("data-facing"),first.name);
+    const src=await hero.locator("img").getAttribute("src");
+    const expected=await page.evaluate(async facing=>{
+      const {HERO_SPRITES}=await import("./hero-art.js");
+      return HERO_SPRITES[facing];
+    },first.name);
+    assert.equal(src,expected,"Correct hood-up view is rendered for the movement");
+    assert.match(decodeURIComponent(src),/<g data-feature="hood">/);
+    assert.equal(await page.locator("#turns").textContent(),String(before+1));
+    const geometry=await page.evaluate(()=>({
+      viewport:document.documentElement.clientWidth,
+      scroll:document.documentElement.scrollWidth,
+      hero:document.querySelector("#tile-map .tile-hero img").getBoundingClientRect().width
+    }));
+    assert.ok(geometry.scroll<=geometry.viewport+1,"No Android portrait overflow");
+    assert.ok(geometry.hero>=18,"Player silhouette remains legible in the 11x11 viewport");
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true,"ASCII remains active");
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await hero.getAttribute("data-facing"),first.name,
+      "Switching from ASCII must not reset the graphical orientation");
+    await page.locator('[data-direction="'+first.back+'"]').tap();
+    assert.equal(await hero.getAttribute("data-facing"),first.back);
+    const saved=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(state),turns:state.run.turns,
+        addedFacing:Object.hasOwn(state.run,"facing")};
+    });
+    assert.equal(saved.valid,true);
+    assert.equal(saved.turns,before+2);
+    assert.equal(saved.addedFacing,false,"Saved schema is unchanged");
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#tile-map .pixel-tile.tile-hero").count(),1);
+    assert.equal(await page.locator("#turns").textContent(),String(before+2));
+    assert.equal(await page.locator("#tile-map .tile-hero").getAttribute("data-facing"),"down",
+      "Fresh UI session starts facing front, without altering the save");
+    assert.deepEqual(errors,[]);
+  } finally {await context.close();}
+});

@@ -16,12 +16,13 @@ test("DEV-080: 240 deterministic seeds build real rooms, corridors and doors",()
     assert.equal(l.map.length,DEEP_HEIGHT);
     assert.equal(l.map[0].length,DEEP_WIDTH);
     assert.equal(l.rooms.length,12);
-    assert.equal(l.doors.length,34);
-    assert.equal(count(l,"+"),34);
+    assert.equal(l.doors.length,6);
+    assert.equal(count(l,"+"),6);
     assert.equal(count(l,"S"),1);
     assert.equal(count(l,"E"),1);
     assert.deepEqual(generateDeepLayout(n),l,"seed mismatch "+n);
     distinct.add(l.map.join(""));
+    assert.equal(l.doorPlanVersion,1);
     for(const door of l.doors)assert.equal(l.map[door.y][door.x],"+");
     assert.ok(l.rooms.some(r=>r.role==="vestibule"));
     assert.ok(l.rooms.some(r=>r.role==="extraction"));
@@ -98,10 +99,11 @@ test("DEV-080: door inspection is free; deliberate toggle takes a turn and survi
   const base=newGame();base.meta.descents=1;
   let s=beginRun(base).state;
   const d=s.run.doors[0];
-  s.run.x=d.x-1;s.run.y=d.y;
-  if(s.run.map[s.run.y]?.[s.run.x]==="#"){
-    s.run.x=d.x+1;s.run.y=d.y;
-  }
+  const approach=[[1,0],[-1,0],[0,1],[0,-1]]
+    .map(([dx,dy])=>({x:d.x+dx,y:d.y+dy}))
+    .find(p=>!["#","^"].includes(s.run.map[p.y]?.[p.x]||"#"));
+  assert.ok(approach,"A door must be approachable from a walkable tile");
+  s.run.x=approach.x;s.run.y=approach.y;
   assert.equal(Math.abs(s.run.x-d.x)+Math.abs(s.run.y-d.y),1);
   assert.equal(inspectTile(s,d.x,d.y).kind,"door");
   assert.equal(s.run.turns,0);

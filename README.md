@@ -7,9 +7,9 @@ Jouer sur Android ou ordinateur, sans APK : **https://mathiks.github.io/Rogov-An
 
 ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il conjugue exploration au tour par tour, combat, équipement à risque, extraction et horreur cosmique originale.
 
-## Exploration profonde — futur GDD v0.8
+## Exploration profonde — DEV-080 à DEV-085 intégrés
 
-Le [GDD Exploration profonde de Nhal](docs/GDD_EXPLORATION_NHAL_V0.8.md) définit un futur donjon de **salles et couloirs**, avec **brouillard de guerre**, **passages secrets facultatifs** et **pièges détectables/désamorçables**, sans blocage arbitraire du retour. **Il s'agit d'un plan de conception, non de fonctionnalités présentes dans la v0.7f**. Les tests réels Android de la boucle actuelle restent prioritaires.
+Le [GDD Exploration profonde de Nhal](docs/GDD_EXPLORATION_NHAL_V0.8.md) définit la génération de salles/couloirs, le brouillard de guerre, les passages secrets et les pièges détectables/désamorçables, sans blocage arbitraire du retour. **Ces fonctions sont intégrées au moteur Web sur `main`** après fusion des lots DEV-080/081/082, QA-084, DEV-085 et **DEV-083** le 18 novembre 2026. Les deux pièges initialement livrés sont la dalle instable et le fil d'alarme, avec indices, avertissement avant danger et désamorçage. [Spécification DEV-083](docs/DEV083_TRAPS_IMPLEMENTATION.md). **La fusion GitHub ne suffit pas à prouver le succès du déploiement Pages** : vérifier le workflow et le site avant d'annoncer la version publique. Les descentes existantes restent inchangées ; les pièges apparaissent dans les nouvelles descentes profondes.
 
 ## Descentes variables dès la deuxième expédition
 

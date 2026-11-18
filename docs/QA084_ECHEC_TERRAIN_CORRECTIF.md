@@ -23,6 +23,20 @@ Ce constat ne prouve pas quelle URL ni quelle descente l'utilisateur testait ; l
 - Les sauvegardes profondes **déjà commencées** (3 ennemis, 2 objets et zéro faille) restent chargeables et **ne sont pas modifiées rétroactivement**. La nouvelle génération s'applique à la **nouvelle descente profonde**.
 - Cache hors ligne du prototype isolé : `rogov-v0.7f-qa084-encounters`.
 
+## Bilan QA-084 — parcours fonctionnel Android physique
+
+**18 novembre 2026 — cinq scénarios successivement confirmés par le joueur :**
+
+1. **PASS** — Présence visible d'un ennemi, d'un coffre et d'une faille dans la grande descente.
+2. **PASS** — Ouverture d'un coffre, récupération du butin, rechargement et absence de duplication, selon le scénario demandé.
+3. **PASS** — Combat réel contre un Charognard.
+4. **PASS** — Extraction via l'Arche et conservation du butin dans le coffre de Veyr.
+5. **PASS** — Entrée volontaire dans une faille, déclenchement du Rappel, perte du sac non sécurisé, conservation du héros et du coffre, selon le scénario demandé ; retour utilisateur : « Test ok ».
+
+**Conclusion : le parcours fonctionnel prioritaire de QA-084 a passé la recette physique déclarée par le joueur.** Les tests automatiques précédemment vérifiés sur le dernier commit fonctionnel donnent 186/186 Node, 8/8 Chromium mobile, 4/4 Chrome Android 13 émulé, et le workflow APK était vert. Cette validation ne démontre **ni** l'absence de tout défaut d'équilibrage, **ni** la réussite d'un essai physique prolongé / hors ligne, qui reste à confirmer.
+
+**Statut de livraison :** PR #4 et ses parents #1–#3 restent en brouillon, aucune fusion dans `main`, aucune publication nouvelle. Recommander une dernière session physique prolongée incluant coupure réseau, fermeture/réouverture de Chrome, nouvelles descentes et contrôle du coffre avant promotion, avec accord explicite du propriétaire.
+
 ## Retour terrain — 18 novembre 2026, 09:51 (Paris)
 
 **CONFIRMATION UTILISATEUR :** « Présence des entité confirmé ». Après le signalement initial d'absence d'ennemis, de coffres et de failles, le joueur confirme désormais la **présence des entités dans le donjon** pendant le nouvel essai physique. Le blocage de **présence / visibilité** est considéré comme résolu sur le parcours observé.

@@ -4,6 +4,7 @@ import {descentSeed,nextRandom} from "./combat-rules.js";
 import {placeOptionalSecret} from "./secrets.js";
 import {placeOptionalTraps,validTraps} from "./traps.js";
 import {specialRoomPlan,placeRoomSites,validRoomSites} from "./room-events.js";
+import {GRAPH_VERSION,CORE_SLOTS,topologyEdges,planDeepTopology} from "./deep-topology.js";
 
 export const DEEP_WIDTH=44;
 export const DEEP_HEIGHT=32;
@@ -97,10 +98,11 @@ function roomShapePlan(index){
 }
 function roomObstacles(room){
   const {x,y,width,height,cx,cy,shape,id}=room;
+  const corner=room.slot??id;
   if(shape==="l"){
     // The L cut faces the outer map boundary: no public threshold on
     // these sides. All other directions remain independently traversable.
-    const ox=id===0?x+1:x+width-3,oy=id===0?y+1:y+height-3;
+    const ox=corner===0?x+1:x+width-3,oy=corner===0?y+1:y+height-3;
     return [{x:ox,y:oy},{x:ox+1,y:oy},
       {x:ox,y:oy+1},{x:ox+1,y:oy+1}];
   }
@@ -110,119 +112,146 @@ function roomObstacles(room){
   return [];
 }
 
-function roomPoint(room,rand){
-  return {x:room.cx+rand(3)-1,y:room.cy+rand(3)-1};
+function roomPoint(room,rand,map=null){
+  const choices=[];
+  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+    const p={x:room.cx+dx,y:room.cy+dy};
+    if(!map||tile(map,p)===".")choices.push(p);
+  }
+  if(!choices.length)throw new Error("No safe loot tile");
+  return choices[rand(choices.length)];
 }
-function enemyInRoom(room,anchor,occupied,rand,maxDistance=Infinity){
+function enemyInRoom(room,anchor,occupied,rand,maxDistance=Infinity,map=null){
   const candidates=[];
   for(let y=room.y+1;y<room.y+room.height-1;y++)
     for(let x=room.x+1;x<room.x+room.width-1;x++){
       const p={x,y};
-      if(!occupied.has(key(p))&&distance(p,anchor)<=maxDistance)candidates.push(p);
+      if((!map||tile(map,p)===".")&&!occupied.has(key(p))&&
+          distance(p,anchor)<=maxDistance)candidates.push(p);
     }
   return candidates.length?candidates[rand(candidates.length)]:null;
 }
 function makePlan(index){
   const rand=randomStream(index);
+  const plan=planDeepTopology(index,rand);
   const grid=Array.from({length:DEEP_HEIGHT},()=>Array(DEEP_WIDTH).fill("#"));
   const rooms=[];
-  const shapes=roomShapePlan(index);
-  const {echoRoomId,cacheRoomId}=specialRoomPlan(index);
-  for(let row=0;row<ROWS;row++)for(let col=0;col<COLUMNS;col++){
-    const id=row*COLUMNS+col;
-    const cx=6+col*10,cy=5+row*10;
-    // Full-size rooms gain a one-cell masonry border; the entrance is ample.
-    const width=id===8?9:7+rand(3),height=id===8?9:7+rand(3);
+  const xOffset=Array.from({length:COLUMNS},()=>rand(2));
+  const yOffset=Array.from({length:ROWS},()=>rand(2));
+  for(const slot of plan.slots){
+    const col=slot%COLUMNS,row=Math.floor(slot/COLUMNS);
+    const cx=6+col*10+xOffset[col],cy=5+row*10+yOffset[row];
+    const width=slot===8?9:7+rand(3);
+    const height=slot===8?9:7+rand(3);
     const x=cx-Math.floor(width/2),y=cy-Math.floor(height/2);
-    const role=id===8?"vestibule":id===3?"extraction":
-      id===echoRoomId?"chambre_echo":id===cacheRoomId?"cache_scellee":
-      id===5?"ruines_occupees":id===10?"atelier_abandonne":
-      ["traversee","chambre_echo","ruines","passage_service"][rand(4)];
-    const room={id,x,y,width,height,cx,cy,role,
-      shape:shapes.get(id)||"rectangle"};
+    const role=slot===plan.roleSlots.entry?"vestibule":
+      slot===plan.roleSlots.exit?"extraction":
+      slot===plan.roleSlots.atelier?"atelier_abandonne":
+      slot===plan.roleSlots.echo?"chambre_echo":
+      slot===plan.roleSlots.cache?"cache_scellee":
+      slot===plan.roleSlots.valuable?"ruines_occupees":
+      ["traversee","ruines","passage_service"][rand(3)];
+    const room={id:rooms.length,slot,x,y,width,height,cx,cy,role,
+      shape:plan.shapes.get(slot)||"rectangle"};
     rooms.push(room);
-    // Only the room interior is floor. The perimeter remains solid stone,
-    // pierced solely by deliberate one-tile passage mouths.
     for(let yy=y+1;yy<y+height-1;yy++)
-      for(let xx=x+1;xx<x+width-1;xx++)grid[yy][xx]=".";
+      for(let xx=x+1;xx<x+width-1;xx++){
+        if(grid[yy]?.[xx]!== "#" )throw new Error("Overlapping rooms");
+        grid[yy][xx]=".";
+      }
   }
+  const bySlot=new Map(rooms.map(r=>[r.slot,r]));
+  const entry=bySlot.get(plan.roleSlots.entry);
+  const extraction=bySlot.get(plan.roleSlots.exit);
+  const valuableRoom=bySlot.get(plan.roleSlots.valuable);
+  const tonicRoom=bySlot.get(plan.roleSlots.atelier);
+  const guardianRoom=bySlot.get(plan.roleSlots.guardian);
   const doors=[],connections=[];
+
+  // A connector crosses the center of exactly one wall on each room.
+  // Non-adjacent rooms may be linked through an empty skipped slot, but
+  // the corridor never traverses another chamber.
   function connect(a,b){
+    if(a.cx!==b.cx&&a.cy!==b.cy)
+      throw new Error("Non-cardinal corridor in variable graph");
     let first,second;
-    if(a.cy===b.cy){
-      const y=a.cy+rand(3)-1;
-      first={x:a.x+a.width-1,y};
-      second={x:b.x,y};
-      for(let x=first.x;x<=second.x;x++)grid[y][x]=".";
+    if(a.cy!==b.cy){
+      const upper=a.cy<b.cy?a:b,lower=upper===a?b:a;
+      const min=Math.max(upper.x+2,lower.x+2);
+      const max=Math.min(upper.x+upper.width-3,lower.x+lower.width-3);
+      if(min>max)throw new Error("No aligned vertical doorway");
+      const x=min+rand(max-min+1);
+      const u={x,y:upper.y+upper.height-1},l={x,y:lower.y};
+      if(u.y>=l.y)throw new Error("Overlapping corridor walls");
+      for(let y=u.y;y<=l.y;y++)grid[y][x]=".";
+      first=upper===a?u:l;second=upper===a?l:u;
     }else{
-      const x=a.cx+rand(3)-1;
-      first={x,y:a.y+a.height-1};
-      second={x,y:b.y};
-      for(let y=first.y;y<=second.y;y++)grid[y][x]=".";
+      const left=a.cx<b.cx?a:b,right=left===a?b:a;
+      const min=Math.max(left.y+2,right.y+2);
+      const max=Math.min(left.y+left.height-3,right.y+right.height-3);
+      if(min>max)throw new Error("No aligned horizontal doorway");
+      const y=min+rand(max-min+1);
+      const l={x:left.x+left.width-1,y},r={x:right.x,y};
+      if(l.x>=r.x)throw new Error("Overlapping corridor walls");
+      for(let x=l.x;x<=r.x;x++)grid[y][x]=".";
+      first=left===a?l:r;second=left===a?r:l;
     }
-    // One framed threshold on each room wall, never paired mandatory doors.
     connections.push({a:a.id,b:b.id,first,second});
   }
-  // The 4×3 lattice preserves two independent, ordinary escape routes.
-  for(let row=0;row<ROWS;row++)for(let col=0;col<COLUMNS;col++){
-    const id=row*COLUMNS+col;
-    if(col<COLUMNS-1)connect(rooms[id],rooms[id+1]);
-    if(row<ROWS-1)connect(rooms[id],rooms[id+COLUMNS]);
-  }
-  // Six doors among 17 links, each on one side of its connection.
-  // Other openings are unobstructed; max two doors in the same room.
+  for(const link of plan.edges)
+    connect(bySlot.get(link.a),bySlot.get(link.b));
+
+  // Retain six framed, optional, reversible doors; exactly two belong
+  // to the vestibule. No room receives more than two actual door leaves.
   const order=connections.map((_,i)=>i);
   for(let i=order.length-1;i>0;i--){
-    const j=rand(i+1);
-    [order[i],order[j]]=[order[j],order[i]];
+    const j=rand(i+1);[order[i],order[j]]=[order[j],order[i]];
   }
   const roomDoorCount=Array(rooms.length).fill(0);
-  // Both exits from the entry chamber have an intelligible framed door.
-  // A player can choose either return route; closing one is always optional.
-  for(const link of connections.filter(c=>c.a===8||c.b===8)){
-    const p=link.a===8?link.first:link.second;
+  for(const link of connections.filter(c=>c.a===entry.id||c.b===entry.id)){
+    const p=link.a===entry.id?link.first:link.second;
     grid[p.y][p.x]="+";
-    doors.push({x:p.x,y:p.y,open:true});
-    roomDoorCount[8]++;
+    doors.push({...p,open:true});roomDoorCount[entry.id]++;
   }
+  if(doors.length!==2)throw new Error("Entry needs two independent doors");
   for(const i of order){
     if(doors.length>=6)break;
-    if(connections[i].a===8||connections[i].b===8)continue;
     const link=connections[i];
+    if(link.a===entry.id||link.b===entry.id)continue;
     const candidates=rand(2)===0
       ? [{room:link.a,point:link.first},{room:link.b,point:link.second}]
       : [{room:link.b,point:link.second},{room:link.a,point:link.first}];
-    const available=candidates.find(p=>roomDoorCount[p.room]<2);
+    const available=candidates.find(v=>roomDoorCount[v.room]<2);
     if(!available)continue;
     const {x,y}=available.point;
+    if(grid[y][x]!==".")continue;
     grid[y][x]="+";
-    doors.push({x,y,open:true});
-    roomDoorCount[available.room]++;
+    doors.push({x,y,open:true});roomDoorCount[available.room]++;
   }
   if(doors.length!==6)throw new Error("No balanced door placement");
-  // Apply geometry after thresholds, before spawns, treasure or hazards.
+
+  // Shape cutouts are actual blocking stones, never a hidden wall sprite.
   for(const room of rooms){
     room.obstacles=roomObstacles(room);
     for(const p of room.obstacles){
-      if(grid[p.y][p.x]!==".")throw new Error("Room obstacle overlaps threshold");
+      if(grid[p.y]?.[p.x]!==".")
+        throw new Error("Room obstacle overlaps passage");
       grid[p.y][p.x]="#";
     }
   }
-  const start={x:rooms[8].cx,y:rooms[8].cy};
-  const exit={x:rooms[3].cx,y:rooms[3].cy};
-  const valuable=roomPoint(rooms[5],rand);
-  const tonic=roomPoint(rooms[10],rand);
-  // QA-084: a real chest is immediately discoverable in the entry chamber.
-  // Normal loot coordinates are retained, so old saves need no migration.
-  const entry=rooms[8],entryOptions=[];
+  const start={x:entry.cx,y:entry.cy};
+  const exit={x:extraction.cx,y:extraction.cy};
+  const valuable=roomPoint(valuableRoom,rand,grid);
+  const tonic=roomPoint(tonicRoom,rand,grid);
+  const entryOptions=[];
   for(let y=entry.y;y<entry.y+entry.height;y++)
     for(let x=entry.x;x<entry.x+entry.width;x++)
-      if(grid[y][x]==="."&&distance({x,y},start)>=2&&distance({x,y},start)<=3&&
-          !doors.some(d=>d.x===x&&d.y===y))entryOptions.push({x,y});
-  if(!entryOptions.length)throw new Error("Entry chamber has no chest tile");
+      if(grid[y][x]==="."&&distance({x,y},start)>=2&&
+        distance({x,y},start)<=3&&!doors.some(d=>d.x===x&&d.y===y))
+        entryOptions.push({x,y});
+  if(!entryOptions.length)throw new Error("No visible tutorial chest");
   const entryChest=entryOptions[rand(entryOptions.length)];
-  grid[start.y][start.x]="S";
-  grid[exit.y][exit.x]="E";
+  grid[start.y][start.x]="S";grid[exit.y][exit.x]="E";
   for(const p of [valuable,tonic,entryChest])grid[p.y][p.x]="$";
   const loot={
     [key(valuable)]:"relic.ashen_fragment",
@@ -231,19 +260,17 @@ function makePlan(index){
   };
   const occupied=new Set([key(start),key(exit),...Object.keys(loot),...doors.map(key)]);
   const enemySpecs=[
-    ["charognard",rooms[5],valuable,2,3],
-    ["guardian",rooms[6],{x:rooms[6].cx,y:rooms[6].cy},4,5],
-    ["rift_larva",rooms[10],tonic,4,4]
+    ["charognard",valuableRoom,valuable,2,3],
+    ["guardian",guardianRoom,{x:guardianRoom.cx,y:guardianRoom.cy},4,5],
+    ["rift_larva",tonicRoom,tonic,4,4]
   ];
   const enemies=[];
   for(const [kind,room,anchor,range,hp] of enemySpecs){
-    const p=enemyInRoom(room,anchor,occupied,rand,range);
+    const p=enemyInRoom(room,anchor,occupied,rand,range,grid);
     if(!p)throw new Error("No safe spawn for "+kind);
     occupied.add(key(p));
     enemies.push({id:"nhal-"+kind+"-01",kind,x:p.x,y:p.y,hp});
   }
-  // A first visible encounter is optional: place it on a perimeter tile
-  // four or five steps from the entry, never in the mandatory return route.
   const scouts=[];
   for(let y=entry.y;y<entry.y+entry.height;y++)
     for(let x=entry.x;x<entry.x+entry.width;x++){
@@ -253,39 +280,34 @@ function makePlan(index){
           grid[y][x]==="."&&!occupied.has(key(p))&&d>=4&&d<=5)
         scouts.push(p);
     }
-  if(!scouts.length)throw new Error("Entry chamber has no safe enemy tile");
+  if(!scouts.length)throw new Error("No visible tutorial enemy");
   const scout=scouts[rand(scouts.length)];
   enemies.push({id:"nhal-charognard-scout-01",kind:"charognard",
     x:scout.x,y:scout.y,hp:3});
   occupied.add(key(scout));
-
   function publicRoutesSafe(){
     const map=grid.map(row=>row.join(""));
     const blocked=new Set(enemies.map(key));
-    if(!deepTwoReturnWays(map,start,exit)||!deepRoute(map,start,exit,blocked))return false;
+    if(!deepTwoReturnWays(map,start,exit)||!deepRoute(map,start,exit,blocked))
+      return false;
     return Object.keys(loot).every(pos=>{
       const [x,y]=pos.split(",").map(Number),p={x,y};
-      return deepTwoReturnWays(map,p,exit)&&
-        deepRoute(map,p,exit,blocked)&&deepRoute(map,start,p,blocked);
+      return deepTwoReturnWays(map,p,exit)&&deepRoute(map,p,exit,blocked)&&
+        deepRoute(map,start,p,blocked);
     });
   }
-  // First crack inside the entry LOS, second deeper in Nhal. Candidate
-  // acceptance explicitly proves two safe ordinary return routes; no
-  // hazard blocks the last path or spawns under a hero, foe or chest.
   function placeCrack(room,nearEntry){
     const candidates=[];
-    // Hazards belong INSIDE a room, never on one-cell public threshold.
     for(let y=room.y+1;y<room.y+room.height-1;y++)
       for(let x=room.x+1;x<room.x+room.width-1;x++){
         const p={x,y},d=distance(p,start);
         if(grid[y][x]!=="."||occupied.has(key(p))||
-          distance(p,exit)<4||
-          Object.keys(loot).some(k=>{
-            const [lx,ly]=k.split(",").map(Number);
-            return distance(p,{x:lx,y:ly})<2;
-          })||
-          enemies.some(e=>distance(p,e)<2)||
-          doors.some(door=>distance(p,door)<2))continue;
+            distance(p,exit)<4||
+            Object.keys(loot).some(k=>{
+              const [lx,ly]=k.split(",").map(Number);
+              return distance(p,{x:lx,y:ly})<2;
+            })||enemies.some(e=>distance(p,e)<2)||
+            doors.some(door=>distance(p,door)<2))continue;
         if(nearEntry&&(d<2||d>4))continue;
         candidates.push(p);
       }
@@ -299,14 +321,14 @@ function makePlan(index){
     return false;
   }
   const entryCrack=placeCrack(entry,true);
-  const deepCrack=placeCrack(rooms[5],false)||placeCrack(rooms[9],false)||
-    placeCrack(rooms[6],false);
+  const deepCrack=placeCrack(valuableRoom,false)||
+    placeCrack(bySlot.get(11),false)||placeCrack(guardianRoom,false);
   return {
     map:grid.map(row=>row.join("")),
     rooms,doors,doorPlanVersion:1,geometryVersion:ROOM_GEOMETRY_VERSION,
-    start,exit,loot,
-    enemies,layoutId:"nhal-deep-"+index,
-    // Rejected by strict new-layout validation if a fair location was absent.
+    topologyVersion:GRAPH_VERSION,links:connections.map(c=>({a:c.a,b:c.b})),
+    networkKind:plan.networkKind,
+    start,exit,loot,enemies,layoutId:"nhal-graph-"+index,
     hazardsComplete:entryCrack&&deepCrack
   };
 }

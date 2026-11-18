@@ -119,6 +119,7 @@ test("QA-084: started DEV-080/081 saves with 2 loot, 3 enemies and no rifts stil
   delete run.loot[entry];
   run.enemies=run.enemies.filter(e=>e.id!=="nhal-charognard-scout-01");
   delete run.secrets;
+  delete run.traps; // truly pre-DEV-083: no retroactive trap placement
   assert.equal(Object.keys(run.loot).length,2);
   assert.equal(run.enemies.length,3);
   assert.ok(validateSave(state),"legacy deep run retained");

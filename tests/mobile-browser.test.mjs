@@ -538,3 +538,132 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
       (publicLoot.steps+toClue.steps+finalPath.steps+4));
   }finally{await context.close();}
 });
+
+
+test("QA-084 mobile: active AI charognard fight, public loot, extraction and reload via touch", {timeout:100000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage();
+    const errors=[];
+    page.on("pageerror",err=>errors.push(err.message));
+    await page.goto(origin);
+    const init=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();
+      s.meta.descents=1;
+      const state=game.beginRun(s,["weapon.rusty_sword","consumable.bandage"]).state;
+      if(!game.validateSave(state))throw Error("Invalid original deep run");
+      if(state.run.enemies.length!==3)throw Error("All generated enemies must be present");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {ids:state.run.enemies.map(e=>e.id),
+        targetId:state.run.enemies.find(e=>e.kind==="charognard").id};
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").tap();
+    const state=()=>page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    const delta=(a,b)=>({
+      "1,0":"right","-1,0":"left","0,1":"down","0,-1":"up"
+    })[(b.x-a.x)+","+(b.y-a.y)];
+    const step=async(a,b)=>{
+      const dir=delta(a,b);
+      assert.ok(dir,"Only legitimate 4-direction movements");
+      await page.locator('[data-direction="'+dir+'"]').tap();
+      const next=await state();
+      if(next.run){
+        assert.deepEqual([next.run.x,next.run.y],[b.x,b.y],
+          "The mobile control must perform a real move");
+      }
+      return next;
+    };
+    const plan=async(target,approachEnemy=false)=>page.evaluate(async({target,approachEnemy})=>{
+      const game=await import("./game.js");
+      const {deepRoute}=await import("./deep-dungeon.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const blocked=new Set(s.run.enemies.map(e=>e.x+","+e.y));
+      const origin={x:s.run.x,y:s.run.y};
+      if(approachEnemy){
+        const choices=[[1,0],[-1,0],[0,1],[0,-1]]
+          .map(([dx,dy])=>({x:target.x+dx,y:target.y+dy}))
+          .map(p=>deepRoute(s.run.map,origin,p,blocked))
+          .filter(Boolean).sort((a,b)=>a.length-b.length);
+        return choices[0]||null;
+      }
+      return deepRoute(s.run.map,origin,target,blocked);
+    },{target,approachEnemy});
+    let attacks=0,movements=0;
+    for(let turn=0;turn<100;turn++){
+      const now=await state();
+      assert.ok(now.run,"The live character must not die during encounter");
+      const foe=now.run.enemies.find(e=>e.id===init.targetId);
+      if(!foe)break;
+      const d=Math.abs(now.run.x-foe.x)+Math.abs(now.run.y-foe.y);
+      if(d===1){
+        if(now.run.targetId!==foe.id){
+          await page.locator("#target-choices button")
+            .filter({hasText:"Charognard"}).first().tap();
+        }
+        if(now.run.endurance<1){
+          await page.locator("#wait-btn").tap();
+        }else{
+          const before=(await state()).run.turns;
+          await page.locator("#combat-attack").tap();
+          const after=await state();
+          assert.ok(after.run,"Player survived a real combat round");
+          assert.equal(after.run.turns,before+1);
+          attacks++;
+        }
+      }else{
+        const route=await plan(foe,true);
+        assert.ok(route?.length>=2,"Mobile player can approach the live target");
+        await step(now.run,route[1]);
+        movements++;
+      }
+    }
+    const postFight=await state();
+    assert.ok(postFight.run);
+    assert.ok(attacks>=1,"A real attack is required");
+    assert.ok(!postFight.run.enemies.some(e=>e.id===init.targetId));
+    assert.equal(postFight.run.enemies.length,init.ids.length-1,
+      "The other two original enemies remain alive");
+
+    const lootKey=Object.entries(postFight.run.loot)
+      .find(([,id])=>id==="relic.ashen_fragment")?.[0];
+    assert.ok(lootKey,"Public fragment exists");
+    const [x,y]=lootKey.split(",").map(Number);
+    const walk=async(destination)=>{
+      for(let turn=0;turn<150;turn++){
+        const current=await state();
+        if(!current.run)return current;
+        if(current.run.x===destination.x&&current.run.y===destination.y)return current;
+        const route=await plan(destination);
+        assert.ok(route?.length>=2,"Ordinary route remains available with active enemies");
+        await step(current.run,route[1]);
+        movements++;
+        const next=await state();
+        if(next.run&&next.run.hp<=7&&(next.run.carried["consumable.bandage"]||0)>0)
+          await page.locator("#use-bandage").tap();
+      }
+      assert.fail("Live enemy route timed out");
+    };
+    const withLoot=await walk({x,y});
+    assert.ok(withLoot.run);
+    assert.equal(withLoot.run.carried["relic.ashen_fragment"],1);
+    const afterExit=await walk(withLoot.run.exit);
+    assert.equal(afterExit.run,null);
+    assert.equal(afterExit.meta.extractions,1);
+    assert.equal(afterExit.meta.recalls,0);
+    assert.equal(afterExit.meta.stash["weapon.rusty_sword"],1);
+    assert.equal(afterExit.meta.stash["relic.ashen_fragment"],1);
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").tap();
+    const persisted=await state();
+    assert.equal(persisted.run,null);
+    assert.equal(persisted.meta.stash["relic.ashen_fragment"],1);
+    assert.deepEqual(errors,[]);
+    console.log("QA-084 LIVE MOBILE UI: "+attacks+" attack(s), "+
+      movements+" touch moves, 2 remaining active enemies, extraction PASS");
+  }finally{await context.close();}
+});

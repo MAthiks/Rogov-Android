@@ -21,3 +21,9 @@ jobs:
         run: |
           npm run check:web
           npm run test:web
+      - name: Install isolated Chromium test runner
+        run: |
+          npm install --no-save playwright@1.56.0
+          npx playwright install --with-deps chromium
+      - name: Android portrait browser interactions and offline cache
+        run: node --test tests/mobile-browser.test.mjs

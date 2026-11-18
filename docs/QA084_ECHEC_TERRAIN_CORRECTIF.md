@@ -49,6 +49,20 @@ Ce constat ne prouve pas quelle URL ni quelle descente l'utilisateur testait ; l
 
 **Restent ouverts :** déclencher volontairement une faille et constater le Rappel avec pertes limitées au sac ; effectuer une extraction réelle et vérifier la conservation du butin dans le coffre de Veyr ; tester ensuite une session prolongée/offline si possible. Ne pas fusionner la PR avant acceptation explicite.
 
+## Retour terrain complémentaire — extraction et coffre de Veyr
+
+**Confirmation utilisateur :** « Test ok », en réponse au scénario demandé : récupérer un objet, rejoindre l'Arche et vérifier que l'objet se trouve dans le coffre sécurisé du refuge de Veyr.
+
+**Statut : PASS déclaré par le joueur pour l'extraction et la conservation du butin sur Android physique.** Ce retour valide le scénario demandé, sans présumer d'une couverture exhaustive de l'économie, des différents types de butin ou de tous les cas de rechargement.
+
+**Confirmé sur Android physique dans cette campagne :**
+- Présence visible des ennemis, coffres et failles.
+- Ouverture d'un coffre, récupération du butin et reprise de sauvegarde sans duplication selon le test confirmé.
+- Combat Charognard.
+- Extraction par l'Arche et conservation du butin au coffre de Veyr.
+
+**Toujours à confirmer :** entrer volontairement dans une faille et vérifier le Rappel : retour au refuge, perte du seul sac emporté, conservation du héros et des objets du coffre sécurisé. Puis test prolongé / hors ligne si nécessaire. **Ne pas fusionner** la PR avant fin de recette.
+
 ## Tests indispensables avant validation
 1. Graines déterministes, au moins **240 nouvelles grandes descentes** : quatre ennemis, trois coffres, deux failles et voies sûres.
 2. Dès **l'arrivée** : un ennemi, un coffre et une faille **visibles** à l'écran 11×11 en mode graphique / ASCII, et dans la minimap découverte sans révélation de positions cachées.

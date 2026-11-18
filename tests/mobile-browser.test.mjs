@@ -437,6 +437,7 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     // The tutorial route may naturally pick up a fragment as well; use this
     // actual secured balance as the baseline, never assume the stash is empty.
     const relicBeforeDeep=state.meta.stash["relic.ashen_fragment"]||0;
+    const bandagesBeforeDeep=state.meta.stash["consumable.bandage"]||0;
 
     // A second normal GUI start is the first deep procedural dungeon.
     await page.locator('#stash-items input[type="checkbox"]').first().check();
@@ -474,6 +475,9 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     assert.equal(await page.locator("#secret-clue").isVisible(),true);
     assert.equal(await page.locator("#secret-search").isEnabled(),true);
     const turnBeforeSearch=state.run.turns;
+    const bandagesBeforeSecret=state.run.carried["consumable.bandage"]||0;
+    // QA-084 adds a real entry chest. A normal walk may legitimately collect it
+    // before the secret; only the increment from the secret must be exactly one.
     const secretCell=page.locator('#tile-map .pixel-tile[data-x="'+secret.x+
       '"][data-y="'+secret.y+'"]');
     assert.equal(await secretCell.count(),1);
@@ -498,12 +502,12 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     await moveOne(clue,secret);
     state=await saved();
     assert.equal(state.run.secrets[0].claimed,true);
-    assert.equal(state.run.carried["consumable.bandage"],1);
+    assert.equal(state.run.carried["consumable.bandage"],bandagesBeforeSecret+1);
     const xpAfterCache=state.meta.hero.xp;
     await moveOne(secret,clue);
     await moveOne(clue,secret);
     state=await saved();
-    assert.equal(state.run.carried["consumable.bandage"],1,
+    assert.equal(state.run.carried["consumable.bandage"],bandagesBeforeSecret+1,
       "Repeated visits never duplicate a secret reward");
     assert.equal(state.meta.hero.xp,xpAfterCache);
 
@@ -511,7 +515,7 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     await page.locator("#title-continue").tap();
     state=await saved();
     assert.ok(state.run.secrets[0].claimed);
-    assert.equal(state.run.carried["consumable.bandage"],1);
+    assert.equal(state.run.carried["consumable.bandage"],bandagesBeforeSecret+1);
     assert.equal(state.run.exploration.seen.length>0,true);
     assert.equal(state.run.secrets[0].revealed,true);
     const exit=state.run.exit;
@@ -523,14 +527,16 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     assert.equal(state.meta.stash["weapon.rusty_sword"],1);
     assert.equal(state.meta.stash["relic.ashen_fragment"],relicBeforeDeep+1,
       "A single extra public fragment is secured, never duplicated");
-    assert.equal(state.meta.stash["consumable.bandage"],3,
-      "The hidden cache's single bandage is secured in the permanent stash");
+    assert.ok(state.meta.stash["consumable.bandage"]>=
+      bandagesBeforeDeep+bandagesBeforeSecret+1,
+      "The hidden cache's single bandage is secured; optional public chest may add another");
     await page.reload({waitUntil:"load"});
     await page.locator("#title-continue").tap();
     const persisted=await saved();
     assert.equal(persisted.run,null);
     assert.equal(persisted.meta.extractions,2);
-    assert.equal(persisted.meta.stash["consumable.bandage"],3);
+    assert.equal(persisted.meta.stash["consumable.bandage"],
+      state.meta.stash["consumable.bandage"]);
     assert.equal(persisted.meta.stash["relic.ashen_fragment"],relicBeforeDeep+1);
     assert.deepEqual(errors,[],"No browser error during both complete journeys");
     console.log("QA-084 FULL SESSION: tutorial + deep public loot + secret + "+

@@ -278,7 +278,7 @@ function enemyPhase(s) {
         const tile=tileAt(nx,ny,run);
         if((tile==="."||tile==="S"||(tile==="+"&&doorAt(run,nx,ny)?.open)) &&
            !(nx===run.x&&ny===run.y) &&
-           !enemyAt(run,nx,ny)) {
+           !enemyAt(run,nx,ny) && !trapAt(run,nx,ny)) {
           enemy.x=nx;enemy.y=ny;
           if(explorationState(run,nx,ny)==="visible")
             recordEvent(s,"danger",type.name+" approche.",run.turns);

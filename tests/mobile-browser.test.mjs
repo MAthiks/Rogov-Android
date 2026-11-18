@@ -372,7 +372,8 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
       const {SAVE_KEY}=await import("./game.js");
       const {deepRoute}=await import("./deep-dungeon.js");
       const state=JSON.parse(localStorage.getItem(SAVE_KEY));
-      return deepRoute(state.run.map,{x:state.run.x,y:state.run.y},dest);
+      const blocked=new Set((state.run.traps||[]).map(t=>t.x+","+t.y));
+      return deepRoute(state.run.map,{x:state.run.x,y:state.run.y},dest,blocked);
     },destination);
     const moveOne=async(a,b)=>{
       const direction=directions[(b.x-a.x)+","+(b.y-a.y)];
@@ -587,12 +588,13 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
       }
       return next;
     };
-    const plan=async(target,approachEnemy=false,avoidPrevious=null)=>page.evaluate(async({target,approachEnemy,avoidPrevious})=>{
+    const plan=async(target,approachEnemy=false,visits=[])=>page.evaluate(async({target,approachEnemy,visits})=>{
       const game=await import("./game.js");
       const {deepRoute}=await import("./deep-dungeon.js");
       const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
-      const blocked=new Set(s.run.enemies.map(e=>e.x+","+e.y));
-      if(avoidPrevious)blocked.add(avoidPrevious.x+","+avoidPrevious.y);
+      const key=p=>p.x+","+p.y;
+      const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+      const blocked=new Set([...s.run.enemies,...(s.run.traps||[])].map(key));
       const origin={x:s.run.x,y:s.run.y};
       if(approachEnemy){
         const choices=[[1,0],[-1,0],[0,1],[0,-1]]
@@ -601,8 +603,39 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
           .filter(Boolean).sort((a,b)=>a.length-b.length);
         return choices[0]||null;
       }
-      return deepRoute(s.run.map,origin,target,blocked);
-    },{target,approachEnemy,avoidPrevious});
+      // End-to-end touch movements deliberately avoid real traps and mobile
+      // enemies; cost for adjacent threats and visited tiles prevents oscillation.
+      const visitsByCell=new Map(visits),goal=key(target),start=key(origin);
+      const queue=[{point:origin,cost:0,estimate:0}];
+      const costs=new Map([[start,0]]),parents=new Map();
+      const points=new Map([[start,origin]]);
+      while(queue.length){
+        queue.sort((a,b)=>a.cost+a.estimate-b.cost-b.estimate);
+        const {point,cost}=queue.shift(),id=key(point);
+        if(cost!==costs.get(id))continue;
+        if(id===goal){
+          const path=[];let cursor=id;
+          while(cursor){path.push(points.get(cursor));cursor=parents.get(cursor);}
+          return path.reverse();
+        }
+        for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+          const next={x:point.x+dx,y:point.y+dy},nextKey=key(next);
+          const terrain=s.run.map[next.y]?.[next.x];
+          if(!terrain||terrain==="#"||terrain==="^"||blocked.has(nextKey))continue;
+          let danger=0;
+          for(const e of s.run.enemies){
+            const gap=dist(next,e);
+            danger+=gap===1?16:gap===2?4:0;
+          }
+          const score=cost+1+(visitsByCell.get(nextKey)||0)*12+danger;
+          if(score>=(costs.get(nextKey)??Infinity))continue;
+          costs.set(nextKey,score);
+          parents.set(nextKey,id);points.set(nextKey,next);
+          queue.push({point:next,cost:score,estimate:dist(next,target)});
+        }
+      }
+      return null;
+    },{target,approachEnemy,visits});
     let attacks=0,movements=0;
     for(let turn=0;turn<100;turn++){
       const now=await state();
@@ -644,23 +677,16 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
     assert.ok(lootKey,"Public fragment exists");
     const [x,y]=lootKey.split(",").map(Number);
     const walk=async(destination)=>{
-      let previous=null;
+      const visits=new Map();
       for(let turn=0;turn<150;turn++){
         const current=await state();
         if(!current.run)return current;
         if(current.run.x===destination.x&&current.run.y===destination.y)return current;
-        const route=await plan(destination);
+        const here=current.run.x+","+current.run.y;
+        visits.set(here,(visits.get(here)||0)+1);
+        const route=await plan(destination,false,[...visits]);
         assert.ok(route?.length>=2,"Ordinary route remains available with active enemies");
-        let nextStep=route[1];
-        // An active Charognard can cause a shortest-route switch each turn.
-        // Keep the human player's intended direction by preferring a real
-        // alternative route rather than walking back and forth forever.
-        if(previous&&nextStep.x===previous.x&&nextStep.y===previous.y){
-          const alternative=await plan(destination,false,previous);
-          if(alternative?.length>=2)nextStep=alternative[1];
-        }
-        previous={x:current.run.x,y:current.run.y};
-        await step(current.run,nextStep);
+        await step(current.run,route[1]);
         movements++;
         const next=await state();
         if(next.run&&next.run.hp<=7&&(next.run.carried["consumable.bandage"]||0)>0)

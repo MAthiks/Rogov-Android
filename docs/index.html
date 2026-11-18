@@ -144,11 +144,18 @@
             <summary>Plan mémorisé de Nhal <small>Zones découvertes uniquement</small></summary>
             <p class="hint">Ce plan conserve l'architecture explorée, sans dévoiler les ennemis hors de vue.</p>
             <pre id="exploration-mini-map" aria-label="Mini-carte des seules zones découvertes"></pre>
-            <p class="hint">Légende : @ Égaré · # mur · C coffre connu · ^ faille mortelle · + porte · E Arche connue · : sol mémorisé · . sol visible</p>
+            <p class="hint">Légende : @ Égaré · # mur · C coffre · ^ faille mortelle · + porte · ! piège identifié · x désamorcé · E Arche · : sol mémorisé · . sol visible</p>
           </details>
           <div class="secret-controls" role="group" aria-label="Indices et fouille de secrets">
             <p id="secret-clue" class="secret-clue" hidden></p>
             <button id="secret-search" class="secondary full" type="button" hidden disabled>Fouiller attentivement · 1 tour</button>
+          </div>
+          <div class="trap-controls" role="group" aria-label="Pièges et mécanismes de Nhal">
+            <p id="trap-clue" class="trap-clue" aria-live="polite" hidden></p>
+            <div class="trap-buttons">
+              <button id="trap-search" class="secondary full" type="button" hidden disabled>Examiner le piège · 1 tour</button>
+              <button id="trap-disarm" class="secondary full" type="button" hidden disabled>Désamorcer · 1 tour, 2 END</button>
+            </div>
           </div>
           <div class="chest-controls" role="group" aria-label="Coffres de Nhal">
             <button id="chest-action" type="button" class="secondary full" hidden disabled>Aucun coffre à portée</button>
@@ -158,7 +165,7 @@
             <button id="door-action" type="button" class="secondary door-action" disabled>Sélectionner une porte voisine</button>
           </div>
           <div id="graphic-legend" class="graphic-legend" aria-label="Légende illustrée du donjon"></div>
-          <div id="ascii-legend" class="legend" hidden>@ Joueur · : Sol mémorisé · Espace vide Inexploré · ? Passage secret révélé · + Porte fermée · / Porte ouverte · c Charognard · G Gardien · C Coffre · o Coffre vide · ^ Mort · E Extraction · # Mur</div>
+          <div id="ascii-legend" class="legend" hidden>@ Joueur · : Sol mémorisé · Espace vide Inexploré · ? Passage secret révélé · + Porte fermée · / Porte ouverte · c Charognard · G Gardien · C Coffre · o Coffre vide · ~ trace suspecte · ! piège actif · x désamorcé · ; déclenché · ^ Mort · E Extraction · # Mur</div>
         </div>
 
         <section class="tactical-targets" aria-labelledby="target-choices-title">

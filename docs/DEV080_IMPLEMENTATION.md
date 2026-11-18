@@ -34,7 +34,21 @@ npm run check:web
 npm run test:web
 ```
 
-La validation PR sous Node 22 exécute la syntaxe et **163 tests** dont les nouveaux cas DEV-080 : 240 cartes, traversabilité, caméra, portes (y compris un ennemi sur une porte ouverte), sérialisation/réouverture, migration, extraction, géométrie graphique et ASCII. Aucun déploiement GitHub Pages n'est déclenché par ce workflow.
+La validation PR sous Node 22 exécute la syntaxe et **165 tests Node** dont les nouveaux cas DEV-080 : 240 cartes, traversabilité, caméra, portes (y compris un ennemi sur une porte ouverte), sérialisation/réouverture, migration, extraction, géométrie graphique et ASCII. Aucun déploiement GitHub Pages n'est déclenché par ce workflow.
+
+## Renforcement de la recette en navigateur (DEV-080)
+
+Le workflow de PR lance désormais **165 tests Node et 3 scénarios Playwright Chromium**, à une largeur de **360 px** en portrait simulé :
+
+- Sélection **tactile** de porte, fermeture en un tour, inspection gratuite, affichage graphique 11×11 et absence de débordement horizontal.
+- Reprise de la porte fermée, sélection et réouverture en mode **ASCII**, sauvegarde des tours et franchissement de la porte.
+- Reprise d'une descente v0.7f déjà commencée : carte historique conservée.
+- Activation du **service worker**, rechargement d'une descente procédurale **hors ligne** avec ressources préchargées.
+- Deux tests Node supplémentaires vérifient la présence de tous les fichiers du cache et le format/dimensions des icônes.
+
+**Défaut corrigé au cours de la recette :** les fichiers PNG d'icônes \`icon-192.png\` et \`icon-512.png\` étaient absents, alors que le manifeste et la liste de préchargement les demandaient. L'échec de \`cache.addAll\` empêchait l'activation hors ligne. Les deux PNG valides ont été créés sur cette branche ; le scénario hors ligne passe désormais en CI.
+
+Ces contrôles Chromium ne valident pas la latence, le tactile, l'installation et l'ergonomie du **Samsung physique**. Le statut de PR reste brouillon et la recette terrain ci-dessous demeure obligatoire.
 
 ## Recette Android obligatoire avant fusion
 

@@ -95,7 +95,7 @@ export function validRoomSites(run){
     if(!s||s.id!=="nhal-site-"+expected.kind+"-01"||
         s.kind!==expected.kind||s.roomId!==expected.roomId||
         !Number.isInteger(s.x)||!Number.isInteger(s.y)||
-        !inRoom(s,room)||cell(run.map,s)!=="."||seen.has(key(s))||
+        (!room||!inRoom(s,room))||cell(run.map,s)!=="."||seen.has(key(s))||
         !["untouched","resolved"].includes(s.status)||
         (s.status==="untouched"?s.choice!==null:
           !Object.hasOwn(ROOM_SITES[s.kind].options,s.choice))||

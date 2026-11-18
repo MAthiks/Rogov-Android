@@ -628,7 +628,7 @@ export function searchTrap(state,x,y){
   target.status="revealed";
   s.run.turns+=1;
   regenEndurance(s,1);
-  const message="FOUILLE — "+TRAP_KIN[target.kind].name+
+  const message="FOUILLE — "+TRAP_KINDS[target.kind].name+
     " identifié. Tu peux l'éviter ou le désamorcer.";
   recordEvent(s,"danger",message,s.run.turns);
   revealAround(s.run);

@@ -841,3 +841,61 @@ test("DEV-083 mobile: visible clue, tactile search, disarm, ASCII and reload", {
     console.log("DEV-083 MOBILE TRAPS: visible hint / tactile search / disarm / ASCII / reload PASS");
   }finally{await context.close();}
 });
+
+test("DEV-087 mobile: hidden exploration rooms become visible and choices persist after reload", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage();
+    const errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const initial=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();s.meta.descents=1;
+      const active=game.beginRun(s).state;
+      active.run.enemies=[];
+      if(!game.validateSave(active))throw Error("Invalid DEV-087 initial deep run");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(active));
+      return active.run.sites[0];
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#room-site-panel").isHidden(),true,
+      "Undiscovered atelier must never appear in action UI");
+    assert.equal(await page.locator("#room-site-options button").count(),0);
+    await page.evaluate(async(site)=>{
+      const game=await import("./game.js");
+      const {revealAround}=await import("./exploration-visibility.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const near=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:site.x+dx,y:site.y+dy}))
+        .find(p=>state.run.map[p.y]?.[p.x]==="."&&
+          !state.run.traps.some(t=>t.x===p.x&&t.y===p.y));
+      if(!near)throw Error("Atelier has no safe adjacent square");
+      state.run.x=near.x;state.run.y=near.y;
+      revealAround(state.run);
+      if(!game.validateSave(state))throw Error("DEV-087 near-site save invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    },initial);
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#room-site-panel").isVisible(),true);
+    assert.match(await page.locator("#room-site-title").textContent(),/Atelier abandonné/);
+    assert.equal(await page.locator("#room-site-options button").count(),2);
+    await page.locator('[data-room-choice="fragment"]').tap();
+    const after=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(after.run.turns,1,"Choice takes exactly one turn");
+    assert.equal(after.run.sites[0].status,"resolved");
+    assert.equal(after.run.sites[0].choice,"fragment");
+    assert.equal(after.run.carried["relic.ashen_fragment"],1);
+    assert.equal(after.meta.hero.xp,1);
+    assert.equal(await page.locator("#room-site-panel").isHidden(),true);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#room-site-panel").isHidden(),true);
+    assert.equal(await page.locator("#room-site-options button").count(),0);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

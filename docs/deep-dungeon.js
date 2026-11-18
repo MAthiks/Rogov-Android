@@ -141,7 +141,7 @@ export function isDeepMap(map){
     map.every(row=>typeof row==="string"&&row.length===DEEP_WIDTH);
 }
 /** Layout validation is intentionally stronger than shape checking. */
-export function validateDeepLayout(layout){
+export function validateDeepLayout(layout,live=false){
   if(!layout||!isDeepMap(layout.map)||layout.map.some(row=>/[^#.+$SE]/.test(row)))return false;
   const {map,rooms,doors,start,exit,loot,enemies}=layout;
   if(map[0]!=="#".repeat(DEEP_WIDTH)||
@@ -168,21 +168,21 @@ export function validateDeepLayout(layout){
     return /^\d+,\d+$/.test(pos)&&tile(map,{x,y})==="$"&&
       ["relic.ashen_fragment","consumable.dusk_tonic"].includes(id);
   }))return false;
-  if(!Array.isArray(enemies)||enemies.length!==3||
+  if(!Array.isArray(enemies)||(!live&&enemies.length!==3)||enemies.length>3||
       new Set(enemies.map(e=>key(e))).size!==3)return false;
   for(const e of enemies){
     if(!["charognard","guardian","rift_larva"].includes(e.kind)||
       !Number.isInteger(e.x)||!Number.isInteger(e.y)||!Number.isInteger(e.hp)||
-      tile(map,e)!=="."||distance(e,start)<4)return false;
+      tile(map,e)!=="."||(!live&&distance(e,start)<4))return false;
   }
   if(!deepTwoReturnWays(map,start,exit))return false;
   const blocked=new Set(enemies.map(key));
-  if(!deepRoute(map,start,exit,blocked))return false;
+  if(!live&&!deepRoute(map,start,exit,blocked))return false;
   for(const p of lootKeys){
     const [x,y]=p.split(",").map(Number),pos={x,y};
     if(!deepTwoReturnWays(map,pos,exit)||
-      !deepRoute(map,pos,exit,blocked)||
-      !deepRoute(map,start,pos,blocked))return false;
+      (!live&&!deepRoute(map,pos,exit,blocked))||
+      (!live&&!deepRoute(map,start,pos,blocked)))return false;
   }
   return true;
 }

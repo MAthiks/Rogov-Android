@@ -1,6 +1,7 @@
 // ROGOV ORIGINAL ART v0.4 — functional pixel readability before decorative detail.
 // All sprites are written for ROGOV in inline SVG; no external images or licenses.
 import { MAP, ENEMY_TYPES, enemyAt, cameraBounds } from "./game.js";
+import { hasFog,visibleCells,visionKey } from "./exploration-visibility.js";
 const svg = (parts) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + parts + '</svg>';
 const floor=svg(
   '<rect width="24" height="24" fill="#202d33"/>'+
@@ -95,6 +96,8 @@ export function drawTileMap(state,host) {
   const run=state.run;
   const map=run.map||MAP;
   const viewport=cameraBounds(run);
+  const live=hasFog(run)?visibleCells(run):null;
+  const seen=live?new Set(run.exploration.seen):null;
   host.style.gridTemplateColumns="repeat("+viewport.width+", minmax(0, 1fr))";
   const fragment=document.createDocumentFragment();
   for(let y=viewport.top;y<viewport.top+viewport.height;y++)
@@ -103,11 +106,21 @@ export function drawTileMap(state,host) {
     const cell=document.createElement("div");
     cell.className="pixel-tile";
     cell.dataset.x=String(x);cell.dataset.y=String(y);
+    const id=live?visionKey(run,x,y):null;
+    const visible=!live||live.has(id);
+    const remembered=!visible&&seen.has(id);
+    cell.dataset.knowledge=visible?"visible":remembered?"remembered":"unknown";
+    if(!visible&&!remembered){
+      cell.classList.add("tile-unknown");
+      fragment.append(cell);
+      continue; // No map texture, sprite or hidden entity data in the DOM.
+    }
+    if(remembered)cell.classList.add("tile-remembered");
     cell.style.backgroundImage="url('"+(tile==="#"?TILE_SPRITES.wall:TILE_SPRITES.floor)+"')";
     let spriteId=null;
     if(x===run.x&&y===run.y)spriteId="hero";
     else {
-      const enemy=enemyAt(run,x,y);
+      const enemy=visible?enemyAt(run,x,y):null;
       if(enemy) {
         spriteId=enemy.kind;
         cell.dataset.entity="enemy";

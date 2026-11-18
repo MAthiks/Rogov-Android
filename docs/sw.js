@@ -1,6 +1,6 @@
 const CACHE_NAME = "rogov-v0.7f";
 const CORE = [
-  "./", "./index.html", "./style.css?v=0.7f", "./app.js?v=0.7f", "./game.js", "./tiles.js", "./combat.js", "./stats.js", "./combat-rules.js", "./enemy-ai.js", "./dungeon.js", "./deep-dungeon.js", "./economy.js",
+  "./", "./index.html", "./style.css?v=0.7f", "./app.js?v=0.7f", "./game.js", "./tiles.js", "./combat.js", "./stats.js", "./combat-rules.js", "./enemy-ai.js", "./dungeon.js", "./deep-dungeon.js", "./exploration-visibility.js", "./economy.js",
   "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./title-scene.webp"
 ];
 self.addEventListener("install", (event) => {

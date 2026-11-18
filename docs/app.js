@@ -1,5 +1,6 @@
 import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
+import { hasFog,explorationState,visibleCells,minimapText } from "./exploration-visibility.js";
 import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
   heroDerivedStats, enemyDerivedStats } from "./stats.js";
@@ -179,6 +180,8 @@ function inspect(x,y) {
  */
 function chooseTarget(enemyId) {
   if (!state.run) return;
+  const e=state.run.enemies?.find(enemy=>enemy.id===enemyId);
+  if(!e||explorationState(state.run,e.x,e.y)!=="visible")return;
   const result = selectTarget(state,enemyId);
   if (!result.changed) return;
   state=result.state;
@@ -196,11 +199,12 @@ function renderTargetChoices() {
   const host=$("target-choices");
   host.replaceChildren();
   if (!state.run) return;
-  const enemies=state.run.enemies || [];
+  const enemies=(state.run.enemies || []).filter(e=>
+    explorationState(state.run,e.x,e.y)==="visible");
   if (!enemies.length) {
     const empty=document.createElement("p");
     empty.className="target-empty";
-    empty.textContent="Aucun ennemi restant dans cette descente.";
+    empty.textContent=hasFog(state.run)?"Aucune menace dans le champ de vision.":"Aucun ennemi restant dans cette descente.";
     host.append(empty);
     return;
   }
@@ -239,6 +243,7 @@ function renderThreatForecast(){
   if(!run){box.hidden=true;return;}
   const warnings=[];
   for(const enemy of run.enemies||[]){
+    if(explorationState(run,enemy.x,enemy.y)!=="visible")continue;
     const intent=currentEnemyIntent(run,enemy);
     if(!intent)continue;
     if(["guardian_heavy","rift_pulse","melee"].includes(intent.kind)){
@@ -282,6 +287,11 @@ function renderActorStats() {
 function renderCombatPreview() {
   const snapshot=combatSnapshot(state);
   const panel=$("combat-panel");
+  const target=state.run?.enemies?.find(e=>e.id===snapshot?.targetId);
+  if(target&&explorationState(state.run,target.x,target.y)!=="visible"){
+    panel.hidden=true;
+    return;
+  }
   panel.hidden=!snapshot;
   if (!snapshot) return;
   $("combat-target-name").textContent=snapshot.name;
@@ -335,8 +345,9 @@ function render() {
     $("health-meter").dataset.health = run.hp <= 4 ? "critical" : run.hp <= 8 ? "caution" : "healthy";
     $("health-state").textContent = run.hp <= 4 ? "DANGER" : run.hp <= 8 ? "BLESSE" : "STABLE";
     $("health-state").dataset.health = $("health-meter").dataset.health;
-    const enemyCount = run.enemies?.length ?? 0;
-    $("threat-state").textContent = enemyCount > 0 ? enemyCount + " HOSTILE" + (enemyCount > 1 ? "S" : "") : "ZONE CALME";
+    const enemyCount = (run.enemies||[]).filter(e=>
+      explorationState(run,e.x,e.y)==="visible").length;
+    $("threat-state").textContent = enemyCount > 0 ? enemyCount + " HOSTILE" + (enemyCount > 1 ? "S" : "")+" VISIBLE"+(enemyCount>1?"S":"") : (hasFog(run)?"AUCUNE MENACE VISIBLE":"ZONE CALME");
     $("threat-state").dataset.threat = enemyCount > 0 ? "danger" : "clear";
     $("use-bandage").disabled = (run.carried["consumable.bandage"] || 0) === 0 || run.hp >= MAX_HP;
     $("use-tonic").disabled = (run.carried["consumable.dusk_tonic"] || 0) === 0 || run.hp >= MAX_HP;
@@ -349,6 +360,8 @@ function render() {
       : run.rooms?"Secteur "+state.meta.descents+" : salles et couloirs réels. La caméra suit l'Égaré ; les portes ordinaires se traversent et se manipulent librement.":
       "Secteur historique : routes alternatives préservées. Observe avant de t'engager.";
     $("dungeon-map").textContent = mapViewportText(state);
+    $("exploration-map-panel").hidden = !hasFog(run);
+    $("exploration-mini-map").textContent = hasFog(run)?minimapText(run):"";
     $("dungeon-map").hidden = renderMode !== "ascii";
     $("tile-map").hidden = renderMode !== "tiles";
     $("renderer-toggle").textContent = renderMode === "tiles" ? "Passer en ASCII" : "Activer les graphismes";
@@ -391,7 +404,8 @@ function act(result) {
   transientMessage = null;
   state = result.state;
   // If an enemy dies during the v0.6 collision combat, never leave a stale target.
-  if (state.run?.targetId && !state.run.enemies?.some(e=>e.id===state.run.targetId && e.hp>0)) {
+  if (state.run?.targetId && !state.run.enemies?.some(e=>e.id===state.run.targetId && e.hp>0 &&
+      explorationState(state.run,e.x,e.y)==="visible")) {
     state=clearTarget(state).state;
   }
   if (!state.run) selected.clear();
@@ -498,7 +512,8 @@ window.addEventListener("keydown", (event) => {
     return;
   }
   if (event.key.toLowerCase()==="c" && target?.tagName!=="BUTTON") {
-    const enemies=state.run.enemies || [];
+    const enemies=(state.run.enemies || []).filter(e=>
+      explorationState(state.run,e.x,e.y)==="visible");
     if (enemies.length) {
       event.preventDefault();
       const index=enemies.findIndex(e=>e.id===state.run.targetId);

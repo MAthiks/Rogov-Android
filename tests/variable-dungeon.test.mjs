@@ -89,7 +89,15 @@ test("VAR-077: dynamic ASCII, tile inspection and extraction use run.map and run
   assert.equal(mapText(s).split("\n").length,32);
   for(const [pos,id] of Object.entries(l.loot)){
     const [x,y]=point(pos);
-    assert.equal(inspectTile(s,x,y).name,
+    // DEV-081: inspection from the entrance cannot disclose distant loot.
+    if(inspectTile(s,x,y).kind==="unknown")
+      assert.equal(mapText(s).split("\n")[y][x]," ");
+    const neighbour=[[0,-1],[0,1],[-1,0],[1,0]].map(([dx,dy])=>({x:x+dx,y:y+dy}))
+      .find(p=>l.map[p.y]?.[p.x] && l.map[p.y][p.x]!=="#");
+    assert.ok(neighbour);
+    const probe=structuredClone(s);
+    probe.run.x=neighbour.x;probe.run.y=neighbour.y;
+    assert.equal(inspectTile(probe,x,y).name,
       id==="relic.ashen_fragment"?"Fragment de cendre":"Tonique du crépuscule");
   }
   const route=deepRoute(l.map,l.start,l.exit,new Set(s.run.enemies.map(key)));

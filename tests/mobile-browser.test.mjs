@@ -205,3 +205,57 @@ test("DEV-080 mobile: cached deep dungeon resumes offline after reload", {timeou
     await context.close();
   }
 });
+
+test("DEV-081 mobile: fog hides unseen enemies from DOM, target panel, ASCII and minimap", {timeout:35000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage();
+    const errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const point=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const {visionKey}=await import("./exploration-visibility.js");
+      const source=game.newGame();source.meta.descents=1;
+      const state=game.beginRun(source).state;
+      const run=state.run;
+      let far=null;
+      for(let y=1;y<run.map.length-1&&!far;y++)
+        for(let x=1;x<run.map[0].length-1;x++)
+          if(run.map[y][x]==="."&&Math.hypot(run.x-x,run.y-y)>12){
+            far={x,y};break;
+          }
+      if(!far)throw Error("No hidden enemy position");
+      run.enemies=[{...run.enemies[0],id:"hidden-creature",x:far.x,y:far.y}];
+      run.targetId="hidden-creature"; // target IDs must not reveal stale offscreen targets.
+      const dx=run.x+5<run.map[0].length?5:-5,dy=run.y+5<run.map.length?5:-5;
+      const remembered=visionKey(run,run.x+dx,run.y+dy);
+      run.exploration.seen=[...new Set([...run.exploration.seen,remembered])].sort((a,b)=>a-b);
+      if(!game.validateSave(state))throw Error("Fog save invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return far;
+    });
+    await page.reload();
+    await page.locator("#title-continue").click();
+    assert.ok(await page.locator("#tile-map .tile-unknown").count()>0);
+    assert.ok(await page.locator("#tile-map .tile-remembered").count()>0);
+    assert.equal(await page.locator("#tile-map [data-enemy-id]").count(),0);
+    assert.equal(await page.locator("#target-choices button").count(),0);
+    assert.equal(await page.locator("#combat-panel").isHidden(),true);
+    assert.equal(await page.locator("#threat-forecast").isHidden(),true);
+    assert.match(await page.locator("#threat-state").textContent(),/AUCUNE MENACE VISIBLE/);
+    assert.equal(await page.locator("#exploration-map-panel").isHidden(),false);
+    const mini=await page.locator("#exploration-mini-map").textContent();
+    assert.equal(mini.split("\n").length,32);
+    assert.equal(mini.split("\n")[point.y][point.x]," ");
+    await page.locator("#renderer-toggle").tap();
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes(" "));
+    const unknown=await page.evaluate(async pos=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return game.inspectTile(s,pos.x,pos.y);
+    },point);
+    assert.equal(unknown.kind,"unknown");
+    assert.deepEqual(errors,[]);
+  } finally {await context.close();}
+});

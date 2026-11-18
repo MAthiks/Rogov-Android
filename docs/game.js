@@ -6,6 +6,7 @@ import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDef
 import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS} from "./enemy-ai.js";
 import {BASE_MAP,BASE_LOOT,generateLayout,validateLayout} from "./dungeon.js";
 import {generateDeepLayout,validateDeepLayout,isDeepMap} from "./deep-dungeon.js";
+import {visibleCells,explorationState,visionKey,validExploration,revealAround,hasFog} from "./exploration-visibility.js";
 import {RECIPES,canCraft} from "./economy.js";
 import {EQUIPMENT_CATALOG} from "./stats.js";
 export const SAVE_KEY = "rogov-web-v1";
@@ -108,6 +109,11 @@ export function enemyAt(run, x, y) {
 export function inspectTile(state, x, y) {
   if (!state.run || !Number.isInteger(x) || !Number.isInteger(y)) return null;
   if (x === state.run.x && y === state.run.y) return { kind:"hero", name:"L'Égaré", description:"Ton personnage. PV : "+state.run.hp+"/"+MAX_HP+"." };
+  const knowledge=explorationState(state.run,x,y);
+  if(knowledge==="unknown")return {kind:"unknown",name:"Obscurité",
+    description:"Cette zone n'a pas encore été explorée."};
+  if(knowledge==="remembered")return {kind:"memory",name:"Zone déjà explorée",
+    description:"Architecture mémorisée. Les créatures et objets mobiles ne sont pas repérables hors de vue."};
   const enemy = enemyAt(state.run,x,y);
   if (enemy) {
     const creature=ENEMY_TYPES[enemy.kind];
@@ -241,7 +247,8 @@ function enemyPhase(s) {
            !(nx===run.x&&ny===run.y) &&
            !enemyAt(run,nx,ny)) {
           enemy.x=nx;enemy.y=ny;
-          recordEvent(s,"danger",type.name+" approche.",run.turns);
+          if(explorationState(run,nx,ny)==="visible")
+            recordEvent(s,"danger",type.name+" approche.",run.turns);
           break;
         }
       }
@@ -303,6 +310,7 @@ export function validateSave(s) {
     if (!r || !Number.isInteger(r.x) || !Number.isInteger(r.y)) return false;
     if (r.map!==undefined && !(isDeepMap(r.map)?
         validateDeepLayout(r,true):validateLayout(r.map,r.loot))) return false;
+    if(r.exploration!==undefined && !validExploration(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
     if (!r.carried || !Array.isArray(r.collected) || !Number.isSafeInteger(r.turns)) return false;
     if (!Number.isInteger(r.hp) || r.hp < 1 || r.hp > MAX_HP) return false;
@@ -375,7 +383,8 @@ export function beginRun(state, equipment=[]) {
     turns:0,carried,collected:[],enemies:layout.enemies,
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
-      start:layout.start,exit:layout.exit}:{}) },s.meta);
+      start:layout.start,exit:layout.exit,exploration:{seen:[]}}:{}) },s.meta);
+  if(s.run.exploration)revealAround(s.run);
   return info(s,"Descente "+s.meta.descents+
     (s.meta.descents===1?" : les profondeurs de Nhal s'ouvrent.":
     " : Nhal a changé. Deux voies de retour restent ouvertes, mais les dangers se déplacent."));
@@ -442,6 +451,7 @@ export function move(state, direction, context="move") {
     }
   }
   recordEvent(s,type,message,s.run.turns);
+  revealAround(s.run);
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||message,changed:true};
 }
@@ -463,6 +473,7 @@ export function toggleDoor(state,x,y){
   regenEndurance(s,1);
   const message=active.open?"Tu ouvres la porte.":"Tu fermes la porte.";
   recordEvent(s,"action",message,s.run.turns);
+  revealAround(s.run);
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||message,changed:true};
 }
@@ -472,6 +483,8 @@ export function attackTarget(state) {
   if (!state.run) return info(state,"Prépare une descente.",false);
   const enemy=state.run.enemies?.find(e=>e.id===state.run.targetId && e.hp>0);
   if (!enemy) return info(state,"Sélectionne une cible vivante.",false);
+  if(explorationState(state.run,enemy.x,enemy.y)!=="visible")
+    return info(state,"Cible hors de vue : approche pour l’identifier.",false);
   if (distance(state.run,enemy)!==1)
     return info(state,"Cible hors de portée : approche au CONTACT.",false);
   if ((state.run.endurance??0)<TACTICAL_COSTS.attack)
@@ -612,14 +625,22 @@ export function mapViewportText(state){
 }
 export function mapText(state) {
   if (!state.run) return "";
-  const {x: px,y: py,collected} = state.run;
-  return (state.run.map||MAP).map((row,y) => row.split("").map((tile,x) => {
-    if (x === px && y === py) return "@";
-    const enemy=enemyAt(state.run,x,y);
-    if(enemy) return ENEMY_TYPES[enemy.kind].symbol;
-    if (tile === "S") return ".";
-    if (tile === "+") return doorAt(state.run,x,y)?.open?"/":"+";
-    if (tile === "$" && collected.includes(positionKey(x,y))) return ".";
+  const run=state.run,{x: px,y: py,collected}=run;
+  const live=hasFog(run)?visibleCells(run):null;
+  const seen=hasFog(run)?new Set(run.exploration.seen):null;
+  return (run.map||MAP).map((row,y) => row.split("").map((tile,x) => {
+    if (x===px&&y===py)return "@";
+    const position=live?visionKey(run,x,y):null;
+    const visible=!live||live.has(position);
+    if(!visible && !seen.has(position))return " ";
+    if(visible){
+      const enemy=enemyAt(run,x,y);
+      if(enemy)return ENEMY_TYPES[enemy.kind].symbol;
+    }
+    if(tile==="S")return visible?".":":";
+    if(tile==="+")return doorAt(run,x,y)?.open?"/":"+";
+    if(tile==="$"&&collected.includes(positionKey(x,y)))return visible?".":":";
+    if(!visible&&tile===".")return ":";
     return tile;
   }).join("")).join("\n");
 }

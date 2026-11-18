@@ -1245,3 +1245,111 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("DEV-090C mobile: nearby doors surface in the action dock without spending a turn", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page,true);
+    const dock=page.locator("#interaction-dock");
+    assert.equal(await dock.isVisible(),true);
+    assert.equal(await page.locator("#jump-action").isEnabled(),true);
+    assert.match(await page.locator("#interaction-summary").textContent(),/Porte/);
+    const coordinates=await page.evaluate(()=>{
+      const controls=document.getElementById("field-controls").getBoundingClientRect();
+      const action=document.getElementById("interaction-dock").getBoundingClientRect();
+      const combat=document.getElementById("combat-dock");
+      return {controlEnd:controls.bottom,actionTop:action.top,
+        combatHidden:combat.hidden,overflow:document.documentElement.scrollWidth,
+        width:document.documentElement.clientWidth};
+    });
+    assert.equal(coordinates.combatHidden,true);
+    assert.ok(coordinates.actionTop-coordinates.controlEnd>=0&&
+      coordinates.actionTop-coordinates.controlEnd<42);
+    assert.ok(coordinates.overflow<=coordinates.width+1);
+    const before=await page.locator("#turns").textContent();
+    await page.locator("#jump-action").tap();
+    await page.locator("#door-select").tap();
+    assert.equal(await page.locator("#turns").textContent(),before,
+      "shortcut and door selection never advance turns");
+    await page.locator("#door-action").tap();
+    assert.equal(await page.locator("#turns").textContent(),String(Number(before)+1),
+      "door activation is still a deliberate one-turn action");
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#interaction-dock").isVisible(),true);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("DEV-090C mobile: expedition bag remains compact, grouped and free to inspect", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const source=game.newGame();source.meta.descents=1;
+      const state=game.beginRun(source).state;
+      state.run.enemies=[];
+      state.run.carried={"consumable.bandage":7,"relic.ashen_fragment":1};
+      if(!game.validateSave(state))throw Error("Invalid eight-item QA save");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#bag-panel").evaluate(e=>e.open),false);
+    assert.match(await page.locator("#bag-summary").textContent(),/SAC PLEIN.*8 \/ 8/);
+    const before=await page.locator("#turns").textContent();
+    await page.locator("#jump-bag").tap();
+    assert.equal(await page.locator("#bag-panel").evaluate(e=>e.open),true);
+    assert.equal(await page.locator("#bag-meter").evaluate(e=>e.value),8);
+    assert.equal(await page.locator("#bag-items .item-row").count(),2);
+    assert.equal(await page.locator("#bag-items .bag-category").count(),2);
+    assert.equal(await page.locator("#turns").textContent(),before);
+    const g=await page.evaluate(()=>({
+      scroll:document.documentElement.scrollWidth,
+      width:document.documentElement.clientWidth}));
+    assert.ok(g.scroll<=g.width+1);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.match(await page.locator("#bag-summary").textContent(),/SAC PLEIN/);
+    assert.equal(await page.locator("#bag-meter").evaluate(e=>e.value),8);
+    assert.equal(await page.locator("#turns").textContent(),before);
+  }finally{await context.close();}
+});
+
+test("DEV-090C mobile: nearby secret clue remains visible without exposing the hidden route", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const scenario=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const source=game.newGame();source.meta.descents=1;
+      const s=game.beginRun(source).state;
+      s.run.enemies=[];
+      const clue=s.run.secrets[0].clue;
+      s.run.x=clue.x;s.run.y=clue.y;
+      if(!game.validateSave(s))throw Error("Invalid secret test state");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+      return {x:s.run.secrets[0].x,y:s.run.secrets[0].y};
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#interaction-dock").isVisible(),true);
+    assert.match(await page.locator("#interaction-summary").textContent(),/Indice/);
+    assert.equal(await page.locator("#secret-search").isEnabled(),true);
+    const before=await page.locator("#turns").textContent();
+    await page.locator("#jump-action").tap();
+    assert.equal(await page.locator("#turns").textContent(),before);
+    await page.locator("#secret-search").tap();
+    assert.equal(await page.locator("#turns").textContent(),String(Number(before)+1));
+    const persisted=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(state),revealed:state.run.secrets[0].revealed};
+    });
+    assert.deepEqual(persisted,{valid:true,revealed:true});
+  }finally{await context.close();}
+});

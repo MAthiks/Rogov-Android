@@ -112,3 +112,29 @@ test("DEV-090B combat dock follows field controls, keeps enemy tells and folds o
   assert.match(html,/id="combat-attack"/);
   assert.match(html,/id="combat-retreat"/);
 });
+
+
+test("DEV-090C context dock is between combat and legend; inventory is expandable",()=>{
+  const html=asset("index.html"),app=asset("app.js");
+  const ids=["interaction-dock","interaction-summary","jump-action","bag-panel",
+    "bag-summary","bag-meter","bag-items","secret-search","trap-disarm",
+    "room-site-panel","chest-action","door-select","door-action"];
+  for(const id of ids)
+    assert.equal((html.match(new RegExp('id="'+id+'"',"g"))||[]).length,1,
+      id+" must have one stable DOM action");
+  const map=html.indexOf('id="tile-map"');
+  const field=html.indexOf('id="field-controls"');
+  const combat=html.indexOf('id="combat-dock"');
+  const dock=html.indexOf('id="interaction-dock"');
+  const bag=html.indexOf('id="bag-panel"');
+  const legend=html.indexOf('id="map-legend-details"');
+  assert.ok(map<field&&field<combat&&combat<dock&&dock<bag&&bag<legend);
+  assert.match(html,/id="interaction-dock"[^>]*hidden/);
+  assert.match(html,/id="bag-panel" class="bag-panel"/);
+  assert.match(app,/function updateInteractionDock\(\)/);
+  assert.match(app,/dock\.hidden=labels\.length===0/);
+  assert.match(app,/\$\("jump-action"\)\.disabled=dock\.hidden/);
+  assert.match(app,/function updateBagStatus\(\)/);
+  assert.match(app,/function renderInventory\(container, items, selectable=false\)/);
+  assert.match(app,/\$\("bag-panel"\)\.open=true/);
+});

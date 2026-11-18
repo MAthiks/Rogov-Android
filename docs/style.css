@@ -501,3 +501,101 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
   .combat-dock .tactic-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
   .combat-dock .tactic-actions button{min-height:55px}
 }
+
+
+/* DEV-090C — Contextual actions and expedition bag. Real gameplay buttons
+ * keep their original IDs and handlers; no action is made automatic. */
+.expedition-shortcuts{
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:5px;
+}
+.expedition-shortcuts button{min-height:44px;min-width:0;overflow-wrap:anywhere}
+.expedition-shortcuts button:disabled{
+  opacity:.48;filter:grayscale(.4);cursor:default;
+}
+.interaction-dock,.bag-panel{
+  max-width:450px;margin:10px auto 6px;
+  border:1px solid #596f64;border-radius:11px;
+  background:linear-gradient(155deg,#172a29,#152329);
+  text-align:left;min-width:0;
+}
+.interaction-dock{padding:10px}
+.interaction-dock-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:7px;flex-wrap:wrap;border-bottom:1px solid #40584e;
+  padding:0 2px 9px;margin-bottom:8px;
+}
+.interaction-dock-head strong{
+  font:800 11px/1.3 ui-monospace,monospace;
+  color:#d9e9cb;letter-spacing:.075em;
+}
+.interaction-dock-head span{
+  font:600 10px/1.3 system-ui,sans-serif;color:#d3c6a1;
+  text-align:right;
+}
+.interaction-dock .secret-controls,
+.interaction-dock .trap-controls,
+.interaction-dock .room-site-panel,
+.interaction-dock .chest-controls,
+.interaction-dock .door-controls{
+  margin:8px 0;max-width:100%;
+}
+.interaction-dock .room-site-panel{padding:10px}
+.interaction-dock .door-controls{align-items:stretch}
+.interaction-dock .door-action{margin:0;min-height:44px}
+.interaction-dock #chest-action{
+  margin:0;min-height:48px;text-align:center;
+}
+.interaction-dock .trap-buttons button{
+  min-height:44px;margin:0;padding:9px 6px;
+}
+.interaction-dock .room-site-choice{min-height:44px}
+.interaction-dock .secret-controls:empty,
+.interaction-dock .trap-controls:empty{display:none}
+.bag-panel{overflow:hidden}
+.bag-panel summary{
+  min-height:48px;display:flex;justify-content:space-between;
+  align-items:center;gap:6px 12px;flex-wrap:wrap;
+  cursor:pointer;padding:12px;
+  font-size:13px;line-height:1.35;color:#deead8;
+}
+.bag-panel summary strong{font-size:13px}
+.bag-panel summary span{
+  font:700 11px/1.35 ui-monospace,monospace;color:#c9d0b4;
+  white-space:nowrap;
+}
+.bag-panel summary span[data-full="true"]{color:#efb292}
+.bag-panel[open] summary{border-bottom:1px solid #42584f}
+.bag-content{padding:9px 12px 10px}
+.bag-risk{
+  font-size:11px;line-height:1.4;
+  color:#d1b9a1;margin:0 0 9px;
+}
+#bag-meter{
+  display:block;width:100%;height:9px;
+  accent-color:#9bba9a;
+}
+.bag-panel .item-list{margin:10px 0 0;gap:6px}
+.bag-panel .item-row{
+  margin:0;min-height:45px;padding:7px 9px;
+}
+.bag-category{
+  display:block;color:#b6c9b6;border-bottom:1px solid #344945;
+  font:800 10px/1.4 ui-monospace,monospace;
+  text-transform:uppercase;letter-spacing:.06em;
+  margin:10px 0 0;padding:0 2px 5px;
+}
+#interaction-dock,#bag-panel{scroll-margin-top:75px}
+@media(max-width:390px){
+  .expedition-shortcuts{gap:3px;padding:5px}
+  .expedition-shortcuts button{
+    min-height:44px;padding:7px 1px;font-size:10px;
+  }
+  .interaction-dock{padding:8px}
+  .interaction-dock .trap-buttons{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .interaction-dock .trap-buttons button{font-size:11px}
+  .bag-panel summary{padding:10px}
+}
+@media(max-width:325px){
+  .interaction-dock .trap-buttons{grid-template-columns:1fr}
+}

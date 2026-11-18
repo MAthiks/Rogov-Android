@@ -125,6 +125,7 @@
         <nav class="expedition-shortcuts" aria-label="Accès rapide aux éléments de l'expédition">
           <button type="button" id="jump-map" aria-controls="tile-map">Carte</button>
           <button type="button" id="jump-combat" aria-controls="combat-dock">Combat</button>
+          <button type="button" id="jump-action" aria-controls="interaction-dock">À portée</button>
           <button type="button" id="jump-report" aria-controls="expedition-report">Rapport</button>
           <button type="button" id="jump-bag" aria-controls="bag-items">Sac</button>
         </nav>
@@ -215,12 +216,10 @@
         </section>
 
         </section>
-          <details id="exploration-map-panel" class="exploration-map-panel" hidden>
-            <summary>Plan mémorisé de Nhal <small>Zones découvertes uniquement</small></summary>
-            <p class="hint">Ce plan conserve l'architecture explorée, sans dévoiler les ennemis hors de vue.</p>
-            <pre id="exploration-mini-map" aria-label="Mini-carte des seules zones découvertes"></pre>
-            <p class="hint">Légende : @ Égaré · # mur · C coffre · ^ faille mortelle · + porte · ! piège identifié · x désamorcé · E Arche · a atelier · e écho · k cache · v visité · : sol mémorisé · . sol visible</p>
-          </details>
+        <section id="interaction-dock" class="interaction-dock" aria-label="Interactions à portée du personnage" hidden>
+          <div class="interaction-dock-head">
+            <strong>À PORTÉE</strong><span id="interaction-summary">Interactions proches</span>
+          </div>
           <div class="secret-controls" role="group" aria-label="Indices et fouille de secrets">
             <p id="secret-clue" class="secret-clue" hidden></p>
             <button id="secret-search" class="secondary full" type="button" hidden disabled>Fouiller attentivement · 1 tour</button>
@@ -246,6 +245,21 @@
             <button id="door-select" type="button" class="secondary door-action" disabled>Aucune porte voisine</button>
             <button id="door-action" type="button" class="secondary door-action" disabled>Sélectionner une porte voisine</button>
           </div>
+        </section>
+        <details id="bag-panel" class="bag-panel">
+          <summary><strong>Inventaire de descente</strong><span id="bag-summary">0 / 8 objets</span></summary>
+          <div class="bag-content">
+            <p class="bag-risk">Butin transporté : perdu en cas de Rappel, sécurisé uniquement par extraction.</p>
+            <progress id="bag-meter" max="8" value="0" aria-label="Capacité du sac">0 / 8</progress>
+            <div id="bag-items" class="item-list" aria-label="Objets transportés"></div>
+          </div>
+        </details>
+          <details id="exploration-map-panel" class="exploration-map-panel" hidden>
+            <summary>Plan mémorisé de Nhal <small>Zones découvertes uniquement</small></summary>
+            <p class="hint">Ce plan conserve l'architecture explorée, sans dévoiler les ennemis hors de vue.</p>
+            <pre id="exploration-mini-map" aria-label="Mini-carte des seules zones découvertes"></pre>
+            <p class="hint">Légende : @ Égaré · # mur · C coffre · ^ faille mortelle · + porte · ! piège identifié · x désamorcé · E Arche · a atelier · e écho · k cache · v visité · : sol mémorisé · . sol visible</p>
+          </details>
           <details class="map-legend-details" id="map-legend-details">
             <summary>Symboles et légende de Nhal</summary>
           <div id="graphic-legend" class="graphic-legend" aria-label="Légende illustrée du donjon"></div>
@@ -282,8 +296,6 @@
           <p id="inspect-description">Touchez un élément de la carte pour connaître son rôle. Touchez une porte voisine, puis confirmez son ouverture ou sa fermeture.</p>
         </div>
         <div id="run-log-slot" class="log-slot"></div>
-        <h3>Sac de descente</h3>
-        <div id="bag-items" class="item-list"></div>
         <p class="notice danger-text">La faille rouge provoque le Rappel. La Larve de faille attaque à distance sur son axe. Rejoins l'arche verte pour sécuriser ton butin.</p>
       </section>
 

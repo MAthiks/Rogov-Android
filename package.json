@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:web": "node tools/make-icons.mjs && node --test tests/web-game.test.mjs tests/combat-contract.test.mjs tests/ui-combat-preview.test.mjs tests/tactical-actions.test.mjs tests/actor-stats.test.mjs tests/stat-combat.test.mjs tests/enemy-ai.test.mjs tests/qa-alpha-goal.test.mjs tests/variable-dungeon.test.mjs tests/refuge-economy.test.mjs tests/deep-dungeon.test.mjs tests/pwa-assets.test.mjs tests/exploration-visibility.test.mjs tests/secret-passages.test.mjs tests/qa084-live-encounter.test.mjs",
+    "test:web": "node tools/make-icons.mjs && node --test tests/web-game.test.mjs tests/combat-contract.test.mjs tests/ui-combat-preview.test.mjs tests/tactical-actions.test.mjs tests/actor-stats.test.mjs tests/stat-combat.test.mjs tests/enemy-ai.test.mjs tests/qa-alpha-goal.test.mjs tests/variable-dungeon.test.mjs tests/refuge-economy.test.mjs tests/deep-dungeon.test.mjs tests/pwa-assets.test.mjs tests/exploration-visibility.test.mjs tests/secret-passages.test.mjs tests/qa084-live-encounter.test.mjs tests/qa084-encounter-coverage.test.mjs",
     "check:web": "node --check docs/app.js && node --check docs/game.js && node --check docs/tiles.js && node --check docs/combat.js && node --check docs/sw.js && node --check docs/stats.js && node --check docs/combat-rules.js && node --check docs/enemy-ai.js && node --check docs/dungeon.js && node --check docs/deep-dungeon.js && node --check docs/exploration-visibility.js && node --check docs/secrets.js && node --check docs/economy.js"
   }
 }

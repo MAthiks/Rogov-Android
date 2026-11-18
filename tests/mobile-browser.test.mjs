@@ -644,13 +644,23 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
     assert.ok(lootKey,"Public fragment exists");
     const [x,y]=lootKey.split(",").map(Number);
     const walk=async(destination)=>{
+      let previous=null;
       for(let turn=0;turn<150;turn++){
         const current=await state();
         if(!current.run)return current;
         if(current.run.x===destination.x&&current.run.y===destination.y)return current;
         const route=await plan(destination);
         assert.ok(route?.length>=2,"Ordinary route remains available with active enemies");
-        await step(current.run,route[1]);
+        let nextStep=route[1];
+        // An active Charognard can cause a shortest-route switch each turn.
+        // Keep the human player's intended direction by preferring a real
+        // alternative route rather than walking back and forth forever.
+        if(previous&&nextStep.x===previous.x&&nextStep.y===previous.y){
+          const alternative=await plan(destination,false,previous);
+          if(alternative?.length>=2)nextStep=alternative[1];
+        }
+        previous={x:current.run.x,y:current.run.y};
+        await step(current.run,nextStep);
         movements++;
         const next=await state();
         if(next.run&&next.run.hp<=7&&(next.run.carried["consumable.bandage"]||0)>0)

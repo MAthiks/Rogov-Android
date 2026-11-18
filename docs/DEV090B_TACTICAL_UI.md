@@ -1,6 +1,6 @@
 # ROGOV — DEV-090B : combat tactique contextuel Android
 
-**Statut : développé sur `dev/dev-090b-tactical-combat-ui` ; fusion prévue après réussite CI, à la demande explicite de l'utilisateur.**  
+**Statut : fusionné dans `main` via [PR #14](https://github.com/MAthiks/Rogov-Android/pull/14) le 18 novembre 2026.** Les tests moteur **221/221**, Chromium mobile **18/18**, Chrome Android 13 et APK sont verts. La recette tactile sur téléphone physique est encore à confirmer.  
 **Dépendance :** [DEV-090A, PR #13](https://github.com/MAthiks/Rogov-Android/pull/13), déjà fusionné. **DEV-089D reste suspendu** pendant la priorité ergonomie.
 
 ## Problème corrigé

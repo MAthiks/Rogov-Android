@@ -57,7 +57,8 @@ test("ART-091B: combat/ASCII and saves are unchanged for the three live enemy fa
 
 test("ART-091B: sprite module is precached and rendering layer remains fog-safe",()=>{
   const sw=readFileSync(new URL("../docs/sw.js",import.meta.url),"utf8");
-  assert.match(sw,/rogov-v0\.7f-art091b-enemy-silhouettes/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\\.7f-[a-z0-9-]+"/,
+    "PWA cache remains revisioned as later packs are added");
   assert.match(sw,/"\.\/enemy-art\.js"/);
   const tiles=readFileSync(new URL("../docs/tiles.js",import.meta.url),"utf8");
   assert.match(tiles,/const enemy=visible\?enemyAt\(run,x,y\):null;/,

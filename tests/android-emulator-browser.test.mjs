@@ -82,6 +82,8 @@ test("DEV-080: Android 13 Chrome runs the deep PWA, doors, persistence and offli
     assert.ok(geometry.mapLeft>=-1&&geometry.mapRight<=geometry.viewport+1,
       "11x11 map fits Android screen: "+JSON.stringify(geometry));
 
+    await page.locator("#jump-action").click();
+    assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
     await page.locator("#door-select").click();
     assert.match(await page.locator("#door-action").textContent(),/Fermer la porte/);
     assert.equal(await page.locator("#turns").textContent(),"0");
@@ -96,6 +98,8 @@ test("DEV-080: Android 13 Chrome runs the deep PWA, doors, persistence and offli
     await page.locator("#title-continue").click();
     assert.equal(await page.locator("#turns").textContent(),"1");
     assert.ok((await page.locator("#dungeon-map").textContent()).includes("+"));
+    await page.locator("#jump-action").click();
+    assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
     await page.locator("#door-select").click();
     assert.match(await page.locator("#door-action").textContent(),/Ouvrir la porte/);
     await page.locator("#door-action").click();
@@ -186,6 +190,8 @@ test("DEV-081: Android 13 Chrome tests opaque doors, remembered fog, no target l
     assert.equal(mini0[scenario.behind.y][scenario.behind.x]," ",
       "Door opacity hides its room in the minimap");
 
+    await page.locator("#jump-action").click();
+    assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
     await page.locator("#door-select").click();
     assert.match(await page.locator("#door-action").textContent(),/Ouvrir/);
     await page.locator("#door-action").click();
@@ -279,6 +285,8 @@ test("DEV-082: Android Chrome confirms visible clue, one-turn secret search, one
       return game.inspectTile(state,x,y).kind;
     },scenario);
     assert.equal(before,"wall");
+    await page.locator("#jump-action").click();
+    assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
     await page.locator("#secret-search").click();
     assert.equal(await page.locator("#turns").textContent(),"1");
     assert.ok(await page.locator("#tile-map .tile-secret_open").count()>0);
@@ -384,6 +392,8 @@ test("QA-084 Android Chrome: first deep chamber visibly contains foe, chest, rif
     }
     assert.equal(await page.locator("#chest-action").isEnabled(),true);
     const before=Number(await page.locator("#turns").textContent());
+    await page.locator("#jump-action").click();
+    assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
     await page.locator("#chest-action").click();
     assert.equal(Number(await page.locator("#turns").textContent()),before+1);
     const saved=await page.evaluate(async()=>{

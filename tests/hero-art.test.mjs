@@ -66,3 +66,18 @@ test("ART-091A: legacy saves and offline PWA cache keep their contracts",()=>{
     "Versioned cache remains active as subsequent art packs are added");
   assert.match(sw,/"\.\/hero-art\.js"/,"All four SVG sprites precached offline");
 });
+
+test("UI-092A: le PJ n'a aucun cadre, halo ni pseudo-élément visuel",()=>{
+  const css=readFileSync(new URL("../docs/style.css",import.meta.url),"utf8");
+  const tiles=readFileSync(new URL("../docs/tiles.js",import.meta.url),"utf8");
+  assert.equal(css.includes(".tile-hero:before{"),false,
+    "Aucun pseudo-élément de bordure autour du PJ");
+  assert.equal(css.includes(".tile-hero::before{"),false,
+    "Aucun pseudo-élément alternatif autour du PJ");
+  assert.match(css,/\.tile-hero\{z-index:2\}/,
+    "La case du PJ reste prioritaire sans cadre");
+  assert.match(tiles,/cell\.classList\.add\("tile-hero"\)/,
+    "La silhouette du PJ reste visible");
+  assert.match(css,/\.hostile-tile:before/,
+    "Les indicateurs tactiques des ennemis ne changent pas");
+});

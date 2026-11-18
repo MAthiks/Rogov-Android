@@ -133,6 +133,13 @@ test("DEV-080 mobile: 360px portrait, tactile doors, ASCII and persisted travel"
     assert.equal(ascii.split("\n").length,11);
     assert.ok(ascii.split("\n").every(row=>row.length===11));
     assert.ok(ascii.includes("+"),"Closed door in ASCII");
+    await page.reload();
+    await page.locator("#title-continue").click();
+    assert.equal(await page.locator("#turns").textContent(),"1","Closed-door turn restored");
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("+"),
+      "Closed door and ASCII renderer restored");
+
+    // The first door in the generated list is adjacent to the seeded hero.
     await page.locator("#door-select").tap();
     assert.match(await page.locator("#door-action").textContent(),/Ouvrir la porte/);
     await page.locator("#door-action").tap();
@@ -142,9 +149,9 @@ test("DEV-080 mobile: 360px portrait, tactile doors, ASCII and persisted travel"
 
     await page.reload();
     await page.locator("#title-continue").click();
-    assert.equal(await page.locator("#turns").textContent(),"2","Turns restored");
+    assert.equal(await page.locator("#turns").textContent(),"2","Opened-door turn restored");
     assert.ok((await page.locator("#dungeon-map").textContent()).includes("/"),
-      "Door and renderer restored");
+      "Opened door and renderer restored");
 
     const direction=door.x>position.x?"right":door.x<position.x?"left":
       door.y>position.y?"down":"up";

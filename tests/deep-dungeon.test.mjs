@@ -178,3 +178,18 @@ test("DEV-080: both rendering modes use a bounded mobile viewport",async()=>{
       Number(cell.dataset.y)>=view.top&&Number(cell.dataset.y)<view.top+view.height));
   } finally {globalThis.document=old;}
 });
+
+test("DEV-080: a creature can occupy an opened door without corrupting saves",()=>{
+  const game=newGame();game.meta.descents=1;
+  const s=beginRun(game).state;
+  const doorway=s.run.doors[0];
+  assert.equal(doorway.open,true);
+  assert.equal(s.run.map[doorway.y][doorway.x],"+");
+  s.run.enemies[0].x=doorway.x;s.run.enemies[0].y=doorway.y;
+  assert.equal(validateSave(s),true);
+  const restored=normalizeJournal(JSON.parse(JSON.stringify(s)));
+  assert.equal(validateSave(restored),true);
+  const closed=structuredClone(restored);
+  closed.run.doors[0].open=false;
+  assert.equal(validateSave(closed),false,"enemy cannot occupy a closed door");
+});

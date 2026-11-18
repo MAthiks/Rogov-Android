@@ -667,3 +667,72 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
       movements+" touch moves, 2 remaining active enemies, extraction PASS");
   }finally{await context.close();}
 });
+
+
+test("QA-084 feedback mobile: an actual new descent shows an enemy, chest and rift before any movement", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const chest=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();s.meta.descents=1;
+      const deep=game.beginRun(s).state;
+      if(!game.validateSave(deep))throw Error("Generated deep save invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(deep));
+      const pos=Object.keys(deep.run.loot).find(k=>
+        deep.run.loot[k]==="consumable.bandage");
+      const [x,y]=pos.split(",").map(Number);
+      return {x,y};
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    if(await page.locator("#tile-map").isHidden())
+      await page.locator("#renderer-toggle").tap();
+    assert.ok(await page.locator("#tile-map .tile-charognard").count()>0,
+      "At least one enemy must already be visible on entering Nhal");
+    assert.ok(await page.locator("#tile-map .tile-loot").count()>0,
+      "An actual chest must already be visible on entering Nhal");
+    assert.ok(await page.locator("#tile-map .tile-hazard").count()>0,
+      "A visible rift must already be in the entry viewport");
+    assert.equal(await page.locator("#chest-action").isDisabled(),true,
+      "Chest opening needs proximity");
+    // Isolate the chest interaction from combat while using real mobile D-pad.
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      state.run.enemies=[];
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    const steps=await page.evaluate(async(chest)=>{
+      const game=await import("./game.js");
+      const {deepRoute}=await import("./deep-dungeon.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return deepRoute(state.run.map,{x:state.run.x,y:state.run.y},chest);
+    },chest);
+    assert.ok(steps?.length>=3);
+    for(let i=1;i<steps.length-1;i++){
+      const a=steps[i-1],b=steps[i];
+      const dir=b.x>a.x?"right":b.x<a.x?"left":b.y>a.y?"down":"up";
+      await page.locator('[data-direction="'+dir+'"]').tap();
+    }
+    assert.equal(await page.locator("#chest-action").isEnabled(),true);
+    const before=Number(await page.locator("#turns").textContent());
+    await page.locator("#chest-action").tap();
+    assert.equal(Number(await page.locator("#turns").textContent()),before+1);
+    const stored=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(stored.run.carried["consumable.bandage"],1);
+    assert.ok(stored.run.collected.includes(chest.x+","+chest.y));
+    assert.ok(await page.locator("#tile-map .tile-chest_open").count()>0);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#chest-action").isDisabled(),true);
+    assert.deepEqual(errors,[]);
+    console.log("QA-084 MOBILE FEEDBACK: entry enemy / chest / rift / tactile open / persistence PASS");
+  }finally{await context.close();}
+});

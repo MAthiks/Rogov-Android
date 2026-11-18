@@ -33,14 +33,14 @@
 
 Le [GDD exploration v0.9](docs/GDD_EXPLORATION_NHAL_V0.9.md) est la référence courante. La [v0.8](docs/GDD_EXPLORATION_NHAL_V0.8.md) reste archivée comme jalon initial. **DEV-080 à DEV-088 sont intégrés à la version Web jouable** (salles/couloirs/portes, visibilité, secrets, pièges, événements, extraction). Ils ont été validés par les suites de tests et le déploiement GitHub Pages ; l'utilisateur a confirmé le fonctionnement de DEV-088 sur Android.
 
-La phase suivante n'est **pas encore développée** : enrichir les formes des salles, varier la topologie et refaire la direction artistique des tiles sans créer de risque de sortie arbitraire.
+**DEV-089A et DEV-089B sont fusionnés** le 18 novembre 2026 : salles aux obstacles intérieurs réels, nouveau tileset original 24×24, variation de sols, autotiling et portes plus lisibles. Les phases suivantes restent à développer : graphe variable DEV-089C puis styles de secteurs DEV-089D.
 
 | Lot | Statut | Livrable |
 |---|---|---|
 | DOC-079 | GDD v0.8 archivé | Contrats d'exploration, sécurité du retour |
 | DEV-080 à DEV-088 | **Livrés** | Donjon profond, secrets, pièges, salles spéciales et rapport d'extraction |
-| **DEV-089A** | À développer | Salles en L, piliers, alcôves et secteurs effondrés avec géométrie réelle |
-| **DEV-089B** | À développer | Direction artistique « ruines de pierre froide », tiles SVG 24 × 24, palette et états lisibles |
+| **DEV-089A** | **Livré — PR #10** | Salles en L, piliers, alcôves et secteurs effondrés avec géométrie réelle |
+| **DEV-089B** | **Livré — PR #11** | Direction artistique « ruines de pierre froide », tiles SVG 24 × 24, palette et états lisibles |
 | **DEV-089C** | À développer | Graphe de salles variable, embranchements, boucles et impasses facultatives |
 | **DEV-089D** | À développer | Ruines, galeries, forteresse enfouie et complexe fracturé comme familles architecturales |
 

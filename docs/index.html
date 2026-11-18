@@ -136,6 +136,22 @@
           <p id="actor-class-label" class="actor-class-label"></p>
         </details>
         <p id="route-hint" class="route-hint" aria-live="polite">Nhal change entre les descentes. Observe les issues et choisis ton risque.</p>
+        <details id="expedition-report" class="expedition-report" hidden>
+          <summary><strong>Rapport d'expédition</strong><span id="expedition-report-summary">Évaluer le retour</span></summary>
+          <div class="expedition-report-details">
+            <div class="expedition-report-values">
+              <p>Dans le sac, non sécurisé <strong id="report-carried">—</strong></p>
+              <p>Fragments exposés <strong id="report-fragments">—</strong></p>
+              <p>Au coffre de Veyr <strong id="report-secured">—</strong></p>
+              <p>Butins déjà repérés <strong id="report-chests">—</strong></p>
+              <p>Lieux repérés à explorer <strong id="report-sites">—</strong></p>
+              <p>Menaces visibles <strong id="report-enemies">—</strong></p>
+            </div>
+            <p id="report-route" class="report-route">Arche non repérée.</p>
+            <p id="report-advice" class="report-advice"></p>
+            <p class="hint">Calcul fondé uniquement sur les zones déjà découvertes. Le trajet indique des cases connues, pas une garantie : ennemis mobiles, portes et dangers peuvent modifier le retour. Aucun déplacement automatique.</p>
+          </div>
+        </details>
         <div class="dungeon-wrap">
           <div class="render-controls"><span>PACK VISUEL / NHAL</span><button type="button" id="renderer-toggle" class="secondary" aria-pressed="true">Passer en ASCII</button></div>
           <div id="tile-map" class="pixel-map" role="group" aria-label="Carte graphique du donjon. Touchez un ennemi pour le cibler." tabindex="0"></div>

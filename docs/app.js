@@ -1,5 +1,6 @@
 import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
+import {heroFacingFromStep} from "./hero-art.js";
 import { nearbySecretHint } from "./secrets.js";
 import {nearbyTrapHint,trapHintText} from "./traps.js";
 import {ROOM_SITES,nearbyRoomSite} from "./room-events.js";
@@ -27,6 +28,7 @@ const EVENT_LABELS = Object.freeze({
 });
 const VIEW_KEY = "rogov-renderer-v1";
 let renderMode = "tiles";
+let heroFacing = "down"; // Render-only: preserve SCHEMA_VERSION and all old saves.
 try { renderMode = localStorage.getItem(VIEW_KEY) === "ascii" ? "ascii" : "tiles"; }
 catch { /* Default to graphic display without storage. */ }
 
@@ -523,7 +525,7 @@ function render() {
     $("renderer-toggle").setAttribute("aria-pressed", renderMode === "tiles" ? "true" : "false");
     $("graphic-legend").hidden = renderMode !== "tiles";
     $("ascii-legend").hidden = renderMode !== "ascii";
-    if (renderMode === "tiles") drawTileMap(state, $("tile-map"));
+    if (renderMode === "tiles") drawTileMap(state, $("tile-map"), heroFacing);
     updateDoorAction();
     updateChestAction();
     updateInteractionDock();
@@ -560,7 +562,9 @@ function act(result) {
     return;
   }
   transientMessage = null;
+  const previousRun=state.run;
   state = result.state;
+  heroFacing=heroFacingFromStep(previousRun,state.run,heroFacing);
   // If an enemy dies during the v0.6 collision combat, never leave a stale target.
   if (state.run?.targetId && !state.run.enemies?.some(e=>e.id===state.run.targetId && e.hp>0 &&
       explorationState(state.run,e.x,e.y)==="visible")) {
@@ -610,6 +614,7 @@ $("title-new").addEventListener("click", () => {
   storageLocked = false;
   hasStoredGame = false;
   state = newGame();
+  heroFacing = "down";
   selected.clear();
   transientMessage = null;
   $("warning").hidden = true;

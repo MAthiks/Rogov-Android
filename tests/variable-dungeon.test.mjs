@@ -100,7 +100,9 @@ test("VAR-077: dynamic ASCII, tile inspection and extraction use run.map and run
     assert.equal(inspectTile(probe,x,y).name,"Coffre de Nhal",
       "Deep loot now appears as an explicit, inspectable chest");
   }
-  const route=deepRoute(l.map,l.start,l.exit,new Set(s.run.enemies.map(key)));
+  // DEV-086: navigation test must avoid active traps rather than force their trigger.
+  const route=deepRoute(l.map,l.start,l.exit,
+    new Set([...s.run.enemies,...(s.run.traps||[])].map(key)));
   assert.ok(route);
   s.run.enemies=[]; // isolate geometry from the combat AI
   for(let i=1;i<route.length;i++){

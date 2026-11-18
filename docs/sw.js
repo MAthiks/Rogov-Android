@@ -1,4 +1,4 @@
-const CACHE_NAME = "rogov-v0.7f-dev088-return-report";
+const CACHE_NAME = "rogov-v0.7f-dev089a-room-shapes";
 const CORE = [
   "./", "./index.html", "./style.css?v=0.7f", "./app.js?v=0.7f", "./game.js", "./tiles.js", "./combat.js", "./stats.js", "./combat-rules.js", "./enemy-ai.js", "./dungeon.js", "./deep-dungeon.js", "./exploration-visibility.js", "./secrets.js", "./traps.js", "./room-events.js", "./expedition-report.js", "./economy.js",
   "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./title-scene.webp"

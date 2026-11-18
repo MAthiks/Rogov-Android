@@ -5,6 +5,7 @@ import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDef
   regenEndurance } from "./combat-rules.js";
 import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS} from "./enemy-ai.js";
 import {BASE_MAP,BASE_LOOT,generateLayout,validateLayout} from "./dungeon.js";
+import {generateDeepLayout,validateDeepLayout,isDeepMap} from "./deep-dungeon.js";
 import {RECIPES,canCraft} from "./economy.js";
 import {EQUIPMENT_CATALOG} from "./stats.js";
 export const SAVE_KEY = "rogov-web-v1";
@@ -114,6 +115,11 @@ export function inspectTile(state, x, y) {
       description:creature.family+" · PV "+enemy.hp+"/"+creature.hp+" · "+creature.description };
   }
   const tile = tileAt(x,y,state.run);
+  if (tile==="+") {
+    const door=doorAt(state.run,x,y);
+    return {kind:"door",name:door?.open?"Porte ouverte":"Porte fermée",
+      description:"Porte ordinaire, utilisable dans les deux sens. Sélectionne-la à proximité et confirme Ouvrir / Fermer."};
+  }
   if (tile==="#") return { kind:"wall", name:"Mur de pierre", description:"Obstacle infranchissable." };
   if (tile==="^") return { kind:"danger", name:"Faille mortelle", description:"La traverser déclenche le Rappel. Le sac sera perdu." };
   if (tile==="E") return { kind:"extraction", name:"Arche d'extraction", description:"Atteins-la pour sécuriser ton équipement." };
@@ -128,7 +134,7 @@ export function inspectTile(state, x, y) {
 function canRiftPulse(enemy, run) {
   if (distance(enemy,run)!==2) return false;
   if (enemy.x!==run.x && enemy.y!==run.y) return false;
-  return tileAt((enemy.x+run.x)/2,(enemy.y+run.y)/2,run)!=="#";
+  return !blockedAt((enemy.x+run.x)/2,(enemy.y+run.y)/2,run);
 }
 
 /**
@@ -231,7 +237,8 @@ function enemyPhase(s) {
         if (!ox&&!oy)continue;
         const nx=enemy.x+ox,ny=enemy.y+oy;
         const tile=tileAt(nx,ny,run);
-        if((tile==="."||tile==="S") && !(nx===run.x&&ny===run.y) &&
+        if((tile==="."||tile==="S"||(tile==="+"&&doorAt(run,nx,ny)?.open)) &&
+           !(nx===run.x&&ny===run.y) &&
            !enemyAt(run,nx,ny)) {
           enemy.x=nx;enemy.y=ny;
           recordEvent(s,"danger",type.name+" approche.",run.turns);
@@ -267,6 +274,9 @@ const copy = (state) => JSON.parse(JSON.stringify(state));
 const quantity = (items) => Object.values(items).reduce((sum, count) => sum + count, 0);
 const positionKey = (x,y) => x + "," + y;
 const tileAt = (x,y,run=null) => (run?.map || MAP)[y]?.[x] || "#";
+const doorAt=(run,x,y)=>run?.doors?.find(d=>d.x===x&&d.y===y);
+const blockedAt=(x,y,run)=>tileAt(x,y,run)==="#"||
+  (tileAt(x,y,run)==="+"&&!doorAt(run,x,y)?.open);
 const lootAt=(run,key)=> (run?.loot || LOOT)[key];
 const info = (state, message, changed=true, type="system", turn=state.run?.turns ?? null) => {
   if (changed) recordEvent(state, type, message, turn);
@@ -291,7 +301,8 @@ export function validateSave(s) {
   if (s.run !== null) {
     const r = s.run;
     if (!r || !Number.isInteger(r.x) || !Number.isInteger(r.y)) return false;
-    if (r.map!==undefined && !validateLayout(r.map,r.loot)) return false;
+    if (r.map!==undefined && !(isDeepMap(r.map)?
+        validateDeepLayout(r,true):validateLayout(r.map,r.loot))) return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
     if (!r.carried || !Array.isArray(r.collected) || !Number.isSafeInteger(r.turns)) return false;
     if (!Number.isInteger(r.hp) || r.hp < 1 || r.hp > MAX_HP) return false;
@@ -359,10 +370,12 @@ export function beginRun(state, equipment=[]) {
     carried[id] = 1;
   }
   s.meta.descents += 1;
-  const layout=generateLayout(s.meta.descents);
+  const layout=s.meta.descents===1?generateLayout(1):generateDeepLayout(s.meta.descents);
   s.run = migrateCombatRun({ x:layout.start.x, y:layout.start.y, hp:MAX_HP,
     turns:0,carried,collected:[],enemies:layout.enemies,
-    map:layout.map,loot:layout.loot,layoutId:layout.layoutId },s.meta);
+    map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
+    ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
+      start:layout.start,exit:layout.exit}:{}) },s.meta);
   return info(s,"Descente "+s.meta.descents+
     (s.meta.descents===1?" : les profondeurs de Nhal s'ouvrent.":
     " : Nhal a changé. Deux voies de retour restent ouvertes, mais les dangers se déplacent."));
@@ -398,6 +411,8 @@ export function move(state, direction, context="move") {
   const y = state.run.y + vector[1];
   const tile = tileAt(x,y,state.run);
   if (tile === "#") return info(state, "Un mur barre le passage.", false);
+  if (blockedAt(x,y,state.run)) return info(state,
+    "Porte fermée : touche-la puis confirme Ouvrir avant de passer.",false);
   const blocking=enemyAt(state.run,x,y);
   if (blocking) {
     if (state.run.targetId===blocking.id)
@@ -427,6 +442,27 @@ export function move(state, direction, context="move") {
     }
   }
   recordEvent(s,type,message,s.run.turns);
+  const after=enemyPhase(s);
+  return {state:after,message:after.journal[0]?.text||message,changed:true};
+}
+
+/** Explicit ordinary door action: never implicit on selecting or bumping a door. */
+export function toggleDoor(state,x,y){
+  if(!state.run||!Number.isInteger(x)||!Number.isInteger(y)||
+      Math.abs(state.run.x-x)+Math.abs(state.run.y-y)!==1)
+    return info(state,"Place-toi à côté d'une porte avant d'interagir.",false);
+  const door=doorAt(state.run,x,y);
+  if(!door||tileAt(x,y,state.run)!=="+")
+    return info(state,"Aucune porte ordinaire à cet endroit.",false);
+  if(door.open&&enemyAt(state.run,x,y))
+    return info(state,"Impossible de fermer : une créature bloque la porte.",false);
+  const s=copy(state);
+  const active=doorAt(s.run,x,y);
+  active.open=!active.open;
+  s.run.turns+=1;
+  regenEndurance(s,1);
+  const message=active.open?"Tu ouvres la porte.":"Tu fermes la porte.";
+  recordEvent(s,"action",message,s.run.turns);
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||message,changed:true};
 }
@@ -559,6 +595,21 @@ export function waitTurn(state) {
   return { state:after, message:after.journal[0]?.text || "Tour passé.", changed:true };
 }
 
+/** Camera reveals only a playable window on deep maps (fog comes with DEV-081). */
+export function cameraBounds(run){
+  const map=run?.map||MAP;
+  const width=run?.rooms?Math.min(11,map[0].length):map[0].length;
+  const height=run?.rooms?Math.min(11,map.length):map.length;
+  return {left:Math.max(0,Math.min(map[0].length-width,(run?.x??0)-Math.floor(width/2))),
+    top:Math.max(0,Math.min(map.length-height,(run?.y??0)-Math.floor(height/2))),
+    width,height};
+}
+export function mapViewportText(state){
+  if(!state.run)return "";
+  const view=cameraBounds(state.run);
+  return mapText(state).split("\n").slice(view.top,view.top+view.height)
+    .map(row=>row.slice(view.left,view.left+view.width)).join("\n");
+}
 export function mapText(state) {
   if (!state.run) return "";
   const {x: px,y: py,collected} = state.run;
@@ -567,6 +618,7 @@ export function mapText(state) {
     const enemy=enemyAt(state.run,x,y);
     if(enemy) return ENEMY_TYPES[enemy.kind].symbol;
     if (tile === "S") return ".";
+    if (tile === "+") return doorAt(state.run,x,y)?.open?"/":"+";
     if (tile === "$" && collected.includes(positionKey(x,y))) return ".";
     return tile;
   }).join("")).join("\n");

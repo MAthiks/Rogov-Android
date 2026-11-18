@@ -1,0 +1,29 @@
+name: DEV-080 — PR validation
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "tests/**"
+      - "package.json"
+      - ".github/workflows/dev080-ci.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Syntax and gameplay regression tests
+        run: |
+          npm run check:web
+          npm run test:web
+      - name: Install isolated Chromium test runner
+        run: |
+          npm install --no-save playwright@1.56.0
+          npx playwright install --with-deps chromium
+      - name: Android portrait browser interactions and offline cache
+        run: node --test tests/mobile-browser.test.mjs

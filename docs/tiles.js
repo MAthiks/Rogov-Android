@@ -1,6 +1,6 @@
 // ROGOV ORIGINAL ART v0.4 — functional pixel readability before decorative detail.
 // All sprites are written for ROGOV in inline SVG; no external images or licenses.
-import { MAP, ENEMY_TYPES, enemyAt } from "./game.js";
+import { MAP, ENEMY_TYPES, enemyAt, cameraBounds } from "./game.js";
 const svg = (parts) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + parts + '</svg>';
 const floor=svg(
   '<rect width="24" height="24" fill="#202d33"/>'+
@@ -43,6 +43,16 @@ const exit=svg(
   '<path d="M1 23h22" stroke="#aee5d3" stroke-width="2"/>'+
   '<path d="M12 2l-2 3 2 3 2-3Z" fill="#d4e7b9"/>'
 );
+const door_open=svg(
+  '<rect x="2" y="2" width="20" height="20" fill="#30463e" stroke="#b2bfaa" stroke-width="2"/>'+
+  '<path d="M6 3v18M11 3v18" stroke="#bcad7d" stroke-width="2"/>'+
+  '<circle cx="17" cy="12" r="2" fill="#f5e3a5"/>'
+);
+const door_closed=svg(
+  '<rect x="2" y="2" width="20" height="20" fill="#2c3533" stroke="#b2bfaa" stroke-width="2"/>'+
+  '<path d="M7 3v18M12 3v18M17 3v18" stroke="#756f59" stroke-width="2"/>'+
+  '<circle cx="19" cy="12" r="1.5" fill="#f5e3a5"/>'
+);
 const charognard=svg(
   // Low asymmetrical body: six uneven limbs, one pallid eye.
   '<path d="M2 21l4-5 4 1 3-5 7 2 3 6-5 2-9-2-4 3Z" fill="#6a3d32" stroke="#e0a078" stroke-width="1.6"/>'+
@@ -71,7 +81,7 @@ const rift_larva=svg(
   '<rect x="20" y="2" width="2" height="2" fill="#c7eee1"/>'+
   '<rect x="2" y="20" width="2" height="2" fill="#8dbeaa"/>'
 );
-const SPRITE_SVGS={ floor, wall, hero, loot, hazard, exit, charognard, guardian, rift_larva };
+const SPRITE_SVGS={ floor, wall, hero, loot, hazard, exit, door_open, door_closed, charognard, guardian, rift_larva };
 export const TILE_SPRITES=Object.freeze(Object.fromEntries(
   Object.entries(SPRITE_SVGS).map(([id,source])=>[id,"data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(source)])
 ));
@@ -84,9 +94,12 @@ export function drawTileMap(state,host) {
   if(!state.run)return;
   const run=state.run;
   const map=run.map||MAP;
-  host.style.gridTemplateColumns="repeat("+map[0].length+", minmax(0, 1fr))";
+  const viewport=cameraBounds(run);
+  host.style.gridTemplateColumns="repeat("+viewport.width+", minmax(0, 1fr))";
   const fragment=document.createDocumentFragment();
-  map.forEach((line,y)=>line.split("").forEach((tile,x)=>{
+  for(let y=viewport.top;y<viewport.top+viewport.height;y++)
+    for(let x=viewport.left;x<viewport.left+viewport.width;x++){
+    const tile=map[y][x];
     const cell=document.createElement("div");
     cell.className="pixel-tile";
     cell.dataset.x=String(x);cell.dataset.y=String(y);
@@ -106,6 +119,8 @@ export function drawTileMap(state,host) {
       else if(tile==="$"&&!run.collected.includes(x+","+y))spriteId="loot";
       else if(tile==="^")spriteId="hazard";
       else if(tile==="E")spriteId="exit";
+      else if(tile==="+")spriteId=run.doors?.find(d=>d.x===x&&d.y===y)?.open?
+        "door_open":"door_closed";
     }
     if(spriteId) {
       const img=document.createElement("img");
@@ -115,6 +130,6 @@ export function drawTileMap(state,host) {
       cell.classList.add("tile-"+spriteId);
     }
     fragment.append(cell);
-  }));
+  }
   host.append(fragment);
 }

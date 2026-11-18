@@ -248,3 +248,12 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 .forge-recipe button:disabled{opacity:.45;cursor:not-allowed}
 .forge-warning{color:#c9bda9;font-size:10px;line-height:1.6;margin:7px 0 0}
 @media(max-width:440px){.forge-options{grid-template-columns:1fr}.forge-recipe{gap:8px}}
+
+/* DEV-080 — door confirmation remains a deliberate, touch-friendly action. */
+.door-action{display:block;min-height:44px;margin:8px auto 0;max-width:100%;font-size:12px}
+.door-action:disabled{opacity:.45;cursor:default}
+.inspect-panel[data-kind="door"]{border-left-color:#c5b287}
+
+.door-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:7px;max-width:450px;margin:auto}
+.door-controls .door-action{min-width:0;width:100%;margin-top:8px;padding:9px 7px;white-space:normal}
+@media(max-width:390px){.door-controls .door-action{font-size:11px}}

@@ -138,6 +138,11 @@ export function inspectTile(state, x, y) {
   if (tile==="#") return { kind:"wall", name:"Mur de pierre", description:"Obstacle infranchissable." };
   if (tile==="^") return { kind:"danger", name:"Faille mortelle", description:"La traverser déclenche le Rappel. Le sac sera perdu." };
   if (tile==="E") return { kind:"extraction", name:"Arche d'extraction", description:"Atteins-la pour sécuriser ton équipement." };
+  if(tile==="$"&&state.run.rooms){
+    const opened=state.run.collected.includes(positionKey(x,y));
+    return {kind:"chest",name:opened?"Coffre ouvert":"Coffre de Nhal",
+      description:opened?"Le coffre est vide.":"Coffre intact : approche-toi et appuie sur Ouvrir coffre (1 tour), ou marche sur sa case pour récupérer le contenu."};
+  }
   if (tile==="$" && !state.run.collected.includes(positionKey(x,y))) {
     const id=lootAt(state.run,positionKey(x,y));
     return { kind:"loot", name:ITEMS[id].name, description:"Butin récupérable. Tu dois te déplacer sur cette case." };
@@ -458,7 +463,8 @@ export function move(state, direction, context="move") {
       s.run.carried[id]=(s.run.carried[id]||0)+1;
       s.run.collected.push(positionKey(x,y));
       gainXp(s,1);
-      message="Butin : "+ITEMS[id].name+". +1 XP.";type="loot";
+      message=s.run.rooms?"COFFRE DE NHAL — "+ITEMS[id].name+" récupéré. +1 XP.":
+        "Butin : "+ITEMS[id].name+". +1 XP.";type="loot";
     }
   }
   const cache=revealedSecretAt(s.run,x,y);
@@ -478,6 +484,36 @@ export function move(state, direction, context="move") {
   revealAround(s.run);
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||message,changed:true};
+}
+
+/** A deep chest is a real visible, optional loot container. Inspection costs
+ * nothing; adjacent opening spends exactly one turn. Walking onto the chest
+ * remains an accessible one-turn alternative. The collected set is the single
+ * saved source of truth, also supporting pre-QA deep saves.
+ */
+export function openChest(state,x,y){
+  const run=state.run;
+  if(!run?.rooms||!Number.isInteger(x)||!Number.isInteger(y)||
+    distance(run,{x,y})>1||tileAt(x,y,run)!=="$")
+    return info(state,"Aucun coffre à portée. Approche-toi pour l'ouvrir.",false);
+  const key=positionKey(x,y);
+  if(run.collected.includes(key))
+    return info(state,"Ce coffre a déjà été ouvert.",false);
+  const reward=lootAt(run,key);
+  if(!ITEMS[reward])return info(state,"Le contenu de ce coffre est introuvable.",false);
+  if(quantity(run.carried)>=INVENTORY_LIMIT)
+    return info(state,"Sac plein : libère une place avant d'ouvrir ce coffre.",false);
+  const s=copy(state);
+  s.run.collected.push(key);
+  s.run.carried[reward]=(s.run.carried[reward]||0)+1;
+  gainXp(s,1);
+  s.run.turns+=1;
+  regenEndurance(s,1);
+  recordEvent(s,"loot","COFFRE OUVERT — "+ITEMS[reward].name+
+    " récupéré. +1 XP.",s.run.turns);
+  revealAround(s.run);
+  const after=enemyPhase(s);
+  return {state:after,message:after.journal[0]?.text,changed:true};
 }
 
 /** Explicit ordinary door action: never implicit on selecting or bumping a door. */
@@ -691,6 +727,7 @@ export function mapText(state) {
     if(tile==="S")return visible?".":":";
     if(revealedSecretAt(run,x,y))return "?";
     if(tile==="+")return doorAt(run,x,y)?.open?"/":"+";
+    if(tile==="$"&&run.rooms)return collected.includes(positionKey(x,y))?"o":"C";
     if(tile==="$"&&collected.includes(positionKey(x,y)))return visible?".":":";
     if(!visible&&tile===".")return ":";
     return tile;

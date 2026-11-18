@@ -11,13 +11,16 @@ const key=p=>p.x+","+p.y;
 const directions={"1,0":"right","-1,0":"left","0,1":"down","0,-1":"up"};
 const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
 const asPoint=key=>{const [x,y]=key.split(",").map(Number);return {x,y};};
+// DEV-086: real movement includes warned traps on corridor/chest approaches.
+// Preserve full AI and trap state; choose safe public alternatives instead.
+const safeBlockers=run=>new Set([...run.enemies,...(run.traps||[])].map(key));
 
 function routeAvoidingCreatures(run,target){
-  const blocked=new Set(run.enemies.map(key));
+  const blocked=safeBlockers(run);
   return deepRoute(run.map,{x:run.x,y:run.y},target,blocked);
 }
 function approachLiveTarget(run,enemy){
-  const blocked=new Set(run.enemies.map(key));
+  const blocked=safeBlockers(run);
   const choices=[[1,0],[-1,0],[0,1],[0,-1]]
     .map(([dx,dy])=>({x:enemy.x+dx,y:enemy.y+dy}))
     .map(p=>deepRoute(run.map,{x:run.x,y:run.y},p,blocked))
@@ -50,7 +53,7 @@ function walkReplanning(state,destination,limit=150){
     // A human can keep a chosen direction rather than ping-ponging every turn.
     // Prefer a legitimate alternate public route without stepping backwards.
     if(previous&&next.x===previous.x&&next.y===previous.y){
-      const blocked=new Set(state.run.enemies.map(key));
+      const blocked=safeBlockers(state.run);
       blocked.add(key(previous));
       const alternative=deepRoute(state.run.map,
         {x:state.run.x,y:state.run.y},destination,blocked);

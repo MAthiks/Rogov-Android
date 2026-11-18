@@ -1,4 +1,4 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, attackTarget, defend, retreat, useItem, waitTurn, mapText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
@@ -10,6 +10,7 @@ import { selectTarget, clearTarget, combatSnapshot, currentEnemyIntent,
 const $ = (id) => document.getElementById(id);
 let state = newGame();
 let selected = new Set();
+let selectedDoor = null;
 let storageLocked = false;
 let installPrompt = null;
 let registration = null;
@@ -138,12 +139,23 @@ function renderLegend() {
     target.append(chip);
   }
 }
+function updateDoorAction(){
+  const button=$("door-action");
+  const run=state.run;
+  const door=selectedDoor&&run?.doors?.find(d=>d.x===selectedDoor.x&&d.y===selectedDoor.y);
+  const adjacent=door&&Math.abs(run.x-door.x)+Math.abs(run.y-door.y)===1;
+  button.disabled=!adjacent;
+  button.textContent=adjacent?(door.open?"Fermer la porte · 1 tour":"Ouvrir la porte · 1 tour"):
+    "Sélectionner une porte voisine";
+}
 function inspect(x,y) {
   const details=inspectTile(state,x,y);
   if(!details) return;
   $("inspect-title").textContent=details.name;
   $("inspect-description").textContent=details.description;
   $("inspect-panel").dataset.kind=details.kind;
+  selectedDoor=details.kind==="door"?{x,y}:null;
+  updateDoorAction();
 }
 /**
  * DEV-071: selecting a target is informational only. Combat rules still belong
@@ -318,8 +330,9 @@ function render() {
     $("bag-count").textContent = inventoryCount(state) + " / 8";
     $("route-hint").textContent = !run.map || run.layoutId==="nhal-introduction"
       ? "Première descente : repère les dangers et l'Arche d'extraction. Tu peux éviter le combat."
-      : "Secteur "+state.meta.descents+" : routes et positions modifiées. Deux voies de retour restent possibles : observe avant de t'engager.";
-    $("dungeon-map").textContent = mapText(state);
+      : run.rooms?"Secteur "+state.meta.descents+" : salles et couloirs réels. La caméra suit l'Égaré ; les portes ordinaires se traversent et se manipulent librement.":
+      "Secteur historique : routes alternatives préservées. Observe avant de t'engager.";
+    $("dungeon-map").textContent = mapViewportText(state);
     $("dungeon-map").hidden = renderMode !== "ascii";
     $("tile-map").hidden = renderMode !== "tiles";
     $("renderer-toggle").textContent = renderMode === "tiles" ? "Passer en ASCII" : "Activer les graphismes";
@@ -327,12 +340,14 @@ function render() {
     $("graphic-legend").hidden = renderMode !== "tiles";
     $("ascii-legend").hidden = renderMode !== "ascii";
     if (renderMode === "tiles") drawTileMap(state, $("tile-map"));
+    updateDoorAction();
     renderActorStats();
     renderTargetChoices();
     renderThreatForecast();
     renderCombatPreview();
     renderInventory($("bag-items"), run.carried);
   } else {
+    selectedDoor=null;
     const available = new Set(Object.keys(state.meta.stash).filter((id) => state.meta.stash[id] > 0));
     selected = new Set([...selected].filter((id) => available.has(id)));
     renderInventory($("stash-items"), state.meta.stash, true);
@@ -442,6 +457,9 @@ $("wait-btn").addEventListener("click", () => act(waitTurn(state)));
 $("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.bandage")));
 $("use-tonic").addEventListener("click", () => act(useItem(state, "consumable.dusk_tonic")));
 $("target-clear").addEventListener("click", unselectTarget);
+$("door-action").addEventListener("click",()=>{
+  if(selectedDoor)act(toggleDoor(state,selectedDoor.x,selectedDoor.y));
+});
 $("combat-attack").addEventListener("click",()=>act(attackTarget(state)));
 $("combat-dodge").addEventListener("click",()=>act(defend(state,"dodge")));
 $("combat-parry").addEventListener("click",()=>act(defend(state,"parry")));

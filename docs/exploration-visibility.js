@@ -87,6 +87,7 @@ export function minimapText(run){
     if(tile==="#")return "#";
     if(tile==="+")return "+";
     if(tile==="E")return "E";
+    if(run.secrets?.some(s=>s.revealed&&s.x===x&&s.y===y))return "?";
     return live.has(pos)?".":":";
   }).join("")).join("\n");
 }

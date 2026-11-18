@@ -11,7 +11,8 @@ test("UI-092A: mobile navigation controls map to existing game panels, no invent
     "jump-action":"interaction-dock",
     "jump-report":"expedition-report",
     "jump-bag":"bag-panel",
-    "jump-journal":"history-details"
+    "jump-journal":"history-details",
+    "jump-menu":"options-panel"
   });
   const html=read("../docs/index.html");
   for(const id of ["jump-map",...Object.keys(UI092_PANEL_IDS),"field-controls",

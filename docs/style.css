@@ -303,3 +303,18 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 .room-site-choice{min-width:0;min-height:44px;padding:10px;text-align:left;white-space:normal;line-height:1.35}
 .room-site-choice:disabled{opacity:.5;cursor:not-allowed}
 .room-site-panel .hint{margin:9px 0 0}
+
+/* DEV-088: report is read-only and collapsible, to keep the Android D-pad usable. */
+.expedition-report{margin:10px 0 12px;border:1px solid var(--line);border-radius:12px;background:#16252a;overflow:hidden}
+.expedition-report summary{display:flex;flex-wrap:wrap;gap:7px 12px;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 13px;color:var(--accent);min-height:44px;list-style-position:inside}
+.expedition-report summary strong{font-size:14px}
+#expedition-report-summary{font-size:12px;color:var(--muted)}
+.expedition-report-details{padding:0 13px 13px;display:grid;gap:9px}
+.expedition-report-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 12px}
+.expedition-report-values p{margin:0;border-bottom:1px solid #394a50;padding:5px 0;color:var(--muted);font-size:12px}
+.expedition-report-values strong{display:block;color:var(--text);font-size:15px}
+.report-route,.report-advice{margin:0;font-size:13px;line-height:1.45}
+.report-route{font-weight:650;color:var(--accent)}
+.report-advice{color:var(--gold)}
+.expedition-report .hint{font-size:11px;margin:0}
+@media(max-width:350px){.expedition-report-values{grid-template-columns:1fr}}

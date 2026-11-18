@@ -36,6 +36,10 @@ jobs:
           target: google_apis_playstore
           arch: x86_64
           profile: pixel_3a
+          ram-size: 3072M
+          heap-size: 512M
+          disable-animations: false
+          emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: bash tools/smoke-android-web.sh
       - name: Save Android Chrome PWA screenshot for visual QA

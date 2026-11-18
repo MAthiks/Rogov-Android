@@ -62,6 +62,7 @@ test("ART-091A: legacy saves and offline PWA cache keep their contracts",()=>{
   assert.equal(Object.hasOwn(state.run,"facing"),false,
     "Facing must not introduce a new field into persisted run data");
   const sw=readFileSync(new URL("../docs/sw.js",import.meta.url),"utf8");
-  assert.match(sw,/rogov-v0\.7f-art091a-hooded-hero/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/,
+    "Versioned cache remains active as subsequent art packs are added");
   assert.match(sw,/"\.\/hero-art\.js"/,"All four SVG sprites precached offline");
 });

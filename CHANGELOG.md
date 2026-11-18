@@ -1,3 +1,11 @@
+## ART-091B — Trois silhouettes ennemies Sprite C (2026-11-18)
+
+- Charognard à corps bas et bec osseux, Gardien déchu de pierre et masse imposante, Larve de faille horizontale et segmentée ; trois nouveaux SVG originaux 24×24.
+- Remplacement des sprites uniquement, sans modification des ennemis existants, de leurs PV, intentions, portées, états, ni du brouillard/ASCII.
+- Conservation des marqueurs de ciblage, des bordures de menace et des jauges PV, et du sprite PJ ART-091A.
+- Cache PWA renouvelé ; tests Node et Chromium Android renforcés ; recette visuelle sur téléphone physique à confirmer.
+- Suites prévues : ART-091C interactifs/lieux, ART-091D PNJ/objets.
+
 ## ART-091A — L'Égaré encapuchonné / Sprite C (2026-11-18)
 
 - Quatre vues directionnelles originales en SVG 24 × 24, capuche relevée et palette gris prune, compatibles avec les tiles de Nhal.

@@ -1422,3 +1422,125 @@ test("ART-091A mobile: hooded 4-way renderer tracks steps, ASCII and saved resum
     assert.deepEqual(errors,[]);
   } finally {await context.close();}
 });
+
+
+test("ART-091B mobile: three distinct Sprite C enemies keep HP and targeting in 360px viewport", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=game.beginRun(game.newGame(),[]).state;
+      if(!game.validateSave(state))throw Error("Invalid baseline save");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    const kinds=["charognard","guardian","rift_larva"];
+    const expectedHp={charognard:"3",guardian:"5",rift_larva:"4"};
+    const features={charognard:"low-carrion-silhouette",
+      guardian:"heavy-stone-sentinel",rift_larva:"segmented-horizontal-larva"};
+    const sources=[];
+    for(const kind of kinds){
+      const tile=page.locator("#tile-map .hostile-tile.tile-"+kind);
+      assert.equal(await tile.count(),1,"Visible unique enemy "+kind);
+      assert.equal(await tile.getAttribute("data-hp"),expectedHp[kind]);
+      assert.equal(await tile.getAttribute("data-entity"),"enemy");
+      const img=tile.locator("img");
+      await img.evaluate(async el=>el.decode());
+      const src=await img.getAttribute("src");
+      assert.ok(decodeURIComponent(src).includes('data-feature="'+features[kind]+'"'));
+      assert.equal(await img.evaluate(el=>el.naturalWidth),24,
+        "Sprite should decode as 24px art, not remote image");
+      sources.push(src);
+      const style=await tile.evaluate(el=>getComputedStyle(el,"::before").borderTopColor);
+      assert.ok(style.startsWith("rgb"),"Threat border remains visible for "+kind);
+    }
+    assert.equal(new Set(sources).size,3);
+    const before=await page.locator("#turns").textContent();
+    await page.locator("#tile-map .tile-charognard").tap();
+    assert.equal(await page.locator("#turns").textContent(),before,
+      "Selecting an enemy must stay a free inspection");
+    assert.equal(await page.locator("#tile-map .selected-target-tile.tile-charognard").count(),1);
+    const layout=await page.evaluate(()=>({
+      width:document.documentElement.clientWidth,
+      scroll:document.documentElement.scrollWidth,
+      mapWidth:document.getElementById("tile-map").getBoundingClientRect().width
+    }));
+    assert.ok(layout.scroll<=layout.width+1,"Enemy art cannot widen the phone viewport");
+    assert.ok(layout.mapWidth<=layout.width);
+    await page.locator("#renderer-toggle").tap();
+    const ascii=await page.locator("#dungeon-map").textContent();
+    assert.ok(ascii.includes("c")&&ascii.includes("G")&&ascii.includes("L"),
+      "Legacy enemy ASCII symbols remain intact");
+    await page.locator("#renderer-toggle").tap();
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#tile-map .hostile-tile").count(),3);
+    const saved=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const saved=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(saved),turns:saved.run.turns,
+        foes:saved.run.enemies.map(e=>e.kind),spriteFields:
+          saved.run.enemies.some(e=>Object.hasOwn(e,"sprite"))};
+    });
+    assert.equal(saved.valid,true);
+    assert.equal(saved.turns,0);
+    assert.deepEqual(saved.foes,kinds);
+    assert.equal(saved.spriteFields,false);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("ART-091B mobile: Sprite C enemies do not leak through unexplored Nhal fog", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const setup=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const fog=await import("./exploration-visibility.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const original=game.newGame();original.meta.descents=1;
+      // Use real generated enemy positions. The deep-layout validator refuses
+      // invented locations that break fair arrival/escape constraints.
+      const foes=game.beginRun(original).state.run.enemies;
+      state.run.enemies=foes;
+      if(!game.validateSave(state))throw Error("Original generated encounter must be valid");
+      const live=fog.visibleCells(state.run);
+      const visible=foes.filter(e=>live.has(fog.visionKey(state.run,e.x,e.y)));
+      const hidden=foes.filter(e=>!live.has(fog.visionKey(state.run,e.x,e.y)));
+      if(!hidden.length)throw Error("Need at least one genuinely hidden enemy");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {visible:visible.map(e=>e.kind),hidden:hidden.map(e=>e.kind)};
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#tile-map .hostile-tile").count(),setup.visible.length);
+    for(const kind of ["charognard","guardian","rift_larva"]){
+      const visibleCount=setup.visible.filter(name=>name===kind).length;
+      assert.equal(await page.locator("#tile-map .tile-"+kind).count(),visibleCount,
+        "Only visible "+kind+" tiles may receive enemy sprites");
+    }
+    const unknown=await page.evaluate(()=>{
+      const cells=[...document.querySelectorAll("#tile-map .pixel-tile.tile-unknown")];
+      return {count:cells.length,leaks:cells.filter(c=>
+        c.querySelector("img")||c.dataset.entity||c.dataset.enemyId||c.dataset.hp||
+        [...c.classList].some(name=>["tile-rift_larva","tile-guardian","tile-charognard"].includes(name))
+      ).length};
+    });
+    assert.ok(unknown.count>0,"The dungeon needs unexplored camera cells");
+    assert.equal(unknown.leaks,0,"No hidden enemy knowledge is exposed in DOM");
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    const saved=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(state),turns:state.run.turns};
+    });
+    assert.deepEqual(saved,{valid:true,turns:0});
+    assert.ok(setup.hidden.length>0);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

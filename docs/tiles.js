@@ -6,6 +6,7 @@ import {trapAppearance} from "./traps.js";
 import {roomSiteAppearance} from "./room-events.js";
 import {TERRAIN_SVGS,terrainSpriteAt} from "./terrain-art.js";
 import {HERO_SVGS} from "./hero-art.js";
+import {ENEMY_SVGS} from "./enemy-art.js";
 const svg = (parts) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + parts + '</svg>';
 // Terrain is now sourced from the reusable, fog-safe DEV-089B atlas.
 // Preserve the original floor/wall sprite keys for the legend and older UI.
@@ -62,34 +63,9 @@ const secret_open=svg(
   '<path d="M5 23L7 6l5-4 5 4 2 17" fill="#071c22" stroke="#d2c18c" stroke-width="2"/>'+
   '<path d="M10 10l3-3-1 7 3 3-2 5" fill="none" stroke="#8cd2bf" stroke-width="2"/>'
 );
-const charognard=svg(
-  // Low asymmetrical body: six uneven limbs, one pallid eye.
-  '<path d="M2 21l4-5 4 1 3-5 7 2 3 6-5 2-9-2-4 3Z" fill="#6a3d32" stroke="#e0a078" stroke-width="1.6"/>'+
-  '<path d="M7 16L3 6l8 8M13 13l6-11-1 12" fill="#7a503b" stroke="#ac7659" stroke-width="1.4"/>'+
-  '<path d="M5 19l-4 3M9 21l-2 2M16 20l2 3M19 18l4 4" stroke="#cf9471" stroke-width="1.5"/>'+
-  '<path d="M10 12l3-6 1 7" fill="#49312b"/>'+
-  '<rect x="17" y="16" width="3" height="2" fill="#eee3b3"/>'+
-  '<path d="M12 16l2 2-1 3" stroke="#b6cbb1" stroke-width="1" fill="none"/>'
-);
-const guardian=svg(
-  // Tall cyclopean sentry: carved stone shell, bone edges, vertical eye slit.
-  '<path d="M3 23L2 10l5-4 3-5h6l4 5 2 4-1 13Z" fill="#55616b" stroke="#ccd0bb" stroke-width="1.8"/>'+
-  '<path d="M7 8l4-5h4l3 5-3 7H9Z" fill="#293945" stroke="#9eaca9" stroke-width="1"/>'+
-  '<path d="M12 8v6" stroke="#d8ebc2" stroke-width="2"/>'+
-  '<path d="M6 15l4 2-1 5M18 15l-4 2 1 5" stroke="#8799a3" stroke-width="1.5" fill="none"/>'+
-  '<path d="M4 9l3 3M21 9l-3 3" stroke="#343e49" stroke-width="2"/>'+
-  '<path d="M22 1v22" stroke="#b8a18c" stroke-width="2"/>'+
-  '<path d="M8 22h9" stroke="#c9d1c7" stroke-width="1.5"/>'
-);
-const rift_larva=svg(
-  // Cosmic/incomplete anatomy: floating asymmetrical membrane and a pale inner split.
-  '<path d="M4 17L2 10 7 4 10 6 15 2 22 8 19 15 22 20 16 22 12 19 7 23Z" fill="#1b4345" stroke="#9dd7c4" stroke-width="1.6"/>'+
-  '<path d="M7 7l4 3 5-5 2 5-2 7-4 3-5-5Z" fill="#375b5c"/>'+
-  '<path d="M13 6l-2 5 3 3-3 5" stroke="#ddf2d5" stroke-width="2.5" fill="none"/>'+
-  '<rect x="10" y="10" width="2" height="2" fill="#b2e4d1"/>'+
-  '<rect x="20" y="2" width="2" height="2" fill="#c7eee1"/>'+
-  '<rect x="2" y="20" width="2" height="2" fill="#8dbeaa"/>'
-);
+const charognard=ENEMY_SVGS.charognard;
+const guardian=ENEMY_SVGS.guardian;
+const rift_larva=ENEMY_SVGS.rift_larva;
 const trap_clue=svg('<path d="M2 7h20M4 17h16" stroke="#b29c69" stroke-width="1.5" stroke-dasharray="4 3"/>'+
   '<path d="M5 12l5-4 4 7 5-4" stroke="#d4c18b" stroke-width="2" fill="none"/>');
 const trap_revealed=svg('<rect x="2" y="2" width="20" height="20" fill="#4d392b" stroke="#e9b875" stroke-width="2"/>'+

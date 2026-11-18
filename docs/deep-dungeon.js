@@ -169,7 +169,7 @@ export function validateDeepLayout(layout,live=false){
       ["relic.ashen_fragment","consumable.dusk_tonic"].includes(id);
   }))return false;
   if(!Array.isArray(enemies)||(!live&&enemies.length!==3)||enemies.length>3||
-      new Set(enemies.map(e=>key(e))).size!==3)return false;
+      new Set(enemies.map(e=>key(e))).size!==enemies.length)return false;
   for(const e of enemies){
     if(!["charognard","guardian","rift_larva"].includes(e.kind)||
       !Number.isInteger(e.x)||!Number.isInteger(e.y)||!Number.isInteger(e.hp)||

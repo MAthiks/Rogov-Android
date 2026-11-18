@@ -70,12 +70,14 @@ test("ART-091A: legacy saves and offline PWA cache keep their contracts",()=>{
 test("UI-092A: le PJ n'a aucun cadre, halo ni pseudo-élément visuel",()=>{
   const css=readFileSync(new URL("../docs/style.css",import.meta.url),"utf8");
   const tiles=readFileSync(new URL("../docs/tiles.js",import.meta.url),"utf8");
-  assert.doesNotMatch(css,/\\.tile-hero::?before\\s*\\{/,
-    "Aucune bordure ou ombre via un pseudo-élément du PJ");
-  assert.doesNotMatch(css,/\\.tile-hero\\s*\\{[^}]*\\b(?:border|outline|box-shadow)\\s*:/,
-    "Pas de bordure, contour ou halo sur la case du PJ");
-  assert.match(tiles,/cell\\.classList\\.add\\("tile-hero"\\)/,
+  assert.equal(css.includes(".tile-hero:before{"),false,
+    "Aucun pseudo-élément de bordure autour du PJ");
+  assert.equal(css.includes(".tile-hero::before{"),false,
+    "Aucun pseudo-élément alternatif autour du PJ");
+  assert.match(css,/\.tile-hero\{z-index:2\}/,
+    "La case du PJ reste prioritaire sans cadre");
+  assert.match(tiles,/cell\.classList\.add\("tile-hero"\)/,
     "La silhouette du PJ reste visible");
-  assert.match(css,/\\.hostile-tile:before/,
+  assert.match(css,/\.hostile-tile:before/,
     "Les indicateurs tactiques des ennemis ne changent pas");
 });

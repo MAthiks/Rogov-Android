@@ -144,3 +144,37 @@ test("DEV-080: a full non-secret path reaches extraction and secures the bag",()
   assert.equal(s.meta.stash["weapon.rusty_sword"],1);
   assert.ok(validateSave(s));
 });
+
+test("DEV-080: both rendering modes use a bounded mobile viewport",async()=>{
+  const {drawTileMap}=await import("../docs/tiles.js");
+  const {readFileSync}=await import("node:fs");
+  const html=readFileSync(new URL("../docs/index.html",import.meta.url),"utf8");
+  const app=readFileSync(new URL("../docs/app.js",import.meta.url),"utf8");
+  assert.match(html,/id="door-select"/);
+  assert.match(html,/id="door-action"/);
+  assert.match(app,/mapViewportText\(state\)/);
+  assert.match(app,/selectNextDoor\(\)/);
+  class Element {
+    constructor(){this.children=[];this.dataset={};this.style={};
+      this.classList={add:()=>{}};}
+    append(...parts){this.children.push(...parts);}
+    replaceChildren(){this.children=[];}
+  }
+  const old=globalThis.document;
+  globalThis.document={
+    createElement:()=>new Element(),
+    createDocumentFragment:()=>new Element()
+  };
+  try {
+    const game=newGame();game.meta.descents=1;
+    const s=beginRun(game).state;
+    const host=new Element();
+    drawTileMap(s,host);
+    assert.equal(host.children.length,1);
+    assert.equal(host.children[0].children.length,121);
+    const view=cameraBounds(s.run);
+    assert.ok(host.children[0].children.every(cell=>
+      Number(cell.dataset.x)>=view.left&&Number(cell.dataset.x)<view.left+view.width&&
+      Number(cell.dataset.y)>=view.top&&Number(cell.dataset.y)<view.top+view.height));
+  } finally {globalThis.document=old;}
+});

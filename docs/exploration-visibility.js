@@ -1,7 +1,6 @@
 // DEV-081 — deterministic, fog-safe knowledge state for deep Nhal only.
 // No DOM, randomness or local storage. Never import game.js here.
 export const VISION_RADIUS=5;
-const key=(x,y)=>y*44+x;
 const inBounds=(run,x,y)=>Number.isInteger(x)&&Number.isInteger(y)&&
   y>=0&&y<run.map.length&&x>=0&&x<run.map[0].length;
 const doorAt=(run,x,y)=>run.doors?.find(d=>d.x===x&&d.y===y);

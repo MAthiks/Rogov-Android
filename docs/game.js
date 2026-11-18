@@ -398,6 +398,7 @@ export function beginRun(state, equipment=[]) {
     turns:0,carried,collected:[],enemies:layout.enemies,
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
+      ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       start:layout.start,exit:layout.exit,exploration:{seen:[]},
       ...(layout.secrets?{secrets:layout.secrets}:{})}:{}) },s.meta);
   if(s.run.exploration)revealAround(s.run);

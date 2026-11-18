@@ -267,3 +267,12 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 .exploration-map-panel summary small{display:inline;color:#849d93;font-size:10px;font-weight:400}
 .exploration-map-panel .hint{font-size:10px;margin:5px 0}
 #exploration-mini-map{display:block;max-width:100%;overflow:hidden;margin:6px auto;padding:5px 0;background:#050a0d;color:#94b5a0;font:clamp(4px,1.15vw,7px)/1.12 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:0;white-space:pre;user-select:none;pointer-events:none}
+
+/* DEV-082 — clues appear locally without disclosing a hidden wall coordinate. */
+.secret-controls{max-width:450px;margin:9px auto;text-align:left}
+.secret-clue{border-left:3px solid #bca574;background:#202c2a;color:#e1d6b3;
+  border-radius:5px;padding:10px 12px;font-size:12px;line-height:1.55;margin:8px 0}
+#secret-search{min-height:46px;margin:7px 0;padding:11px;font-size:12px}
+#secret-search:disabled{opacity:.48}
+.pixel-tile.tile-secret_open{box-shadow:inset 0 0 0 2px #ad9f74}
+.inspect-panel[data-kind="clue"],.inspect-panel[data-kind="secret"]{border-left-color:#e0bc78}

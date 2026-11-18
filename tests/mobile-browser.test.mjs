@@ -1475,6 +1475,7 @@ test("ART-091B mobile: three distinct Sprite C enemies keep HP and targeting in 
     const ascii=await page.locator("#dungeon-map").textContent();
     assert.ok(ascii.includes("c")&&ascii.includes("G")&&ascii.includes("L"),
       "Legacy enemy ASCII symbols remain intact");
+    await page.locator("#renderer-toggle").tap();
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#tile-map .hostile-tile").count(),3);
     const saved=await page.evaluate(async()=>{

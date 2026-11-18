@@ -71,9 +71,11 @@ test("QA-084: actual charognard combat, public loot and extraction with all spaw
     if(!enemy)break; // genuinely killed through attackTarget
     seenHP.push(enemy.hp);
     if(dist(state.run,enemy)===1){
-      const selected=selectTarget(state,foeId);
-      assert.ok(selected.changed,"Visible contact enemy can be targeted");
-      state=selected.state;
+      if(state.run.targetId!==foeId){
+        const selected=selectTarget(state,foeId);
+        assert.ok(selected.changed,"Visible contact enemy can be targeted");
+        state=selected.state;
+      }
       if((state.run.endurance||0)<1){
         state=waitTurn(state).state;
       }else{

@@ -22,7 +22,7 @@ const down=svg(
   boots+
   '<rect x="3" y="15" width="4" height="6" fill="'+P.leatherDark+'"/>'+
   '<rect x="4" y="16" width="3" height="4" fill="'+P.leather+'"/>'+
-  '<path d="M8 13l9 7" stroke="'+P.leather+' " stroke-width="2"/>'+
+  '<path d="M8 13l9 7" stroke="'+P.leather+'" stroke-width="2"/>'+
   '<rect x="16" y="17" width="3" height="4" fill="'+P.leatherDark+'"/>'+
   '<path d="M7 12h10l-1 3H8Z" fill="'+P.scarf+'"/>'+
   '<g data-feature="hood">'+

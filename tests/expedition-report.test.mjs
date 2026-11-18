@@ -35,6 +35,7 @@ test("DEV-088: no exit or hidden-entity spoilers when starting a deep descent",(
 
 test("DEV-088: spotted exit without a discovered route remains an unknown return",()=>{
   const state=fresh();
+  state.run.enemies=[]; // Isolate the route advice from already visible entry threats.
   const exit=state.run.exit;
   const discovered=new Set(state.run.exploration.seen);
   discovered.add(visionKey(state.run,exit.x,exit.y));

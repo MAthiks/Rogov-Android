@@ -70,44 +70,75 @@ function makePlan(index){
   const grid=Array.from({length:DEEP_HEIGHT},()=>Array(DEEP_WIDTH).fill("#"));
   const rooms=[];
   for(let row=0;row<ROWS;row++)for(let col=0;col<COLUMNS;col++){
-    const cx=6+col*10,cy=5+row*10;
-    const width=5+rand(3),height=5+rand(3);
-    const x=cx-Math.floor(width/2),y=cy-Math.floor(height/2);
     const id=row*COLUMNS+col;
+    const cx=6+col*10,cy=5+row*10;
+    // Full-size rooms gain a one-cell masonry border; the entrance is ample.
+    const width=id===8?9:7+rand(3),height=id===8?9:7+rand(3);
+    const x=cx-Math.floor(width/2),y=cy-Math.floor(height/2);
     const role=id===8?"vestibule":id===3?"extraction":
       id===5?"ruines_occupees":id===10?"atelier_abandonne":
       ["traversee","chambre_echo","ruines","passage_service"][rand(4)];
     const room={id,x,y,width,height,cx,cy,role};
     rooms.push(room);
-    for(let yy=y;yy<y+height;yy++)
-      for(let xx=x;xx<x+width;xx++)grid[yy][xx]=".";
+    // Only the room interior is floor. The perimeter remains solid stone,
+    // pierced solely by deliberate one-tile passage mouths.
+    for(let yy=y+1;yy<y+height-1;yy++)
+      for(let xx=x+1;xx<x+width-1;xx++)grid[yy][xx]=".";
   }
-  const doors=[];
+  const doors=[],connections=[];
   function connect(a,b){
+    let first,second;
     if(a.cy===b.cy){
       const y=a.cy+rand(3)-1;
-      const left=a.x+a.width-1,right=b.x;
-      for(let x=left;x<=right;x++)grid[y][x]=".";
-      for(const x of [left,right]){
-        grid[y][x]="+";
-        doors.push({x,y,open:true});
-      }
+      first={x:a.x+a.width-1,y};
+      second={x:b.x,y};
+      for(let x=first.x;x<=second.x;x++)grid[y][x]=".";
     }else{
       const x=a.cx+rand(3)-1;
-      const top=a.y+a.height-1,bottom=b.y;
-      for(let y=top;y<=bottom;y++)grid[y][x]=".";
-      for(const y of [top,bottom]){
-        grid[y][x]="+";
-        doors.push({x,y,open:true});
-      }
+      first={x,y:a.y+a.height-1};
+      second={x,y:b.y};
+      for(let y=first.y;y<=second.y;y++)grid[y][x]=".";
     }
+    // One framed threshold on each room wall, never paired mandatory doors.
+    connections.push({a:a.id,b:b.id,first,second});
   }
-  // Complete 4×3 room lattice: redundant, ordinary connections, never secret.
+  // The 4×3 lattice preserves two independent, ordinary escape routes.
   for(let row=0;row<ROWS;row++)for(let col=0;col<COLUMNS;col++){
     const id=row*COLUMNS+col;
     if(col<COLUMNS-1)connect(rooms[id],rooms[id+1]);
     if(row<ROWS-1)connect(rooms[id],rooms[id+COLUMNS]);
   }
+  // Six doors among 17 links, each on one side of its connection.
+  // Other openings are unobstructed; max two doors in the same room.
+  const order=connections.map((_,i)=>i);
+  for(let i=order.length-1;i>0;i--){
+    const j=rand(i+1);
+    [order[i],order[j]]=[order[j],order[i]];
+  }
+  const roomDoorCount=Array(rooms.length).fill(0);
+  // Both exits from the entry chamber have an intelligible framed door.
+  // A player can choose either return route; closing one is always optional.
+  for(const link of connections.filter(c=>c.a===8||c.b===8)){
+    const p=link.a===8?link.first:link.second;
+    grid[p.y][p.x]="+";
+    doors.push({x:p.x,y:p.y,open:true});
+    roomDoorCount[8]++;
+  }
+  for(const i of order){
+    if(doors.length>=6)break;
+    if(connections[i].a===8||connections[i].b===8)continue;
+    const link=connections[i];
+    const candidates=rand(2)===0
+      ? [{room:link.a,point:link.first},{room:link.b,point:link.second}]
+      : [{room:link.b,point:link.second},{room:link.a,point:link.first}];
+    const available=candidates.find(p=>roomDoorCount[p.room]<2);
+    if(!available)continue;
+    const {x,y}=available.point;
+    grid[y][x]="+";
+    doors.push({x,y,open:true});
+    roomDoorCount[available.room]++;
+  }
+  if(doors.length!==6)throw new Error("No balanced door placement");
   const start={x:rooms[8].cx,y:rooms[8].cy};
   const exit={x:rooms[3].cx,y:rooms[3].cy};
   const valuable=roomPoint(rooms[5],rand);
@@ -148,7 +179,9 @@ function makePlan(index){
   for(let y=entry.y;y<entry.y+entry.height;y++)
     for(let x=entry.x;x<entry.x+entry.width;x++){
       const p={x,y},d=distance(p,start);
-      if(grid[y][x]==="."&&!occupied.has(key(p))&&d>=4&&d<=5)
+      if(x>entry.x&&x<entry.x+entry.width-1&&
+          y>entry.y&&y<entry.y+entry.height-1&&
+          grid[y][x]==="."&&!occupied.has(key(p))&&d>=4&&d<=5)
         scouts.push(p);
     }
   if(!scouts.length)throw new Error("Entry chamber has no safe enemy tile");
@@ -172,8 +205,9 @@ function makePlan(index){
   // hazard blocks the last path or spawns under a hero, foe or chest.
   function placeCrack(room,nearEntry){
     const candidates=[];
-    for(let y=room.y;y<room.y+room.height;y++)
-      for(let x=room.x;x<room.x+room.width;x++){
+    // Hazards belong INSIDE a room, never on one-cell public threshold.
+    for(let y=room.y+1;y<room.y+room.height-1;y++)
+      for(let x=room.x+1;x<room.x+room.width-1;x++){
         const p={x,y},d=distance(p,start);
         if(grid[y][x]!=="."||occupied.has(key(p))||
           distance(p,exit)<4||
@@ -200,7 +234,7 @@ function makePlan(index){
     placeCrack(rooms[6],false);
   return {
     map:grid.map(row=>row.join("")),
-    rooms,doors,
+    rooms,doors,doorPlanVersion:1,
     start,exit,loot,
     enemies,layoutId:"nhal-deep-"+index,
     // Rejected by strict new-layout validation if a fair location was absent.
@@ -218,12 +252,17 @@ export function validateDeepLayout(layout,live=false){
   if(map[0]!=="#".repeat(DEEP_WIDTH)||
       map[DEEP_HEIGHT-1]!=="#".repeat(DEEP_WIDTH)||
       map.some(row=>row[0]!=="#"||row[DEEP_WIDTH-1]!=="#"))return false;
-  if(!Array.isArray(rooms)||rooms.length!==12||!Array.isArray(doors)||doors.length!==34)return false;
+  const legacy=layout.doorPlanVersion===undefined;
+  if(layout.doorPlanVersion!==undefined&&layout.doorPlanVersion!==1)return false;
+  if(!Array.isArray(rooms)||rooms.length!==12||!Array.isArray(doors)||
+      (legacy?doors.length!==34:doors.length!==6))return false;
   if(!start||!exit||tile(map,start)!=="S"||tile(map,exit)!=="E")return false;
   if(map.join("").split("S").length!==2||map.join("").split("E").length!==2)return false;
   if(!rooms.every((r,i)=>r?.id===i&&Number.isInteger(r.x)&&Number.isInteger(r.y)&&
-      Number.isInteger(r.width)&&Number.isInteger(r.height)&&r.width>=5&&r.width<=7&&
-      r.height>=5&&r.height<=7&&inRoom({x:r.cx,y:r.cy},r)))return false;
+      Number.isInteger(r.width)&&Number.isInteger(r.height)&&
+      r.width>=(legacy?5:7)&&r.width<=(legacy?7:9)&&
+      r.height>=(legacy?5:7)&&r.height<=(legacy?7:9)&&
+      inRoom({x:r.cx,y:r.cy},r)))return false;
   const doorKeys=new Set();
   for(const door of doors){
     if(!Number.isInteger(door?.x)||!Number.isInteger(door?.y)||typeof door.open!=="boolean"||
@@ -231,6 +270,28 @@ export function validateDeepLayout(layout,live=false){
     doorKeys.add(key(door));
   }
   if(map.join("").split("+").length-1!==doors.length)return false;
+  if(!legacy){
+    const caps=Array(rooms.length).fill(0),doorSet=new Set(doors.map(key));
+    // Each door belongs to exactly one framed, non-corner room threshold;
+    // its two flanking wall cells stay solid. Old runs keep their old scheme.
+    for(const d of doors){
+      const r=rooms.find(r=>d.x>=r.x&&d.x<r.x+r.width&&
+        d.y>=r.y&&d.y<r.y+r.height);
+      if(!r)return false;
+      const vertical=d.x===r.x||d.x===r.x+r.width-1;
+      const horizontal=d.y===r.y||d.y===r.y+r.height-1;
+      if(vertical===horizontal)return false;
+      if(vertical){
+        if(d.y<r.y+2||d.y>r.y+r.height-3||
+          tile(map,{x:d.x,y:d.y-1})!=="#"||
+          tile(map,{x:d.x,y:d.y+1})!=="#")return false;
+      }else if(d.x<r.x+2||d.x>r.x+r.width-3||
+        tile(map,{x:d.x-1,y:d.y})!=="#"||
+        tile(map,{x:d.x+1,y:d.y})!=="#")return false;
+      if(++caps[r.id]>2)return false;
+    }
+    if(doorSet.size!==6)return false;
+  }
   if(!loot||typeof loot!=="object"||Array.isArray(loot)||
       (!live&&Object.keys(loot).length!==3)||
       (live&&(Object.keys(loot).length<2||Object.keys(loot).length>3)))return false;

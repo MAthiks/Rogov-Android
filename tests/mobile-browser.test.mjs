@@ -461,8 +461,11 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
       .find(([,id])=>id==="relic.ashen_fragment")?.[0];
     assert.ok(lootPos);
     const [lx,ly]=lootPos.split(",").map(Number);
-    const publicLoot=await walk({x:lx,y:ly});
+    // With sparse architectural doors, the entrance (not necessarily the
+    // extraction route) guarantees a physical framed door to inspect.
+    const publicLoot=await walk({x:lx,y:ly},{verifyDoor:true});
     assert.ok(publicLoot.steps>5);
+    assert.ok(publicLoot.visitedDoor,"The entrance route tests a real one-turn door");
     state=await saved();
     assert.equal(state.run.carried["relic.ashen_fragment"],1,
       "Public loot enters the bag by normal movement");
@@ -519,8 +522,8 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     assert.equal(state.run.exploration.seen.length>0,true);
     assert.equal(state.run.secrets[0].revealed,true);
     const exit=state.run.exit;
-    const finalPath=await walk(exit,{verifyDoor:true});
-    assert.ok(finalPath.visitedDoor,"Full return route must encounter a real door");
+    const finalPath=await walk(exit);
+    assert.ok(finalPath.steps>0,"Public extraction remains possible without a mandatory door");
     state=await saved();
     assert.equal(state.run,null,"Return to Veyr through the ordinary Arche");
     assert.equal(state.meta.extractions,2);
@@ -584,11 +587,12 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
       }
       return next;
     };
-    const plan=async(target,approachEnemy=false)=>page.evaluate(async({target,approachEnemy})=>{
+    const plan=async(target,approachEnemy=false,avoidPrevious=null)=>page.evaluate(async({target,approachEnemy,avoidPrevious})=>{
       const game=await import("./game.js");
       const {deepRoute}=await import("./deep-dungeon.js");
       const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
       const blocked=new Set(s.run.enemies.map(e=>e.x+","+e.y));
+      if(avoidPrevious)blocked.add(avoidPrevious.x+","+avoidPrevious.y);
       const origin={x:s.run.x,y:s.run.y};
       if(approachEnemy){
         const choices=[[1,0],[-1,0],[0,1],[0,-1]]
@@ -598,7 +602,7 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
         return choices[0]||null;
       }
       return deepRoute(s.run.map,origin,target,blocked);
-    },{target,approachEnemy});
+    },{target,approachEnemy,avoidPrevious});
     let attacks=0,movements=0;
     for(let turn=0;turn<100;turn++){
       const now=await state();
@@ -640,13 +644,23 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
     assert.ok(lootKey,"Public fragment exists");
     const [x,y]=lootKey.split(",").map(Number);
     const walk=async(destination)=>{
+      let previous=null;
       for(let turn=0;turn<150;turn++){
         const current=await state();
         if(!current.run)return current;
         if(current.run.x===destination.x&&current.run.y===destination.y)return current;
         const route=await plan(destination);
         assert.ok(route?.length>=2,"Ordinary route remains available with active enemies");
-        await step(current.run,route[1]);
+        let nextStep=route[1];
+        // An active Charognard can cause a shortest-route switch each turn.
+        // Keep the human player's intended direction by preferring a real
+        // alternative route rather than walking back and forth forever.
+        if(previous&&nextStep.x===previous.x&&nextStep.y===previous.y){
+          const alternative=await plan(destination,false,previous);
+          if(alternative?.length>=2)nextStep=alternative[1];
+        }
+        previous={x:current.run.x,y:current.run.y};
+        await step(current.run,nextStep);
         movements++;
         const next=await state();
         if(next.run&&next.run.hp<=7&&(next.run.carried["consumable.bandage"]||0)>0)

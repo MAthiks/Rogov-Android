@@ -40,12 +40,24 @@ function moveOne(state,to){
   return result.state;
 }
 function walkReplanning(state,destination,limit=150){
-  let moves=0;
+  let moves=0,previous=null;
   while(state.run && (state.run.x!==destination.x||state.run.y!==destination.y)){
     assert.ok(moves++<limit,"Unable to find safe public route with active enemies");
     const route=routeAvoidingCreatures(state.run,destination);
     assert.ok(route&&route.length>=2,"Genuine public route lost because of enemies");
-    state=moveOne(state,route[1]);
+    let next=route[1];
+    // A reactive foe can change which of two routes is momentarily shortest.
+    // A human can keep a chosen direction rather than ping-ponging every turn.
+    // Prefer a legitimate alternate public route without stepping backwards.
+    if(previous&&next.x===previous.x&&next.y===previous.y){
+      const blocked=new Set(state.run.enemies.map(key));
+      blocked.add(key(previous));
+      const alternative=deepRoute(state.run.map,
+        {x:state.run.x,y:state.run.y},destination,blocked);
+      if(alternative?.length>=2)next=alternative[1];
+    }
+    previous={x:state.run.x,y:state.run.y};
+    state=moveOne(state,next);
     if(state.run&&state.run.hp<=7&&(state.run.carried["consumable.bandage"]||0)>0)
       state=useItem(state,"consumable.bandage").state;
   }

@@ -253,9 +253,17 @@ function enemyPhase(s) {
       const dx=Math.sign(run.x-enemy.x),dy=Math.sign(run.y-enemy.y);
       const options=Math.abs(run.x-enemy.x)>=Math.abs(run.y-enemy.y)
         ? [[dx,0],[0,dy]] : [[0,dy],[dx,0]];
+      // DEV-085: in architecturally walled rooms, a charognard hunts
+      // within its chamber, but will not clog a one-cell public escape throat.
+      // Legacy layouts keep the original pursuit rules unchanged.
+      const chamber=run.doorPlanVersion===1?run.rooms?.find(r=>
+        enemy.x>r.x&&enemy.x<r.x+r.width-1&&
+        enemy.y>r.y&&enemy.y<r.y+r.height-1):null;
       for(const [ox,oy] of options) {
         if (!ox&&!oy)continue;
         const nx=enemy.x+ox,ny=enemy.y+oy;
+        if(chamber&&!(nx>chamber.x&&nx<chamber.x+chamber.width-1&&
+          ny>chamber.y&&ny<chamber.y+chamber.height-1))continue;
         const tile=tileAt(nx,ny,run);
         if((tile==="."||tile==="S"||(tile==="+"&&doorAt(run,nx,ny)?.open)) &&
            !(nx===run.x&&ny===run.y) &&
@@ -398,6 +406,7 @@ export function beginRun(state, equipment=[]) {
     turns:0,carried,collected:[],enemies:layout.enemies,
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
+      ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       start:layout.start,exit:layout.exit,exploration:{seen:[]},
       ...(layout.secrets?{secrets:layout.secrets}:{})}:{}) },s.meta);
   if(s.run.exploration)revealAround(s.run);

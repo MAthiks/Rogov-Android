@@ -576,7 +576,14 @@ $("update-btn").addEventListener("click", () => {
   else window.location.reload();
 });
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.addEventListener("controllerchange", () => window.location.reload());
+  // First installation must not reload the active expedition unexpectedly.
+  // A later controller replacement still reloads when the user accepts an update.
+  let currentController = navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    const wasControlled = Boolean(currentController);
+    currentController = navigator.serviceWorker.controller;
+    if (wasControlled) window.location.reload();
+  });
   navigator.serviceWorker.register("./sw.js").then((reg) => {
     registration = reg;
     function checkUpdate() {

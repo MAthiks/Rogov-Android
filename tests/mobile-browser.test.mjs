@@ -434,13 +434,15 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     assert.equal(state.meta.extractions,1,"Tutorial extraction is recorded");
     assert.equal(state.meta.stash["weapon.rusty_sword"],1,
       "Equipment chosen on the title/refuge survives extraction");
+    // The tutorial route may naturally pick up a fragment as well; use this
+    // actual secured balance as the baseline, never assume the stash is empty.
+    const relicBeforeDeep=state.meta.stash["relic.ashen_fragment"]||0;
 
     // A second normal GUI start is the first deep procedural dungeon.
     await page.locator('#stash-items input[type="checkbox"]').first().check();
     await page.locator("#start-btn").tap();
     await clearOnlyEnemies();
     state=await saved();
-    console.log("QA-084 DEEP START",JSON.stringify({stash:state.meta.stash,carried:state.run.carried}));
     assert.equal(state.meta.descents,2);
     assert.equal(state.run.map.length,32);
     assert.equal(state.run.map[0].length,44);
@@ -512,16 +514,15 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     assert.equal(state.run.carried["consumable.bandage"],1);
     assert.equal(state.run.exploration.seen.length>0,true);
     assert.equal(state.run.secrets[0].revealed,true);
-    console.log("QA-084 BEFORE EXIT",JSON.stringify({stash:state.meta.stash,carried:state.run.carried}));
     const exit=state.run.exit;
     const finalPath=await walk(exit,{verifyDoor:true});
     assert.ok(finalPath.visitedDoor,"Full return route must encounter a real door");
     state=await saved();
     assert.equal(state.run,null,"Return to Veyr through the ordinary Arche");
-    console.log("QA-084 AFTER EXIT",JSON.stringify({stash:state.meta.stash,extractions:state.meta.extractions}));
     assert.equal(state.meta.extractions,2);
     assert.equal(state.meta.stash["weapon.rusty_sword"],1);
-    assert.equal(state.meta.stash["relic.ashen_fragment"],1);
+    assert.equal(state.meta.stash["relic.ashen_fragment"],relicBeforeDeep+1,
+      "A single extra public fragment is secured, never duplicated");
     assert.equal(state.meta.stash["consumable.bandage"],3,
       "The hidden cache's single bandage is secured in the permanent stash");
     await page.reload({waitUntil:"load"});
@@ -530,6 +531,7 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     assert.equal(persisted.run,null);
     assert.equal(persisted.meta.extractions,2);
     assert.equal(persisted.meta.stash["consumable.bandage"],3);
+    assert.equal(persisted.meta.stash["relic.ashen_fragment"],relicBeforeDeep+1);
     assert.deepEqual(errors,[],"No browser error during both complete journeys");
     console.log("QA-084 FULL SESSION: tutorial + deep public loot + secret + "+
       "door + return + persist PASS; UI steps="+

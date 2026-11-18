@@ -81,7 +81,8 @@ test("ART-091D: compact gallery is collapsed, accessible and packed into offline
   assert.match(html,/Aucun personnage interactif ni dialogue/);
   assert.match(html,/id="veyr-concept-grid"/);
   assert.doesNotMatch(html,/<button[^>]*npc-|id="npc-/i);
-  assert.match(sw,/rogov-v0\.7f-art091d-veyr-icons/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/,
+    "The original Veyr assets must survive later PWA versioning");
   assert.match(sw,/"\.\/veyr-art\.js"/);
   for(const name of ["hero-art.js","enemy-art.js","interaction-art.js"])
     assert.ok(sw.includes('"./'+name+'"'));

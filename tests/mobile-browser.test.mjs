@@ -1696,3 +1696,133 @@ test("ART-091C mobile: real door action swaps silhouette, ASCII and saved state"
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("ART-091D mobile: all five inventory pictograms and three Veyr concepts stay compact", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const {newGame,SAVE_KEY,validateSave}=await import("./game.js");
+      const {ITEM_ART_IDS}=await import("./veyr-art.js");
+      const state=newGame();
+      for(const id of ITEM_ART_IDS)state.meta.stash[id]=1;
+      if(!validateSave(state))throw Error("ART-091D item fixture invalid");
+      localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#refuge").isVisible(),true);
+    assert.equal(await page.locator("#stash-items .item-row").count(),5);
+    const items=await page.locator("#stash-items .item-row").evaluateAll(async rows=>{
+      return Promise.all(rows.map(async row=>{
+        const icon=row.querySelector(".item-icon"),img=icon.querySelector("img");
+        await img.decode();
+        return {name:row.querySelector(".item-label strong")?.textContent,
+          natural:[img.naturalWidth,img.naturalHeight], alt:img.alt,
+          width:img.getBoundingClientRect().width,
+          hasCheckbox:!!row.querySelector('input[type="checkbox"]'),
+          svg:decodeURIComponent(img.src)};
+      }));
+    });
+    assert.equal(new Set(items.map(x=>x.svg)).size,5);
+    for(const item of items){
+      assert.deepEqual(item.natural,[24,24]);
+      assert.equal(item.alt,"","A visible text label provides the accessible name");
+      assert.ok(item.width>=27);
+      assert.equal(item.hasCheckbox,true);
+      assert.ok(item.name);
+    }
+    const panel=page.locator("#veyr-concepts");
+    assert.equal(await panel.evaluate(el=>el.open),false,
+      "NPC concepts stay collapsed by default on 360px screen");
+    await panel.locator("summary").tap();
+    assert.equal(await panel.evaluate(el=>el.open),true);
+    const portraits=await page.locator("#veyr-concept-grid .veyr-concept-card").evaluateAll(async cards=>
+      Promise.all(cards.map(async card=>{
+        const img=card.querySelector("img");
+        await img.decode();
+        return {label:card.querySelector("strong")?.textContent,
+          note:card.querySelector("small")?.textContent,
+          natural:[img.naturalWidth,img.naturalHeight],
+          width:img.getBoundingClientRect().width,
+          source:decodeURIComponent(img.src),
+          buttons:card.querySelectorAll("button,input,a").length};
+      }))
+    );
+    assert.equal(portraits.length,3);
+    assert.equal(new Set(portraits.map(x=>x.source)).size,3);
+    for(const portrait of portraits){
+      assert.deepEqual(portrait.natural,[24,24]);
+      assert.ok(portrait.width>=44);
+      assert.ok(portrait.note?.startsWith("Concept ·"));
+      assert.equal(portrait.buttons,0,"Preview characters have no gameplay controls");
+    }
+    assert.deepEqual(portraits.map(x=>x.label),[
+      "Gardien du refuge","Forgeron de reliques","Érudite de l'Écho"]);
+    const metrics=await page.evaluate(()=>({
+      width:document.documentElement.clientWidth,
+      scroll:document.documentElement.scrollWidth,
+      height:document.querySelector("#veyr-concept-grid").getBoundingClientRect().height
+    }));
+    assert.ok(metrics.scroll<=metrics.width+1,"No horizontal overflow on Android");
+    assert.ok(metrics.height<180,"Concepts remain compact in the collapsed dock");
+    const current=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(state),run:state.run,
+        hasNpcs:Object.hasOwn(state.meta,"npcs")};
+    });
+    assert.deepEqual(current,{valid:true,run:null,hasNpcs:false});
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("ART-091D mobile: pictogram selection, bag, ASCII and save resume keep gameplay intact", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const {newGame,SAVE_KEY,validateSave}=await import("./game.js");
+      const state=newGame();
+      if(!validateSave(state))throw Error("Original refuge save invalid");
+      localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    const checkbox=page.locator('#stash-items input[aria-label="Emporter Épée usée"]');
+    await checkbox.check();
+    await page.locator("#start-btn").tap();
+    assert.equal(await page.locator("#expedition").isVisible(),true);
+    assert.equal(await page.locator("#bag-items .item-row").count(),1);
+    const icon=page.locator("#bag-items .item-row .item-icon img");
+    assert.equal(await icon.count(),1);
+    await icon.evaluate(async img=>img.decode());
+    assert.ok((await icon.getAttribute("src")).startsWith("data:image/svg+xml"));
+    assert.equal(await icon.evaluate(img=>img.naturalWidth),24);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    const first=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const saved=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(saved),turns:saved.run.turns,
+        carried:saved.run.carried["weapon.rusty_sword"],npcs:saved.run.npcs};
+    });
+    assert.deepEqual(first,{valid:true,turns:0,carried:1,npcs:undefined});
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#bag-items .item-icon img").count(),1);
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    const restored=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const saved=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(saved),turns:saved.run.turns,
+        carried:saved.run.carried["weapon.rusty_sword"]};
+    });
+    assert.deepEqual(restored,{valid:true,turns:0,carried:1});
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

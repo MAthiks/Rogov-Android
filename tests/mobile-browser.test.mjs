@@ -1144,3 +1144,104 @@ test("DEV-090A cockpit remains functional in ASCII and after reload", {timeout:6
     assert.equal(await page.locator("#turns").textContent(),"0");
   }finally{await context.close();}
 });
+
+
+test("DEV-090B mobile: combat panel stays hidden without visible enemies", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    assert.equal(await page.locator("#combat-dock").isHidden(),true);
+    assert.equal(await page.locator("#combat-panel").isHidden(),true);
+    assert.equal(await page.locator("#target-choices button").count(),0);
+    const before=await page.locator("#turns").textContent();
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#turns").textContent(),before,
+      "navigating to an empty combat dock does not advance the game");
+    assert.equal(await page.locator("#combat-dock").isHidden(),true);
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tactical turn", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const setup=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const vision=await import("./exploration-visibility.js");
+      const s=game.newGame();
+      s.meta.descents=1;
+      const active=game.beginRun(s).state;
+      const enemy=active.run.enemies[0];
+      const around=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:enemy.x+dx,y:enemy.y+dy}))
+        .find(p=>active.run.map[p.y]?.[p.x]==="." &&
+          !active.run.enemies.some(e=>e.x===p.x&&e.y===p.y));
+      if(!around)throw Error("No free adjacent tile for mobile combat QA");
+      active.run.x=around.x;
+      active.run.y=around.y;
+      active.run.enemies=[enemy];
+      vision.revealAround(active.run);
+      if(!game.validateSave(active))throw Error("Invalid tactical test save");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(active));
+      return {hp:enemy.hp,kind:enemy.kind};
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    const dock=page.locator("#combat-dock");
+    assert.equal(await dock.isVisible(),true,"visible enemy reveals the dock");
+    assert.equal(await page.locator("#target-choices button").count(),1);
+    const placement=await page.evaluate(()=>{
+      const field=document.getElementById("field-controls").getBoundingClientRect();
+      const dock=document.getElementById("combat-dock").getBoundingClientRect();
+      return {gap:dock.top-field.bottom,
+        width:document.documentElement.clientWidth,
+        overflow:document.documentElement.scrollWidth};
+    });
+    assert.ok(placement.gap>=0&&placement.gap<32,
+      "combat appears immediately after movement and first aid");
+    assert.ok(placement.overflow<=placement.width+1);
+    assert.equal(await page.locator("#combat-panel").isHidden(),true,
+      "combat actions require explicit target choice");
+    await page.locator("#target-choices button").first().tap();
+    assert.equal(await page.locator("#combat-panel").isVisible(),true);
+    assert.equal(await page.locator("#combat-analysis").evaluate(n=>n.open),false,
+      "statistics are folded to leave room for actions");
+    assert.match(await page.locator("#combat-target-distance").textContent(),/CONTACT/);
+    const meter=await page.locator("#combat-target-meter").evaluate(n=>({
+      value:n.value,max:n.max,label:n.getAttribute("aria-valuetext")
+    }));
+    assert.equal(meter.value,setup.hp);
+    assert.ok(meter.max>=meter.value);
+    assert.match(meter.label,/points de vie/);
+    assert.equal(await page.locator("#turns").textContent(),"0",
+      "target selection must cost no turn");
+    const actionLayout=await page.evaluate(()=>{
+      const buttons=[...document.querySelectorAll(".tactic-actions button")];
+      return {count:buttons.length,rows:new Set(buttons.map(b=>
+        Math.round(b.getBoundingClientRect().top))).size,
+        minHeight:Math.min(...buttons.map(b=>b.getBoundingClientRect().height))};
+    });
+    assert.equal(actionLayout.count,5);
+    assert.equal(actionLayout.rows,2,"five actions use two rows on 360px Android");
+    assert.ok(actionLayout.minHeight>=44,"action targets support touch");
+    await page.locator("#combat-analysis summary").tap();
+    assert.equal(await page.locator("#combat-target-profile").isVisible(),true);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.locator("#combat-dodge").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1",
+      "a deliberate tactical defense still consumes exactly one turn");
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

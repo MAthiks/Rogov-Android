@@ -88,3 +88,27 @@ test("DEV-072 cache v0.7f includes the combat module for offline operation", () 
   assert.match(html,/style\.css\?v=0\.7f/);
   assert.match(html,/app\.js\?v=0\.7f/);
 });
+
+
+test("DEV-090B combat dock follows field controls, keeps enemy tells and folds optional detail",()=>{
+  const html=asset("index.html");
+  const app=asset("app.js");
+  const map=html.indexOf('id="tile-map"');
+  const field=html.indexOf('id="field-controls"');
+  const dock=html.indexOf('id="combat-dock"');
+  const target=html.indexOf('id="target-choices"');
+  const preview=html.indexOf('id="combat-panel"');
+  const exploration=html.indexOf('id="exploration-map-panel"');
+  assert.ok(map>=0&&map<field&&field<dock&&dock<target&&target<preview&&
+    preview<exploration,"the visible combat actions are grouped beside the map");
+  assert.match(html,/id="combat-dock"[^>]*hidden/);
+  assert.match(html,/id="combat-analysis"/);
+  assert.match(html,/id="combat-target-meter"[^>]*aria-label="Santé de la cible"/);
+  assert.match(app,/dock\.hidden=enemies\.length===0/);
+  assert.match(app,/explorationState\(state\.run,e\.x,e\.y\)==="visible"/);
+  assert.match(app,/\$\("combat-target-meter"\)\.max=snapshot\.maxHp/);
+  assert.match(app,/\$\("combat-target-meter"\)\.value=Math\.max\(0,snapshot\.hp\)/);
+  assert.match(app,/"jump-combat":\(\)=>!\$\("combat-dock"\)\.hidden/);
+  assert.match(html,/id="combat-attack"/);
+  assert.match(html,/id="combat-retreat"/);
+});

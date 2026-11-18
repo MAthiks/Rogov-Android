@@ -407,3 +407,97 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 @media(prefers-reduced-motion:reduce){
   .expedition-shortcuts,.field-controls *{scroll-behavior:auto}
 }
+
+
+/* DEV-090B — Compact encounter dock directly after the map controls.
+ * No gameplay calculations or undiscovered enemy information in UI styling. */
+.combat-dock{
+  max-width:450px;margin:11px auto 7px;padding:10px;
+  border:1px solid #8c7660;border-radius:12px;text-align:left;
+  background:linear-gradient(165deg,#18272a,#172127);
+  box-shadow:inset 0 1px 0 #dcbb9226;
+}
+.combat-dock-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:5px 10px;flex-wrap:wrap;padding:0 2px 8px;
+  border-bottom:1px solid #53635c;
+}
+.combat-dock-head strong{font:800 11px/1.3 ui-monospace,monospace;
+  color:#e8d5ac;letter-spacing:.075em}
+.combat-dock-head span{font:600 10px/1.3 system-ui,sans-serif;color:#bccdc0}
+.combat-dock .threat-forecast{
+  margin:9px 0 4px;padding:9px 10px;border-left-width:3px;
+  font-size:11px;line-height:1.4;
+}
+.combat-dock .tactical-targets{
+  margin:8px 0 0;padding:9px;border:1px solid #405450;background:#121e24;
+}
+.combat-dock .target-choices-heading{margin-bottom:6px}
+.combat-dock .target-choices-heading strong{color:#dde8dc}
+.combat-dock .target-choice{min-height:48px;justify-content:flex-start}
+.combat-dock .combat-preview{
+  margin-top:8px;padding:10px;border-color:#7f7968;
+  box-shadow:none;background:#18262b;
+}
+.combat-dock .combat-preview-heading{align-items:center;margin-bottom:7px}
+.combat-dock .combat-preview-heading h3{margin:1px 0;font-size:12px}
+.combat-dock .target-clear{min-height:44px}
+.combat-dock .combat-target-card{padding:8px 10px;align-items:center}
+.combat-dock .combat-target-card>div:first-child{min-width:0}
+.combat-dock .combat-target-stats{min-width:103px;align-items:flex-end}
+.combat-dock .combat-target-stats strong{font-size:12px}
+.combat-dock .combat-target-stats span{
+  padding:3px 6px;border:1px solid #69776c;border-radius:5px;
+  background:#243c38;color:#dfedcf;font-size:10px;
+}
+.combat-dock .combat-target-stats span[data-range="loin"]{
+  background:#353538;color:#e5c3a7;
+}
+#combat-target-meter{
+  width:100%;height:7px;min-height:7px;accent-color:#d3ad86;
+}
+.combat-dock .combat-intention{
+  margin-top:7px;padding:8px 9px;gap:3px;
+}
+.combat-dock .combat-intention span{font-size:9px}
+.combat-dock .combat-intention strong{font-size:12px}
+.combat-range-note{
+  font-size:11px;line-height:1.4;margin:8px 0 5px;
+  color:#d4e3c8;
+}
+.combat-dock .tactic-actions{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;margin-top:7px;
+}
+.combat-dock .tactic-actions button{
+  min-width:0;min-height:59px;padding:7px 4px;gap:3px;
+  border-radius:7px;font-size:12px;line-height:1.15;
+  white-space:normal;overflow-wrap:anywhere;
+}
+.combat-dock .tactic-actions button small{font-size:9px;line-height:1.15}
+.combat-dock .tactic-actions button:last-child{grid-column:auto}
+.combat-dock .tactic-actions button:disabled{opacity:.5}
+.combat-analysis{
+  margin-top:9px;padding:1px 0;border-top:1px solid #465953;
+}
+.combat-analysis summary{
+  cursor:pointer;display:block;min-height:40px;
+  padding:10px 2px 8px;font-size:11px;color:#b9d4c7;font-weight:650;
+}
+.combat-analysis[open] summary{color:#e5e9d6}
+.combat-analysis .combat-loadout{margin:6px 1px 0}
+.combat-analysis .combat-target-profile{font-size:11px;line-height:1.45}
+.combat-analysis .tactic-preview-warning{font-size:11px;line-height:1.45}
+#combat-dock{scroll-margin-top:70px}
+@media(max-width:390px){
+  .combat-dock{padding:8px}
+  .combat-dock .tactical-targets{padding:7px}
+  .combat-dock .target-choices{gap:5px}
+  .combat-dock .target-choice{padding:5px 4px}
+  .combat-dock .tactic-actions button{font-size:11px;min-height:62px}
+  .combat-dock .tactic-actions button small{font-size:9px}
+}
+@media(max-width:335px){
+  .combat-dock .tactic-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .combat-dock .tactic-actions button{min-height:55px}
+}

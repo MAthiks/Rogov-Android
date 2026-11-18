@@ -140,8 +140,9 @@
           <div class="render-controls"><span>PACK VISUEL / NHAL</span><button type="button" id="renderer-toggle" class="secondary" aria-pressed="true">Passer en ASCII</button></div>
           <div id="tile-map" class="pixel-map" role="group" aria-label="Carte graphique du donjon. Touchez un ennemi pour le cibler." tabindex="0"></div>
           <pre id="dungeon-map" aria-label="Carte ASCII du donjon" tabindex="0" hidden></pre>
+          <button id="door-action" type="button" class="secondary door-action" disabled>Sélectionner une porte voisine</button>
           <div id="graphic-legend" class="graphic-legend" aria-label="Légende illustrée du donjon"></div>
-          <div id="ascii-legend" class="legend" hidden>@ Joueur · c Charognard · G Gardien · $ Butin · ^ Mort · E Extraction · # Mur</div>
+          <div id="ascii-legend" class="legend" hidden>@ Joueur · + Porte fermée · / Porte ouverte · c Charognard · G Gardien · $ Butin · ^ Mort · E Extraction · # Mur</div>
         </div>
 
         <section class="tactical-targets" aria-labelledby="target-choices-title">
@@ -192,7 +193,7 @@
 
         <div id="inspect-panel" class="inspect-panel" data-kind="floor" aria-live="polite">
           <strong id="inspect-title">Identifier une case</strong>
-          <p id="inspect-description">Touchez un élément de la carte pour connaître son rôle et ses caractéristiques.</p>
+          <p id="inspect-description">Touchez un élément de la carte pour connaître son rôle. Touchez une porte voisine, puis confirmez son ouverture ou sa fermeture.</p>
         </div>
         <div id="run-log-slot" class="log-slot"></div>
         <div class="dpad" role="group" aria-label="Déplacements">

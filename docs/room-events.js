@@ -43,8 +43,19 @@ export const ROOM_SITES=Object.freeze({
 const key=p=>p.x+","+p.y;
 const distance=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
 const cell=(map,p)=>map[p.y]?.[p.x]??"#";
-const DEFINITION=Object.freeze([{kind:"atelier",roomId:10},{kind:"echo",roomId:1},
-  {kind:"cache",roomId:11}]);
+/** Fixed entry/exit, but special chambers migrate between descents.
+ * These candidate rooms do not contain the entrance, extraction or workshop.
+ */
+export function specialRoomPlan(index){
+  if(!Number.isSafeInteger(index)||index<2)throw new RangeError("Invalid special room seed");
+  return {echoRoomId:[0,1,2,4,7][index%5],
+    cacheRoomId:[6,9,11][Math.floor(index/5)%3]};
+}
+const definition=rooms=>[
+  {kind:"atelier",roomId:10},
+  {kind:"echo",roomId:rooms.find(r=>r.role==="chambre_echo")?.id},
+  {kind:"cache",roomId:rooms.find(r=>r.role==="cache_scellee")?.id}
+];
 const inRoom=(p,r)=>p.x>r.x&&p.x<r.x+r.width-1&&
   p.y>r.y&&p.y<r.y+r.height-1;
 
@@ -57,7 +68,7 @@ export function placeRoomSites(layout,index,route){
     ...(layout.secrets||[]).flatMap(s=>[key(s),key(s.clue)])]);
   const blocked=new Set([...(layout.traps||[]),...layout.enemies].map(key));
   const sites=[];
-  for(const {kind,roomId} of DEFINITION){
+  for(const {kind,roomId} of definition(layout.rooms)){
     const room=layout.rooms[roomId],candidates=[];
     if(!room)throw new Error("Missing special room");
     for(let y=room.y+1;y<room.y+room.height-1;y++)
@@ -69,7 +80,7 @@ export function placeRoomSites(layout,index,route){
             !route(layout.map,layout.start,p,blocked))continue;
         const center=distance(p,{x:room.cx,y:room.cy});
         const variety=(x*31+y*17+index*13+roomId*7)%9;
-        candidates.push({p,score:center*10+variety});
+        candidates.push({p,score:center*4+variety});
       }
     candidates.sort((a,b)=>a.score-b.score||key(a.p).localeCompare(key(b.p)));
     if(!candidates.length)throw new Error("No safe DEV-087 room site");
@@ -90,7 +101,7 @@ export function validRoomSites(run){
       !Array.isArray(run.rooms)||run.rooms.length!==12||
       !Array.isArray(run.map))return false;
   const seen=new Set();
-  return DEFINITION.every((expected,i)=>{
+  return definition(run.rooms).every((expected,i)=>{
     const s=run.sites[i],room=run.rooms[expected.roomId];
     if(!s||s.id!=="nhal-site-"+expected.kind+"-01"||
         s.kind!==expected.kind||s.roomId!==expected.roomId||

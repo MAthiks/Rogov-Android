@@ -28,7 +28,7 @@ Parcours réalisé :
 - **181/181 tests Node : réussite** (moteur, statistiques, combats, génération, sauvegardes).
 - **7/7 tests navigateur Chromium : réussite**, incluant cette nouvelle partie complète.
 - **Rapport CI validé (code SHA `15f20045`) :** https://github.com/MAthiks/Rogov-Android/actions/runs/44266128653
-- Les trois scénarios Chrome **Android 13 émulé** de DEV-080/081/082 avaient déjà réussi sur le code applicatif de référence : https://github.com/MAthiks/Rogov-Android/actions/runs/44251118876. Ce sont des validations distinctes, **pas** un passage physique du nouveau scénario QA-084 sur Android.
+- **3/3 scénarios Chrome Android 13 émulé réussis** sur le même commit applicatif que QA-084B : https://github.com/MAthiks/Rogov-Android/actions/runs/44266128672. Ils couvrent DEV-080/081/082, mais **pas le parcours long QA-084B sur l'émulateur ni un essai sur téléphone physique**.
 
 ## QA-084B — Combat réel avec IA active et extraction
 

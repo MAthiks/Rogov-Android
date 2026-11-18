@@ -80,6 +80,36 @@ export function deepTwoReturnWays(map,from,to,blocked=new Set()){
   return visit(from)&&!critical;
 }
 const inRoom=(p,r)=>p.x>=r.x&&p.x<r.x+r.width&&p.y>=r.y&&p.y<r.y+r.height;
+
+// DEV-089A: actual blocked masonry inside rooms, not decorative sprites.
+// Keep the 4×3 graph through DEV-089A; DEV-089C will change connectivity.
+export const ROOM_SHAPES=Object.freeze(["rectangle","l","pillar","collapsed","alcove"]);
+export const ROOM_GEOMETRY_VERSION=1;
+const SHAPE_ROOMS=Object.freeze([1,2,4,7,9]);
+function roomShapePlan(index){
+  const offset=index%SHAPE_ROOMS.length;
+  return new Map([
+    [index%2===0?0:11,"l"],
+    [SHAPE_ROOMS[offset],"pillar"],
+    [SHAPE_ROOMS[(offset+2)%SHAPE_ROOMS.length],"collapsed"],
+    [SHAPE_ROOMS[(offset+4)%SHAPE_ROOMS.length],"alcove"]
+  ]);
+}
+function roomObstacles(room){
+  const {x,y,width,height,cx,cy,shape,id}=room;
+  if(shape==="l"){
+    // The L cut faces the outer map boundary: no public threshold on
+    // these sides. All other directions remain independently traversable.
+    const ox=id===0?x+1:x+width-3,oy=id===0?y+1:y+height-3;
+    return [{x:ox,y:oy},{x:ox+1,y:oy},
+      {x:ox,y:oy+1},{x:ox+1,y:oy+1}];
+  }
+  if(shape==="pillar")return [{x:cx,y:cy}];
+  if(shape==="collapsed")return [{x:cx-1,y:cy+1},{x:cx,y:cy+1}];
+  if(shape==="alcove")return [{x:cx-1,y:cy-1},{x:cx+1,y:cy-1}];
+  return [];
+}
+
 function roomPoint(room,rand){
   return {x:room.cx+rand(3)-1,y:room.cy+rand(3)-1};
 }
@@ -96,6 +126,7 @@ function makePlan(index){
   const rand=randomStream(index);
   const grid=Array.from({length:DEEP_HEIGHT},()=>Array(DEEP_WIDTH).fill("#"));
   const rooms=[];
+  const shapes=roomShapePlan(index);
   const {echoRoomId,cacheRoomId}=specialRoomPlan(index);
   for(let row=0;row<ROWS;row++)for(let col=0;col<COLUMNS;col++){
     const id=row*COLUMNS+col;
@@ -107,7 +138,8 @@ function makePlan(index){
       id===echoRoomId?"chambre_echo":id===cacheRoomId?"cache_scellee":
       id===5?"ruines_occupees":id===10?"atelier_abandonne":
       ["traversee","chambre_echo","ruines","passage_service"][rand(4)];
-    const room={id,x,y,width,height,cx,cy,role};
+    const room={id,x,y,width,height,cx,cy,role,
+      shape:shapes.get(id)||"rectangle"};
     rooms.push(room);
     // Only the room interior is floor. The perimeter remains solid stone,
     // pierced solely by deliberate one-tile passage mouths.
@@ -168,6 +200,14 @@ function makePlan(index){
     roomDoorCount[available.room]++;
   }
   if(doors.length!==6)throw new Error("No balanced door placement");
+  // Apply geometry after thresholds, before spawns, treasure or hazards.
+  for(const room of rooms){
+    room.obstacles=roomObstacles(room);
+    for(const p of room.obstacles){
+      if(grid[p.y][p.x]!==".")throw new Error("Room obstacle overlaps threshold");
+      grid[p.y][p.x]="#";
+    }
+  }
   const start={x:rooms[8].cx,y:rooms[8].cy};
   const exit={x:rooms[3].cx,y:rooms[3].cy};
   const valuable=roomPoint(rooms[5],rand);
@@ -263,7 +303,7 @@ function makePlan(index){
     placeCrack(rooms[6],false);
   return {
     map:grid.map(row=>row.join("")),
-    rooms,doors,doorPlanVersion:1,
+    rooms,doors,doorPlanVersion:1,geometryVersion:ROOM_GEOMETRY_VERSION,
     start,exit,loot,
     enemies,layoutId:"nhal-deep-"+index,
     // Rejected by strict new-layout validation if a fair location was absent.
@@ -283,6 +323,8 @@ export function validateDeepLayout(layout,live=false){
       map.some(row=>row[0]!=="#"||row[DEEP_WIDTH-1]!=="#"))return false;
   const legacy=layout.doorPlanVersion===undefined;
   if(layout.doorPlanVersion!==undefined&&layout.doorPlanVersion!==1)return false;
+  if(layout.geometryVersion!==undefined&&
+      layout.geometryVersion!==ROOM_GEOMETRY_VERSION)return false;
   if(!Array.isArray(rooms)||rooms.length!==12||!Array.isArray(doors)||
       (legacy?doors.length!==34:doors.length!==6))return false;
   if(!start||!exit||tile(map,start)!=="S"||tile(map,exit)!=="E")return false;
@@ -292,6 +334,29 @@ export function validateDeepLayout(layout,live=false){
       r.width>=(legacy?5:7)&&r.width<=(legacy?7:9)&&
       r.height>=(legacy?5:7)&&r.height<=(legacy?7:9)&&
       inRoom({x:r.cx,y:r.cy},r)))return false;
+  if(layout.geometryVersion===ROOM_GEOMETRY_VERSION){
+    const validShapes=new Set(ROOM_SHAPES);
+    for(const kind of ["l","pillar","collapsed","alcove"])
+      if(rooms.filter(r=>r.shape===kind).length!==1)return false;
+    for(const room of rooms){
+      if(!validShapes.has(room.shape)||!Array.isArray(room.obstacles))return false;
+      const expected=roomObstacles(room);
+      if(JSON.stringify(expected)!==JSON.stringify(room.obstacles)||
+          room.obstacles.some(p=>!inRoom(p,room)||tile(map,p)!=="#"))return false;
+      for(const p of room.obstacles){
+        // Check actual doorway approaches, never hypothetical doors
+        // on the two deliberately solid outer sides of the L chamber.
+        const mouths=[
+          [p.x===room.x+1,{x:room.x,y:p.y}],
+          [p.x===room.x+room.width-2,{x:room.x+room.width-1,y:p.y}],
+          [p.y===room.y+1,{x:p.x,y:room.y}],
+          [p.y===room.y+room.height-2,{x:p.x,y:room.y+room.height-1}]
+        ];
+        if(mouths.some(([adjacent,mouth])=>adjacent&&
+            ["+","."].includes(tile(map,mouth))))return false;
+      }
+    }
+  }
   const doorKeys=new Set();
   for(const door of doors){
     if(!Number.isInteger(door?.x)||!Number.isInteger(door?.y)||typeof door.open!=="boolean"||

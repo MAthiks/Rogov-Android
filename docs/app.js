@@ -249,10 +249,19 @@ function unselectTarget() {
 }
 function renderTargetChoices() {
   const host=$("target-choices");
+  const dock=$("combat-dock");
   host.replaceChildren();
-  if (!state.run) return;
+  if (!state.run){dock.hidden=true;return;}
   const enemies=(state.run.enemies || []).filter(e=>
     explorationState(state.run,e.x,e.y)==="visible");
+  // A contextual combat dock appears only for enemies truly in sight.
+  // No hidden enemies or future intentions are exposed via the DOM.
+  dock.hidden=enemies.length===0;
+  const selected=enemies.find(e=>e.id===state.run.targetId);
+  $("combat-dock-summary").textContent=selected
+    ? "Cible verrouillée · "+enemies.length+" visible"+(enemies.length>1?"s":"")
+    : enemies.length+" menace"+(enemies.length>1?"s":"")+" visible"+
+      (enemies.length>1?"s":"")+" · choisir gratuitement";
   if (!enemies.length) {
     const empty=document.createElement("p");
     empty.className="target-empty";
@@ -349,7 +358,12 @@ function renderCombatPreview() {
   $("combat-target-name").textContent=snapshot.name;
   $("combat-target-family").textContent=snapshot.family;
   $("combat-target-health").textContent=snapshot.hp+" / "+snapshot.maxHp+" PV";
+  $("combat-target-meter").max=snapshot.maxHp;
+  $("combat-target-meter").value=Math.max(0,snapshot.hp);
+  $("combat-target-meter").setAttribute("aria-valuetext",
+    snapshot.hp+" points de vie sur "+snapshot.maxHp);
   $("combat-target-distance").textContent=snapshot.band+" · "+snapshot.distance+" cases";
+  $("combat-target-distance").dataset.range=snapshot.band.toLowerCase();
   const enemy=state.run.enemies?.find(e=>e.id===snapshot.targetId);
   const enemyStats=enemyDerivedStats(enemy);
   const heroStats=heroDerivedStats(state);
@@ -574,7 +588,8 @@ for (const button of document.querySelectorAll("[data-direction]")) {
 // selects a target or uncovers information outside the current view.
 const jumpDestinations={
   "jump-map":()=>renderMode==="ascii"?$("dungeon-map"):$("tile-map"),
-  "jump-combat":()=>!$("combat-panel").hidden?$("combat-panel"):$("target-choices"),
+  "jump-combat":()=>!$("combat-dock").hidden?$("combat-dock"):
+    (renderMode==="ascii"?$("dungeon-map"):$("tile-map")),
   "jump-report":()=>{if(!$("expedition-report").hidden)$("expedition-report").open=true;
     return $("expedition-report");},
   "jump-bag":()=>$("bag-items")

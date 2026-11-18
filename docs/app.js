@@ -1,5 +1,6 @@
 import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
+import { setupUi092 } from "./ui092.js";
 import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
 import {heroFacingFromStep} from "./hero-art.js";
 import { nearbySecretHint } from "./secrets.js";
@@ -581,6 +582,7 @@ function render() {
       button.title=recipe.description;
     }
   }
+  ui092.sync();
 }
 function act(result) {
   if (result.changed) {
@@ -627,6 +629,7 @@ function enterGame() {
   target.focus({preventScroll:true});
 }
 function returnToTitle() {
+  ui092.close();
   $("game-shell").hidden = true;
   $("title-screen").hidden = false;
   updateTitle();
@@ -678,26 +681,10 @@ $("start-btn").addEventListener("click", () => {
 for (const button of document.querySelectorAll("[data-direction]")) {
   button.addEventListener("click", () => act(move(state,button.dataset.direction)));
 }
-// DEV-090A: in-game navigation is visual-only; it never spends a turn,
-// selects a target or uncovers information outside the current view.
-const jumpDestinations={
-  "jump-map":()=>renderMode==="ascii"?$("dungeon-map"):$("tile-map"),
-  "jump-combat":()=>!$("combat-dock").hidden?$("combat-dock"):
-    (renderMode==="ascii"?$("dungeon-map"):$("tile-map")),
-  "jump-action":()=>$("interaction-dock"),
-  "jump-report":()=>{if(!$("expedition-report").hidden)$("expedition-report").open=true;
-    return $("expedition-report");},
-  "jump-bag":()=>{$("bag-panel").open=true;return $("bag-panel");}
-};
-for(const [id,getTarget] of Object.entries(jumpDestinations)){
-  $(id).addEventListener("click",()=>{
-    if(!state.run)return;
-    const target=getTarget();
-    if(target?.hidden)return;
-    const prefersReduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    target?.scrollIntoView({behavior:prefersReduced?"auto":"smooth",block:"start"});
-  });
-}
+// UI-092A: preserve all actual gameplay controls/IDs, use a presentation-only
+// bottom sheet on mobile and the existing scroll navigation on desktop.
+const ui092=setupUi092({get:$,isRun:()=>Boolean(state.run),
+  isAscii:()=>renderMode==="ascii"});
 $("wait-btn").addEventListener("click", () => act(waitTurn(state)));
 $("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.bandage")));
 $("use-tonic").addEventListener("click", () => act(useItem(state, "consumable.dusk_tonic")));

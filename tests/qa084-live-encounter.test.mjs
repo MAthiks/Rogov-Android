@@ -57,9 +57,9 @@ test("QA-084: actual charognard combat, public loot and extraction with all spaw
   setup.meta.descents=1; // tutorial already completed; deep sector is next
   let state=beginRun(setup,["weapon.rusty_sword","consumable.bandage"]).state;
   assert.ok(validateSave(state));
-  assert.equal(state.run.enemies.length,3,"All three generated enemies must remain active");
+  assert.equal(state.run.enemies.length,4,"All four generated enemies must remain active");
   const originalEnemies=state.run.enemies.map(e=>e.id);
-  const foeId=state.run.enemies.find(e=>e.kind==="charognard")?.id;
+  const foeId=state.run.enemies.find(e=>e.id==="nhal-charognard-scout-01")?.id;
   assert.ok(foeId,"Deep dungeon must have a live charognard");
   const startXp=state.meta.hero.xp;
   const seenHP=[];

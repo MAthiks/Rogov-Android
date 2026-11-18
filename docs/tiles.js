@@ -86,7 +86,7 @@ export function drawTileMap(state,host,heroFacing="down") {
       const facing=["up","left","right"].includes(heroFacing)?heroFacing:"down";
       spriteId=facing==="down"?"hero":"hero_"+facing;
       cell.dataset.facing=facing;
-      cell.classList.add("tile-hero"); // Preserve the contrast outline at mobile size.
+      cell.classList.add("tile-hero"); // Sprite seul, sans contour de sélection.
     }
     else {
       const enemy=visible?enemyAt(run,x,y):null;

@@ -899,3 +899,33 @@ test("DEV-087 mobile: hidden exploration rooms become visible and choices persis
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("DEV-088 mobile: report is fog-safe, costs no turn and persists after reload", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    assert.equal(await page.locator("#expedition-report").isVisible(),true);
+    const before=await page.locator("#turns").textContent();
+    await page.locator("#expedition-report summary").tap();
+    assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
+    assert.equal(await page.locator("#report-carried").textContent(),"0 objet");
+    assert.equal(await page.locator("#report-fragments").textContent(),"0");
+    assert.match(await page.locator("#report-advice").textContent(),/Arche n'a pas encore été repérée/);
+    assert.equal(await page.locator("#turns").textContent(),before,
+      "Opening and reading the report is free");
+    const bounds=await page.evaluate(()=>({
+      outer:document.documentElement.scrollWidth,
+      inner:document.documentElement.clientWidth
+    }));
+    assert.ok(bounds.outer<=bounds.inner+1,"Mobile report must not overflow viewport");
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#expedition-report").isVisible(),true);
+    await page.locator("#expedition-report summary").tap();
+    assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
+    assert.equal(await page.locator("#turns").textContent(),before);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

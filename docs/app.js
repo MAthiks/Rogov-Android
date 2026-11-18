@@ -3,6 +3,7 @@ import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { nearbySecretHint } from "./secrets.js";
 import {nearbyTrapHint,trapHintText} from "./traps.js";
 import {ROOM_SITES,nearbyRoomSite} from "./room-events.js";
+import {expeditionReport} from "./expedition-report.js";
 import { hasFog,explorationState,visibleCells,minimapText } from "./exploration-visibility.js";
 import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
@@ -375,6 +376,30 @@ function renderCombatPreview() {
     : "Hors de portée de mêlée : rapproche-toi, prépare une défense ou recule.";
 
 }
+function updateExpeditionReport(){
+  const details=$("expedition-report"),report=expeditionReport(state);
+  details.hidden=!report.available;
+  if(!report.available)return;
+  const securedItems=report.secured;
+  $("report-carried").textContent=report.carried+" objet"+(report.carried>1?"s":"");
+  $("report-fragments").textContent=String(report.fragments);
+  $("report-secured").textContent=securedItems+" objet"+(securedItems>1?"s":"");
+  $("report-chests").textContent=String(report.knownChests);
+  $("report-sites").textContent=String(report.knownSites);
+  $("report-enemies").textContent=String(report.enemies);
+  $("report-route").textContent=!report.exitKnown
+    ?"Arche non repérée : aucun trajet affiché."
+    :!report.knownRoute
+      ?"Arche repérée, mais pas de trajet entièrement connu depuis cette position."
+      :"Tracé connu : "+report.knownRoute.steps+" cases"
+        +(report.knownRoute.closedDoors
+          ?" · "+report.knownRoute.closedDoors+" porte(s) à ouvrir":"")+
+        ". Ce n'est pas une garantie de sécurité.";
+  $("report-advice").textContent=report.advice;
+  $("expedition-report-summary").textContent=report.carried+
+    " objet(s) exposé(s) · "+(report.knownRoute
+      ?"retour connu":"retour à reconnaître");
+}
 function render() {
   const run = state.run;
   $("mode-status").textContent = run ? "DESCENTE" : "REFUGE";
@@ -406,6 +431,7 @@ function render() {
     $("use-tonic").textContent = "Tonique +6 PV (" + (run.carried["consumable.dusk_tonic"] || 0) + ")";
     $("turns").textContent = String(run.turns);
     $("bag-count").textContent = inventoryCount(state) + " / 8";
+    updateExpeditionReport();
     $("route-hint").textContent = !run.map || run.layoutId==="nhal-introduction"
       ? "Première descente : repère les dangers et l'Arche d'extraction. Tu peux éviter le combat."
       : run.rooms?"Secteur "+state.meta.descents+" : les ennemis, coffres et failles doivent se découvrir dès la première salle. Ouvre les coffres proches ; les failles rouges sont mortelles. La caméra suit l'Égaré.":
@@ -435,6 +461,7 @@ function render() {
     renderCombatPreview();
     renderInventory($("bag-items"), run.carried);
   } else {
+    $("expedition-report").hidden=true;
     selectedDoor=null;
     const available = new Set(Object.keys(state.meta.stash).filter((id) => state.meta.stash[id] > 0));
     selected = new Set([...selected].filter((id) => available.has(id)));

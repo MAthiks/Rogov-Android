@@ -124,7 +124,7 @@
         <div class="run-bar"><span>VIE <strong id="hp">12 / 12</strong></span><span>TOURS <strong id="turns">0</strong></span><span>SAC <strong id="bag-count">0 / 8</strong></span></div>
         <nav class="expedition-shortcuts" aria-label="Accès rapide aux éléments de l'expédition">
           <button type="button" id="jump-map" aria-controls="tile-map">Carte</button>
-          <button type="button" id="jump-combat" aria-controls="target-choices">Combat</button>
+          <button type="button" id="jump-combat" aria-controls="combat-dock">Combat</button>
           <button type="button" id="jump-report" aria-controls="expedition-report">Rapport</button>
           <button type="button" id="jump-bag" aria-controls="bag-items">Sac</button>
         </nav>
@@ -158,6 +158,62 @@
               <small>Soigner ou attendre consomme 1 tour.</small>
             </div>
           </div>
+        </section>
+        <section id="combat-dock" class="combat-dock" aria-label="Commandes de combat contextuelles" hidden>
+          <header class="combat-dock-head">
+            <strong>ENGAGEMENT TACTIQUE</strong>
+            <span id="combat-dock-summary">Ennemis dans le champ de vision</span>
+          </header>
+          <section class="tactical-targets" aria-labelledby="target-choices-title">
+          <div class="target-choices-heading">
+            <strong id="target-choices-title">Menaces identifiées</strong>
+            <span>Toucher une créature ou appuyer sur C pour cibler sans dépenser de tour</span>
+          </div>
+          <div id="target-choices" class="target-choices" role="group" aria-label="Choisir une cible sans perdre de tour"></div>
+        </section>
+        <div id="threat-forecast" class="threat-forecast" aria-live="polite" hidden></div>
+        <section id="combat-panel" class="combat-preview" aria-labelledby="combat-panel-title" hidden>
+          <div class="combat-preview-heading">
+            <div>
+              <span class="eyebrow">ENGAGEMENT — COMBAT TACTIQUE</span>
+              <h3 id="combat-panel-title">CIBLE VERROUILLÉE</h3>
+            </div>
+            <button type="button" id="target-clear" class="target-clear">✕ Désélectionner</button>
+          </div>
+          <div class="combat-target-card" aria-live="polite">
+            <div>
+              <strong id="combat-target-name">Ennemi</strong>
+              <small id="combat-target-family">Lignée</small>
+            </div>
+            <div class="combat-target-stats">
+              <strong id="combat-target-health">PV</strong>
+              <progress id="combat-target-meter" aria-label="Santé de la cible" max="1" value="1">1 / 1</progress>
+              <span id="combat-target-distance" data-range="far">CONTACT</span>
+            </div>
+          </div>
+          <div class="combat-intention">
+            <span>INTENTION ENNEMIE (TOUR SUIVANT)</span>
+            <strong id="combat-intent" data-intent="idle">Observation</strong>
+          </div>
+          <p id="combat-range-note" class="combat-range-note">L'intention annoncée correspond à la réaction du prochain tour.</p>
+          <div class="tactic-actions" role="group" aria-label="Actions tactiques au tour par tour">
+            <button id="combat-attack" type="button">⚔ Attaquer <small>F · 1 END · CONTACT</small></button>
+            <button id="combat-dodge" type="button">◈ Esquiver <small>E · 2 END · mêlée</small></button>
+            <button id="combat-parry" type="button">⛨ Parer <small>P · 2 END · arme</small></button>
+            <button id="combat-block" type="button">▣ Bloquer <small>B · 2 END · réduit le coup</small></button>
+            <button id="combat-retreat" type="button">↙ Reculer <small>R · case libre</small></button>
+          </div>
+          <details id="combat-analysis" class="combat-analysis">
+            <summary>Équipement, probabilités et conseils</summary>
+            <div class="combat-loadout">
+              <span>ARME : <strong id="combat-weapon">—</strong></span>
+              <span>DÉFENSE : <strong id="combat-defense">Aucune</strong></span>
+            </div>
+            <p id="combat-target-profile" class="combat-target-profile"></p>
+            <p class="tactic-preview-warning"><strong>COMBAT TACTIQUE :</strong> les intentions indiquent le danger du tour suivant. Le Gardien prépare ses coups lourds ; s'éloigner peut les interrompre. Après une frappe, sa garde peut bloquer ton attaque.</p>
+          </details>
+        </section>
+
         </section>
           <details id="exploration-map-panel" class="exploration-map-panel" hidden>
             <summary>Plan mémorisé de Nhal <small>Zones découvertes uniquement</small></summary>
@@ -196,52 +252,6 @@
           <div id="ascii-legend" class="legend" hidden>@ Joueur · : Sol mémorisé · Espace vide Inexploré · ? Passage secret révélé · + Porte fermée · / Porte ouverte · c Charognard · G Gardien · C Coffre · o Coffre vide · ~ trace suspecte · ! piège actif · x désamorcé · a Atelier · e Écho · k Cache · v visité · ^ Mort · E Extraction · # Mur</div>
           </details>
         </div>
-
-        <section class="tactical-targets" aria-labelledby="target-choices-title">
-          <div class="target-choices-heading">
-            <strong id="target-choices-title">Menaces identifiées</strong>
-            <span>Toucher une créature ou appuyer sur C pour cibler sans dépenser de tour</span>
-          </div>
-          <div id="target-choices" class="target-choices" role="group" aria-label="Choisir une cible sans perdre de tour"></div>
-        </section>
-        <div id="threat-forecast" class="threat-forecast" aria-live="polite" hidden></div>
-        <section id="combat-panel" class="combat-preview" aria-labelledby="combat-panel-title" hidden>
-          <div class="combat-preview-heading">
-            <div>
-              <span class="eyebrow">ENGAGEMENT — COMBAT TACTIQUE</span>
-              <h3 id="combat-panel-title">CIBLE VERROUILLÉE</h3>
-            </div>
-            <button type="button" id="target-clear" class="target-clear">✕ Désélectionner</button>
-          </div>
-          <div class="combat-target-card" aria-live="polite">
-            <div>
-              <strong id="combat-target-name">Ennemi</strong>
-              <small id="combat-target-family">Lignée</small>
-            </div>
-            <div class="combat-target-stats">
-              <strong id="combat-target-health">PV</strong>
-              <span id="combat-target-distance">CONTACT</span>
-            </div>
-          </div>
-          <div class="combat-intention">
-            <span>INTENTION ENNEMIE (TOUR SUIVANT)</span>
-            <strong id="combat-intent" data-intent="idle">Observation</strong>
-          </div>
-          <div class="combat-loadout">
-            <span>ARME : <strong id="combat-weapon">—</strong></span>
-            <span>DÉFENSE : <strong id="combat-defense">Aucune</strong></span>
-          </div>
-          <p id="combat-target-profile" class="combat-target-profile"></p>
-          <p id="combat-range-note" class="hint">L'intention annoncée correspond à la réaction du prochain tour.</p>
-          <div class="tactic-actions" role="group" aria-label="Actions tactiques au tour par tour">
-            <button id="combat-attack" type="button">⚔ Attaquer <small>F · 1 END · CONTACT</small></button>
-            <button id="combat-dodge" type="button">◈ Esquiver <small>E · 2 END · mêlée</small></button>
-            <button id="combat-parry" type="button">⛨ Parer <small>P · 2 END · arme</small></button>
-            <button id="combat-block" type="button">▣ Bloquer <small>B · 2 END · réduit le coup</small></button>
-            <button id="combat-retreat" type="button">↙ Reculer <small>R · case libre</small></button>
-          </div>
-          <p class="tactic-preview-warning"><strong>COMBAT TACTIQUE :</strong> les intentions indiquent le danger du tour suivant. Le Gardien prépare ses coups lourds ; s'éloigner peut les interrompre. Après une frappe, sa garde peut bloquer ton attaque.</p>
-        </section>
 
         <details class="actor-stats-sheet" id="actor-stats-sheet">
           <summary><span>Fiche de l'Égaré</span><small>FOR · AGI · CON · PER · VOL · INT</small></summary>

@@ -30,7 +30,7 @@ test("UI-092A: moving existing element nodes does not clone listeners, save stat
   assert.match(src,/sheet\.hidden=false/);
   assert.match(src,/event\.key==="Escape"/);
   assert.match(src,/ResizeObserver/);
-  assert.doesNotMatch(src,/cloneNode|innerHTML|localStorage|sessionStorage|fetch\(|Math\.random|move\(|attackTarget\(|toggleDoor\(|JSON\.stringify/);
+  assert.doesNotMatch(src,/cloneNode|innerHTML|localStorage|sessionStorage|fetch\(|Math\.random|\bmove\(|attackTarget\(|toggleDoor\(|JSON\.stringify/);
   const state=beginRun(newGame(),[]).state;
   assert.equal(SAVE_KEY,"rogov-web-v1");
   assert.equal(SCHEMA_VERSION,1);

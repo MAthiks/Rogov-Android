@@ -5,20 +5,16 @@ import { hasFog,visibleCells,visionKey } from "./exploration-visibility.js";
 import {trapAppearance} from "./traps.js";
 import {roomSiteAppearance} from "./room-events.js";
 import {TERRAIN_SVGS,terrainSpriteAt} from "./terrain-art.js";
+import {HERO_SVGS} from "./hero-art.js";
 const svg = (parts) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + parts + '</svg>';
 // Terrain is now sourced from the reusable, fog-safe DEV-089B atlas.
 // Preserve the original floor/wall sprite keys for the legend and older UI.
 const floor=TERRAIN_SVGS.floor[0];
 const wall=TERRAIN_SVGS.wall[0][0];
-const hero=svg(
-  '<path d="M5 23L5 10 9 4 11 1h3l5 9 1 13z" fill="#182a2c" stroke="#ebf0d0" stroke-width="2"/>'+
-  '<path d="M7 10L11 4h3l4 6v4H7z" fill="#6e9d85"/>'+
-  '<path d="M8 12h8v4H8z" fill="#112125"/>'+
-  '<rect x="9" y="13" width="2" height="2" fill="#f6ffbc"/>'+
-  '<rect x="14" y="13" width="2" height="2" fill="#f6ffbc"/>'+
-  '<path d="M7 18l5-3 5 3 1 4H6z" fill="#437367"/>'+
-  '<path d="M21 7l-2 14" stroke="#d5c28a" stroke-width="2"/>'
-);
+const hero=HERO_SVGS.down;
+const hero_up=HERO_SVGS.up;
+const hero_left=HERO_SVGS.left;
+const hero_right=HERO_SVGS.right;
 const loot=svg(
   '<path d="M3 12L5 8h14l2 4v9H3z" fill="#72552e" stroke="#f4d389" stroke-width="2"/>'+
   '<path d="M4 12h16" stroke="#392b19" stroke-width="2"/>'+
@@ -115,7 +111,7 @@ const site_cache=svg('<path d="M3 20V6L8 2h12v18Z" fill="#37362f" stroke="#cfb48
   '<rect x="12" y="12" width="3" height="4" fill="#b7ddbe"/>');
 const site_resolved=svg('<rect x="3" y="3" width="18" height="18" rx="2" fill="#243c38" stroke="#6d9889" stroke-width="2"/>'+
   '<path d="M7 12l4 4 7-8" fill="none" stroke="#a3d4b6" stroke-width="2"/>');
-const SPRITE_SVGS={ floor, wall, hero, loot, hazard, exit, door_open, door_closed, secret_open, chest_open, charognard, guardian, rift_larva, trap_clue, trap_revealed, trap_disabled, trap_triggered, site_atelier, site_echo, site_cache, site_resolved };
+const SPRITE_SVGS={ floor, wall, hero, hero_up, hero_left, hero_right, loot, hazard, exit, door_open, door_closed, secret_open, chest_open, charognard, guardian, rift_larva, trap_clue, trap_revealed, trap_disabled, trap_triggered, site_atelier, site_echo, site_cache, site_resolved };
 export const TILE_SPRITES=Object.freeze(Object.fromEntries(
   Object.entries(SPRITE_SVGS).map(([id,source])=>[id,"data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(source)])
 ));
@@ -125,7 +121,7 @@ export const LEGEND_ITEMS=Object.freeze([
   ["trap_clue","Sol suspect"],["trap_revealed","Piège identifié"],["trap_disabled","Piège désamorcé"],
   ["site_atelier","Atelier"],["site_echo","Chambre de l’Écho"],["site_cache","Cache oubliée"],["site_resolved","Lieu exploré"]
 ]);
-export function drawTileMap(state,host) {
+export function drawTileMap(state,host,heroFacing="down") {
   host.replaceChildren();
   if(!state.run)return;
   const run=state.run;
@@ -162,7 +158,12 @@ export function drawTileMap(state,host) {
     if(remembered)cell.classList.add("tile-remembered");
     cell.style.backgroundImage="url('"+terrainSpriteAt(map,x,y,knows,artSeed)+"')";
     let spriteId=null;
-    if(x===run.x&&y===run.y)spriteId="hero";
+    if(x===run.x&&y===run.y){
+      const facing=["up","left","right"].includes(heroFacing)?heroFacing:"down";
+      spriteId=facing==="down"?"hero":"hero_"+facing;
+      cell.dataset.facing=facing;
+      cell.classList.add("tile-hero"); // Preserve the contrast outline at mobile size.
+    }
     else {
       const enemy=visible?enemyAt(run,x,y):null;
       if(enemy) {

@@ -259,3 +259,73 @@ test("DEV-081 mobile: fog hides unseen enemies from DOM, target panel, ASCII and
     assert.deepEqual(errors,[]);
   } finally {await context.close();}
 });
+
+
+test("DEV-082 mobile: visible clue, deliberate one-turn search, opened cache and saved one-off loot", {timeout:45000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage();
+    const errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    await page.goto(origin);
+    const scenario=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const source=game.newGame();source.meta.descents=1;
+      const state=game.beginRun(source).state;
+      state.run.enemies=[];
+      const secret=state.run.secrets[0];
+      state.run.x=secret.clue.x;state.run.y=secret.clue.y;
+      if(!game.validateSave(state))throw Error("Invalid new secret save");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {secret,from:{x:secret.clue.x,y:secret.clue.y}};
+    });
+    await page.reload();
+    await page.locator("#title-continue").click();
+    await page.locator("#secret-clue").waitFor({state:"visible"});
+    assert.equal(await page.locator("#secret-search").isEnabled(),true);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    assert.ok((await page.locator("#secret-clue").textContent()).length>30);
+    const prior=await page.evaluate(async ({secret})=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return game.inspectTile(s,secret.x,secret.y).kind;
+    },scenario);
+    assert.equal(prior,"wall","undiscovered secret must look like a wall");
+    await page.locator("#secret-search").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.equal(await page.locator("#secret-clue").isHidden(),true);
+    assert.ok(await page.locator("#tile-map .tile-secret_open").count()>0);
+    const persisted=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(persisted.run.secrets[0].revealed,true);
+    assert.equal(persisted.run.secrets[0].claimed,false);
+    assert.equal(persisted.run.map[scenario.secret.y][scenario.secret.x],".");
+    await page.locator("#renderer-toggle").tap();
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("?"));
+    await page.reload();await page.locator("#title-continue").click();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.ok((await page.locator("#dungeon-map").textContent()).includes("?"));
+    const deltaX=scenario.secret.x-scenario.from.x;
+    const deltaY=scenario.secret.y-scenario.from.y;
+    const dir=deltaX===1?"right":deltaX===-1?"left":deltaY===1?"down":"up";
+    await page.locator('[data-direction="'+dir+'"]').tap();
+    assert.equal(await page.locator("#turns").textContent(),"2");
+    const rewarded=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(rewarded.run.secrets[0].claimed,true);
+    assert.equal(rewarded.run.carried["consumable.bandage"],1);
+    assert.equal(rewarded.meta.hero.xp,1);
+    await page.reload();await page.locator("#title-continue").click();
+    const savedAgain=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    assert.equal(savedAgain.run.secrets[0].claimed,true);
+    assert.equal(savedAgain.run.carried["consumable.bandage"],1);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

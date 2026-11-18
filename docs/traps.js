@@ -71,10 +71,11 @@ export function placeOptionalTraps(layout,index,route,twoWays){
     // Choose the closest accessible hint tile, making the warning visible
     // from the safe side of the approach rather than behind the mechanism.
     const clues=adjacent(p).filter(q=>floor(map,q)&&!forbidden.has(key(q)))
-      .map(q=>({q,path:route(map,start,q,blockers)}))
-      .filter(x=>x.path)
-      .sort((a,b)=>a.path.length-b.path.length||noise(a.q)-noise(b.q));
-    return clues.length?{p,clue:clues[0].q}:null;
+      .sort((a,b)=>dist(a,start)-dist(b,start)||noise(a)-noise(b));
+    // Most candidates have a safe approach on the first side; test them
+    // lazily rather than calculating up to four full BFS routes per tile.
+    const clue=clues.find(q=>route(map,start,q,blockers));
+    return clue?{p,clue}:null;
   }
   const alarms=[],slabs=[];
   for(let y=1;y<map.length-1;y++)for(let x=1;x<map[y].length-1;x++){
@@ -108,10 +109,10 @@ export function placeOptionalTraps(layout,index,route,twoWays){
     if(dist(a.p,b.p)<3||
         positions.has(key(a.clue))||positions.has(key(b.clue))||
         key(a.clue)===key(b.clue)||
-        !twoWays(map,start,exit,positions)||
-        !route(map,start,exit,noCombat)||
         !route(map,start,a.clue,noCombat)||
-        !route(map,start,b.clue,noCombat))return false;
+        !route(map,start,b.clue,noCombat)||
+        !route(map,start,exit,noCombat)||
+        !twoWays(map,start,exit,positions))return false;
     return lootPoints.every(chest=>
       twoWays(map,chest,exit,positions)&&
       route(map,start,chest,noCombat)&&

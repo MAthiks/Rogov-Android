@@ -37,7 +37,17 @@ Ce constat ne prouve pas quelle URL ni quelle descente l'utilisateur testait ; l
 
 **Statut : PASS déclaré par le testeur physique pour le scénario coffre / butin / sauvegarde.** Le détail de chaque manipulation n'a pas été fourni séparément ; ne pas présenter comme vérifiés d'autres scénarios.
 
-**Toujours à tester physiquement :** combat, comportement des créatures, faille et Rappel, extraction et conservation du butin au coffre de Veyr, stabilité sur une session prolongée. Pas de fusion de la PR.
+**À cette étape :** le combat n'était pas encore confirmé ; voir le retour complémentaire ci-dessous qui le valide. Restent la faille/Rappel, l'extraction et la session prolongée. Pas de fusion de la PR.
+
+## Retour terrain complémentaire — combat réel
+
+**Confirmation utilisateur :** « Test reussi », à la suite de la demande de réaliser un combat contre un Charognard sur le téléphone (ciblage, attaque, riposte et victoire).
+
+**Statut : PASS déclaré par le joueur pour le scénario de combat Android physique.** Le message ne donne pas de détails sur les PV, l'Endurance, l'équilibrage ou la totalité des variantes ennemies : ces aspects ne sont pas considérés comme intégralement validés.
+
+**Points de validation terrain déjà confirmés :** visibilité d'au moins une entité ennemie, d'un coffre et d'une faille ; scénario d'ouverture de coffre / butin / reprise ; scénario de combat Charognard.
+
+**Restent ouverts :** déclencher volontairement une faille et constater le Rappel avec pertes limitées au sac ; effectuer une extraction réelle et vérifier la conservation du butin dans le coffre de Veyr ; tester ensuite une session prolongée/offline si possible. Ne pas fusionner la PR avant acceptation explicite.
 
 ## Tests indispensables avant validation
 1. Graines déterministes, au moins **240 nouvelles grandes descentes** : quatre ennemis, trois coffres, deux failles et voies sûres.

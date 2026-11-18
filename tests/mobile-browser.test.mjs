@@ -1504,31 +1504,24 @@ test("ART-091B mobile: Sprite C enemies do not leak through unexplored Nhal fog"
       const fog=await import("./exploration-visibility.js");
       const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
       const original=game.newGame();original.meta.descents=1;
+      // Use real generated enemy positions. The deep-layout validator refuses
+      // invented locations that break fair arrival/escape constraints.
       const foes=game.beginRun(original).state.run.enemies;
-      const run=state.run,live=fog.visibleCells(run);
-      const inSight=[];
-      for(let y=1;y<run.map.length-1;y++)for(let x=1;x<run.map[y].length-1;x++){
-        if(run.map[y][x]!=="."||x===run.x&&y===run.y)continue;
-        if(live.has(fog.visionKey(run,x,y)))inSight.push({x,y});
-      }
-      if(inSight.length<2)throw Error("Need two visible floors for fog QA");
-      // Two visible enemies, third remains in the map but beyond LOS.
-      const hidden=foes[2],reserved=new Set(inSight.slice(0,2).map(p=>p.x+","+p.y));
-      let hiddenSpot=null;
-      for(let y=1;y<run.map.length-1&&!hiddenSpot;y++)for(let x=1;x<run.map[y].length-1;x++){
-        if(run.map[y][x]==="."&&!live.has(fog.visionKey(run,x,y))&&
-          !reserved.has(x+","+y)){hiddenSpot={x,y};break;}
-      }
-      if(!hiddenSpot)throw Error("Need hidden floor for fog QA");
-      run.enemies=foes.map((foe,i)=>({...foe,...(i<2?inSight[i]:hiddenSpot)}));
-      if(!game.validateSave(state))throw Error("Hidden enemy placement must remain valid");
+      state.run.enemies=foes;
+      if(!game.validateSave(state))throw Error("Original generated encounter must be valid");
+      const live=fog.visibleCells(state.run);
+      const visible=foes.filter(e=>live.has(fog.visionKey(state.run,e.x,e.y)));
+      const hidden=foes.filter(e=>!live.has(fog.visionKey(state.run,e.x,e.y)));
+      if(!hidden.length)throw Error("Need at least one genuinely hidden enemy");
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
-      return hiddenSpot;
+      return {visible:visible.map(e=>e.kind),hidden:hidden.map(e=>e.kind)};
     });
     await page.reload();await page.locator("#title-continue").tap();
-    assert.equal(await page.locator("#tile-map .hostile-tile").count(),2);
-    assert.equal(await page.locator("#tile-map .tile-rift_larva").count(),0,
-      "Unseen larva cannot appear as sprite or type class");
+    assert.equal(await page.locator("#tile-map .hostile-tile").count(),setup.visible.length);
+    for(const kind of setup.hidden){
+      assert.equal(await page.locator("#tile-map .tile-"+kind).count(),0,
+        "Genuinely unseen "+kind+" must not gain a type class or sprite");
+    }
     const unknown=await page.evaluate(()=>{
       const cells=[...document.querySelectorAll("#tile-map .pixel-tile.tile-unknown")];
       return {count:cells.length,leaks:cells.filter(c=>
@@ -1546,7 +1539,7 @@ test("ART-091B mobile: Sprite C enemies do not leak through unexplored Nhal fog"
       return {valid:game.validateSave(state),turns:state.run.turns};
     });
     assert.deepEqual(saved,{valid:true,turns:0});
-    assert.ok(setup.x>=0&&setup.y>=0);
+    assert.ok(setup.hidden.length>0);
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });

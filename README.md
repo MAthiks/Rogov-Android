@@ -9,7 +9,7 @@ ROGOV se déroule entre le **refuge de Veyr** et les profondeurs de **Nhal**. Il
 
 ## QA-092 — audit de jouabilité avant Alpha 0.8
 
-Le studio a engagé un [audit de boucle refuge → Nhal → extraction → forge](docs/QA092_STUDIO_AUDIT.md), avec tests de scénario complet, 30 graines de donjons profonds et parcours tactiles sur trois tailles d'écran. [Protocole et fiche vierge pour 5 testeurs × 2 descentes](docs/QA092_PLAYTEST_PROTOCOL.md). **La CI ne vaut pas validation sur appareil physique** : la cible Alpha 0.8 reste conditionnelle. Pas de nouvelle mécanique dans ce lot.
+Le studio a engagé un [audit de boucle refuge → Nhal → extraction → forge](docs/QA092_STUDIO_AUDIT.md), avec tests de scénario complet, 30 graines de donjons profonds et parcours tactiles sur trois tailles d'écran. [Protocole et fiche vierge pour 5 testeurs × 2 descentes](docs/QA092_PLAYTEST_PROTOCOL.md). **La CI ne vaut pas validation sur appareil physique** : la cible Alpha 0.8 reste conditionnelle. Aucune nouvelle mécanique ; QA-092 comprend un correctif responsive ciblé pour empêcher le pavé fixe de masquer la carte sur les petits écrans Android.
 
 ## UI-092A — cockpit de descente Android
 

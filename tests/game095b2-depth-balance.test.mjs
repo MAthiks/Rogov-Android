@@ -77,8 +77,20 @@ test("GAME-095B2: deterministic encounters change roles, not positions or damage
       assert.deepEqual(layout.sites,base.sites);
       assert.equal(layout.enemies.length,4);
       assert.equal(layout.depthBalanceVersion,1);
-      assert.deepEqual(layout.enemies.map(e=>key(e)),base.enemies.map(e=>key(e)),
-        "enemy positions unchanged, no route obstruction");
+      // D3C relocates at most the ORIGINAL Guardian to the optional atelier
+      // chest; no additional enemy, map change or mandatory corridor blocker.
+      assert.deepEqual(
+        layout.enemies.filter(e=>e.id!=="nhal-guardian-01").map(key),
+        base.enemies.filter(e=>e.id!=="nhal-guardian-01").map(key),
+        "the scout, vault guard and Larva keep their generated positions");
+      const oldGuardian=base.enemies.find(e=>e.id==="nhal-guardian-01");
+      const guardian=layout.enemies.find(e=>e.id==="nhal-guardian-01");
+      if(key(guardian)!==key(oldGuardian)){
+        const atelier=layout.rooms.find(r=>r.slot===10);
+        assert.ok(atelier);
+        assert.ok(guardian.x>atelier.x&&guardian.x<atelier.x+atelier.width-1);
+        assert.ok(guardian.y>atelier.y&&guardian.y<atelier.y+atelier.height-1);
+      }
       assert.equal(layout.enemies.find(e=>e.id==="nhal-charognard-scout-01")?.kind,
         "charognard","starting scout must not be strengthened");
       assert.deepEqual(count(layout),depth===2

@@ -8,6 +8,10 @@
 
 Développer rapidement un roguelike d'extraction tactique, solo, hors ligne, lisible au téléphone et facile à mettre à jour. Monde low fantasy et horreur cosmique originale : **Veyr** (refuge) et **Nhal** (profondeurs).
 
+## Progression narrative NAR-094 — trois Échos persistants
+
+**Décision de livraison :** les Chambres de l'Écho, déjà réellement interactives, enregistrent une preuve persistante dans `meta.echoFindings` après un choix valide (inscription ou résonance) coûtant un tour. Jusqu'à **3 pièces écrites ordonnées**, une par Chambre et descente, consultables à Veyr et dans le rapport d'expédition. Le Rappel conserve le savoir mais fait perdre le sac, exactement comme avant. Champ optionnel pour anciennes sauvegardes, aucun changement de `SCHEMA_VERSION`, de RNG, de carte ni de butin. Les secrets non découverts et les preuves futures ne sont jamais affichés. Les trois indices évoquent la cité enfouie, la voix en avance et une marque de retour, **sans expliquer ni achever le mystère du Rappel**. [GDD NAR-094](NAR094_PERSISTENT_ECHO_INVESTIGATION.md).
+
 ## Narration / onboarding NAR-093 — priorité de production du 19 novembre 2026
 
 **Prémisse :** l'Égaré renaît au Refuge de Veyr après sa mort dans Nhal (Rappel), mais perd le sac transporté. Le joueur descend rechercher des Fragments de cendre et se demande pourquoi le Rappel existe. La première mission effective consiste à **sécuriser au moins un Fragment via l'Arche d'extraction** (1 Fragment = 2 bandages, 2 = une Lame cendrée une fois au coffre). L'Écho évoque une cité enfouie mais les chapitres de campagne, les révélations et la fin ne sont pas implémentés. **Ne pas afficher de fausse quête terminable**. Texte et état de mission sont dérivés uniquement des données existantes, sans nouveau champ de sauvegarde. [Dossier NAR-093](NAR093_MISSION_AND_LORE.md) · [Retour joueur et ticket #25](https://github.com/MAthiks/Rogov-Android/issues/25).

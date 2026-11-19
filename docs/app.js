@@ -1,4 +1,4 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, shoveTarget, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, swapChestReward, chestSwapChoices, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, shoveTarget, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
 import {MAX_FLOOR_DEPTH,floorChoiceAvailable,canDescendFurther} from "./floors.js";
@@ -367,9 +367,27 @@ function nearbyChest(){
 }
 function updateChestAction(){
   const button=$("chest-action"),chest=nearbyChest();
+  const full=Boolean(chest&&inventoryCount(state)>=8);
   button.hidden=!state.run?.rooms;
-  button.disabled=!chest;
-  button.textContent=chest?"Ouvrir le coffre voisin · 1 tour":"Aucun coffre à portée";
+  button.disabled=!chest||full;
+  button.textContent=!chest?"Aucun coffre à portée":
+    full?"Sac plein · échange ou libère une place":
+      "Ouvrir le coffre voisin · 1 tour";
+  const panel=$("chest-swap-panel"),select=$("chest-swap-item"),
+    confirm=$("chest-swap-action");
+  panel.hidden=!full;
+  if(!full){select.replaceChildren();confirm.disabled=true;return;}
+  const previous=select.value;
+  const options=chestSwapChoices(state.run);
+  select.replaceChildren();
+  for(const id of options){
+    const option=document.createElement("option");
+    option.value=id;
+    option.textContent=ITEMS[id].name+" ×"+state.run.carried[id];
+    select.append(option);
+  }
+  if(options.includes(previous))select.value=previous;
+  confirm.disabled=options.length===0;
 }
 function adjacentDoors(){
   const run=state.run;
@@ -439,7 +457,7 @@ function updateInteractionDock(){
     secret:run&&!$("secret-clue").hidden,
     trap:run&&!$("trap-clue").hidden,
     site:run&&!$("room-site-panel").hidden,
-    chest:run&&!$("chest-action").disabled&&!$("chest-action").hidden,
+    chest:run&&!$("chest-action").hidden&&Boolean(nearbyChest()),
     door:Boolean(nearbyDoor)
   };
   dock.querySelector(".secret-controls").hidden=!visible.secret;
@@ -914,6 +932,13 @@ $("target-clear").addEventListener("click", unselectTarget);
 $("chest-action").addEventListener("click",()=>{
   const chest=nearbyChest();
   if(chest)act(openChest(state,chest.x,chest.y));
+});
+$("chest-swap-action").addEventListener("click",()=>{
+  const chest=nearbyChest(),discardId=$("chest-swap-item").value;
+  if(!chest||!discardId)return;
+  if(window.confirm("Abandonner définitivement "+ITEMS[discardId].name+
+    " pour récupérer le contenu encore inconnu du coffre (1 tour) ?"))
+    act(swapChestReward(state,chest.x,chest.y,discardId));
 });
 $("door-select").addEventListener("click",selectNextDoor);
 $("secret-search").addEventListener("click",()=>act(searchSecret(state)));

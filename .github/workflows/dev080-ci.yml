@@ -23,7 +23,10 @@ jobs:
           npm run check:web
           npm run test:web
       - name: GAME-095D1 — 100 seeded three-floor expedition surveys and isolated duels
-        run: node tools/balance-lab.mjs --count=100 --start=2 | tee game095d1-balance-baseline.json
+        run: |
+          set -euo pipefail
+          node tools/balance-lab.mjs --count 100 --start 2 | tee game095d1-balance-baseline.json
+          node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync("game095d1-balance-baseline.json","utf8")); if(r.expeditionSamples!==100||r.generatedFloors!==300||r.floors.length!==3)process.exit(1);'
       - name: Publish reproducible balance baseline (NOT human playtest results)
         uses: actions/upload-artifact@v4
         with:

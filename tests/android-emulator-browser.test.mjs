@@ -612,3 +612,64 @@ test("GAME-095C2 Chrome Android 13: shove an adjacent Charognard and reload", {t
     console.log("GAME-095C2 ANDROID 13: shove / stamina / persisted target PASS");
   }finally{await browser.close();}
 });
+
+
+test("GAME-095D2 Chrome Android 13: chest exchange saves once without duplicating rewards", {timeout:90000},async()=>{
+  const browser=await androidBrowser();
+  try{
+    const context=browser.contexts()[0];
+    const page=context.pages().find(p=>p.url().includes("127.0.0.1:8765"))||
+      await context.newPage();
+    page.on("dialog",d=>d.accept());
+    await page.goto(URL,{waitUntil:"load",timeout:20000});
+    const entry=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const base=game.newGame();base.meta.descents=1;
+      const s=game.beginRun(base,["weapon.rusty_sword"],null,{multiFloor:true}).state;
+      const [key]=Object.entries(s.run.loot)
+        .find(([,id])=>id==="consumable.bandage");
+      const [x,y]=key.split(",").map(Number);
+      const p=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:x+dx,y:y+dy}))
+        .find(q=>s.run.map[q.y]?.[q.x]==="."&&
+          !(s.run.traps||[]).some(t=>t.x===q.x&&t.y===q.y));
+      if(!p)throw Error("No safe D2 chest approach");
+      s.run.enemies=[];s.run.x=p.x;s.run.y=p.y;
+      s.run.carried={
+        "weapon.rusty_sword":1,"weapon.iron_mace":1,
+        "consumable.bandage":2,"consumable.dusk_tonic":1,
+        "consumable.vigor_salts":1,"armor.scavenged_cuirass":1,
+        "relic.ashen_fragment":1
+      };
+      if(!game.validateSave(s))throw Error("D2 Android full-bag fixture invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+      return key;
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    await page.locator("#jump-action").click();
+    assert.equal(await page.locator("#chest-swap-panel").isVisible(),true);
+    await page.locator("#chest-swap-item").selectOption("weapon.iron_mace");
+    await page.locator("#chest-swap-action").click();
+    const after=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),count:game.inventoryCount(s),
+        turn:s.run.turns,bandages:s.run.carried["consumable.bandage"],
+        iron:s.run.carried["weapon.iron_mace"]||0,opened:s.run.collected};
+    });
+    assert.deepEqual(after,{valid:true,count:8,turn:1,
+      bandages:3,iron:0,opened:[entry]});
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    const restored=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),count:game.inventoryCount(s),
+        turn:s.run.turns,bandages:s.run.carried["consumable.bandage"],
+        iron:s.run.carried["weapon.iron_mace"]||0,opened:s.run.collected};
+    });
+    assert.deepEqual(restored,after);
+    console.log("GAME-095D2 ANDROID 13: deliberate one-turn bag exchange PASS");
+  }finally{await browser.close();}
+});

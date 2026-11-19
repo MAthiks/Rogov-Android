@@ -119,16 +119,16 @@ test("GAME-095A1: old maps and first descent keep their published loot rules",()
   const one=beginRun(newGame()).state;
   assert.deepEqual(one.run.loot,BASE_LOOT);
   assert.equal(one.run.map.length,9);
-  const expected={
-    "relic.ashen_fragment":1,
-    "consumable.dusk_tonic":1,
-    "consumable.bandage":1
-  };
+  // GAME-095A3: the former tonic chest becomes an optional candidate.
+  // The two essential rewards stay guaranteed in every new deep layout.
   const deep=generateDeepLayout(2);
-  const counts=Object.values(deep.loot).reduce((out,id)=>{
-    out[id]=(out[id]||0)+1;return out;
-  },{});
-  assert.deepEqual(counts,expected);
+  assert.equal(deep.lootPlanVersion,1);
+  const ids=Object.values(deep.loot);
+  assert.equal(ids.filter(id=>id==="relic.ashen_fragment").length,1);
+  assert.equal(ids.filter(id=>id==="consumable.bandage").length,1);
+  assert.equal(ids.length,3);
+  assert.equal(ids.find(id=>id!=="relic.ashen_fragment"&&
+    id!=="consumable.bandage"),planDeepChestLoot(2).optional);
   for(const n of [2,3,17,104])
     assert.deepEqual(generateDeepLayout(n),generateDeepLayout(n));
 });

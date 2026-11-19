@@ -450,6 +450,7 @@ export function beginRun(state, equipment=[], loadoutChoice=null) {
   s.run = migrateCombatRun({ x:layout.start.x, y:layout.start.y, hp:MAX_HP,
     turns:0,carried,loadout:chosen,collected:[],enemies:layout.enemies,
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
+    ...(layout.lootPlanVersion?{lootPlanVersion:layout.lootPlanVersion}:{}),
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       ...(layout.geometryVersion?{geometryVersion:layout.geometryVersion}:{}),

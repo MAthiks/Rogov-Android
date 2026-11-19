@@ -37,7 +37,10 @@ export function damageFromStats(base,attacker,defender,{critical=false,source="m
   const bonus=clamp(Math.floor((attacker.attackPower-5)/5),-1,3);
   const raw=Math.max(1,base+bonus);
   const beforeArmor=critical?raw+Math.max(1,Math.ceil(raw/2)):raw;
-  return Math.max(0,beforeArmor-Math.floor(defender.armor/3));
+  // GAME-095A4: a landed physical hit always inflicts at least 1 damage.
+  // Only an active dodge/parry/block may fully negate it. Prevents even
+  // the rarest armor from turning common Nhal enemies into zero-risk fodder.
+  return Math.max(1,beforeArmor-Math.floor(defender.armor/3));
 }
 export function resolveStrike(state,attacker,defender,base,{source="melee"}={}){
   const accuracy=hitChance(attacker,defender);

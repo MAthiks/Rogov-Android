@@ -1,5 +1,5 @@
-// GAME-095A1 — pure, deterministic preview of future deep-chest rewards.
-// NOT connected to live dungeon generation until GAME-095A3.
+// GAME-095A3 — pure, deterministic deep-chest rewards for new descents.
+// Integrated only during generation; saved runs retain their original reward IDs.
 // Uses its own seed: never consumes or mutates the saved combat RNG.
 import {descentSeed,nextRandom} from "./combat-rules.js";
 
@@ -28,9 +28,9 @@ function weightedPick(pool,roll){
   throw new RangeError("Invalid loot table: weights must sum to 100");
 }
 
-/** Return a proposal, not a mutation of layout, state, or live loot.
+/** Return a reward plan, not a mutation of layout, state, or live loot.
  * Calling this before or after combat cannot change any combat RNG outcome.
- * Future A3 integration must preserve already saved run.loot exactly.
+ * A3 stores the optional reward in run.loot once, when a new descent starts.
  */
 export function planDeepChestLoot(descentNumber){
   if(!Number.isSafeInteger(descentNumber)||descentNumber<2)

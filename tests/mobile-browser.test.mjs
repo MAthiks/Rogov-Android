@@ -2269,3 +2269,66 @@ test("GAME-095A2 mobile: quantity selection, chosen loadout, tactical swap and s
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+// GAME-095A3: the third deep chest awards real new loot in the existing
+// tactile drawer, with an unchanged saved reward after restarting Chrome.
+test("GAME-095A3 mobile: new deep equipment is awarded once and saved", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const fixture=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const loot=await import("./loot.js");
+      const n=Array.from({length:80},(_,i)=>i+2).find(index=>
+        loot.EQUIPMENT_LOOT_POOL.some(p=>p.id===loot.planDeepChestLoot(index).optional));
+      if(!n)throw Error("No new equipment reward seed");
+      const s=game.newGame();s.meta.descents=n-1;
+      const state=game.beginRun(s).state;
+      const [pos,id]=Object.entries(state.run.loot).find(([,reward])=>
+        reward!=="relic.ashen_fragment"&&reward!=="consumable.bandage");
+      const [x,y]=pos.split(",").map(Number);
+      const neighbour=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:x+dx,y:y+dy}))
+        .find(p=>state.run.map[p.y]?.[p.x]===".");
+      if(!neighbour)throw Error("No reachable optional chest");
+      state.run.x=neighbour.x;state.run.y=neighbour.y;
+      state.run.enemies=[];
+      if(!game.validateSave(state))throw Error("Invalid A3 reward fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {x,y,id,pos,seed:state.run.rngState};
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#expedition").isVisible(),true);
+    if(!(await page.locator("#chest-action").isVisible()))
+      await page.locator("#jump-action").tap();
+    assert.equal(await page.locator("#chest-action").isEnabled(),true);
+    await page.locator("#chest-action").tap();
+    let state=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      return JSON.parse(localStorage.getItem(SAVE_KEY));
+    });
+    assert.equal(state.run.carried[fixture.id],1);
+    assert.equal(state.run.turns,1);
+    assert.equal(state.run.rngState,fixture.seed);
+    assert.ok(state.run.collected.includes(fixture.pos));
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    state=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      return JSON.parse(localStorage.getItem(SAVE_KEY));
+    });
+    assert.equal(state.run.carried[fixture.id],1);
+    assert.equal(state.run.turns,1);
+    assert.equal(state.run.loot[fixture.pos],fixture.id);
+    assert.equal(state.run.lootPlanVersion,1);
+    await page.locator("#jump-bag").tap();
+    assert.ok(await page.locator("#bag-items").getByText(
+      await page.evaluate(async id=>(await import("./game.js")).ITEMS[id].name,fixture.id),
+      {exact:true}).count()>0);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

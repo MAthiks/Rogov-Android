@@ -1,6 +1,7 @@
 // DEV-080 — deterministic connected rooms and corridors, isolated from v0.7f gameplay.
 // No secret or trap is required to escape. Generation is independent of combat RNG.
 import {descentSeed,nextRandom} from "./combat-rules.js";
+import {planDeepChestLoot,EQUIPMENT_LOOT_POOL,CONSUMABLE_LOOT_POOL} from "./loot.js";
 import {placeOptionalSecret} from "./secrets.js";
 import {placeOptionalTraps,validTraps} from "./traps.js";
 import {specialRoomPlan,placeRoomSites,validRoomSites} from "./room-events.js";
@@ -343,6 +344,10 @@ export function validateDeepLayout(layout,live=false){
   if(map[0]!=="#".repeat(DEEP_WIDTH)||
       map[DEEP_HEIGHT-1]!=="#".repeat(DEEP_WIDTH)||
       map.some(row=>row[0]!=="#"||row[DEEP_WIDTH-1]!=="#"))return false;
+  // GAME-095A3: only newly generated descents opt into expanded loot IDs.
+  // Old saved maps have no lootPlanVersion and retain their original validator.
+  if(layout.lootPlanVersion!==undefined&&layout.lootPlanVersion!==1)return false;
+  const legacyLoot=layout.lootPlanVersion===undefined;
   const legacy=layout.doorPlanVersion===undefined;
   const graph=layout.topologyVersion===GRAPH_VERSION;
   if(layout.topologyVersion!==undefined&&!graph)return false;
@@ -446,11 +451,24 @@ export function validateDeepLayout(layout,live=false){
   if(live&&hazardCount>2)return false;
   const lootKeys=new Set(Object.keys(loot));
   if(map.join("").split("$").length-1!==lootKeys.size)return false;
+  const optionalIds=new Set([...EQUIPMENT_LOOT_POOL,...CONSUMABLE_LOOT_POOL]
+    .map(entry=>entry.id));
+  const acceptedLootIds=legacyLoot
+    ?new Set(["relic.ashen_fragment","consumable.dusk_tonic","consumable.bandage"])
+    :new Set(["relic.ashen_fragment","consumable.bandage",...optionalIds]);
   if(!Object.entries(loot).every(([pos,id])=>{
     const [x,y]=pos.split(",").map(Number);
     return /^\d+,\d+$/.test(pos)&&tile(map,{x,y})==="$"&&
-      ["relic.ashen_fragment","consumable.dusk_tonic","consumable.bandage"].includes(id);
+      acceptedLootIds.has(id);
   }))return false;
+  // Only generated layouts are constrained to exactly one optional reward.
+  // Live runs may already contain legacy or partially collected chest records.
+  if(!live&&!legacyLoot){
+    const ids=Object.values(loot);
+    if(ids.filter(id=>id==="relic.ashen_fragment").length!==1||
+       ids.filter(id=>id==="consumable.bandage").length!==1||
+       ids.filter(id=>optionalIds.has(id)).length!==1)return false;
+  }
   if(!Array.isArray(enemies)||(!live&&enemies.length!==4)||enemies.length>4||
       new Set(enemies.map(e=>key(e))).size!==enemies.length)return false;
   for(const e of enemies){
@@ -528,6 +546,16 @@ export function generateDeepLayout(index){
         if(error?.message!=="No safe DEV-087 room site")throw error;
         continue;
       }
+      if(!validateDeepLayout(layout))continue;
+      // Reward is selected independently of dungeon geometry and combat RNG.
+      // Preserve the entry bandage and valuable Fragment. Only the third,
+      // previously tonic-only chest changes. Reward IDs are stored once.
+      const preview=planDeepChestLoot(index);
+      const optionalChest=Object.keys(layout.loot).find(pos=>
+        layout.loot[pos]==="consumable.dusk_tonic");
+      if(!optionalChest)continue;
+      layout.loot[optionalChest]=preview.optional;
+      layout.lootPlanVersion=1;
       if(!validateDeepLayout(layout))continue;
       return layout;
     }

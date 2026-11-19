@@ -194,9 +194,16 @@ export function runBalanceLab({start=2,count=BALANCE_LAB_DEFAULT_COUNT}={}){
 function main(){
   const opts={};
   for(let i=2;i<process.argv.length;i++){
-    if(process.argv[i]==="--count")opts.count=Number(process.argv[++i]);
-    else if(process.argv[i]==="--start")opts.start=Number(process.argv[++i]);
-    else throw new Error("Usage: node tools/balance-lab.mjs --count N --start N");
+    const arg=process.argv[i];
+    if(arg==="--count"||arg==="--start"){
+      const next=process.argv[++i];
+      if(next===undefined)throw new Error("Missing value for "+arg);
+      opts[arg.slice(2)]=Number(next);
+    }else if(arg.startsWith("--count=")||arg.startsWith("--start=")){
+      const [option,value]=arg.split("=",2);
+      if(!value)throw new Error("Missing value for "+option);
+      opts[option.slice(2)]=Number(value);
+    }else throw new Error("Usage: node tools/balance-lab.mjs --count N --start N");
   }
   const report=runBalanceLab(opts);
   console.log(JSON.stringify(report,null,2));

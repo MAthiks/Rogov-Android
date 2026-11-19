@@ -9,6 +9,7 @@ import {BASE_MAP,BASE_LOOT,generateLayout,validateLayout} from "./dungeon.js";
 import {generateDeepLayout,validateDeepLayout,isDeepMap} from "./deep-dungeon.js";
 import {MAX_FLOOR_DEPTH,deepFloorSeed,floorChoiceAvailable,canDescendFurther}
   from "./floors.js";
+import {DEPTH_BALANCE_VERSION,balanceDepthLayout} from "./depth-balance.js";
 import {visibleCells,explorationState,visionKey,validExploration,revealAround,hasFog} from "./exploration-visibility.js";
 import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
@@ -372,6 +373,13 @@ export function validateSave(s) {
        (!Number.isSafeInteger(r.floorDepth)||r.floorDepth<1||
         r.floorDepth>MAX_FLOOR_DEPTH||!isDeepMap(r.map)||
         r.lootPlanVersion!==1||s.meta.descents<2))return false;
+    // GAME-095B2 is optional for backward compatibility with B1 saves.
+    // Its marker is present only on newly entered balanced floors 2/3.
+    if(r.depthBalanceVersion!==undefined&&
+       (r.depthBalanceVersion!==DEPTH_BALANCE_VERSION||
+        !Number.isInteger(r.floorDepth)||r.floorDepth<2||
+        r.floorDepth>MAX_FLOOR_DEPTH||r.lootPlanVersion!==1))
+      return false;
     if(r.exploration!==undefined && !validExploration(r))return false;
     if(!validSecrets(r)||!validTraps(r)||!validRoomSites(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
@@ -525,7 +533,10 @@ export function resolveFloorExit(state,choice){
   const nextDepth=run.floorDepth+1;
   let layout;
   try{
-    layout=generateDeepLayout(deepFloorSeed(state.meta.descents,nextDepth));
+    layout=balanceDepthLayout(
+      generateDeepLayout(deepFloorSeed(state.meta.descents,nextDepth)),
+      state.meta.descents,nextDepth);
+    if(!validateDeepLayout(layout))throw new Error("Unsafe balanced floor");
   }catch{
     return info(state,"La voie plus profonde est instable. Tu peux toujours extraire.",false);
   }
@@ -541,6 +552,7 @@ export function resolveFloorExit(state,choice){
     collected:[],enemies:layout.enemies,
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
     ...(layout.lootPlanVersion?{lootPlanVersion:layout.lootPlanVersion}:{}),
+    ...(layout.depthBalanceVersion?{depthBalanceVersion:layout.depthBalanceVersion}:{}),
     rooms:layout.rooms,doors:layout.doors,
     doorPlanVersion:layout.doorPlanVersion,
     geometryVersion:layout.geometryVersion,
@@ -556,7 +568,8 @@ export function resolveFloorExit(state,choice){
   gainXp(s,1);
   revealAround(s.run);
   const message="NHAL — Étage "+nextDepth+"/"+MAX_FLOOR_DEPTH+
-    ". Tu t'enfonces avec ton butin et tes blessures. +1 XP. L'Arche de cet étage reste ton issue.";
+    ". Tu t'enfonces avec ton butin et tes blessures. +1 XP. "+
+    "Rencontres et récompenses évoluent ; l'Arche reste ton issue.";
   recordEvent(s,"system",message,s.run.turns);
   return {state:s,message,changed:true};
 }

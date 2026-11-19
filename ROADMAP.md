@@ -45,6 +45,10 @@
 
 **ART-096B (fusionné, PR #44) :** nouveaux détails graphiques 24×24 des **coffres fermé/ouvert** et quatre états des **pièges** ; indices tactiques directement sur les seules cases **d'ennemis visibles** (`!` imminent / `…` préparation / `▣` garde), alimentés par `currentEnemyIntent`. Aucun nouveau système, aucun champ de sauvegarde, aucun regard à travers le brouillard. [Contrat et recette ART-096B](docs/ART096B_CHESTS_TRAPS_INTENTS.md). **CI validée : 357/357 tests Node, 47/47 tests Chromium mobile, Chrome Android 13 et build/installation APK réussis.** **Téléphone physique et cinq testeurs × deux descentes à faire.**
 
+## UI-096C — Refuge Veyr, coffre, sac et fiche personnage
+
+**En cours de validation sur branche dédiée :** Veyr reçoit un véritable écran pierre/ambre avec panorama pixel original et **quatre accès aux sections existantes** (Préparer / Forge / Échos / Égaré), coffre explicitement sécurisé, préparation à **8 unités** avec jauge, même bouton de départ accessible sur Android, et palette de danger dans le sac de descente. **La fiche existante `#actor-stats-sheet` est déplacée sans duplication** entre Veyr et Nhal ; statistiques du moteur inchangées, aucune nouvelle ressource, boutique ou PNJ actif. [Contrat UI-096C](docs/UI096C_VEYR_REFUGE_IMPLEMENTATION.md). **Tests Node/Chromium Chrome Android 13 / build APK requis avant fusion ; QA téléphone physique et 5 joueurs × 2 descentes toujours ouverts.**
+
 ## Plateformes — Android en priorité, PC conservé dans le GDD
 
 **Décision du 19 novembre 2026 :** poursuivre exclusivement la **production active sur Android** (PWA/JavaScript, APK et tests tactiles). **Godot est mis en attente** : pas de changement de moteur ni de projet de migration actif. Le **portage PC futur**, Windows en premier, reste inscrit comme objectif de long terme, avec moteur à choisir après stabilisation du gameplay mobile et tests utilisateurs. Préserver autant que possible les règles déterministes, le mode ASCII, les assets Sprite C et les contrats de sauvegarde pour réduire le coût d'une éventuelle adaptation. Aucune date de portage annoncée.

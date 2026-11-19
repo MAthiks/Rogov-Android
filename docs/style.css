@@ -710,3 +710,25 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
   .bag-equipped{grid-template-columns:1fr}
   .bag-item-action{flex:1 1 auto}
 }
+
+
+/* GAME-095B1 — voluntary floor decisions, no automatic extraction on new runs.
+ * The decision only appears when the player is actually on the known Arche. */
+.run-bar{flex-wrap:wrap}
+.floor-choice{margin:9px 0 14px;padding:13px;border:1px solid #8aa79b;
+  border-radius:11px;background:#192d2d;color:var(--text);text-align:left}
+.floor-choice-heading{display:grid;gap:4px}
+.floor-choice-heading strong{font:800 13px/1.4 ui-monospace,monospace;letter-spacing:.06em;color:#c6e7d8}
+.floor-choice-heading span{color:#e0e9df;font-size:12px}
+.floor-choice-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.floor-choice-actions button{margin:0;min-height:52px;font-size:12px;line-height:1.35;white-space:normal;text-align:center}
+.floor-choice .hint{margin:6px 0 0;line-height:1.5;color:#c0cfc6}
+@media(max-width:490px){
+  .floor-choice-actions{grid-template-columns:1fr}
+  .floor-choice-actions button{min-height:48px}
+  .floor-choice{padding:10px;margin:7px 0}
+}
+@media(max-width:370px){
+  .frame.is-expedition .run-bar{flex-wrap:wrap;gap:5px}
+  .frame.is-expedition .floor-choice{max-width:100%}
+}

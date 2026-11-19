@@ -1,5 +1,12 @@
 # Roadmap ROGOV — état du 18 novembre 2026
 
+## NAR-093 — Priorité produit : objectif et compréhension du monde
+
+Suite au retour terrain « Pas d'objectif réel. Le lore est confus », avant les nouveaux donjons et UI-092B/C/D : **introduire L'Égaré, Veyr, Nhal et le Rappel**, formuler un premier objectif **atteignable par les règles actuelles** (extraire un Fragment), puis donner les consignes adaptées au butin transporté/sécurisé. [GDD ciblé](docs/NAR093_MISSION_AND_LORE.md) · [Issue #25](https://github.com/MAthiks/Rogov-Android/issues/25).
+
+Le long terme — découvrir l'origine du Rappel et les traces d'une cité enfouie — reste un **mystère sans quête persistante implémentée** ; concevoir ces jalons seulement après validation humaine de la prémisse. Aucun changement de sauvegarde ni de moteur pour NAR-093.
+
+
 ## QA-092 — jalon studio prioritaire avant Alpha 0.8
 
 **Audit engagé :** [compte rendu de production et critères de GO/NO-GO](docs/QA092_STUDIO_AUDIT.md), [protocole humain](docs/QA092_PLAYTEST_PROTOCOL.md). Nouveaux tests Node couvrant extraction réelle, coffre, Rappel, forge, deuxième descente et 30 générations profondes ; tests Chromium en portrait 320/360/393 px sur le parcours complet. **Ce n'est pas une homologation Alpha 0.8 : 5 testeurs × 2 descentes et téléphone physique restent requis.** Constat UX : la sélection de préparation emporte un exemplaire par type d'objet, ce qui mérite observation avant UI-092B/C. UI-092B/C/D et le contenu supplémentaire passent après les P0 de jouabilité.

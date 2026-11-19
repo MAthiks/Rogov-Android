@@ -2086,3 +2086,104 @@ test("QA-092 mobile: 320/360/393px cockpit, no covered controls, options and con
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("NAR-094 Android: Echo evidence survives reload and Rappel, second room unlocks only the next clue", {timeout:100000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=game.newGame();state.meta.descents=1;
+      const active=game.beginRun(state).state;
+      active.run.enemies=[]; // Only the evidence action is under test.
+      if(!game.validateSave(active))throw Error("NAR094 invalid deep save");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(active));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#echo-expedition-count").textContent(),"0 / 3");
+    assert.equal(await page.locator("#echo-expedition-list li").count(),0,
+      "An undiscovered Echo must not appear in the DOM as a clue");
+    assert.equal(await page.locator("#room-site-panel").isHidden(),true);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const {revealAround}=await import("./exploration-visibility.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const site=state.run.sites.find(s=>s.kind==="echo");
+      const near=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:site.x+dx,y:site.y+dy}))
+        .find(p=>state.run.map[p.y]?.[p.x]==="."&&
+          !state.run.traps.some(t=>t.x===p.x&&t.y===p.y));
+      if(!near)throw Error("No adjacent Echo floor");
+      state.run.x=near.x;state.run.y=near.y;
+      revealAround(state.run);
+      if(!game.validateSave(state))throw Error("NAR094 near-Echo save invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    await page.locator("#jump-action").tap();
+    assert.match(await page.locator("#room-site-title").textContent(),/Chambre de l'Écho/);
+    await page.locator('[data-room-choice="inscription"]').tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.equal(await page.locator("#echo-expedition-count").textContent(),"1 / 3");
+    assert.equal(await page.locator("#echo-expedition-list li").count(),1);
+    assert.match(await page.locator("#echo-expedition-list").textContent(),/cité enfouie/);
+    assert.doesNotMatch(await page.locator("#echo-expedition-list").textContent(),/voix en avance|marque du retour/i);
+    const earned=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(state),ids:state.meta.echoFindings,turns:state.run.turns};
+    });
+    assert.equal(earned.valid,true);
+    assert.deepEqual(earned.ids,["buried_city"]);
+    assert.equal(earned.turns,1);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#echo-expedition-count").textContent(),"1 / 3");
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const after=game.recall(s).state;
+      if(!game.validateSave(after))throw Error("NAR094 post-recall save invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(after));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#refuge").isVisible(),true);
+    assert.equal(await page.locator("#echo-refuge-count").textContent(),"1 / 3");
+    await page.locator("#echo-dossier-refuge summary").tap();
+    assert.match(await page.locator("#echo-refuge-list").textContent(),/cité enfouie/);
+    assert.doesNotMatch(await page.locator("#echo-refuge-list").textContent(),/voix en avance|marque du retour/i);
+
+    await page.locator("#start-btn").tap();
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const {revealAround}=await import("./exploration-visibility.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const site=state.run.sites.find(s=>s.kind==="echo");
+      state.run.enemies=[];
+      const near=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:site.x+dx,y:site.y+dy}))
+        .find(p=>state.run.map[p.y]?.[p.x]==="."&&
+          !state.run.traps.some(t=>t.x===p.x&&t.y===p.y));
+      if(!near)throw Error("Second Echo inaccessible");
+      state.run.x=near.x;state.run.y=near.y;revealAround(state.run);
+      if(!game.validateSave(state))throw Error("NAR094 second run invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    await page.locator("#jump-action").tap();
+    await page.locator('[data-room-choice="resonance"]').tap();
+    assert.equal(await page.locator("#echo-expedition-count").textContent(),"2 / 3");
+    assert.equal(await page.locator("#echo-expedition-list li").count(),2);
+    const after=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),ids:s.meta.echoFindings,turns:s.run.turns};
+    });
+    assert.equal(after.valid,true);
+    assert.deepEqual(after.ids,["buried_city","early_voice"]);
+    assert.equal(after.turns,1);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

@@ -816,6 +816,47 @@ export function openChest(state,x,y){
   return {state:after,message:after.journal[0]?.text,changed:true};
 }
 
+/** GAME-095D2: explicit exchange instead of two danger phases (drop then
+ * open) when the 8-item bag is already full. No extra space, hidden loot
+ * spoilers, protected equipped item loss or secure-while-in-Nhal shortcuts.
+ */
+export function chestSwapChoices(run){
+  if(!run?.carried)return [];
+  return Object.entries(run.carried).filter(([id,count])=>
+    Boolean(ITEMS[id])&&Number.isSafeInteger(count)&&count>0&&
+    !(count===1&&Object.values(run.loadout||{}).includes(id))
+  ).map(([id])=>id);
+}
+export function swapChestReward(state,x,y,discardId){
+  const run=state.run;
+  if(!run?.rooms||!Number.isInteger(x)||!Number.isInteger(y)||
+     distance(run,{x,y})>1||tileAt(x,y,run)!=="$"||
+     run.collected.includes(positionKey(x,y)))
+    return info(state,"Aucun coffre intact et accessible à échanger.",false);
+  if(quantity(run.carried)!==INVENTORY_LIMIT)
+    return info(state,"L'échange direct est réservé à un sac plein.",false);
+  if(typeof discardId!=="string"||
+     !chestSwapChoices(run).includes(discardId))
+    return info(state,"Choisis un objet transporté non protégé par ton équipement.",false);
+  const key=positionKey(x,y),reward=lootAt(run,key);
+  if(!ITEMS[reward])return info(state,"Contenu du coffre invalide.",false);
+  const s=copy(state);
+  s.run.carried[discardId]-=1;
+  if(s.run.carried[discardId]===0)delete s.run.carried[discardId];
+  s.run.carried[reward]=(s.run.carried[reward]||0)+1;
+  s.run.collected.push(key);
+  gainXp(s,1);
+  s.run.turns+=1;
+  regenEndurance(s,1);
+  const message="ÉCHANGE AU COFFRE — "+ITEMS[discardId].name+
+    " abandonné définitivement ; "+ITEMS[reward].name+
+    " récupéré. +1 XP. Le sac reste à "+INVENTORY_LIMIT+" objets.";
+  recordEvent(s,"loot",message,s.run.turns);
+  revealAround(s.run);
+  const after=enemyPhase(s);
+  return {state:after,changed:true,message};
+}
+
 /** Explicit ordinary door action: never implicit on selecting or bumping a door. */
 export function toggleDoor(state,x,y){
   if(!state.run||!Number.isInteger(x)||!Number.isInteger(y)||

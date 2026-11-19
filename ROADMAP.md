@@ -41,7 +41,7 @@
 
 ## ART-096 — Première passe graphique sur Nhal
 
-**ART-096A (PR en validation) :** développement isolé du polissage **sol/murs (reliefs 24×24)**, **porte ouverte/fermée**, **Arche/Faille** et des silhouettes Sprite C Charognard/Gardien/Larve. [Contrat ART-096A](docs/ART096A_MATERIAL_SILHOUETTE.md). Atlas et états fonctionnels inchangés, brouillard de guerre intact, PWA hors ligne versionnée, tests régressifs Node/Chromium Android 13/APK exigés avant fusion. **La validation esthétique sur téléphone physique et les 5 joueurs × 2 expéditions restent ouvertes.**
+**ART-096A (fusionné, PR #43) :** développement isolé du polissage **sol/murs (reliefs 24×24)**, **porte ouverte/fermée**, **Arche/Faille** et des silhouettes Sprite C Charognard/Gardien/Larve. [Contrat ART-096A](docs/ART096A_MATERIAL_SILHOUETTE.md). Atlas et états fonctionnels inchangés, brouillard de guerre intact, PWA hors ligne versionnée, CI validée : 352/352 tests Node, 45/45 Chromium tactile, Chrome Android 13 et build/installation APK réussis. **La validation esthétique sur téléphone physique et les 5 joueurs × 2 expéditions restent ouvertes.**
 
 ## Plateformes — Android en priorité, PC conservé dans le GDD
 

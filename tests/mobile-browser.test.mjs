@@ -1969,3 +1969,109 @@ test("UI-092A mobile: combat sheet keeps targeting and active tactical defenses 
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("QA-092 Android portrait: a real player journey from Veyr earns loot, extracts, forges and descends again", {timeout:95000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    await page.goto(origin);
+    await page.locator("#title-new").tap();
+    assert.equal(await page.locator("#refuge").isVisible(),true);
+    await page.locator('#stash-items input[aria-label="Emporter Épée usée"]').check();
+    await page.locator('#stash-items input[aria-label="Emporter Bandage"]').check();
+    await page.locator("#start-btn").tap();
+    assert.equal(await page.locator("#expedition").isVisible(),true);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    const path=["up","right","right",...Array(9).fill("right"),"down"];
+    for(const [i,direction] of path.entries()){
+      await page.locator('[data-direction="'+direction+'"]').tap();
+      if(i===2) {
+        assert.equal(await page.locator("#bag-count").textContent(),"3 / 8",
+          "The first relic is now exposed in the carried bag");
+        assert.equal(await page.locator("#turns").textContent(),"3");
+        await page.locator("#jump-bag").tap();
+        assert.equal(await page.locator("#ui092-sheet-body #bag-panel").count(),1);
+        assert.match(await page.locator("#bag-items").textContent(),/Fragment de cendre/);
+        await page.locator("#jump-map").tap();
+        assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+      }
+    }
+    await page.locator("#refuge").waitFor({state:"visible"});
+    assert.equal(await page.locator("#expedition").isHidden(),true);
+    const arrived=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(state),extractions:state.meta.extractions,
+        fragments:state.meta.stash["relic.ashen_fragment"],
+        sword:state.meta.stash["weapon.rusty_sword"]};
+    });
+    assert.deepEqual(arrived,{valid:true,extractions:1,fragments:1,sword:1});
+    await page.locator('[data-recipe="supply.bandages"]').tap();
+    const crafted=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(s),fragments:s.meta.stash["relic.ashen_fragment"],
+        bandages:s.meta.stash["consumable.bandage"]};
+    });
+    assert.deepEqual(crafted,{valid:true,fragments:0,bandages:4});
+    await page.locator('#stash-items input[aria-label="Emporter Bandage"]').check();
+    await page.locator("#start-btn").tap();
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    assert.equal(await page.locator("#bag-count").textContent(),"1 / 8");
+    await page.locator("#jump-report").tap();
+    assert.equal(await page.locator("#ui092-sheet-body #expedition-report").count(),1);
+    assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
+    const previous=await page.locator("#turns").textContent();
+    await page.locator("#jump-map").tap();
+    assert.equal(await page.locator("#turns").textContent(),previous);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    assert.equal(await page.locator("#bag-count").textContent(),"1 / 8");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("QA-092 mobile: 320/360/393px cockpit, no covered controls, options and continued save", {timeout:75000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    await preloadDeepRun(page);
+    for(const [width,height] of [[320,640],[360,780],[393,704]]){
+      await page.setViewportSize({width,height});
+      const geometry=await page.evaluate(()=>{
+        const get=id=>document.getElementById(id).getBoundingClientRect();
+        const map=get("tile-map"),dock=get("field-controls"),nav=get("expedition-shortcuts");
+        return {view:window.innerHeight,scrollWidth:document.documentElement.scrollWidth,
+          width:document.documentElement.clientWidth,
+          mapTop:map.top,mapBottom:map.bottom,dockTop:dock.top,dockBottom:dock.bottom,
+          navTop:nav.top,navBottom:nav.bottom,
+          startHidden:document.getElementById("refuge").hidden};
+      });
+      assert.equal(geometry.startHidden,true);
+      assert.ok(Math.abs(geometry.dockBottom-geometry.view)<=2,
+        "Movement dock should align with bottom at "+width);
+      assert.ok(geometry.mapBottom<=geometry.dockTop+1,
+        "No player tile is blocked by touch controls at "+width+": "+JSON.stringify(geometry));
+      assert.ok(geometry.navTop>=0&&geometry.navBottom<=geometry.mapTop,
+        "Navigation remains before the map at "+width);
+      assert.ok(geometry.scrollWidth<=geometry.width+1,"No horizontal overflow at "+width);
+      await page.locator("#jump-menu").tap();
+      assert.equal(await page.locator("#ui092-sheet-body #options-panel").count(),1,
+        "The in-run options must not disappear behind the fixed controls");
+      const t=await page.locator("#turns").textContent();
+      await page.locator("#ui092-sheet-close").tap();
+      assert.equal(await page.locator("#turns").textContent(),t,
+        "Opening and closing options must cost no game turn");
+    }
+    await page.locator("#jump-menu").tap();
+    await page.locator("#back-to-title").tap();
+    assert.equal(await page.locator("#title-screen").isVisible(),true);
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#expedition").isVisible(),true);
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

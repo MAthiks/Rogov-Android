@@ -1,3 +1,11 @@
+## QA-092 — Audit de studio avant Alpha 0.8 (19 novembre 2026)
+
+- Tests automatisés ajoutés pour le vrai cycle de jeu refuge → extraction → forge → deuxième descente, perte au Rappel et 30 graines profondes.
+- Parcours Chromium Android tactile de bout en bout ; contrôles viewport 320/360/393 px, tiroirs et reprise après actualisation.
+- Document de décision GO/NO-GO et protocole de 5 testeurs × 2 descentes, sans prétendre disposer de retours humains.
+- Correctif UX découvert par l'audit : la carte ne passe plus sous le pavé fixe sur les écrans Android courts (320×640 et 393×704) ; boutons tactiles inchangés.
+- Tests réussis avant la mise à jour documentaire : **248 Node, 34 Chromium et 4 Chrome Android 13** ; APK compilé. Pas de changement des mécaniques, ressources, règles de combat ni sauvegardes.
+
 ## UI-092A — Cockpit de descente Android (19 novembre 2026)
 
 - Interface de descente refondue en portrait : carte prioritaire, en-tête et HUD réduits, pavé directionnel et soins fixés au bord inférieur.

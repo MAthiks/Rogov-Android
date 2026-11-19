@@ -58,8 +58,8 @@ test("UI-092A: controller included in offline PWA and not coupled to private fog
   assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/,
     "La PWA doit conserver un cache versionné pour les correctifs UI");
   assert.match(sw,/"\.\/ui092\.js"/);
-  assert.match(sw,/"\.\/ui092\.css\?v=1"/);
-  assert.match(html,/href="\.\/ui092\.css\?v=1"/);
+  assert.match(sw,/"\.\/ui092\.css\?v=2"/);
+  assert.match(html,/href="\.\/ui092\.css\?v=2"/);
   assert.match(app,/import \{ setupUi092 \} from "\.\/ui092\.js"/);
   assert.match(app,/const ui092=setupUi092/);
   assert.match(app,/ui092\.sync\(\)/);

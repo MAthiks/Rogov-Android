@@ -2189,3 +2189,83 @@ test("NAR-094 Android: Echo evidence survives reload and Rappel, second room unl
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+// GAME-095A2: exercise the actual Android portrait preparation/bag controls.
+test("GAME-095A2 mobile: quantity selection, chosen loadout, tactical swap and stamina", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();
+      for(const id of ["weapon.bone_dagger","weapon.iron_mace",
+        "shield.worn_buckler","armor.scavenged_cuirass",
+        "consumable.vigor_salts"])s.meta.stash[id]=1;
+      if(!game.validateSave(s))throw Error("Invalid A2 refuge fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    const choose=async name=>{
+      const row=page.locator("#stash-items .item-row").filter({hasText:name});
+      await row.locator('input[type="checkbox"]').check();
+      return row;
+    };
+    const bandage=await choose("Bandage");
+    await bandage.locator("select.prep-quantity").selectOption("2");
+    for(const name of ["Dague d'ossement","Masse ferrée",
+      "Rondache usée","Cuirasse de récupération","Sels de vigueur"])
+      await choose(name);
+    assert.match(await page.locator("#prep-summary").innerText(),/7 \/ 8/);
+    await page.locator("#prep-mainHand").selectOption("weapon.bone_dagger");
+    await page.locator("#prep-offHand").selectOption("shield.worn_buckler");
+    await page.locator("#prep-body").selectOption("armor.scavenged_cuirass");
+    await page.locator("#start-btn").tap();
+    let state=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      return JSON.parse(localStorage.getItem(SAVE_KEY));
+    });
+    assert.equal(state.run.carried["consumable.bandage"],2);
+    assert.equal(state.run.loadout.mainHand,"weapon.bone_dagger");
+    assert.equal(state.run.loadout.offHand,"shield.worn_buckler");
+    assert.equal(state.run.loadout.body,"armor.scavenged_cuirass");
+    assert.equal(state.run.turns,0);
+
+    // Remove unrelated monsters to isolate real bag buttons and saved turns.
+    await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+      s.run.enemies=[];s.run.endurance=3;
+      if(!validateSave(s))throw Error("Invalid A2 bag fixture");
+      localStorage.setItem(SAVE_KEY,JSON.stringify(s));
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    await page.locator("#jump-bag").tap();
+    const mace=page.locator("#bag-items .item-row").filter({hasText:"Masse ferrée"});
+    await mace.getByRole("button",{name:/Équiper/}).tap();
+    state=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      return JSON.parse(localStorage.getItem(SAVE_KEY));
+    });
+    assert.equal(state.run.loadout.mainHand,"weapon.iron_mace");
+    assert.equal(state.run.turns,1);
+    assert.equal(state.run.carried["weapon.bone_dagger"],1);
+
+    // The bag's stamina action is explicit and consumes one turn.
+    await page.locator("#jump-bag").tap();
+    const salts=page.locator("#bag-items .item-row").filter({hasText:"Sels de vigueur"});
+    await salts.getByRole("button",{name:/Utiliser/}).tap();
+    state=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      return JSON.parse(localStorage.getItem(SAVE_KEY));
+    });
+    assert.equal(state.run.endurance,9);
+    assert.equal(state.run.carried["consumable.vigor_salts"],undefined);
+    assert.equal(state.run.turns,2);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

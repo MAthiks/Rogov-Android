@@ -196,6 +196,6 @@ test("GAME-095C2: Android combat action is wired and fully cached offline",()=>{
   assert.match(app,/\$\("combat-shove"\)\.disabled/);
   assert.match(app,/act\(shoveTarget\(state\)\)/);
   assert.match(app,/"g":"shove"/);
-  assert.match(sw,/game095(c2|d2)/);
+  assert.match(sw,/game095(c2|d2|d3c)/);
   assert.match(sw,/"\.\/terrain-tactics\.js"/);
 });

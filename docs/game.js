@@ -822,9 +822,10 @@ export function openChest(state,x,y){
  */
 export function chestSwapChoices(run){
   if(!run?.carried)return [];
+  const equipped=run.loadout??playerLoadout(run.carried);
   return Object.entries(run.carried).filter(([id,count])=>
     Boolean(ITEMS[id])&&Number.isSafeInteger(count)&&count>0&&
-    !(count===1&&Object.values(run.loadout||{}).includes(id))
+    !(count===1&&Object.values(equipped).includes(id))
   ).map(([id])=>id);
 }
 export function swapChestReward(state,x,y,discardId){

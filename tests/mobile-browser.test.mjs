@@ -2516,3 +2516,54 @@ test("GAME-095B2 mobile: depth risk forecast, balanced encounters and resume", {
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("GAME-095C1 Android portrait: visible charge warning, reload and sidestep", {timeout:70000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.beginRun(game.newGame(),["weapon.rusty_sword"]).state;
+      s.run.x=1;s.run.y=7;
+      s.run.enemies=[{id:"mobile-charge",kind:"charognard",
+        x:3,y:7,hp:3,tactic:"stalking"}];
+      if(!game.validateSave(s))throw Error("C1 mobile fixture invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#expedition").isVisible(),true);
+    assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),0);
+    await page.locator("#wait-btn").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),1);
+    assert.equal(await page.locator("#threat-forecast").isVisible(),true);
+    assert.match(await page.locator("#threat-forecast").textContent(),
+      /Charge imminente/);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),1);
+    const during=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(s),state:s.run.enemies[0].tactic,
+        hp:s.run.hp,seed:s.run.rngState,turns:s.run.turns};
+    });
+    assert.equal(during.valid,true);
+    assert.equal(during.state,"winding");
+    await page.locator('[data-direction="up"]').tap();
+    assert.equal(await page.locator("#turns").textContent(),"2");
+    assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),0);
+    assert.equal(await page.locator("#threat-forecast").isHidden(),true);
+    const escaped=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(s),state:s.run.enemies[0].tactic,
+        hp:s.run.hp,seed:s.run.rngState,turns:s.run.turns};
+    });
+    assert.deepEqual(escaped,{valid:true,state:"stalking",hp:during.hp,
+      seed:during.seed,turns:2});
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

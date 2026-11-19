@@ -152,7 +152,8 @@ export function validTraps(run){
     occupied.add(key(trap));occupied.add(key(trap.clue));
     if(key(run.start)===key(trap)||key(run.exit)===key(trap)||
        run.doors?.some(d=>key(d)===key(trap))||
-       (run.enemies||[]).some(e=>key(e)===key(trap))||
+       (trap.status!=="triggered"&&
+         (run.enemies||[]).some(e=>key(e)===key(trap)))||
        Object.keys(run.loot||{}).includes(key(trap)))return false;
   }
   if(run.alarmUntil!==undefined&&

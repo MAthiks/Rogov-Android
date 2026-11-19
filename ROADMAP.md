@@ -47,7 +47,7 @@
 
 ## UI-096C — Refuge Veyr, coffre, sac et fiche personnage
 
-**En cours de validation sur branche dédiée :** Veyr reçoit un véritable écran pierre/ambre avec panorama pixel original et **quatre accès aux sections existantes** (Préparer / Forge / Échos / Égaré), coffre explicitement sécurisé, préparation à **8 unités** avec jauge, même bouton de départ accessible sur Android, et palette de danger dans le sac de descente. **La fiche existante `#actor-stats-sheet` est déplacée sans duplication** entre Veyr et Nhal ; statistiques du moteur inchangées, aucune nouvelle ressource, boutique ou PNJ actif. [Contrat UI-096C](docs/UI096C_VEYR_REFUGE_IMPLEMENTATION.md). **Tests Node/Chromium Chrome Android 13 / build APK requis avant fusion ; QA téléphone physique et 5 joueurs × 2 descentes toujours ouverts.**
+**Fusionné, PR #45 :** Veyr reçoit un véritable écran pierre/ambre avec panorama pixel original et **quatre accès aux sections existantes** (Préparer / Forge / Échos / Égaré), coffre explicitement sécurisé, préparation à **8 unités** avec jauge, même bouton de départ accessible sur Android, et palette de danger dans le sac de descente. **La fiche existante `#actor-stats-sheet` est déplacée sans duplication** entre Veyr et Nhal ; statistiques du moteur inchangées, aucune nouvelle ressource, boutique ou PNJ actif. [Contrat UI-096C](docs/UI096C_VEYR_REFUGE_IMPLEMENTATION.md). **CI validée : 361/361 tests Node, 49/49 Chromium mobile, Chrome Android 13 et build/installation APK.** **QA téléphone physique et 5 joueurs × 2 descentes toujours ouverts.**
 
 ## Plateformes — Android en priorité, PC conservé dans le GDD
 

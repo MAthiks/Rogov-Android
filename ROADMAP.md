@@ -1,5 +1,14 @@
 # Roadmap ROGOV — état du 19 novembre 2026
 
+## GAME-095 — Nouvelle priorité : gameplay roguelike
+
+**Décision de direction du 19 novembre 2026 :** recentrer ROGOV sur un dungeon crawler roguelike inspiré de Pixel Dungeon / Shattered Pixel Dungeon, sans en copier les contenus. **Veyr / Nhal, exploration procédurale, combats tactiques au tour par tour, extraction ou Rappel, Sprite C, ASCII et compatibilité des sauvegardes restent fondamentaux.**
+
+**Ordre de production (WIP = 1) :** GAME-095A (variété d'objets et décisions d'équipement), GAME-095B (étages successifs), GAME-095C (tactique/environnements/ennemis), GAME-095D (équilibrage Android et rejouabilité). Le lore NAR-093/094 reste présent mais **n'est plus le moteur des priorités**. Ne pas ajouter de quêtes ou révélations avant d'avoir validé le plaisir des descentes.
+
+**GAME-095A1 — Fondations du butin :** définitions de six objets, système de tirage de récompenses déterministe indépendant du RNG de combat et tests, en branche de travail [PR #29](https://github.com/MAthiks/Rogov-Android/pull/29) **brouillon, non fusionnée**. La distribution et les interactions ne sont pas encore jouables. [Spécification GAME-095A](docs/GAME095A_LOOT_EQUIPMENT.md). La suite est A2 (équipement/consommables), puis A3 (récompenses des coffres), puis A4 (QA mobile).
+
+
 ## NAR-094 — Enquête persistante dans les Chambres de l'Écho
 
 Après validation qualitative initiale des textes NAR-093, relier **une véritable interaction de Chambre de l'Écho** à une preuve persistante. Chaque descente profonde possède une Chambre et délivre au plus **un nouvel indice** ; trois indices sont écrits, enregistrés et consultables au refuge et dans le rapport. Mort, Rappel, extraction, sauvegarde, classe et mécanique de combat inchangés ; sauvegardes antérieures sans champ de preuve encore valides. [Dossier NAR-094](docs/NAR094_PERSISTENT_ECHO_INVESTIGATION.md). **Le mystère final et les chapitres de campagne restent à concevoir**, puis à valider humainement via QA-092.

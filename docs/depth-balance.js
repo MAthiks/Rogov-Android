@@ -4,6 +4,7 @@
 // No combat RNG, extra enemies, inflated statistics or forced path blockers.
 import {descentSeed,nextRandom} from "./combat-rules.js";
 import {MAX_FLOOR_DEPTH} from "./floors.js";
+import {coordinateOptionalDuo} from "./optional-duo.js";
 
 export const DEPTH_BALANCE_VERSION=1;
 export const DEEP_REWARD_POOLS=Object.freeze({
@@ -26,12 +27,12 @@ export const DEEP_REWARD_POOLS=Object.freeze({
 export const DEPTH_INTEL=Object.freeze({
   2:Object.freeze({
     name:"Résonances de la Faille",
-    risk:"Des échos de Faille rendent certains détours plus dangereux.",
+    risk:"Des échos de Faille et une sentinelle peuvent menacer ensemble une salle de butin facultative.",
     prize:"Un nouveau coffre privilégie les soins et les outils utiles."
   }),
   3:Object.freeze({
     name:"Veille de pierre",
-    risk:"Des sentinelles gardent davantage les salles précieuses.",
+    risk:"Des sentinelles gardent davantage les salles précieuses ; certains butins facultatifs attirent aussi la Faille.",
     prize:"Un nouveau coffre privilégie les équipements résistants."
   })
 });
@@ -68,6 +69,9 @@ export function planDepthReward(descentNumber,depth){
  * The starting scavenger keeps its position and stats; C1 adds a visible
  * charge windup only to newly spawned scouts. Enemy coordinates, hazards,
  * two routes to extraction and the bandage near entrance are unchanged.
+ * D3C moves ONLY the original guardian, if safe, beside the fixed Larva
+ * guarding the OPTIONAL atelier reward. Never reinforces the tutorial or
+ * old saved floors; four normal enemies and escape routes are retained.
  */
 export function balanceDepthLayout(layout,descentNumber,depth){
   if(!Number.isSafeInteger(depth)||depth<2||depth>MAX_FLOOR_DEPTH||
@@ -88,7 +92,7 @@ export function balanceDepthLayout(layout,descentNumber,depth){
     kind,x:original[0].x,y:original[0].y,hp:depth===2?4:5,
     ...(depth===3?{tactic:"ready"}:{})
   };
-  return {
+  const balanced={
     ...layout,
     loot:{...layout.loot,[optional[0][0]]:planDepthReward(descentNumber,depth)},
     // Only freshly generated B2 floors opt the vestibule scout into C1.
@@ -98,4 +102,5 @@ export function balanceDepthLayout(layout,descentNumber,depth){
         ?{...e,tactic:"stalking"}:{...e}),
     depthBalanceVersion:DEPTH_BALANCE_VERSION
   };
+  return coordinateOptionalDuo(balanced);
 }

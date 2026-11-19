@@ -46,7 +46,7 @@ test("UI-096D: new mobile CSS restores map size without shrinking touch targets"
   assert.match(html,/EXTRACTION ROGUELIKE — WEB ALPHA 0\.7f/);
   assert.doesNotMatch(html,/EXTRACTION ROGUELIKE — WEB ALPHA 0\.6\.1/);
   // Later artwork batches may rotate the offline cache without removing UI-096D.
-  assert.match(sw,/const CACHE_NAME = "rogov-v0\\.7f-[a-z0-9-]+"/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   assert.match(sw,/"\.\/ui096d\.css\?v=1"/);
   assert.doesNotMatch(css,/@import|url\(\s*https?:/);
 });

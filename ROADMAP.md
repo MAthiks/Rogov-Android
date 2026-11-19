@@ -1,5 +1,9 @@
 # Roadmap ROGOV — état du 18 novembre 2026
 
+## QA-092 — jalon studio prioritaire avant Alpha 0.8
+
+**Audit engagé :** [compte rendu de production et critères de GO/NO-GO](docs/QA092_STUDIO_AUDIT.md), [protocole humain](docs/QA092_PLAYTEST_PROTOCOL.md). Nouveaux tests Node couvrant extraction réelle, coffre, Rappel, forge, deuxième descente et 30 générations profondes ; tests Chromium en portrait 320/360/393 px sur le parcours complet. **Ce n'est pas une homologation Alpha 0.8 : 5 testeurs × 2 descentes et téléphone physique restent requis.** Constat UX : la sélection de préparation emporte un exemplaire par type d'objet, ce qui mérite observation avant UI-092B/C. UI-092B/C/D et le contenu supplémentaire passent après les P0 de jouabilité.
+
 ## UI-092A — descente plein écran mobile (prototype)
 
 **UI-092A** est le premier lot de la maquette UI v2 : carte centrale, HUD compact, commandes/déplacement/soins toujours disponibles en bas, six raccourcis de consultation et panneaux contextuels en tiroirs (sans duplication de commandes). [Document d'intégration et QA](docs/UI092A_ANDROID_COCKPIT.md). **Le gameplay et les sauvegardes restent inchangés** ; validation CI et recette sur Android physique nécessaires avant approbation visuelle. Les lots **UI-092B** (Refuge), **UI-092C** (inventaire), **UI-092D** (personnage et navigation) restent séparés.

@@ -1,7 +1,7 @@
 # UI-096C — Refuge de Veyr, coffre, sac et fiche de l'Égaré
 
 **Date :** 19 novembre 2026.  
-**Statut :** travail de présentation sur la branche `feature/ui096c-veyr-refuge-inventory-character` ; non fusionné avant CI.  
+**Statut :** fusionné dans `main` via [PR #45](https://github.com/MAthiks/Rogov-Android/pull/45). CI Web/Chromium/Chrome Android 13/APK validée ; essai esthétique sur téléphone physique encore ouvert.  
 **Références :** [UI-096 concept](UI096_V3_VISUAL_MOCKUPS.md), [Veyr v1](UI096A_VEYR_V1_REVIEW.md), [cockpit Nhal UI-096B](UI096B_NHAL_COCKPIT_IMPLEMENTATION.md), [ART-096B](ART096B_CHESTS_TRAPS_INTENTS.md).
 
 ## Objectif
@@ -29,7 +29,9 @@ La première boucle du jeu doit devenir plus claire : **arrivée au refuge → m
 6. **Accessibilité :** quatre accès rapides d'au moins 44px, contrôles clavier, menu principal et retour conservés ; éviter tout débordement horizontal et recouvrement du CTA par les safe-areas.
 7. **Offline :** cache PWA versionné, précharge `ui096c.js`, `ui096c.css?v=1` et `veyr-refuge-banner.svg`, aucune requête externe.
 
-## Conditions de réussite avant fusion
+## Validation technique confirmée (19 novembre 2026)
+
+**Résultats : 361/361 tests Node et 49/49 tests Chromium mobile réussis ; Chrome Android 13 et APK compilée/installée réussis.**
 
 - Node : moteur et tests de présentation, absence de nœuds dupliqués, stats valides sans run, modes de sauvegarde inchangés.
 - Chromium tactile **320×640, 360×780, 393×704** : menu rapide, fiche du refuge puis de la descente (un seul vrai panneau), sélection du coffre, jauge et départ ; aucune carte cachée ou bouton de départ superposé à un autre contrôle.

@@ -8,8 +8,9 @@ import {newGame,beginRun,resolveFloorExit,attackTarget,defend,waitTurn,
 import {deepRoute,deepTwoReturnWays} from "../docs/deep-dungeon.js";
 import {revealAround} from "../docs/exploration-visibility.js";
 import {MAX_FLOOR_DEPTH} from "../docs/floors.js";
+import {descentSeed} from "../docs/combat-rules.js";
 
-export const BALANCE_LAB_VERSION=1;
+export const BALANCE_LAB_VERSION=2;
 export const BALANCE_LAB_DEFAULT_COUNT=100;
 export const LAB_POLICIES=Object.freeze(["attack","telegraph_dodge"]);
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
@@ -40,6 +41,14 @@ export function isolatedEncounter(world,enemy){
     s.run.defense="none";s.run.alarmUntil=0;
     // Starting at turn 0 avoids arbitrary rift pulse offsets.
     s.run.turns=0;
+    // Independent deterministic combat sample per descent, depth and enemy.
+    // Both comparison policies receive this EXACT same initial seed, but
+    // separate floors no longer replay an identical sequence of hits.
+    const depth=run.floorDepth??1;
+    const salt=(Math.imul(world.meta.descents,314159)+
+      Math.imul(depth,271828)+
+      Math.imul(enemy.x+47*enemy.y,4099))>>>0;
+    s.run.rngState=descentSeed(salt);
     revealAround(s.run);
     if(validateSave(s))return s;
   }
@@ -92,10 +101,7 @@ function summarize(measure){
     avgEnduranceLeft:round(measure.enduranceLeft/fights)
   };
 }
-const selectedEnemies=run=>{
-  const kinds=["charognard","guardian","rift_larva"];
-  return kinds.map(kind=>(run.enemies||[]).find(e=>e.kind===kind)).filter(Boolean);
-};
+const selectedEnemies=run=>run.enemies||[]; // Include the second Guardian/Larva, not only the first kind.
 /** Floors are actual layouts and transitions, not generated toy maps.
  * Route lengths are geometry upper bounds: enemies, traps and doors still
  * have turn costs, so these are NOT estimates of traversal duration.

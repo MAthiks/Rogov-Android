@@ -1,9 +1,15 @@
 # ROGOV — UI-096 · Maquettes de refonte visuelle, checkpoint v0.1
 
 **Date : 19 novembre 2026.**  
-**Statut : CONCEPTION — maquettes à examiner, aucune implémentation de gameplay autorisée par ce document.**  
+**Statut : CONCEPTION v0.2 — maquettes Nhal itération 2 et Veyr première revue documentées ; aucune implémentation de gameplay autorisée par ce document.**  
 **Déclencheur :** priorité utilisateur explicite à l'interface et aux graphismes, avant de poursuivre l'ajout de fonctionnalités.  
 **Base :** [maquette UI v2](UI_V2_MAQUETTE_V1.md), [cockpit actuel UI-092A](UI092A_ANDROID_COCKPIT.md), [DA Sprite C](ART_DIRECTION_SPRITE_C_V1.md), [audit studio](QUALITY_REVIEW_6_TO_8.md), GAME-095D3C fusionné (PR #41).
+
+## Avancement de la revue UI-096A (19 novembre 2026)
+
+- [**Maquette Nhal v2 : audit des proportions, actions existantes, danger et carte**](UI096A_NHAL_V2_REVIEW.md). Les six raccourcis et la compatibilité 11×11 / 320–393px restent des contraintes ; la peinture d'ambiance ne définit pas les dimensions CSS finales.
+- [**Maquette Veyr v1 : refuge, coffre sécurisé, forge et Échos réels**](UI096A_VEYR_V1_REVIEW.md). L'illustration générale peut montrer des fonctions fictives ; **pas de vente/achat, repos, sorts, talents, réparation, nouveaux PNJ actifs ou ressources inventées** à implémenter.
+- **Prochaine décision attendue :** retour sur l'orientation et les proportions des deux écrans avant toute PR de code. Ensuite prototype UI-096B isolé, testé sur Android.
 
 ## Décision de direction du studio
 

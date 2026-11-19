@@ -2,6 +2,7 @@ import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspe
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
 import { syncUi096Threat } from "./ui096.js";
+import { setupUi096C } from "./ui096c.js";
 import {MAX_FLOOR_DEPTH,floorChoiceAvailable,canDescendFurther} from "./floors.js";
 import {depthIntel} from "./depth-balance.js";
 import {SHOVE_ENDURANCE_COST,shoveOpportunity} from "./terrain-tactics.js";
@@ -210,6 +211,8 @@ function updatePreparationControls(){
   summary.textContent="Préparation : "+total+" / 8 places"+
     (valid?"":" — sac trop rempli");
   summary.dataset.full=String(!valid);
+  $("refuge-prep-meter").value=Math.min(8,total);
+  $("refuge-prep-meter").setAttribute("aria-valuetext",total+" objet(s) préparé(s) sur 8 places");
   $("start-btn").disabled=!valid;
   const defaults=playerLoadout(carried);
   for(const slot of ["mainHand","offHand","body"]){
@@ -777,7 +780,6 @@ function render() {
     updateDoorAction();
     updateChestAction();
     updateInteractionDock();
-    renderActorStats();
     renderTargetChoices();
     renderThreatForecast();
     renderCombatPreview();
@@ -807,6 +809,8 @@ function render() {
       button.title=recipe.description;
     }
   }
+  renderActorStats();
+  ui096c.sync();
   syncUi096Threat({get:$,isRun:Boolean(run)});
   ui092.sync();
 }
@@ -920,6 +924,7 @@ for (const button of document.querySelectorAll("[data-direction]")) {
 // bottom sheet on mobile and the existing scroll navigation on desktop.
 const ui092=setupUi092({get:$,isRun:()=>Boolean(state.run),
   isAscii:()=>renderMode==="ascii"});
+const ui096c=setupUi096C({get:$,isRun:()=>Boolean(state.run)});
 $("floor-extract").addEventListener("click",()=>act(resolveFloorExit(state,"extract")));
 $("floor-descend").addEventListener("click",()=>{
   if(window.confirm("Descendre vers l'étage suivant ? Tes blessures et ton sac "+

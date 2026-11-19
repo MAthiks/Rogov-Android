@@ -2938,3 +2938,112 @@ test("ART-096B mobile: trap states use authentic pixel sprites without changing 
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("UI-096C mobile: refuge navigation, secured stash, real shared character and fixed launch on three portraits", {timeout:125000}, async()=>{
+  for(const viewport of [{width:320,height:640},{width:360,height:780},{width:393,height:704}]){
+    const context=await browser.newContext({
+      viewport,deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:"block"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",e=>errors.push(e.message));
+      await page.goto(origin);
+      await page.evaluate(async()=>{
+        const game=await import("./game.js"),state=game.newGame();
+        if(!game.validateSave(state))throw Error("Invalid refuge fixture");
+        localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      });
+      await page.reload();
+      await page.locator("#title-continue").tap();
+      assert.equal(await page.locator("#refuge").isVisible(),true);
+      assert.equal(await page.locator("#game-shell").evaluate(e=>e.classList.contains("is-refuge")),true);
+      assert.equal(await page.locator("#refuge-character-slot #actor-stats-sheet").count(),1);
+      assert.equal(await page.locator("#actor-stats-sheet .actor-stat-chip").count(),6);
+      assert.equal(await page.locator("#expedition #actor-stats-sheet").count(),0);
+      const initial=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+      const nav=page.locator("#refuge-quick-nav button");
+      assert.equal(await nav.count(),4);
+      const metrics=await page.evaluate(()=>{
+        const box=id=>document.getElementById(id).getBoundingClientRect();
+        const launch=box("start-btn"),banner=box("refuge-prep-meter");
+        return {vw:document.documentElement.clientWidth,full:document.documentElement.scrollWidth,
+          launch:launch.toJSON(),banner:banner.toJSON(),
+          viewportH:window.innerHeight,
+          tapSizes:[...document.querySelectorAll("#refuge-quick-nav button")].map(b=>b.getBoundingClientRect().height),
+          imageLoaded:getComputedStyle(document.querySelector(".refuge-banner")).backgroundImage.includes("veyr-refuge-banner.svg")};
+      });
+      assert.ok(metrics.full<=metrics.vw+1,"Refuge cannot scroll sideways: "+JSON.stringify(viewport));
+      assert.ok(metrics.tapSizes.every(height=>height>=44),"Refuge buttons need >=44 CSS px");
+      assert.ok(metrics.launch.y>=0 && metrics.launch.bottom<=metrics.viewportH+1,
+        "Start stays in the safe viewport");
+      assert.ok(metrics.banner.height>0,"Real preparation capacity is displayed");
+      assert.equal(metrics.imageLoaded,true,"Veyr panorama is the original local art");
+      await page.locator('[data-refuge-go="character"]').tap();
+      assert.equal(await page.locator("#actor-stats-sheet").evaluate(e=>e.open),true);
+      await page.locator('[data-refuge-go="echoes"]').tap();
+      assert.equal(await page.locator("#echo-dossier-refuge").evaluate(e=>e.open),true);
+      await page.locator('[data-refuge-go="prepare"]').tap();
+      assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),initial,
+        "Navigation and reading a sheet must never change the save");
+      const choice=page.locator('#stash-items input[type="checkbox"]').first();
+      await choice.check();
+      assert.match(await page.locator("#prep-summary").textContent(),/1 \/ 8/);
+      assert.equal(await page.locator("#refuge-prep-meter").evaluate(e=>e.value),1);
+      assert.equal(await page.locator("#start-btn").isEnabled(),true);
+      await page.locator("#start-btn").tap();
+      assert.equal(await page.locator("#expedition").isVisible(),true);
+      assert.equal(await page.locator("#game-shell").evaluate(e=>e.classList.contains("is-refuge")),false);
+      assert.equal(await page.locator("#expedition #actor-stats-sheet").count(),1,
+        "Original character panel must return to the dungeon");
+      assert.equal(await page.locator("#refuge-character-slot #actor-stats-sheet").count(),0);
+      assert.equal(await page.locator("#actor-stats-sheet .actor-stat-chip").count(),6);
+      const restored=await page.evaluate(async()=>{
+        const game=await import("./game.js"),saved=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+        return {valid:game.validateSave(saved),turns:saved.run?.turns,
+          count:game.inventoryCount(saved)};
+      });
+      assert.equal(restored.valid,true);
+      assert.equal(restored.turns,0);
+      assert.equal(restored.count,1);
+      assert.deepEqual(errors,[]);
+    }finally{await context.close();}
+  }
+});
+
+test("UI-096C mobile: actual forge recipe updates secured resources without touching turns", {timeout:50000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js"),state=game.newGame();
+      state.meta.stash["relic.ashen_fragment"]=2;
+      if(!game.validateSave(state))throw Error("Invalid forge fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.match(await page.locator("#forge-fragments").textContent(),/2 Fragments/);
+    await page.locator('[data-refuge-go="forge"]').tap();
+    const before=await page.evaluate(()=>{
+      const saved=JSON.parse(localStorage.getItem("rogov-web-v1"));
+      return {fragments:saved.meta.stash["relic.ashen_fragment"],
+        bandages:saved.meta.stash["consumable.bandage"]||0};
+    });
+    await page.locator("#forge-bandages").tap();
+    const after=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const saved=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {fragments:saved.meta.stash["relic.ashen_fragment"]||0,
+        bandages:saved.meta.stash["consumable.bandage"]||0,
+        valid:game.validateSave(saved),run:saved.run};
+    });
+    assert.equal(after.fragments,before.fragments-1);
+    assert.equal(after.bandages,before.bandages+2);
+    assert.equal(after.valid,true);
+    assert.equal(after.run,null);
+    assert.match(await page.locator("#forge-fragments").textContent(),/1 Fragment/);
+    assert.equal(await page.locator("#refuge-character-slot #actor-stats-sheet").count(),1);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

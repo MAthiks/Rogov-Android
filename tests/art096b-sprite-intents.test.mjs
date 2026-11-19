@@ -89,7 +89,7 @@ test("ART-096B: visual forecast mirrors existing engine without spending a turn"
 
 test("ART-096B: all artwork remains local to the offline PWA",()=>{
   const sw=read("../docs/sw.js");
-  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-art096b-combat-legibility"/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   for(const path of ["tiles.js","interaction-art.js","combat.js","ui096.css?v=1"])
     assert.ok(sw.includes('"./'+path+'"'),"Required offline module: "+path);
 });

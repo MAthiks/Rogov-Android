@@ -61,8 +61,8 @@ test("GAME-095D3: every action comes from real game functions",()=>{
   assert.match(src,/resolveFloorExit\(state,leave\?"extract":"descend"\)/);
   assert.match(src,/deepRoute/);
   assert.match(src,/not human win rates/);
-  assert.doesNotMatch(src,/run\.x\s*=/);
-  assert.doesNotMatch(src,/run\.hp\s*=/);
+  assert.doesNotMatch(src,/run\.x\s*=(?!=)/);
+  assert.doesNotMatch(src,/run\.hp\s*=(?!=)/);
 });
 
 test("GAME-095D3: CLI reports valid deterministic JSON",()=>{

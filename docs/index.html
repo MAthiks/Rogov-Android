@@ -292,6 +292,12 @@
           </section>
           <div class="chest-controls" role="group" aria-label="Coffres de Nhal">
             <button id="chest-action" type="button" class="secondary full" hidden disabled>Aucun coffre à portée</button>
+            <div id="chest-swap-panel" class="chest-swap-panel" hidden>
+              <label for="chest-swap-item">Sac plein · choisir un objet à abandonner</label>
+              <select id="chest-swap-item" aria-label="Objet à échanger contre le coffre"></select>
+              <button id="chest-swap-action" type="button" class="secondary full" disabled>Échanger contre le contenu inconnu · 1 tour</button>
+              <p class="hint">Le coffre reste mystérieux. L'objet sélectionné sera perdu, mais l'échange ne coûte qu'un tour.</p>
+            </div>
           </div>
           <div class="door-controls" role="group" aria-label="Portes : sélectionner puis confirmer sans mouvement involontaire">
             <button id="door-select" type="button" class="secondary door-action" disabled>Aucune porte voisine</button>

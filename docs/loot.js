@@ -1,5 +1,5 @@
-// GAME-095A1 — pure, deterministic preview of future deep-chest rewards.
-// NOT connected to live dungeon generation until GAME-095A3.
+// GAME-095A3 — pure, deterministic deep-chest rewards for new descents.
+// Integrated only during generation; saved runs retain their original reward IDs.
 // Uses its own seed: never consumes or mutates the saved combat RNG.
 import {descentSeed,nextRandom} from "./combat-rules.js";
 

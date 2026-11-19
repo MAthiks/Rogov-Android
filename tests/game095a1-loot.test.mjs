@@ -151,8 +151,9 @@ test("GAME-095A1: legacy saves and carried new IDs obey existing extraction/reca
   assert.ok(validateSave(withLoot));
   let carried=beginRun(withLoot,["weapon.bone_dagger","consumable.vigor_salts"]).state;
   assert.ok(validateSave(carried));
-  // A2 will implement deliberate equipping. A1 must not silently auto-equip.
-  assert.equal(carried.run.loadout.mainHand,null);
+  // A2 now equips an owned weapon at departure unless an explicit
+  // refuge loadout overrides it; A1 only registered this candidate item.
+  assert.equal(carried.run.loadout.mainHand,"weapon.bone_dagger");
   assert.equal(carried.run.carried["weapon.bone_dagger"],1);
   const lost=recall(carried).state;
   assert.equal(lost.meta.stash["weapon.bone_dagger"],0);

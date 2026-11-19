@@ -1236,8 +1236,8 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
         Math.round(b.getBoundingClientRect().top))).size,
         minHeight:Math.min(...buttons.map(b=>b.getBoundingClientRect().height))};
     });
-    assert.equal(actionLayout.count,5);
-    assert.equal(actionLayout.rows,2,"five actions use two rows on 360px Android");
+    assert.equal(actionLayout.count,6);
+    assert.equal(actionLayout.rows,2,"six actions use two rows on 360px Android");
     assert.ok(actionLayout.minHeight>=44,"action targets support touch");
     await page.locator("#combat-analysis summary").tap();
     assert.equal(await page.locator("#combat-target-profile").isVisible(),true);

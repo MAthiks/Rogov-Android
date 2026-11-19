@@ -2578,9 +2578,9 @@ test("GAME-095C2 Android portrait: shove button, stamina and save persistence", 
     await page.evaluate(async()=>{
       const game=await import("./game.js");
       const s=game.beginRun(game.newGame(),["weapon.rusty_sword"]).state;
-      s.run.x=1;s.run.y=7;
+      s.run.x=1;s.run.y=5;
       s.run.enemies=[{id:"c2-mobile",kind:"charognard",
-        x:2,y:7,hp:3,tactic:"stalking"}];
+        x:2,y:5,hp:3,tactic:"stalking"}];
       s.run.targetId="c2-mobile";
       if(!game.validateSave(s))throw Error("Invalid C2 mobile fixture");
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
@@ -2611,7 +2611,7 @@ test("GAME-095C2 Android portrait: shove button, stamina and save persistence", 
     assert.equal(after.turns,first.turns+1);
     assert.equal(after.end,first.end-3);
     assert.equal(after.rng,first.rng);
-    assert.deepEqual([after.x,after.y],[3,7]);
+    assert.deepEqual([after.x,after.y],[3,5]);
     assert.equal(await page.locator("#combat-shove").isEnabled(),false);
     await page.reload();
     await page.locator("#title-continue").tap();

@@ -50,5 +50,7 @@ jobs:
           path: |
             rogov-dev080-android13.png
             rogov-android-onboarding.png
+            rogov-qa096-android13-veyr.png
+            rogov-qa096-android13-nhal.png
           if-no-files-found: ignore
           retention-days: 14

@@ -1,7 +1,7 @@
 # ART-096B — Coffres, pièges et intentions tactiques lisibles
 
 **Date :** 19 novembre 2026.  
-**Statut initial :** implémenté sur une branche dédiée ; validation CI à terminer avant fusion.  
+**Statut :** fusionné dans `main` via [PR #44](https://github.com/MAthiks/Rogov-Android/pull/44). CI Node/Chromium/Chrome Android 13/APK validée ; test esthétique sur téléphone physique toujours à faire.  
 **Cadre :** [UI-096](UI096_V3_VISUAL_MOCKUPS.md), [ART-096A](ART096A_MATERIAL_SILHOUETTE.md), [UI-096B](UI096B_NHAL_COCKPIT_IMPLEMENTATION.md).  
 **Objectif :** augmenter la lisibilité de l'alpha dans le **rendu véritable** à 20–30 CSS px, pas créer une simple peinture conceptuelle.
 
@@ -32,7 +32,9 @@
 
 Les fichiers de règles **`docs/game.js`**, `docs/enemy-ai.js`, `docs/combat.js`, `docs/traps.js`, `docs/deep-dungeon.js` et `docs/floors.js` restent inchangés. `SAVE_KEY=rogov-web-v1` et `SCHEMA_VERSION=1` sont maintenus. Pas de nouvelle case de danger, pas de révélation d'un piège encore caché, pas de prévision d'un ennemi hors du champ de vision. L'ASCII et tous les accès tactiles existants restent en place.
 
-## Tests exigés
+## Tests exigés et résultats validés en CI
+
+**Résultats du 19 novembre 2026 : 357/357 tests Node, 47/47 tests Chromium portrait, Chrome Android 13 et build/installation APK réussis.**
 
 1. Node : états SVG distincts et 24×24, respect des 15 identifiants interactifs, conservation de l'ancien modèle des pièges, absence d'effets sur jeu/sauvegarde et cache PWA versionné.
 2. Chromium portrait : un **Gardien visible** en préparation puis coup lourd imminent affiche le bon marqueur, et un **Charognard distant caché** ne publie aucune information DOM ; ciblage informatif sans tour.

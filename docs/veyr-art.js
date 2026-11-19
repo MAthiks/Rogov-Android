@@ -105,6 +105,55 @@ const tonic=svg(
   '<path d="M6 13l3-4" stroke="#b6c8be" stroke-width="1"/>'+
   '</g>'
 );
+// GAME-095A1: six matching Sprite C inventory silhouettes. No map visuals change.
+const boneDagger=svg(
+  '<g data-feature="bone-dagger">'+
+  '<path d="M5 19L17 4l3-2-1 6-10 13Z" fill="#c8c1a7" stroke="#ece3c9" stroke-width="1"/>'+
+  '<path d="M9 15l6-7M11 13l3-3" stroke="#8d897d" stroke-width="1"/>'+
+  '<path d="M4 16l6 5" stroke="#7c6555" stroke-width="3"/>'+
+  '<path d="M3 20l3 3" stroke="#d5ba8d" stroke-width="2"/>'+
+  '</g>'
+);
+const ironMace=svg(
+  '<g data-feature="iron-mace">'+
+  '<path d="M5 20L16 8" stroke="#805f47" stroke-width="4"/>'+
+  '<path d="M5 20L8 23" stroke="#c0aa7e" stroke-width="3"/>'+
+  '<path d="M11 3h9l3 6-6 7-9-6Z" fill="#677178" stroke="#c0c2b4" stroke-width="1"/>'+
+  '<path d="M13 5l4 6M19 4l1 5" stroke="#414a50" stroke-width="2"/>'+
+  '</g>'
+);
+const wornBuckler=svg(
+  '<g data-feature="worn-buckler">'+
+  '<path d="M12 2L21 7v10l-9 5-9-5V7Z" fill="#5f6868" stroke="#b6a98d" stroke-width="2"/>'+
+  '<path d="M12 5l6 3v8l-6 3-6-3V8Z" fill="#74766c"/>'+
+  '<path d="M12 5v14M6 9l12 6" stroke="#4a5556" stroke-width="2"/>'+
+  '<rect x="10" y="10" width="4" height="4" fill="#d0b785"/>'+
+  '</g>'
+);
+const scavengedCuirass=svg(
+  '<g data-feature="scavenged-cuirass">'+
+  '<path d="M7 3l5 2 5-2 5 5-3 5-2-2 1 11H6l1-11-2 2-3-5Z" fill="#636e70" stroke="#b4aba0" stroke-width="1"/>'+
+  '<path d="M8 8h8l1 10H7Z" fill="#8b9187"/>'+
+  '<path d="M12 8v11M7 14h10" stroke="#4b5c5b" stroke-width="2"/>'+
+  '<path d="M5 9l3 2M19 9l-3 2" stroke="#a18a6c" stroke-width="2"/>'+
+  '</g>'
+);
+const brokenPlate=svg(
+  '<g data-feature="broken-plate">'+
+  '<path d="M6 2l6 3 6-3 5 5-3 7-2-2 1 11H5l1-11-2 2-3-7Z" fill="#4e5961" stroke="#9b9f99" stroke-width="2"/>'+
+  '<path d="M8 8h8l1 12H7Z" fill="#727c7f"/>'+
+  '<path d="M11 8l3 5-3 3 3 5" stroke="#292f35" stroke-width="2" fill="none"/>'+
+  '<path d="M6 12h3M16 17h3" stroke="#bd927a" stroke-width="2"/>'+
+  '</g>'
+);
+const vigorSalts=svg(
+  '<g data-feature="vigor-salts">'+
+  '<path d="M6 4h12l3 5-2 12H5L3 9Z" fill="#716c5f" stroke="#c3bba5" stroke-width="1"/>'+
+  '<path d="M6 4l6 3 6-3M7 11l5-2 5 2-2 7H9Z" fill="#c1d4d2" stroke="#e6e8dc" stroke-width="1"/>'+
+  '<path d="M12 9v8M9 13h6" stroke="#6c9893" stroke-width="2"/>'+
+  '<path d="M5 20h14" stroke="#554f4a" stroke-width="2"/>'+
+  '</g>'
+);
 export const VEYR_NPC_IDS=Object.freeze(["warden","smith","scholar"]);
 export const VEYR_NPC_CONCEPTS=Object.freeze({
   warden:Object.freeze({name:"Gardien du refuge",role:"Concept · lanterne ambrée",svg:warden}),
@@ -116,14 +165,22 @@ export const VEYR_NPC_SPRITES=Object.freeze(Object.fromEntries(
 ));
 export const ITEM_ART_IDS=Object.freeze([
   "weapon.rusty_sword","weapon.ashen_blade",
-  "consumable.bandage","relic.ashen_fragment","consumable.dusk_tonic"
+  "consumable.bandage","relic.ashen_fragment","consumable.dusk_tonic",
+  "weapon.bone_dagger","weapon.iron_mace","shield.worn_buckler",
+  "armor.scavenged_cuirass","armor.broken_plate","consumable.vigor_salts"
 ]);
 export const ITEM_SVGS=Object.freeze({
   "weapon.rusty_sword":rustySword,
   "weapon.ashen_blade":ashenBlade,
   "consumable.bandage":bandage,
   "relic.ashen_fragment":fragment,
-  "consumable.dusk_tonic":tonic
+  "consumable.dusk_tonic":tonic,
+  "weapon.bone_dagger":boneDagger,
+  "weapon.iron_mace":ironMace,
+  "shield.worn_buckler":wornBuckler,
+  "armor.scavenged_cuirass":scavengedCuirass,
+  "armor.broken_plate":brokenPlate,
+  "consumable.vigor_salts":vigorSalts
 });
 export const ITEM_SPRITES=Object.freeze(Object.fromEntries(
   ITEM_ART_IDS.map(id=>[id,data(ITEM_SVGS[id])])

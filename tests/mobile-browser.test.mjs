@@ -2707,3 +2707,86 @@ test("GAME-095D2 Android portrait: one-turn chest exchange never reveals mystery
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("UI-096B mobile: 320/360/393px keep the map clear of the dock and real actions reachable", {timeout:110000}, async()=>{
+  for(const viewport of [{width:320,height:640},{width:360,height:780},{width:393,height:704}]){
+    const context=await browser.newContext({
+      viewport,deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:"block"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",e=>errors.push(e.message));
+      await preloadDeepRun(page);
+      assert.equal(await page.locator("#ui096-threat-banner").isHidden(),true,
+        "A deserted visible map must not show a fabricated threat");
+      const metrics=await page.evaluate(()=>{
+        const box=id=>document.getElementById(id).getBoundingClientRect();
+        const m=box("tile-map"),dock=box("field-controls");
+        return {map:m.toJSON(),dock:dock.toJSON(),
+          viewport:window.innerHeight,
+          clientWidth:document.documentElement.clientWidth,
+          pageWidth:document.documentElement.scrollWidth,
+          shortcuts:[...document.querySelectorAll("#expedition-shortcuts button")]
+            .map(el=>({id:el.id,height:el.getBoundingClientRect().height})),
+          stylesheets:[...document.styleSheets].map(s=>s.href||""),
+          saveKey:localStorage.getItem("rogov-web-v1")!==null};
+      });
+      assert.ok(metrics.pageWidth<=metrics.clientWidth+1,
+        "No sideways scroll at "+JSON.stringify(viewport)+": "+JSON.stringify(metrics));
+      assert.ok(metrics.map.bottom<=metrics.dock.top+1,
+        "Map cannot hide under bottom dock at "+JSON.stringify(viewport)+": "+JSON.stringify(metrics));
+      assert.ok(metrics.map.height>=175,
+        "11x11 map still readable at "+JSON.stringify(viewport));
+      assert.equal(metrics.shortcuts.length,6);
+      assert.ok(metrics.shortcuts.every(s=>s.height>=44),
+        "All six existing navigation hit targets remain >=44 px");
+      assert.ok(metrics.stylesheets.some(href=>href.includes("ui096.css?v=1")),
+        "UI-096B stylesheet must really load");
+      assert.equal(metrics.saveKey,true);
+      const before=Number(await page.locator("#turns").textContent());
+      await page.locator("#wait-btn").tap();
+      assert.equal(await page.locator("#turns").textContent(),String(before+1));
+      await page.locator("#renderer-toggle").tap();
+      assert.equal(await page.locator("#dungeon-map").isVisible(),true,
+        "ASCII renderer remains usable in portrait");
+      await page.reload();await page.locator("#title-continue").tap();
+      assert.equal(await page.locator("#turns").textContent(),String(before+1));
+      assert.deepEqual(errors,[]);
+    }finally{await context.close();}
+  }
+});
+
+test("UI-096B mobile: visible enemies show pressure, unseen ones cannot leak via HUD", {timeout:40000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const fog=await import("./exploration-visibility.js");
+      const state=game.newGame();state.meta.descents=1;
+      const run=game.beginRun(state).state;
+      const enemy=run.run.enemies[0];
+      const adjacent=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:enemy.x+dx,y:enemy.y+dy}))
+        .find(p=>run.run.map[p.y]?.[p.x]==="." &&
+          !run.run.enemies.some(e=>e.x===p.x&&e.y===p.y));
+      if(!adjacent)throw Error("Missing safe adjacent space");
+      run.run.x=adjacent.x;run.run.y=adjacent.y;
+      run.run.enemies=[enemy];fog.revealAround(run.run);
+      if(!game.validateSave(run))throw Error("Invalid focus save");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(run));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#ui096-threat-banner").isVisible(),true);
+    assert.match(await page.locator("#ui096-threat-banner").textContent(),
+      /HOSTILE|MENACES AU PROCHAIN TOUR/);
+    const turns=await page.locator("#turns").textContent();
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
+    assert.equal(await page.locator("#turns").textContent(),turns,
+      "Warning and opening combat panel cost no turn");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

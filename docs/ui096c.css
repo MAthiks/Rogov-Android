@@ -1,0 +1,274 @@
+/* UI-096C — Veyr is a refuge, not a second tactical cockpit.
+   CSS only: no fictional trading, rest, skills or new resources. */
+.frame.is-refuge{
+  --veyr-night:#0e151b;
+  --veyr-panel:#1b2429;
+  --veyr-amber:#cba36a;
+  --veyr-ivory:#e9e2d3;
+  --veyr-stone:#576169;
+  --veyr-safe:#8da999;
+  --veyr-danger:#c36f6b;
+}
+.frame.is-refuge .masthead-left .eyebrow{color:var(--veyr-amber)}
+.frame.is-refuge .masthead h1 .glow{color:var(--veyr-amber)}
+.frame.is-refuge .masthead-right{
+  color:#ebd5aa;border-color:#7b6c52;background:#322c26;
+}
+.frame.is-refuge .masthead-right .status-dot{
+  background:#dbb47e;box-shadow:0 0 0 4px #cba36a26;
+}
+.frame.is-refuge .hero-bar{
+  border-color:#625d52;border-radius:7px;
+  background:#1a252b;box-shadow:0 6px 14px #0004;
+}
+.frame.is-refuge .hero-bar .stat{border-color:#504e48}
+.frame.is-refuge .hero-bar .stat span{color:#b2b8b5}
+.frame.is-refuge .hero-bar .stat strong{color:#f1e5d0}
+.frame.is-refuge #refuge{
+  background:linear-gradient(165deg,#1c262c,#111b23 55%,#111a21);
+  border-color:#5d615c;box-shadow:0 12px 40px #0007;
+}
+.frame.is-refuge #refuge>.section-head{
+  border-bottom:1px solid #50595a;
+  padding-bottom:12px;margin-bottom:12px;
+}
+.frame.is-refuge #refuge>.section-head .eyebrow{
+  color:var(--veyr-amber);letter-spacing:.11em;
+}
+.frame.is-refuge #refuge-title{
+  color:var(--veyr-ivory);
+  font:700 clamp(21px,5.7vw,29px)/1.15 Georgia,serif;
+  letter-spacing:.015em;
+}
+.refuge-banner{
+  height:clamp(75px,23vw,118px);
+  margin:2px 0 11px;
+  overflow:hidden;
+  border:1px solid #756754;border-radius:6px;
+  background:#1b2830 url("./veyr-refuge-banner.svg") center 58% / cover no-repeat;
+  box-shadow:inset 0 0 0 1px #e5c38c24,0 5px 15px #0005;
+}
+.frame.is-refuge #refuge>.copy{color:#cbd0c7;font-size:12px;line-height:1.55}
+.frame.is-refuge #mission-refuge{
+  border:1px solid #786246;border-left:4px solid var(--veyr-amber);
+  border-radius:5px;background:#2a2927;
+  padding:10px 12px;margin:8px 0 11px;
+}
+.frame.is-refuge #mission-refuge .eyebrow{color:#e0c39b}
+.frame.is-refuge #mission-refuge-title{
+  color:#f1e6d1;font-size:15px;margin:4px 0;
+}
+.frame.is-refuge #mission-refuge-text{
+  color:#e0d9c8;font-size:12px;
+}
+.refuge-quick-nav{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:5px;margin:9px 0 13px;
+}
+.refuge-quick-nav button{
+  min-width:0;min-height:48px;
+  padding:8px 2px;
+  border:1px solid #776e5d;border-radius:5px;
+  color:#eadbbd;background:linear-gradient(#35373a,#232c31);
+  font:750 clamp(10px,2.7vw,12px)/1.25 system-ui,sans-serif;
+  white-space:normal;overflow-wrap:break-word;
+}
+.refuge-quick-nav button:active,
+.refuge-quick-nav button[aria-pressed="true"]{
+  border-color:#e1b879;background:#4a3e30;color:#fff0d2;
+}
+.refuge-quick-nav button:focus-visible,
+.frame.is-refuge #start-btn:focus-visible{
+  outline:2px solid #f4d39f;outline-offset:2px;
+}
+.frame.is-refuge .lore-primer,
+.frame.is-refuge #echo-dossier-refuge{
+  border-radius:6px;border-color:#4c5656;background:#1a252b;
+  margin-bottom:9px;
+}
+.frame.is-refuge .lore-primer summary,
+.frame.is-refuge #echo-dossier-refuge summary{
+  min-height:44px;padding:10px 3px;color:#ead8b7;
+  font-size:12px;
+}
+.frame.is-refuge #echo-refuge-count{color:#ecd9aa}
+.refuge-preparation{
+  margin:14px 0 13px;
+  padding:11px;
+  background:#1b252b;
+  border:1px solid #5b635e;border-radius:7px;
+  scroll-margin-top:10px;
+}
+.refuge-preparation>h3{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:5px 8px;
+  margin:0 0 5px;
+  color:var(--veyr-ivory);font:800 15px/1.3 system-ui,sans-serif;
+  text-transform:none;letter-spacing:0;
+}
+.refuge-secured-label{
+  padding:4px 6px;border:1px solid #6e8573;border-radius:3px;
+  color:#c0d8c1;background:#27382f;
+  font:750 9px/1 ui-monospace,monospace;white-space:nowrap;
+}
+.refuge-preparation>.hint{color:#bfc8c4;margin:5px 0 8px;line-height:1.5}
+.frame.is-refuge #stash-items{gap:5px;margin:8px 0}
+.frame.is-refuge #stash-items .item-row{
+  min-height:55px;margin:0;
+  border-color:#4c5b5c;border-radius:5px;
+  padding:8px 9px;
+  background:linear-gradient(105deg,#253137,#1b282e);
+  color:#eee9da;
+}
+.frame.is-refuge #stash-items .item-row:has(input:checked){
+  border-color:var(--veyr-amber);
+  box-shadow:inset 3px 0 #cba36a;
+  background:#302f2b;
+}
+.frame.is-refuge #stash-items input[type="checkbox"]{
+  min-width:20px;min-height:20px;
+  accent-color:#cba36a;
+}
+.frame.is-refuge .item-row .item-icon{
+  border-color:#696655;background:#252b2c;border-radius:4px;
+}
+.frame.is-refuge #stash-items .item-label strong{font-size:12px}
+.frame.is-refuge #stash-items .item-label small{color:#c4c8bd}
+.frame.is-refuge .prep-quantity,
+.frame.is-refuge #prep-loadout select{
+  min-height:44px;border-color:#8a7860;
+  border-radius:5px;background:#222e33;color:#f1e8d9;
+}
+.frame.is-refuge #prep-summary{
+  margin:10px 0 5px;color:#ebd0a2;
+  font-size:11px;
+}
+.frame.is-refuge #prep-summary[data-full="true"]{color:#ffb8ad}
+#refuge-prep-meter{
+  display:block;width:100%;height:9px;
+  margin-bottom:12px;
+  accent-color:#cba36a;
+}
+#refuge-prep-meter::-webkit-progress-value{background:#cba36a}
+#refuge-prep-meter::-webkit-progress-bar{background:#2b383a}
+.frame.is-refuge #prep-loadout{
+  background:#1c292e;border:1px solid #505d5a;
+  margin:0;padding:9px 10px;border-radius:5px;
+}
+.frame.is-refuge #prep-loadout h3{
+  color:#e5d6b9;margin:0 0 2px;
+  font:800 12px/1.4 system-ui,sans-serif;
+  letter-spacing:0;text-transform:none;
+}
+.frame.is-refuge #prep-loadout .hint{margin:3px 0 8px;font-size:11px}
+.frame.is-refuge .prep-slot-grid label{color:#cbd1cb}
+.frame.is-refuge .prep-slot-grid select{width:100%}
+.refuge-character-slot{margin:11px 0;scroll-margin-top:10px}
+.frame.is-refuge #actor-stats-sheet{
+  max-width:none;margin:0;
+  background:#18262c;border-color:#687167;border-radius:6px;
+}
+.frame.is-refuge #actor-stats-sheet summary{
+  color:#e9dabb;border-bottom-color:#57605e;
+  min-height:50px;
+}
+.frame.is-refuge #actor-stats-sheet .actor-stat-chip{
+  background:#26343a;border-color:#566768;
+}
+.frame.is-refuge #actor-stats-sheet .actor-stat-chip strong{color:#f0e9d9}
+.frame.is-refuge #actor-stats-sheet .actor-stat-chip small{color:#d4be9b}
+.frame.is-refuge #veyr-forge{
+  margin:12px 0;
+  border-color:#826a4a;border-radius:7px;
+  background:linear-gradient(140deg,#352f29,#1e2a2d 70%);
+  scroll-margin-top:10px;
+}
+.frame.is-refuge #forge-title{color:#f2dfbc}
+.frame.is-refuge #veyr-forge .eyebrow{color:#d6b27b}
+.frame.is-refuge #forge-fragments{
+  border-color:#987d53;color:#f0d5a2;background:#4b3b30;
+}
+.frame.is-refuge .forge-recipe{
+  border-color:#665a48;background:#283034;border-radius:5px;
+}
+.frame.is-refuge .forge-recipe strong{color:#f0e0c3}
+.frame.is-refuge .forge-recipe button{
+  background:#4d3d2e;border-color:#aa8860;color:#ffe6ba;
+  min-height:48px;border-radius:5px;
+}
+.frame.is-refuge .forge-recipe button:disabled{opacity:.43}
+.frame.is-refuge #veyr-concepts{
+  border-color:#475653;background:#19262b;border-radius:6px;
+}
+.frame.is-refuge #start-btn{
+  background:#cba36a;border-color:#edc58d;color:#1d2224;
+  font-size:14px;border-radius:6px;
+  min-height:54px;box-shadow:0 5px 17px #0007;
+}
+.frame.is-refuge #start-btn:disabled{opacity:.45;filter:grayscale(.35)}
+/* The dungeon's bag has the opposing cold/unsafe language, including text.
+ * Existing item actions, cost labels and turn handlers are untouched. */
+.frame.is-expedition #bag-panel{
+  border-color:#776058;background:linear-gradient(155deg,#2b2528,#17242b);
+}
+.frame.is-expedition #bag-panel summary{
+  color:#f2dbca;
+}
+.frame.is-expedition #bag-panel .bag-risk{
+  color:#efc9b5;
+}
+.frame.is-expedition #bag-panel .bag-category{
+  color:#c4cdd1;border-bottom-color:#58616b;
+}
+.frame.is-expedition #bag-panel .bag-item-action{
+  background:#273640;border-color:#6f8188;
+}
+@media(max-width:730px){
+  .frame.is-refuge{padding:11px 10px 28px}
+  .frame.is-refuge .masthead{padding:6px 2px 11px}
+  .frame.is-refuge .masthead-left h1{font-size:34px}
+  .frame.is-refuge .masthead-right{font-size:10px}
+  .frame.is-refuge .hero-bar{margin-bottom:9px}
+  .frame.is-refuge .hero-bar .stat{padding:8px;min-width:0}
+  .frame.is-refuge .hero-bar .stat span{font-size:9px}
+  .frame.is-refuge .hero-bar .stat strong{font-size:12px;overflow-wrap:anywhere}
+  .frame.is-refuge main{gap:10px}
+  .frame.is-refuge #refuge{padding:12px 11px calc(99px + env(safe-area-inset-bottom))}
+  .frame.is-refuge #refuge-title{font-size:23px}
+  .frame.is-refuge #refuge>.section-head{margin-bottom:9px}
+  .frame.is-refuge #start-btn{
+    position:fixed;
+    bottom:calc(9px + env(safe-area-inset-bottom));
+    left:50%;transform:translateX(-50%);
+    width:min(calc(100% - 24px),440px);
+    max-width:calc(100vw - 24px);
+    z-index:30;
+    border:2px solid #e8c38b;
+    box-shadow:0 0 0 7px #0b141aec,0 0 25px #000;
+    margin:0;
+  }
+  .frame.is-refuge #refuge #start-btn:active{
+    transform:translateX(-50%);
+  }
+  .frame.is-refuge .actor-stat-values{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+  }
+  .frame.is-refuge .actor-stat-chip{min-height:51px}
+  .frame.is-refuge #echo-dossier-refuge{scroll-margin-top:10px}
+}
+@media(min-width:430px) and (max-width:730px){
+  .frame.is-refuge .actor-stat-values{grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+@media(max-width:350px){
+  .frame.is-refuge .hero-bar .stat{padding:7px 5px}
+  .refuge-quick-nav{gap:3px}
+  .refuge-quick-nav button{font-size:9px;padding:8px 1px}
+  .refuge-preparation{padding:9px}
+  .frame.is-refuge #refuge{padding-inline:9px}
+}
+@media(prefers-reduced-motion:reduce){
+  .refuge-quick-nav button,.frame.is-refuge #start-btn{
+    transition:none;animation:none;
+  }
+}

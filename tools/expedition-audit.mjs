@@ -10,8 +10,9 @@ import {newGame,beginRun,move,attackTarget,defend,waitTurn,toggleDoor,
 import {deepRoute} from "../docs/deep-dungeon.js";
 import {MAX_FLOOR_DEPTH} from "../docs/floors.js";
 import {EQUIPMENT_CATALOG} from "../docs/stats.js";
+import {pressureSnapshot,emptyPressure,notePressure} from "./pressure-audit.mjs";
 
-export const EXPEDITION_AUDIT_VERSION=1;
+export const EXPEDITION_AUDIT_VERSION=2;
 export const ROUTE_POLICIES=Object.freeze(["exit_only","scavenge"]);
 export const DEFAULT_TRIALS=20;
 export const DEFAULT_MAX_ACTIONS=440;
@@ -94,7 +95,8 @@ export function runExpeditionTrial({seed,policy,maxActions=DEFAULT_MAX_ACTIONS}=
     waits:0,healingUsed:0,vigorUsed:0,equipmentChanges:0,
     openedChests:0,chestSwaps:0,freeSelections:0,
     peakBag:inventoryCount(state),damageTaken:0,hpRestored:0,
-    finalHp:null,stashSecured:false};
+    finalHp:null,stashSecured:false,
+    pressureByFloor:[1,2,3].map(depth=>({depth,...emptyPressure()}))};
 
   const apply=(result,kind)=>{
     if(!result?.changed)return false;
@@ -102,6 +104,17 @@ export function runExpeditionTrial({seed,policy,maxActions=DEFAULT_MAX_ACTIONS}=
     const oldCollected=prev?.collected?.length??0;
     state=result.state;
     const next=state.run;
+    // Only OBSERVE actions that actually spent one engine turn. A free
+    // selection and an Arche transition are explicitly excluded.
+    // Death/Rappel clears run; its lethal enemy phase still counts.
+    const spent=prev&&kind!=="select"&&kind!=="floor"&&
+      (next?next.turns>oldTurns:state.meta.recalls>0);
+    if(spent){
+      const ledger=data.pressureByFloor[(prev.floorDepth||1)-1];
+      notePressure(ledger,pressureSnapshot(prev),{
+        kind,hpBefore:oldHp,hpAfter:next?.hp??0
+      });
+    }
     if(next&&next.floorDepth===prev?.floorDepth){
       data.damageTaken+=Math.max(0,oldHp-next.hp);
       data.hpRestored+=Math.max(0,next.hp-oldHp);
@@ -262,7 +275,26 @@ function summarize(rows){
     avgDamageTaken:avg("damageTaken"),avgHpRestored:avg("hpRestored"),
     avgOpenedChests:avg("openedChests"),avgHealingUsed:avg("healingUsed"),
     avgChestSwaps:avg("chestSwaps"),avgEquipmentChanges:avg("equipmentChanges"),
-    avgPeakBag:avg("peakBag")};
+    avgPeakBag:avg("peakBag"),
+    avgThreatenedTurns:round(rows.reduce((s,r)=>s+
+      r.pressureByFloor.reduce((n,f)=>n+f.imminentTurns,0),0)/n),
+    avgMultipleNearbyTurns:round(rows.reduce((s,r)=>s+
+      r.pressureByFloor.reduce((n,f)=>n+f.multipleNearbyTurns,0),0)/n),
+    avgMultiContactTurns:round(rows.reduce((s,r)=>s+
+      r.pressureByFloor.reduce((n,f)=>n+f.multipleContactTurns,0),0)/n),
+    avgSimultaneousImminentTurns:round(rows.reduce((s,r)=>s+
+      r.pressureByFloor.reduce((n,f)=>n+f.simultaneousImminentTurns,0),0)/n),
+    avgChestsNearEnemies:round(rows.reduce((s,r)=>s+
+      r.pressureByFloor.reduce((n,f)=>n+f.chestActionsNearEnemies,0),0)/n),
+    byFloor:[1,2,3].map(depth=>{
+      const fields=["observedTurns","visibleTurns","contactTurns","nearbyTurns",
+        "multipleNearbyTurns","multipleContactTurns","imminentTurns",
+        "simultaneousImminentTurns","damageDuringMultipleNearby",
+        "damageDuringImminent","healingUnderContact","chestActionsNearEnemies"];
+      return {depth,...Object.fromEntries(fields.map(field=>[
+        field,rows.reduce((sum,r)=>sum+r.pressureByFloor[depth-1][field],0)
+      ]))};
+    })};
 }
 export function runExpeditionAudit({start=2,count=DEFAULT_TRIALS,
   maxActions=DEFAULT_MAX_ACTIONS}={}){
@@ -276,7 +308,7 @@ export function runExpeditionAudit({start=2,count=DEFAULT_TRIALS,
       trials.push(runExpeditionTrial({seed,policy,maxActions}));
   return {auditVersion:EXPEDITION_AUDIT_VERSION,seedStart:start,
     expeditionSeeds:count,engineActionTrials:trials.length,
-    model:"scripted full-map-oracle route + actual engine actions; not human win rates",
+    model:"scripted full-map-oracle route + actual engine actions, visible threats and concurrent enemy forecasts; not human win rates",
     policies:Object.fromEntries(ROUTE_POLICIES.map(policy=>
       [policy,summarize(trials.filter(r=>r.policy===policy))])),
     trials};

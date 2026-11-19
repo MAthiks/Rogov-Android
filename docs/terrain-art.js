@@ -24,6 +24,16 @@ const floorDetails=Object.freeze([
   '<path d="M5 4l4 3 2 5-2 3M19 12l-3 2-1 4" stroke="#161d25" stroke-width="2" fill="none"/>'+
     '<rect x="16" y="7" width="3" height="2" fill="#30333a"/>'
 ]);
+// ART-097A1: restrained patina on the existing six floor variants. It must
+// never resemble a door, chest, spike, crack of magical light or a hidden trap.
+const floorPatina=Object.freeze([
+  '<path data-detail="floor-patina" d="M18 6h2M3 18h2" stroke="#425354" stroke-width="1"/>',
+  '<path data-detail="floor-patina" d="M5 16h2M18 4h2" stroke="#45565a" stroke-width="1"/>',
+  '<path data-detail="floor-patina" d="M3 14h2M18 15h3" stroke="#4c5c52" stroke-width="1"/>',
+  '<path data-detail="floor-patina" d="M17 4h2M4 17h2" stroke="#66564a" stroke-width="1"/>',
+  '<path data-detail="floor-patina" d="M17 18h3M3 5h2" stroke="#405a4a" stroke-width="1"/>',
+  '<path data-detail="floor-patina" d="M4 4h2M17 17h2" stroke="#485456" stroke-width="1"/>'
+]);
 function floorSvg(variant){
   return svg(
     '<rect width="24" height="24" fill="#202d33"/>'+
@@ -33,7 +43,11 @@ function floorSvg(variant){
     '<path d="M0 10h12M14 10h10M15 0v9M10 10v14M0 21h9M11 21h13" stroke="#37454b" stroke-width="1"/>'+
     '<rect x="2" y="12" width="1" height="1" fill="#435257"/>'+
     '<rect x="18" y="3" width="2" height="1" fill="#334449"/>'+
-    floorDetails[variant]
+    // One-pixel edge lighting adds volume without making the quiet floor
+    // compete with the hero, a visible trap or the extraction portal.
+    '<path data-detail="floor-beveled-masonry" d="M2 2h9M2 3v5M16 12h6M16 13v5M2 13h5M2 14v4" stroke="#637179" stroke-width="1" opacity=".32"/>'+
+    '<path data-detail="floor-mortar-depth" d="M0 8h12M14 8h10M13 0v10M8 11v13M0 19h9M10 19h14" stroke="#0e181f" stroke-width="1" opacity=".75"/>'+
+    floorDetails[variant]+floorPatina[variant]
   );
 }
 
@@ -61,6 +75,12 @@ function wallSvg(mask,variant){
     '<path d="M0 12h24M12 12v12" stroke="#111d24" stroke-width="2"/>'+
     '<path d="M2 3h20M2 14h8M14 14h8" stroke="#82908b" stroke-width="1"/>'+
     '<path d="M4 10h7M15 10h6M4 21h4M16 21h5" stroke="#23353c" stroke-width="1"/>'+
+    // Top-down 3/4 stonework: a bright capstone, dark recessed mortar and
+    // low-contrast face joints. No glow or simulated interactive object.
+    '<path data-detail="wall-dressed-capstone" d="M2 2h20v1H2ZM3 5h18v1H3ZM2 8h7M15 8h7" fill="#9ba9a4" opacity=".62"/>'+
+    '<path data-detail="wall-recessed-joints" d="M1 11h22v2H1ZM11 13h2v11h-2Z" fill="#121e26"/>'+
+    '<path data-detail="wall-face-bevel" d="M2 14h8M14 14h8M2 15v7M14 15v7" stroke="#6b7d7c" stroke-width="1" opacity=".56"/>'+
+    '<path data-detail="wall-age-patina" d="M4 18h2M18 19h3" stroke="#46594e" stroke-width="1"/>'+
     accents[variant]+rim
   );
 }

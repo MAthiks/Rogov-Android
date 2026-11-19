@@ -25,6 +25,7 @@ const charognard=svg(
   '<path d="M7 20l-2 3M11 20l1 3M16 19l1 3" stroke="#ba9977" stroke-width="2"/>'+
   '<path d="M4 22h4M10 22h5M16 22h4" stroke="#d5b18b" stroke-width="1"/>'+
   '<rect x="8" y="18" width="2" height="1" fill="#9b7060"/>'+
+  '<path data-detail="ragged-wing-rim" d="M5 12l-3 6 3 3M11 12l-3 6M13 11l2 4" stroke="#b49a83" stroke-width="1" fill="none" opacity=".86"/>'+
   '</g>'
 );
 
@@ -45,6 +46,7 @@ const guardian=svg(
   '<rect x="13" y="11" width="1" height="2" fill="#99c4b6"/>'+
   '<path d="M8 13l4 2 5-2 2 8-3 2H7l-3-2Z" fill="#414d55"/>'+
   '<path d="M11 14v7M16 15l-2 5M7 17l3 2" stroke="#87918c" stroke-width="1" fill="none"/>'+
+  '<path data-detail="stone-armor-planes" d="M4 7h5M16 7h4M8 16h8M7 21h4M15 21h3" stroke="#b8b5a4" stroke-width="1" fill="none" opacity=".85"/>'+
   '<path d="M7 20h5v3H5v-2ZM14 20h5v3h-6Z" fill="#29333c"/>'+
   '<path d="M3 13v7l4 2-1-8M20 12l-1 7" stroke="#a9ada1" stroke-width="2"/>'+
   '<g data-feature="massive-mace">'+
@@ -68,6 +70,7 @@ const rift_larva=svg(
   '<path d="M14 11l4-2 3 4-2 6-5-1-1-4Z" fill="#4c7777" stroke="#183640" stroke-width="1"/>'+
   '<path d="M19 12l3 2-1 4-3 2-2-4Z" fill="#688b84"/>'+
   '<path d="M5 11v7M11 10v9M17 11l-1 7" stroke="#8ca9a0" stroke-width="1"/>'+
+  '<path data-detail="segment-ridge" d="M4 10h3M10 9h3M16 10h3M4 17h2M10 17h2M16 17h2" stroke="#bed6c0" stroke-width="1" fill="none" opacity=".85"/>'+
   '<path d="M3 18l-2 4M8 19l-2 3M14 19l-1 3M18 19l1 3" stroke="#628a82" stroke-width="2"/>'+
   '<path d="M3 16L1 13M8 14l-3-2M14 14l-3-2" stroke="#132d35" stroke-width="1"/>'+
   '<g data-feature="localized-spectral-emitter">'+

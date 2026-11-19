@@ -1,6 +1,7 @@
 import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, swapChestReward, chestSwapChoices, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, shoveTarget, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
+import { syncUi096Threat } from "./ui096.js";
 import {MAX_FLOOR_DEPTH,floorChoiceAvailable,canDescendFurther} from "./floors.js";
 import {depthIntel} from "./depth-balance.js";
 import {SHOVE_ENDURANCE_COST,shoveOpportunity} from "./terrain-tactics.js";
@@ -806,6 +807,7 @@ function render() {
       button.title=recipe.description;
     }
   }
+  syncUi096Threat({get:$,isRun:Boolean(run)});
   ui092.sync();
 }
 function act(result) {

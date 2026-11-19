@@ -99,7 +99,7 @@ test("GAME-095B1: descending transfers gear, injuries, turns and RNG; wipes loca
   atExit.run.collected=["7,7"];
   atExit.run.defense="parry";
   atExit.run.targetId="target-from-floor-one";
-  atExit.run.alarmUntil=1234;
+  atExit.run.alarmUntil=atExit.run.turns+2; // valid active alarm window
   assert.equal(validateSave(atExit),true);
   const old={map:atExit.run.map,loot:atExit.run.loot,rooms:atExit.run.rooms,
     hp:atExit.run.hp,carried:structuredClone(atExit.run.carried),

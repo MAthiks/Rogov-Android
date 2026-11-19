@@ -96,7 +96,10 @@ test("GAME-095A3: legacy deep saves without a version preserve tonic and geometr
 });
 
 test("GAME-095A3: malformed loot version and forged rewards are rejected",()=>{
-  const original=activeRun(19);
+  const n=Array.from({length:60},(_,i)=>i+2).find(index=>
+    planDeepChestLoot(index).optional!=="consumable.dusk_tonic");
+  assert.ok(n);
+  const original=activeRun(n);
   const badVersion=structuredClone(original);
   badVersion.run.lootPlanVersion=2;
   assert.equal(validateSave(badVersion),false);

@@ -1,0 +1,67 @@
+/* UI-096D — QA-driven mobile density repair from user-supplied Android captures.
+   Presentation only. Sprite C, engine, actions, fog and save schema unchanged. */
+@media(max-width:730px){
+  /* The hero identity is already in the refuge title and the Égaré sheet.
+     Keep progression legible on one row without delaying the navigation. */
+  .frame.is-refuge .masthead-left .eyebrow,
+  .frame.is-refuge .masthead-left .subtitle{display:none}
+  .frame.is-refuge .masthead{
+    align-items:center; padding:2px 2px 8px;
+  }
+  .frame.is-refuge .masthead-left h1{font-size:28px;line-height:1.1}
+  .frame.is-refuge .masthead-right{align-self:center;margin-top:0}
+  .frame.is-refuge .hero-bar{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:7px;
+  }
+  .frame.is-refuge .hero-bar .stat:first-child{display:none}
+  .frame.is-refuge .hero-bar .stat{
+    min-width:0;padding:6px 5px;border-bottom:0;border-right:1px solid #504e48;
+  }
+  .frame.is-refuge .hero-bar .stat:nth-child(2){border-right:1px solid #504e48}
+  .frame.is-refuge .hero-bar .stat:last-child{border-right:0}
+  .frame.is-refuge #refuge>.section-head{
+    padding-bottom:6px;margin-bottom:7px;
+  }
+  .frame.is-refuge .refuge-banner{
+    height:clamp(62px,18vw,78px);margin-bottom:8px;
+  }
+  .frame.is-refuge #refuge>.copy{margin-bottom:7px}
+  .frame.is-refuge #mission-refuge{
+    padding:7px 9px;margin:6px 0 7px;
+  }
+  .frame.is-refuge #mission-refuge-title{
+    font-size:14px;line-height:1.25;
+  }
+  .frame.is-refuge #mission-refuge-text{
+    font-size:12px;line-height:1.4;
+  }
+  .frame.is-refuge .refuge-quick-nav{margin:4px 0 10px}
+  /* Subdued cold endurance rather than a browser-native bright green bar. */
+  .frame.is-expedition #endurance-meter{
+    appearance:none;accent-color:#79a99a;background:#27343a;border-radius:3px;
+  }
+  .frame.is-expedition #endurance-meter::-webkit-progress-bar{
+    background:#27343a;border-radius:3px;
+  }
+  .frame.is-expedition #endurance-meter::-webkit-progress-value{
+    background:#79a99a;border-radius:3px;
+  }
+  .frame.is-expedition #endurance-meter::-moz-progress-bar{
+    background:#79a99a;border-radius:3px;
+  }
+}
+@media(max-width:730px) and (max-height:760px){
+  /* Keep the existing 44px controls. Recover map space instead of shrinking
+     the dock; on 393×704 the 11×11 map grows ~211→284 CSS px. */
+  .frame.is-expedition #expedition>.section-head .eyebrow{display:none}
+  .frame.is-expedition .pixel-map{
+    width:min(100%,calc(100dvh - 420px),430px);
+  }
+  /* Only a genuine imminent forecast consumes an extra alert row. */
+  .frame.is-expedition #expedition:has(#ui096-threat-banner:not([hidden])) .pixel-map{
+    width:min(100%,calc(100dvh - 462px),430px);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .frame.is-refuge .refuge-quick-nav button{transition:none}
+}

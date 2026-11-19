@@ -43,6 +43,12 @@ Pour chaque participant, saisir sans l'aider : comprend le but en 30 s (oui/non)
 
 **Critères GO conditionnels :** 5×2 descentes réellement observées ; au moins **4/5** répondent « oui » à l'envie de rejouer ; aucun défaut P0 (écran illisible, contrôle indispensable inaccessible, sauvegarde corrompue, brouillard dévoilé), et bugs P1 de lisibilité/ergonomie corrigés ou explicitement arbitrés. Après seulement, réévaluer l'Alpha 7,5/10 et la DA 6/10. La réussite CI seule **ne vaut pas GO**.
 
+## Première revue d'images du téléphone utilisateur
+
+**Deux captures reçues dans la conversation (19 novembre 2026)** : Nhal (étage 1/3, tour 58, un ennemi visible, jauges, carte, dock fixe) et Veyr (L'Égaré niveau 6, 5 Fragments sécurisés, première fenêtre et départ). Il s'agit d'une **preuve visuelle du rendu**, pas d'une preuve de fonctionnement tactile ni d'un test de 5 personnes.
+
+La revue fait apparaître une **carte insuffisamment dominante sur écran court**, le double texte « 1 HOSTILE VISIBLE », des raccourcis Veyr situés trop bas dans la première fenêtre et le sous-titre `WEB ALPHA 0.6.1` périmé. Une correction CSS et une simplification du bandeau sont isolées dans [UI-096D](UI096D_ANDROID_COMPACT_POLISH.md). Les captures Android de contrôle après correction restent attendues.
+
 ## Registre de constats
 
 | Priorité | Observation | État | Preuve attendue |

@@ -166,6 +166,11 @@ test("GAME-095D2: invalid swaps never cost a turn or spoil unseen loot",()=>{
     assert.equal(r.state,s);
     assert.equal(JSON.stringify(s),old);
   }
+  const legacy=structuredClone(s);
+  delete legacy.run.loadout;
+  assert.ok(validateSave(legacy));
+  assert.ok(!chestSwapChoices(legacy.run).includes("weapon.rusty_sword"),
+    "legacy auto-equipped sword must remain protected without loadout");
   const free=structuredClone(s);
   free.run.carried["consumable.vigor_salts"]=0;
   delete free.run.carried["consumable.vigor_salts"];

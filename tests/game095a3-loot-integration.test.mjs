@@ -194,8 +194,8 @@ test("GAME-095A4: heavy armor cannot nullify a landed physical strike",()=>{
   assert.equal(damageFromStats(1,foe,cuirass),1);
   assert.equal(damageFromStats(1,foe,plate),1,
     "armor must not create permanent immunity to common monsters");
-  assert.equal(damageFromStats(8,foe,cuirass),7);
-  assert.equal(damageFromStats(8,foe,plate),6,
+  assert.equal(damageFromStats(8,bare,cuirass),7);
+  assert.equal(damageFromStats(8,bare,plate),6,
     "heavy attacks still reward the protective armor tradeoff");
   assert.ok(plate.dodgeChance<cuirass.dodgeChance,
     "heavy armor has a real evasion penalty");

@@ -46,8 +46,10 @@ export function coordinateOptionalDuo(layout){
     ...(layout.secrets||[]).flatMap(s=>[key(s),key(s.clue)]),
   ]);
   const traps=new Set((layout.traps||[]).map(key));
-  // A chest can be approached and later abandoned without crossing either
-  // enemy; neither two return routes nor the known optional trap is removed.
+  if(!deepTwoReturnWays(layout.map,layout.start,layout.exit,traps))
+    return layout;
+  // Assess sightlines FIRST. Only a few feasible positions need expensive
+  // path checks; this keeps 100-seed/three-floor CI practical on Android.
   const options=[];
   for(let y=sideRoom.y+1;y<sideRoom.y+sideRoom.height-1;y++)
     for(let x=sideRoom.x+1;x<sideRoom.x+sideRoom.width-1;x++){
@@ -57,31 +59,33 @@ export function coordinateOptionalDuo(layout){
          distance(point,larva)<2||distance(point,larva)>4||
          (layout.sites||[]).some(s=>distance(s,point)<2)||
          (layout.traps||[]).some(t=>distance(t,point)<2))continue;
-      const enemies=layout.enemies.map(e=>e.id===guardian.id
-        ?{...e,x,y}:e);
-      const blocked=new Set([...traps,...enemies.map(key)]);
-      if(!deepTwoReturnWays(layout.map,layout.start,layout.exit,traps)||
-         !deepRoute(layout.map,layout.start,layout.exit,blocked)||
-         Object.keys(layout.loot).some(chestKey=>{
-           const [tx,ty]=chestKey.split(",").map(Number),p={x:tx,y:ty};
-           return !deepRoute(layout.map,layout.start,p,blocked)||
-             !deepRoute(layout.map,p,layout.exit,blocked);
-         }))continue;
-      // True sight and proximity from a real, reachable chest-opening cell,
-      // not simply two enemies put in the same room on a diagram.
-      const readable=neighbors(chest).some(p=>
+      const blocked=new Set([...traps,
+        ...layout.enemies.filter(e=>e.id!==guardian.id).map(key),key(point)]);
+      const approaches=neighbors(chest).filter(p=>
         floor(layout,p)&&!blocked.has(key(p))&&
         distance(p,point)<=3&&distance(p,larva)<=3&&
-        deepRoute(layout.map,layout.start,p,blocked)&&
         lineOfSight({...layout,x:p.x,y:p.y},point.x,point.y)&&
         lineOfSight({...layout,x:p.x,y:p.y},larva.x,larva.y)
       );
-      if(!readable)continue;
-      options.push({point,enemies,score:distance(point,chest)*10+
+      if(!approaches.length)continue;
+      options.push({point,blocked,approaches,score:distance(point,chest)*10+
         distance(point,larva)});
     }
-  if(!options.length)return layout;
   options.sort((a,b)=>a.score-b.score||
     a.point.y-b.point.y||a.point.x-b.point.x);
-  return {...layout,enemies:options[0].enemies};
+  for(const option of options){
+    const blocked=option.blocked;
+    if(!deepRoute(layout.map,layout.start,layout.exit,blocked)||
+       Object.keys(layout.loot).some(chestKey=>{
+         const [tx,ty]=chestKey.split(",").map(Number),p={x:tx,y:ty};
+         return !deepRoute(layout.map,layout.start,p,blocked)||
+           !deepRoute(layout.map,p,layout.exit,blocked);
+       }))continue;
+    if(!option.approaches.some(p=>
+      deepRoute(layout.map,layout.start,p,blocked)))continue;
+    const relocated=layout.enemies.map(e=>e.id===guardian.id
+      ?{...e,x:option.point.x,y:option.point.y}:e);
+    return {...layout,enemies:relocated};
+  }
+  return layout;
 }

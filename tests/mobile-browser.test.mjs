@@ -2054,7 +2054,7 @@ test("QA-092 mobile: 320/360/393px cockpit, no covered controls, options and con
       assert.ok(Math.abs(geometry.dockBottom-geometry.view)<=2,
         "Movement dock should align with bottom at "+width);
       assert.ok(geometry.mapBottom<=geometry.dockTop+1,
-        "No player tile is blocked by touch controls at "+width);
+        "No player tile is blocked by touch controls at "+width+": "+JSON.stringify(geometry));
       assert.ok(geometry.navTop>=0&&geometry.navBottom<=geometry.mapTop,
         "Navigation remains before the map at "+width);
       assert.ok(geometry.scrollWidth<=geometry.width+1,"No horizontal overflow at "+width);

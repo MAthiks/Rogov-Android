@@ -2779,9 +2779,9 @@ test("UI-096B mobile: visible enemies show pressure, unseen ones cannot leak via
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(run));
     });
     await page.reload();await page.locator("#title-continue").tap();
-    assert.equal(await page.locator("#ui096-threat-banner").isVisible(),true);
-    assert.match(await page.locator("#ui096-threat-banner").textContent(),
-      /HOSTILE|MENACES AU PROCHAIN TOUR/);
+    assert.equal(await page.locator("#ui096-threat-banner").isHidden(),true,
+      "Visible enemy count appears in the HUD, not twice in a banner");
+    assert.match(await page.locator("#threat-state").textContent(),/HOSTILE/);
     const turns=await page.locator("#turns").textContent();
     await page.locator("#jump-combat").tap();
     assert.equal(await page.locator("#ui092-sheet").isVisible(),true);

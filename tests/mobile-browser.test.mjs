@@ -2332,3 +2332,105 @@ test("GAME-095A3 mobile: new deep equipment is awarded once and saved", {timeout
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+// GAME-095B1: test the real Android controls, persisted depth and escape
+// choice. Normal routing/geometry is covered by the deterministic engine tests.
+test("GAME-095B1 mobile: explicit floor choice, resume and extraction", {timeout:65000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    page.on("dialog",dialog=>dialog.accept());
+    await page.goto(origin);
+    const entry=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();s.meta.descents=1;
+      const run=game.beginRun(s,["weapon.rusty_sword"],null,{multiFloor:true}).state;
+      const goal=run.run.exit;
+      const path=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:goal.x-dx,y:goal.y-dy,
+          dir:dx===1?"right":dx===-1?"left":dy===1?"down":"up"}))
+        .find(p=>run.run.map[p.y]?.[p.x]===".");
+      if(!path)throw Error("No safe route into floor-1 Arche");
+      run.run.x=path.x;run.run.y=path.y;
+      run.run.hp=8;run.run.endurance=4;run.run.enemies=[];
+      if(!game.validateSave(run))throw Error("Invalid initial multi-floor fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(run));
+      return {dir:path.dir};
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#floor-depth").textContent(),"1 / 3");
+    assert.equal(await page.locator("#floor-choice").isHidden(),true);
+    await page.locator('[data-direction="'+entry.dir+'"]').tap();
+    assert.equal(await page.locator("#floor-choice").isVisible(),true);
+    assert.equal(await page.locator("#floor-extract").isEnabled(),true);
+    assert.equal(await page.locator("#floor-descend").isEnabled(),true);
+    const turn=Number(await page.locator("#turns").textContent());
+    await page.locator("#floor-descend").tap();
+    assert.equal(await page.locator("#floor-depth").textContent(),"2 / 3");
+    assert.equal(await page.locator("#floor-choice").isHidden(),true);
+    assert.equal(Number(await page.locator("#turns").textContent()),turn,
+      "Choosing to continue doesn't add a second turn");
+
+    let stored=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      return JSON.parse(localStorage.getItem(SAVE_KEY));
+    });
+    assert.equal(stored.run.floorDepth,2);
+    assert.equal(stored.run.hp,8);
+    assert.equal(stored.run.endurance,5);
+    assert.equal(stored.run.carried["weapon.rusty_sword"],1);
+    assert.equal(stored.meta.bestDepth,2);
+    const map=stored.run.map.join("");
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    stored=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      return JSON.parse(localStorage.getItem(SAVE_KEY));
+    });
+    assert.equal(stored.run.floorDepth,2);
+    assert.equal(stored.run.map.join(""),map);
+    assert.equal(await page.locator("#floor-depth").textContent(),"2 / 3");
+
+    const next=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const goal=state.run.exit;
+      const p=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:goal.x-dx,y:goal.y-dy,
+          dir:dx===1?"right":dx===-1?"left":dy===1?"down":"up"}))
+        .find(p=>state.run.map[p.y]?.[p.x]===".");
+      if(!p)throw Error("No exit approach on floor 2");
+      state.run.x=p.x;state.run.y=p.y;state.run.enemies=[];
+      if(!game.validateSave(state))throw Error("Invalid persisted floor-2 fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {dir:p.dir};
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    await page.locator('[data-direction="'+next.dir+'"]').tap();
+    await page.setViewportSize({width:320,height:720});
+    assert.equal(await page.locator("#floor-choice").isVisible(),true);
+    const metrics=await page.evaluate(()=>({
+      client:document.documentElement.clientWidth,
+      scroll:document.documentElement.scrollWidth
+    }));
+    assert.ok(metrics.scroll<=metrics.client+1,
+      "Floor decision must fit a narrow 320px Android portrait");
+    await page.locator("#floor-extract").tap();
+    assert.equal(await page.locator("#refuge").isVisible(),true);
+    assert.equal(await page.locator("#floor-choice").isHidden(),true);
+    stored=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      return JSON.parse(localStorage.getItem(SAVE_KEY));
+    });
+    assert.equal(stored.run,null);
+    assert.equal(stored.meta.extractions,1);
+    assert.equal(stored.meta.bestDepth,2);
+    assert.equal(stored.meta.stash["weapon.rusty_sword"],1);
+    assert.equal(await page.locator("#refuge-depth-record").isVisible(),true);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

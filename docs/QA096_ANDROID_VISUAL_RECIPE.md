@@ -20,6 +20,8 @@ La suite Playwright `tests/mobile-browser.test.mjs` contient un contrôle `QA-09
 - Vérification du contraste texte/fond sur des éléments **à fond uni** (CTA, étiquette sécurisée, mission) selon un ratio WCAG ≥4,5. Les dégradés, illustrations, intentions et sprites exigent une observation humaine complémentaire.
 - Journal JSON de géométrie (taille carte/case/commandes) + six PNG en artifact `qa096-chromium-portraits` de la validation PR. Ceci n'est **pas un test sur le Chrome du téléphone utilisateur**.
 
+**Android 13 émulé avec le véritable Chrome :** la suite `tests/android-emulator-browser.test.mjs` prend en plus deux captures CDP de Veyr et Nhal (`rogov-qa096-android13-veyr.png`, `rogov-qa096-android13-nhal.png`) dans l'artefact `dev080-android13-chrome-qa`. Elles évitent qu'un dialogue natif de configuration Chrome masque la page dans un `adb screencap`. Ces images restent celles **d'un émulateur**, pas d'un appareil physique.
+
 La couverture préexistante continue à vérifier les marqueurs d'intention visibles sans fuite de brouillard, portes, pièges, le mode ASCII, la reprise des sauvegardes, l'offline et les véritables actions/leurs coûts en tours.
 
 ## Recette physique à réaliser

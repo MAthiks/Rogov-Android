@@ -93,8 +93,12 @@ for step in range(12):
         print("Tapping non-account Chrome onboarding:", label, flush=True)
         tap(selected)
     else:
-        print("No safe pre-defined Chrome onboarding action found.", flush=True)
-        break
+        # On Android 13 Chrome can expose only the "Welcome to Chrome"
+        # heading before its acceptance buttons enter the accessibility tree.
+        # Waiting is safer than tapping unknown coordinates or aborting.
+        print("Chrome first-run controls not ready; retrying safe inspection.",
+              flush=True)
+        continue
 
 # Explicitly launch the real PWA after the Chrome welcome screen, if passed.
 result = cmd("shell", "am", "start", "-W", "-a", "android.intent.action.VIEW",

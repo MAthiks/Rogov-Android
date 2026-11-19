@@ -2,6 +2,7 @@ import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspe
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
 import {MAX_FLOOR_DEPTH,floorChoiceAvailable,canDescendFurther} from "./floors.js";
+import {depthIntel} from "./depth-balance.js";
 import { narrativeObjective, NAR093_LORE } from "./narrative.js";
 import { echoDossier } from "./echo-investigation.js";
 import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
@@ -674,8 +675,10 @@ function renderFloorChoice(run){
   const canContinue=canDescendFurther(run);
   $("floor-choice-title").textContent="ARCHE ATTEINTE · ÉTAGE "+
     run.floorDepth+" / "+MAX_FLOOR_DEPTH;
-  $("floor-choice-description").textContent=canContinue
-    ?"Ton butin est encore exposé. Rentrer ou poursuivre : à toi de choisir."
+  const forecast=canContinue?depthIntel(run.floorDepth+1):null;
+  $("floor-choice-description").textContent=forecast
+    ?"Prochain étage — "+forecast.name+". "+forecast.risk+" "+
+      forecast.prize+" Ton butin reste exposé jusqu'à l'extraction."
     :"Dernier étage atteint. Tu peux sécuriser ton expédition à Veyr.";
   $("floor-descend").hidden=!canContinue;
   $("floor-extract").disabled=false;

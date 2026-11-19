@@ -168,7 +168,7 @@ test("QA-092: technical baseline remains an Android-first PWA, not a certified d
   assert.match(controller,/mount\.append\(node\)/);
   assert.match(controller,/placeholder\.replaceWith\(activeNode\)/);
   assert.match(sw,/"\.\/ui092\.js"/);
-  assert.match(sw,/"\.\/ui092\.css\?v=1"/);
+  assert.match(sw,/"\.\/ui092\.css\?v=2"/);
   assert.equal(INVENTORY_LIMIT,8);
   // Browser geometry, interaction targeting, physical contrast and player
   // comprehension are deliberately outside this source-level assertion.

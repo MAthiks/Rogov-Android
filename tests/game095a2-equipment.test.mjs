@@ -198,12 +198,12 @@ test("GAME-095A2: Android/PWA controls exist with no schema or generator edits",
   const html=source("index.html"),app=source("app.js"),css=source("style.css"),sw=source("sw.js");
   for(const id of ["prep-summary","prep-mainHand","prep-offHand","prep-body",
     "bag-equipped","bag-items","start-btn"])assert.ok(html.includes('id="'+id+'"'));
-  assert.match(app,/beginRun\(state,preparationCounts\(\),preparedChoice\(\)\)/);
+  assert.match(app,/beginRun\(state,preparationCounts\(\),preparedChoice\(\),\{multiFloor:true\}\)/);
   assert.match(app,/window\.confirm\("Abandonner définitivement/);
   assert.match(app,/equipItem\(state,id\)/);
   assert.match(app,/useItem\(state,id\)/);
   assert.match(css,/GAME-095A2/);
-  assert.match(sw,/rogov-v0\.7f-game095a[2-9]-[a-z0-9-]+/,
+  assert.match(sw,/rogov-v0\.7f-game095[a-z0-9-]+/,
     "Offline PWA cache must be versioned for A2 and subsequent gameplay updates");
   assert.match(source("deep-dungeon.js"),/consumable\.dusk_tonic/);
   assert.equal(SCHEMA_VERSION,1);

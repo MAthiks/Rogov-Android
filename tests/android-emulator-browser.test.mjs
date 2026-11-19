@@ -468,3 +468,53 @@ test("GAME-095B1 Android 13: Arche choice reaches next floor and survives reload
     console.log("GAME-095B1 ANDROID 13: explicit choice / saved depth PASS");
   }finally{await browser.close();}
 });
+
+
+test("GAME-095B2 Android 13: floor-2 Faille encounter and preserved rewards", {timeout:90000},async()=>{
+  const browser=await androidBrowser();
+  try{
+    const context=browser.contexts()[0];
+    const page=context.pages().find(p=>p.url().includes("127.0.0.1:8765"))||
+      await context.newPage();
+    page.on("dialog",dialog=>dialog.accept());
+    await page.goto(URL,{waitUntil:"load",timeout:20000});
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();s.meta.descents=1;
+      const run=game.beginRun(s,["weapon.rusty_sword"],null,{multiFloor:true}).state;
+      run.run.enemies=[];run.run.x=run.run.exit.x;run.run.y=run.run.exit.y;
+      if(!game.validateSave(run))throw Error("Android B2 initial fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(run));
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    assert.match(await page.locator("#floor-choice-description").textContent(),
+      /Résonances de la Faille.*soins/);
+    await page.locator("#floor-descend").click();
+    assert.equal(await page.locator("#floor-depth").textContent(),"2 / 3");
+    const first=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),version:s.run.depthBalanceVersion,
+        larvae:s.run.enemies.filter(e=>e.kind==="rift_larva").length,
+        reward:Object.values(s.run.loot).find(id=>id!=="relic.ashen_fragment"&&
+          id!=="consumable.bandage"),rng:s.run.rngState};
+    });
+    assert.equal(first.valid,true);
+    assert.equal(first.version,1);
+    assert.equal(first.larvae,2);
+    assert.ok(first.reward);
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    const saved=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),version:s.run.depthBalanceVersion,
+        larvae:s.run.enemies.filter(e=>e.kind==="rift_larva").length,
+        reward:Object.values(s.run.loot).find(id=>id!=="relic.ashen_fragment"&&
+          id!=="consumable.bandage"),rng:s.run.rngState};
+    });
+    assert.deepEqual(saved,first);
+    console.log("GAME-095B2 ANDROID 13: balanced floor / saved loot PASS");
+  }finally{await browser.close();}
+});

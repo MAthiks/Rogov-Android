@@ -15,6 +15,8 @@ const door_open=svg(
   '<rect x="2" y="8" width="3" height="15" fill="'+stone+'"/>'+
   '<rect x="19" y="8" width="3" height="15" fill="'+stone+'"/>'+
   '<path d="M6 21h12M9 4h6" fill="none" stroke="#3b5256" stroke-width="1"/>'+
+  '<path data-detail="arch-keystone" d="M9 2h6v3H9Z" fill="#c0c8bc"/>'+
+  '<path d="M2 8h4M18 8h4M2 14h3M19 14h3" stroke="#3f5258" stroke-width="1"/>'+
   '<path d="M1 23h22" fill="none" stroke="'+rim+'" stroke-width="2"/>'+
   '</g>'
 );
@@ -27,6 +29,9 @@ const door_closed=svg(
   '<rect x="6" y="13" width="12" height="2" fill="#232e32"/>'+
   '<rect x="6" y="19" width="12" height="2" fill="'+iron+'"/>'+
   '<rect x="15" y="15" width="2" height="3" fill="'+amber+'"/>'+
+  '<rect data-detail="opaque-door-lock" x="13" y="14" width="4" height="5" fill="#322c29"/>'+
+  '<rect x="15" y="15" width="1" height="2" fill="'+amber+'"/>'+
+  '<path d="M7 10h10M8 17h3M17 17h1" stroke="#b19a78" stroke-width="1"/>'+
   '<path d="M2 23h20" stroke="'+rim+'" stroke-width="2"/>'+
   '</g>'
 );
@@ -93,6 +98,9 @@ const exit=svg(
   '<path d="M5 23V10l4-5h6l4 5v13Z" fill="#153e3e"/>'+
   '<path d="M9 9l3-3 3 3 2 4-3 9h-4l-3-9Z" fill="#4b9b8e"/>'+
   '<path d="M12 8v13M8 13h8" stroke="#b5eddb" stroke-width="1"/>'+
+  '<path data-detail="extraction-keystone" d="M9 1h6v3H9Z" fill="#c6c9b6"/>'+
+  '<path d="M2 15h3M19 15h3M7 4h3M14 4h3" stroke="#98b6b0" stroke-width="1"/>'+
+  '<rect x="10" y="20" width="4" height="2" fill="#8fd9c9"/>'+
   '<path d="M2 23h20M3 9h3M18 9h3" stroke="'+rim+'" stroke-width="2"/>'+
   '</g>'
 );
@@ -101,6 +109,8 @@ const hazard=svg(
   '<path d="M12 1l4 6 6 5-5 4-5 7-4-6-6-5 6-4Z" fill="#452532" stroke="#c17b7c" stroke-width="1"/>'+
   '<path d="M12 4l3 7-3 3 1 6-5-7 2-4Z" fill="#b65e69"/>'+
   '<path d="M12 6l-2 6 4 2-2 5" fill="none" stroke="#f7b7aa" stroke-width="2"/>'+
+  '<path data-detail="rift-black-center" d="M13 9l2 3-2 5-2-3Z" fill="#161721"/>'+
+  '<path d="M7 11l-3-2M17 15l4 2" stroke="#e58d84" stroke-width="1"/>'+
   '<path d="M3 5l4 4M19 4l-4 4M3 20l5-4M20 19l-5-4" stroke="#74404a" stroke-width="1"/>'+
   '</g>'
 );

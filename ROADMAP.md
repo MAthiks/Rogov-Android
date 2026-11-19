@@ -13,7 +13,13 @@
 
 **GAME-095A3/A4 (code fusionné, PR #31) :** trois coffres profonds (Fragment + Bandage garantis, butin variable), validation rétrocompatible, équilibrage de base et workflows Web/Android validés. [Recette A3/A4](docs/GAME095A3_A4_QA_BALANCE.md). La recette physique Android et les **5 joueurs × 2 expéditions** restent ouvertes ; ne pas assimiler tests automatiques et plaisir de jouer.
 
-**GAME-095B1 — Étages successifs (branche de travail) :** boucle de trois étages, choix libre à l'Arche (extraire ou descendre), blessures et sac persistants, profondeurs/XP sauvegardés, compatibilité des anciens runs et tutoriel, UI mobile, tests automatisés. [Contrat et recette B1](docs/GAME095B1_MULTIFLOOR.md). **En attente de CI et fusion ; aucune validation humaine revendiquée.** Le calibrage des ennemis et récompenses par étage sera évalué ensuite (B2 / C / D).
+**GAME-095B1 — Étages successifs (fusionné, PR #32) :** boucle de trois étages, choix libre à l'Arche (extraire ou descendre), blessures et sac persistants, profondeurs/XP sauvegardés, compatibilité des anciens runs et tutoriel, UI mobile. **Tests Web, Chrome Android 13 et APK automatisés réussis ; validation sur téléphone physique et tests humains toujours requis.** [Contrat et recette B1](docs/GAME095B1_MULTIFLOOR.md). Priorité suivante : GAME-095B2 (rencontres et ressources par profondeur), puis C/D.
+
+## Plateformes — Android en priorité, PC conservé dans le GDD
+
+**Décision du 19 novembre 2026 :** poursuivre exclusivement la **production active sur Android** (PWA/JavaScript, APK et tests tactiles). **Godot est mis en attente** : pas de changement de moteur ni de projet de migration actif. Le **portage PC futur**, Windows en premier, reste inscrit comme objectif de long terme, avec moteur à choisir après stabilisation du gameplay mobile et tests utilisateurs. Préserver autant que possible les règles déterministes, le mode ASCII, les assets Sprite C et les contrats de sauvegarde pour réduire le coût d'une éventuelle adaptation. Aucune date de portage annoncée.
+
+Référence : [GDD exploration v0.9, §16 — stratégie de plateformes et portage PC](docs/GDD_EXPLORATION_NHAL_V0.9.md).
 
 ## NAR-094 — Enquête persistante dans les Chambres de l'Écho
 

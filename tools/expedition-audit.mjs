@@ -115,7 +115,10 @@ export function runExpeditionTrial({seed,policy,maxActions=DEFAULT_MAX_ACTIONS}=
       if(!validateSave(state))
         throw new Error("GAME-095D3 invalid run after "+kind+" seed "+seed);
     } else {
-      data.actualTurns=oldTurns+(kind==="move"?1:0);
+      // A lethal enemy phase still consumed the triggering action's turn.
+      // Extraction from an Arche and a free target selection consume none.
+      data.actualTurns=oldTurns+(kind==="floor"||kind==="select"?0:1);
+      if(state.meta.recalls>0)data.damageTaken+=oldHp;
     }
     if(kind==="move"&&next&&
        (prev.x!==next.x||prev.y!==next.y))data.steps++;
@@ -244,7 +247,7 @@ export function runExpeditionTrial({seed,policy,maxActions=DEFAULT_MAX_ACTIONS}=
     data.stashSecured=outcome==="extracted";
   }
   data.outcome=outcome;
-  data.finalHp=state.run?.hp??data.finalHp;
+  data.finalHp=state.run?.hp??(state.meta.recalls>0?0:data.finalHp);
   if(data.peakBag>INVENTORY_LIMIT)
     throw new Error("GAME-095D3 bag overflow");
   return Object.freeze(data);

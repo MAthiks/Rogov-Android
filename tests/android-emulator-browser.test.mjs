@@ -408,3 +408,63 @@ test("QA-084 Android Chrome: first deep chamber visibly contains foe, chest, rif
     console.log("QA-084 ANDROID ENTRY: "+JSON.stringify(evidence)+" / open chest / save PASS");
   }finally{await browser.close();}
 });
+
+
+test("GAME-095B1 Android 13: Arche choice reaches next floor and survives reload", {timeout:90000}, async()=>{
+  const browser=await androidBrowser();
+  try{
+    const context=browser.contexts()[0];
+    const page=context.pages().find(p=>p.url().includes("127.0.0.1:8765"))||
+      await context.newPage();
+    await page.goto(URL,{waitUntil:"load",timeout:20000});
+    page.on("dialog",dialog=>dialog.accept());
+    const direction=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();s.meta.descents=1;
+      const state=game.beginRun(s,["weapon.rusty_sword"],null,{multiFloor:true}).state;
+      const exit=state.run.exit;
+      const p=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:exit.x-dx,y:exit.y-dy,
+          dir:dx===1?"right":dx===-1?"left":dy===1?"down":"up"}))
+        .find(pos=>state.run.map[pos.y]?.[pos.x]===".");
+      if(!p)throw Error("No valid floor Arche approach");
+      state.run.x=p.x;state.run.y=p.y;state.run.enemies=[];
+      state.run.hp=8;
+      if(!game.validateSave(state))throw Error("B1 Android fixture invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return p.dir;
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    assert.equal(await page.locator("#floor-depth").textContent(),"1 / 3");
+    await page.locator('[data-direction="'+direction+'"]').click();
+    assert.equal(await page.locator("#floor-choice").isVisible(),true);
+    const atExit=Number(await page.locator("#turns").textContent());
+    await page.locator("#floor-descend").click();
+    assert.equal(await page.locator("#floor-depth").textContent(),"2 / 3");
+    assert.equal(Number(await page.locator("#turns").textContent()),atExit);
+    const before=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),depth:s.run.floorDepth,
+        best:s.meta.bestDepth,hp:s.run.hp,
+        sword:s.run.carried["weapon.rusty_sword"],map:s.run.map.join("")};
+    });
+    assert.equal(before.valid,true);
+    assert.equal(before.depth,2);
+    assert.equal(before.best,2);
+    assert.equal(before.hp,8);
+    assert.equal(before.sword,1);
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    const after=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),depth:s.run.floorDepth,
+        best:s.meta.bestDepth,hp:s.run.hp,
+        sword:s.run.carried["weapon.rusty_sword"],map:s.run.map.join("")};
+    });
+    assert.deepEqual(after,before,"Floor two persists unmodified on Android 13 Chrome");
+    console.log("GAME-095B1 ANDROID 13: explicit choice / saved depth PASS");
+  }finally{await browser.close();}
+});

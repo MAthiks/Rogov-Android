@@ -11,6 +11,7 @@ import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./se
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
 import {ROOM_SITES,validRoomSites,roomSiteVisible,roomSiteAppearance} from "./room-events.js";
 import {RECIPES,canCraft} from "./economy.js";
+import {validEchoFindings,discoverEcho} from "./echo-investigation.js";
 import {EQUIPMENT_CATALOG} from "./stats.js";
 export const SAVE_KEY = "rogov-web-v1";
 export const SCHEMA_VERSION = 1;
@@ -307,7 +308,7 @@ export function newGame() {
       hero: { id: "character.first_wanderer", title: "L'Égaré", level: 1, xp: 0,
         attributes:{...DEFAULT_HERO_STATS}, classId:null },
       stash: { "weapon.rusty_sword": 1, "consumable.bandage": 2 },
-      descents: 0, extractions: 0, recalls: 0
+      descents: 0, extractions: 0, recalls: 0, echoFindings: []
     },
     run: null,
     journal: [{ type:"system", turn:null, text:"Bienvenue au refuge de Veyr. Prépare une descente dans Nhal." }]
@@ -332,6 +333,7 @@ function gainXp(s, amount) {
 export function validateSave(s) {
   if (!s || s.schemaVersion !== SCHEMA_VERSION) return false;
   if (!s.meta || !s.meta.hero || !s.meta.stash || !Array.isArray(s.journal)) return false;
+  if (!validEchoFindings(s.meta.echoFindings)) return false;
   if (!s.journal.every(validJournalEntry)) return false;
   if (!Number.isSafeInteger(s.meta.hero.xp) || s.meta.hero.xp < 0) return false;
   if (!Number.isSafeInteger(s.meta.hero.level) || s.meta.hero.level !== 1 + Math.floor(s.meta.hero.xp / 5)) return false;
@@ -566,9 +568,10 @@ export function resolveRoomSite(state,siteId,optionId){
   if(option.endurance)s.run.endurance-=option.endurance;
   else regenEndurance(s,1);
   if(option.item)s.run.carried[option.item]=(s.run.carried[option.item]||0)+1;
+  const finding=site.kind==="echo"?discoverEcho(s.meta):null;
   gainXp(s,option.xp);
   const message=option.text+(option.item?" +1 "+ITEMS[option.item].name+".":"")+
-    " +"+option.xp+" XP.";
+    " +"+option.xp+" XP."+(finding?" INDICE CONSERVÉ — "+finding.title+".":"");
   recordEvent(s,"loot",message,s.run.turns);
   revealAround(s.run);
   const after=enemyPhase(s);

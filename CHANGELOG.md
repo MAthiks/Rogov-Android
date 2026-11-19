@@ -1,3 +1,11 @@
+## NAR-094 — Indices narratifs conservés à Veyr (19 novembre 2026)
+
+- Première progression narrative **jouable** : interaction réelle avec une Chambre de l'Écho = découverte d'un indice persistant, jusqu'à trois indices distincts.
+- **Journal d'enquête** au refuge et dans le rapport d'expédition ; ne dévoile aucune preuve encore inconnue et ne coûte aucun tour.
+- Connaissances conservées après Rappel ou extraction ; équipement et butin continuent de suivre les règles existantes. Même coût, XP et RNG pour les interactions d'Écho.
+- Nouveau champ de sauvegarde **optionnel et strictement validé** ; `schemaVersion` et clé locale inchangés, anciennes parties compatibles.
+- PWA offline mise à jour ; tests de persistance/anti-duplication/secret et parcours tactile Android.
+
 ## NAR-093 — Objectif immédiat et lore lisible (19 novembre 2026)
 
 - L'écran titre présente l'Égaré, Veyr, Nhal et le Rappel en quelques phrases.

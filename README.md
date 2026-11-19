@@ -1,5 +1,9 @@
 # ROGOV — Roguelike d'extraction tactique
 
+## NAR-094 — L'enquête garde une trace de tes descentes
+
+Les **Chambres de l'Écho** des profondeurs livrent maintenant jusqu'à **3 indices distincts** après une vraie interaction. Les découvertes persistent à Veyr, même au Rappel ; le sac et les règles de mort restent inchangés. Le **Dossier des Échos** est accessible au refuge et dans le rapport d'expédition, sans dévoiler les indices futurs ni de carte inexplorée. La troisième trace ouvre des questions, **pas une conclusion de campagne inventée**. [GDD et contrat technique](docs/NAR094_PERSISTENT_ECHO_INVESTIGATION.md).
+
 ## NAR-093 — Premier objectif jouable et lore clarifié
 
 À Veyr, **L'Égaré** revient après sa mort dans Nhal : c'est le **Rappel** (sac perdu, coffre conservé). **Première mission : rapporter au moins 1 Fragment de cendre par une Arche d'extraction.** Le fragment a une utilité immédiate à la forge : 1 = 2 bandages, 2 = une Lame cendrée. Les Chambres de l'Écho évoquent une cité enfouie et le mystère du Rappel, **sans prétendre qu'une campagne scénarisée est déjà jouable**.

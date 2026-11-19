@@ -1,3 +1,4 @@
+import {echoDossier} from "./echo-investigation.js";
 // NAR-093 — Read-only, spoiler-safe objective cues derived from existing saves.
 // No quest state, RNG, hidden room coordinates or reward is created here.
 // A story mystery is a promise for future design, NOT an implemented quest.
@@ -24,6 +25,7 @@ export function narrativeObjective(state){
   const secured=count(meta.stash,"relic.ashen_fragment");
   const carried=count(run?.carried,"relic.ashen_fragment");
   const hasExtracted=(meta.extractions??0)>0;
+  const echoes=echoDossier(state).count;
 
   if(run){
     if(carried>0)return {
@@ -40,9 +42,10 @@ export function narrativeObjective(state){
     };
     return {
       phase:"enquete",
-      tag:"MISSION · EXPLORER NHAL",
+      tag:echoes?"MISSION · "+echoes+"/3 ÉCHOS":"MISSION · EXPLORER NHAL",
       title:"Suivre les traces de Nhal",
-      text:"Explore les salles à la recherche de fragments et, si tu la découvres, d'une Chambre de l'Écho. Rapporte ton butin par une Arche ; les mystères restent à élucider."
+      text:"Explore les salles à la recherche de fragments et, si tu la découvres, d'une Chambre de l'Écho. Rapporte ton butin par une Arche ; les mystères restent à élucider."+
+        (echoes?" Indices du Rappel conservés : "+echoes+"/3.":"")
     };
   }
 

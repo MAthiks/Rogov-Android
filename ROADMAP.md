@@ -1,4 +1,9 @@
-# Roadmap ROGOV — état du 18 novembre 2026
+# Roadmap ROGOV — état du 19 novembre 2026
+
+## NAR-094 — Enquête persistante dans les Chambres de l'Écho
+
+Après validation qualitative initiale des textes NAR-093, relier **une véritable interaction de Chambre de l'Écho** à une preuve persistante. Chaque descente profonde possède une Chambre et délivre au plus **un nouvel indice** ; trois indices sont écrits, enregistrés et consultables au refuge et dans le rapport. Mort, Rappel, extraction, sauvegarde, classe et mécanique de combat inchangés ; sauvegardes antérieures sans champ de preuve encore valides. [Dossier NAR-094](docs/NAR094_PERSISTENT_ECHO_INVESTIGATION.md). **Le mystère final et les chapitres de campagne restent à concevoir**, puis à valider humainement via QA-092.
+
 
 ## NAR-093 — Priorité produit : objectif et compréhension du monde
 

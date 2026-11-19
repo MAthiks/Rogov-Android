@@ -2,6 +2,7 @@ import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspe
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
 import { narrativeObjective, NAR093_LORE } from "./narrative.js";
+import { echoDossier } from "./echo-investigation.js";
 import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
 import {heroFacingFromStep} from "./hero-art.js";
 import { nearbySecretHint } from "./secrets.js";
@@ -133,6 +134,30 @@ function renderLorePrimer(){
     const term=document.createElement("dt"),definition=document.createElement("dd");
     term.textContent=titles[id];definition.textContent=description;
     host.append(term,definition);
+  }
+}
+// NAR-094 — the same persistent discoveries are shown at Veyr and in the
+// existing expedition report. Only meta.echoFindings are read. Never scan
+// unseen rooms, reconstruct old achievements or spend a turn for reading.
+function renderEchoDossier(){
+  const dossier=echoDossier(state);
+  for(const [countId,listId,nextId] of [
+    ["echo-refuge-count","echo-refuge-list","echo-refuge-next"],
+    ["echo-expedition-count","echo-expedition-list","echo-expedition-next"]
+  ]){
+    $(countId).textContent=dossier.count+" / "+dossier.total;
+    $(nextId).textContent=dossier.next;
+    const list=document.createDocumentFragment();
+    for(const finding of dossier.findings){
+      const item=document.createElement("li");
+      const title=document.createElement("strong");
+      const text=document.createElement("p");
+      title.textContent=finding.title;
+      text.textContent=finding.text;
+      item.append(title,text);
+      list.append(item);
+    }
+    $(listId).replaceChildren(list);
   }
 }
 function renderInventory(container, items, selectable=false) {
@@ -527,6 +552,7 @@ function render() {
   $("refuge").hidden = Boolean(run);
   $("expedition").hidden = !run;
   renderJournal();
+  renderEchoDossier();
   const mission=narrativeObjective(state);
   if (run) {
     $("hp").textContent = run.hp + " / " + MAX_HP;

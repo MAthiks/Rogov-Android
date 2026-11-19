@@ -263,3 +263,14 @@
   .frame.is-expedition .survival-hud{padding-block:4px}
   .frame.is-expedition .expedition-shortcuts{padding-block:3px;margin-bottom:4px}
 }
+
+/* NAR-093 — show the current mission without adding vertical space above
+ * the dungeon map; the complete objective remains in the existing route hint. */
+@media(max-width:730px){
+  .frame.is-expedition .render-controls #mission-compact{
+    display:block;flex:1;min-width:0;max-width:62%;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font:700 10px/1.35 system-ui,sans-serif;letter-spacing:.015em;
+    color:#e7cea2;
+  }
+}

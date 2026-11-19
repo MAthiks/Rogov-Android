@@ -2832,3 +2832,109 @@ test("ART-096A mobile: Sprite C stone and door states render at 24px without fog
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("ART-096B mobile: only currently visible foes expose their true intent on the map", {timeout:65000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const fog=await import("./exploration-visibility.js");
+      const hero=game.newGame();hero.meta.descents=1;
+      const saved=game.beginRun(hero).state,run=saved.run;
+      const guardian=run.enemies.find(e=>e.kind==="guardian");
+      const charognard=run.enemies.find(e=>e.kind==="charognard");
+      if(!guardian||!charognard)throw Error("Guardian and Charognard missing");
+      const adjacent=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:guardian.x+dx,y:guardian.y+dy}))
+        .find(p=>run.map[p.y]?.[p.x]==="." &&
+          !run.enemies.some(e=>e.x===p.x&&e.y===p.y));
+      if(!adjacent)throw Error("No accessible Guardian approach");
+      run.x=adjacent.x;run.y=adjacent.y;
+      const far=run.map.flatMap((row,y)=>[...row].map((tile,x)=>
+        tile==="."&&Math.abs(x-run.x)+Math.abs(y-run.y)>14?{x,y}:null))
+        .find(Boolean);
+      if(!far)throw Error("No distant hidden hostile cell");
+      guardian.tactic="winding";
+      run.enemies=[guardian,{...charognard,id:"art096b-hidden-charognard",...far}];
+      fog.revealAround(run);
+      if(!game.validateSave(saved))throw Error("Invalid tactical artwork fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(saved));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    const cell=page.locator("#tile-map .tile-guardian");
+    assert.equal(await cell.count(),1);
+    assert.equal(await cell.getAttribute("data-intent"),"guardian_heavy");
+    assert.equal(await cell.locator(".tile-intent-marker").textContent(),"!");
+    assert.equal(await cell.locator(".tile-intent-marker").getAttribute("aria-hidden"),"true");
+    assert.match(await cell.getAttribute("title"),/Coup lourd imminent/);
+    assert.equal(await page.locator('[data-enemy-id="art096b-hidden-charognard"]').count(),0,
+      "Unseen enemy is never rendered or forecast in the DOM");
+    assert.equal(await page.locator("#ui096-threat-banner").isVisible(),true);
+    const before=await page.locator("#turns").textContent();
+    await cell.tap();
+    assert.equal(await page.locator("#turns").textContent(),before,
+      "Target selection remains an informational tap");
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      state.run.enemies.find(e=>e.kind==="guardian").tactic="ready";
+      if(!game.validateSave(state))throw Error("Invalid ready guardian");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#tile-map .tile-guardian").getAttribute("data-intent"),
+      "guardian_prepare");
+    assert.equal(await page.locator("#tile-map .tile-guardian .tile-intent-marker").textContent(),"…");
+    assert.equal(await page.locator("#turns").textContent(),before);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("ART-096B mobile: trap states use authentic pixel sprites without changing turns", {timeout:65000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js"),fog=await import("./exploration-visibility.js");
+      const hero=game.newGame();hero.meta.descents=1;
+      const state=game.beginRun(hero).state,run=state.run;
+      const trap=run.traps[0];
+      if(!trap)throw Error("No generated trap");
+      run.enemies=[];
+      run.x=trap.clue.x;run.y=trap.clue.y;
+      trap.status="revealed";
+      fog.revealAround(run);
+      if(!game.validateSave(state))throw Error("Invalid trap fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    const current=()=>page.locator("#tile-map .tile-trap_revealed");
+    assert.equal(await current().count(),1);
+    const armed=await current().locator("img").getAttribute("src");
+    assert.match(decodeURIComponent(armed),/armed-trap-fangs/);
+    const bounds=await current().locator("img").evaluate(async img=>{
+      await img.decode();return [img.naturalWidth,img.naturalHeight];
+    });
+    assert.deepEqual(bounds,[24,24]);
+    const before=await page.locator("#turns").textContent();
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      state.run.traps[0].status="disabled";
+      if(!game.validateSave(state))throw Error("Invalid disabled trap");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    const disabled=page.locator("#tile-map .tile-trap_disabled");
+    assert.equal(await disabled.count(),1);
+    assert.match(decodeURIComponent(await disabled.locator("img").getAttribute("src")),
+      /disarmed-trap-lockout/);
+    assert.equal(await page.locator("#turns").textContent(),before);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

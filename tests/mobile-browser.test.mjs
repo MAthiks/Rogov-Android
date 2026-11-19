@@ -3167,3 +3167,118 @@ test("QA-096 mobile: visual evidence, contrast and hit-area measurements on thre
     measurements:observations
   },null,2)+"\n");
 });
+
+
+test("UI-096D mobile: short screens recover dungeon pixels and keep the fixed controls", {timeout:115000}, async()=>{
+  for(const viewport of [{width:320,height:640,minMap:214},{width:393,height:704,minMap:276}]){
+    const context=await browser.newContext({
+      viewport:{width:viewport.width,height:viewport.height},
+      deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:"block"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",e=>errors.push(e.message));
+      await preloadDeepRun(page);
+      const v=await page.evaluate(()=>{
+        const map=document.getElementById("tile-map").getBoundingClientRect();
+        const dock=document.getElementById("field-controls").getBoundingClientRect();
+        return {
+          mapWidth:map.width,mapBottom:map.bottom,dockTop:dock.top,
+          scrollWidth:document.documentElement.scrollWidth,
+          clientWidth:document.documentElement.clientWidth,
+          controls:[...document.querySelectorAll("#field-controls button")]
+            .filter(n=>getComputedStyle(n).display!=="none")
+            .map(n=>n.getBoundingClientRect().height),
+          stylesheet:[...document.styleSheets].some(s=>s.href?.includes("ui096d.css?v=1"))
+        };
+      });
+      assert.equal(v.stylesheet,true);
+      assert.ok(v.mapWidth>=viewport.minMap,
+        "QA-096D must recover pixels at "+viewport.width+"x"+viewport.height+": "+JSON.stringify(v));
+      assert.ok(v.mapBottom<=v.dockTop+1,"Larger map must not hide under movement dock");
+      assert.ok(v.scrollWidth<=v.clientWidth+1,"No sideways scroll");
+      assert.ok(v.controls.every(h=>h>=44),"All critical buttons stay touch-accessible");
+      assert.equal(await page.locator("#ui096-threat-banner").isHidden(),true);
+      assert.deepEqual(errors,[]);
+    }finally{await context.close();}
+  }
+});
+
+test("UI-096D mobile: urgent warnings still fit above the dock without fog leaks", {timeout:60000}, async()=>{
+  const context=await browser.newContext({
+    viewport:{width:393,height:704},deviceScaleFactor:3,
+    isMobile:true,hasTouch:true,serviceWorkers:"block"
+  });
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const fog=await import("./exploration-visibility.js");
+      const hero=game.newGame();hero.meta.descents=1;
+      const s=game.beginRun(hero).state,run=s.run;
+      const guardian=run.enemies.find(e=>e.kind==="guardian");
+      if(!guardian)throw Error("No guardian for UI-096D visual alert test");
+      const adjacent=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:guardian.x+dx,y:guardian.y+dy}))
+        .find(p=>run.map[p.y]?.[p.x]==="." &&
+          !run.enemies.some(e=>e.x===p.x&&e.y===p.y));
+      if(!adjacent)throw Error("No safe adjacent tile");
+      run.x=adjacent.x;run.y=adjacent.y;guardian.tactic="winding";
+      run.enemies=[guardian];fog.revealAround(run);
+      if(!game.validateSave(s))throw Error("Invalid UI-096D urgent fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    const banner=page.locator("#ui096-threat-banner");
+    assert.equal(await banner.isVisible(),true);
+    assert.equal(await banner.getAttribute("data-urgent"),"true");
+    const g=await page.evaluate(()=>{
+      const rect=id=>document.getElementById(id).getBoundingClientRect();
+      return {map:rect("tile-map").toJSON(),dock:rect("field-controls").toJSON(),
+        scrollWidth:document.documentElement.scrollWidth,
+        width:document.documentElement.clientWidth};
+    });
+    assert.ok(g.map.bottom<=g.dock.top+1,
+      "Even an imminent forecast cannot cover the map: "+JSON.stringify(g));
+    assert.ok(g.scrollWidth<=g.width+1);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("UI-096D mobile: Veyr keeps its real controls above an unchanged safe launch", {timeout:70000}, async()=>{
+  for(const viewport of [{width:360,height:780},{width:393,height:704}]){
+    const context=await browser.newContext({
+      viewport,deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:"block"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",e=>errors.push(e.message));
+      await page.goto(origin);
+      await page.evaluate(async()=>{
+        const game=await import("./game.js");
+        localStorage.setItem(game.SAVE_KEY,JSON.stringify(game.newGame()));
+      });
+      await page.reload();await page.locator("#title-continue").tap();
+      const g=await page.evaluate(()=>{
+        const b=id=>document.getElementById(id).getBoundingClientRect();
+        const nav=b("refuge-quick-nav"),cta=b("start-btn"),progress=b("refuge-prep-meter");
+        const stats=[...document.querySelectorAll(".hero-bar .stat")]
+          .filter(n=>getComputedStyle(n).display!=="none");
+        return {navTop:nav.top,navBottom:nav.bottom,ctaTop:cta.top,ctaBottom:cta.bottom,
+          vh:innerHeight,progressHeight:progress.height,stats:stats.length,
+          scrollWidth:document.documentElement.scrollWidth,
+          width:document.documentElement.clientWidth};
+      });
+      assert.ok(g.navTop<g.ctaTop,
+        "Veyr shortcuts should arrive sooner than the fixed departure CTA: "+JSON.stringify(g));
+      assert.ok(g.ctaBottom<=g.vh+1);
+      assert.equal(g.stats,3,"Single-row progression keeps level/XP/runs");
+      assert.equal(g.progressHeight>0,true);
+      assert.ok(g.scrollWidth<=g.width+1);
+      assert.equal(await page.locator("#actor-stats-sheet").count(),1);
+      assert.deepEqual(errors,[]);
+    }finally{await context.close();}
+  }
+});

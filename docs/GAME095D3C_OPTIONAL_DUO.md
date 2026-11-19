@@ -23,6 +23,14 @@ Un joueur peut renoncer à cette récompense, contourner la salle, exploiter les
 - Répartition des ennemis constante : étage 2 = 1 Charognard / 1 Gardien / 2 Larves ; étage 3 = 1 Charognard / 2 Gardiens / 1 Larve. **Le premier étage ne change jamais.**
 - Les sauvegardes existantes ne sont pas régénérées. `SCHEMA_VERSION=1` et `SAVE_KEY=rogov-web-v1` sont inchangés, aucun nouvel état à sauvegarder. Le module fait partie du cache PWA et son numéro de cache est incrémenté pour les utilisateurs Android hors ligne.
 
+## Validation automatique et premier constat (19 novembre 2026)
+
+**Statut : PR #41 fusionnée dans `main`.** Tests moteur, 64 cartes profondes échantillonnées dans la recette dédiée (32 numéros d'expédition, étages 2 et 3), Chromium en portrait, Chrome Android 13 après reprise d'un échec du navigateur de l'émulateur, compilation APK et installation en émulateur validés.
+
+Le rapport de la CI `game095d3-expedition-actions-6` compare les **mêmes six graines d'expédition** et les deux politiques scriptées que D3B : les tours avec au moins deux ennemis visibles à PROCHE passent de **0 à 3 en moyenne** pour `exit_only`, et de **0 à 7,5 en moyenne** pour `scavenge`. Pour chaque politique, **5 extractions sur 6** et **1 Rappel sur 6**, contre 6 extractions sur 6 avant D3C. Les dégâts moyens augmentent également ; l'effet recherché existe, mais **l'équilibrage final n'est pas validé**.
+
+Ces trajectoires sont établies avec un **oracle de géométrie** et une stratégie naïve : elles ne constituent ni une fréquence de mort attendue pour un joueur ni une mesure du plaisir de jeu. Avant d'accroître encore la pression, recueillir les retours Android physiques et vérifier notamment qu'un joueur qui veut éviter le coffre facultatif perçoit toujours une voie de fuite claire.
+
 ## Validation et limites
 
 Les tests doivent comparer les nouvelles cartes à leurs cartes B2 sources : mêmes salles, couloirs, portes, pièges, sites, coffres, caractéristiques ennemies et effectif. Vérifier la visibilité double **au moment d’approcher le coffre**, la déterminisme des graines, la non-mutation des sauvegardes, les voies de retour et le fonctionnement sur un panel multi-graines. Les contrôles Node, navigateur portrait, Chrome Android 13 et build/install APK doivent tous réussir avant fusion.

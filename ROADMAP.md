@@ -57,6 +57,10 @@
 
 **Reste obligatoire** : captures et gestes sur **Android physique**, test ASCII/PWA hors ligne et sauvegardes, perception Sprite C (capuche quatre directions, coffres, pièges, intentions, Arche vs Faille), puis **cinq testeurs × deux descentes**, dont ≥4/5 souhaitant rejouer, sans P0. La note Alpha provisoire **7,5/10** et la note DA **6/10** sont maintenues jusqu'à cette preuve. Aucune nouvelle mécanique ni portage PC actif avant l'arbitrage.
 
+## UI-096D — Améliorations mesurées après captures Android (en cours)
+
+**Suite de QA-096**, [contrat UI-096D](docs/UI096D_ANDROID_COMPACT_POLISH.md). Deux captures réelles ont révélé une carte trop petite sur écrans courts, une alerte de menace redondante, un refuge trop vertical avant ses accès et un sous-titre alpha obsolète. Correctifs UI seulement : carte agrandie sur hauteur ≤760px, alerte réservée aux véritables coups imminents, Veyr condensé, endurance désaturée, cache PWA versionné. **Tests et capture de contrôle à valider avant fusion ; aucune règle, save, Sprite C, brouillard, combat ou objet modifié.** Le GO graphique humain reste ouvert.
+
 ## Plateformes — Android en priorité, PC conservé dans le GDD
 
 **Décision du 19 novembre 2026 :** poursuivre exclusivement la **production active sur Android** (PWA/JavaScript, APK et tests tactiles). **Godot est mis en attente** : pas de changement de moteur ni de projet de migration actif. Le **portage PC futur**, Windows en premier, reste inscrit comme objectif de long terme, avec moteur à choisir après stabilisation du gameplay mobile et tests utilisateurs. Préserver autant que possible les règles déterministes, le mode ASCII, les assets Sprite C et les contrats de sauvegarde pour réduire le coût d'une éventuelle adaptation. Aucune date de portage annoncée.

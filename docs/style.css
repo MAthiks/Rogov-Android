@@ -737,3 +737,8 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
    Uses the enemy's own outline — never adds a frame around Sprite C hero. */
 .hostile-tile.enemy-charge:before{border:2px dashed #f2c877;inset:1px}
 .hostile-tile.enemy-charge:after{background:#68412d;color:#fff3cb}
+
+/* GAME-095C2 — an actionable, non-spoiler environment hint in the combat dock. */
+.combat-shove-hint{margin:10px 0 0;font-size:12px;line-height:1.5;
+  color:#b9cec1;overflow-wrap:anywhere}
+#combat-shove:disabled{opacity:.46;cursor:not-allowed}

@@ -17,7 +17,9 @@
 
 **GAME-095B2 — Difficulté et récompenses par profondeur (branche en validation) :** étage 2 davantage orienté risques de Faille et soins, étage 3 vers les sentinelles et l'équipement. Le même effectif de quatre ennemis, les statistiques normales, les voies de retour et le bandage garanti sont préservés. Butin de coffre déterministe, prévisions de risque sans divulgâcher la carte, anciennes parties B1 inchangées, tests multi-graines et Android. [Contrat GAME-095B2](docs/GAME095B2_DEPTH_BALANCE.md). **Ne considérer comme livré qu'après CI et fusion.** La recette sur téléphone physique / cinq joueurs reste à faire.
 
-**GAME-095C1 — Charge annoncée du Charognard (branche en validation) :** nouvel état tactique réservé au Charognard éclaireur des **futurs** étages 2–3, avec préparation visible, charge à deux cases en ligne droite, interruption par déplacement et récupération après l'attaque. Même PV/dégâts/RNG et mêmes itinéraires d'extraction ; anciens Charognards et sauvegardes inchangés. [Contrat C1](docs/GAME095C1_CHAROGNARD_TACTICS.md). **Ne considérer comme livré qu'après CI Web, Android 13 et APK verts.** Les essais humains sur téléphone restent ouverts.
+**GAME-095C1 — Charge annoncée du Charognard (fusionné, PR #35) :** anticipation, charge et interruption par déplacement du Charognard des nouveaux étages 2–3. Tests Web/Android 13/APK réussis ; essais humains encore ouverts. [Contrat C1](docs/GAME095C1_CHAROGNARD_TACTICS.md).
+
+**GAME-095C2 — Repousser et exploiter les pièges (en validation) :** commande tactile pour décaler un Charognard adjacent de 1 case (-3 END, 1 tour, sans dégât sur sol normal), utiliser les dalles et fils d'alarme **révélés**, avec effets uniques et risques associés. Ne traverse ni murs ni portes et n'expose aucun piège caché. Sauvegardes anciennes et RNG de combat préservés. [Contrat C2](docs/GAME095C2_TERRAIN_SHOVE.md). **Ne considérer comme livré qu'après CI Web, Android 13 et APK verts.** Recette physique et cinq joueurs × deux expéditions toujours à réaliser.
 
 ## Plateformes — Android en priorité, PC conservé dans le GDD
 

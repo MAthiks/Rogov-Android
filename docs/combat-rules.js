@@ -2,7 +2,7 @@
 // All probabilities are provisional and deliberately capped for mobile playtests.
 import {clamp} from "./stats.js";
 
-export const TACTICAL_COSTS=Object.freeze({attack:1,dodge:2,parry:2,block:2});
+export const TACTICAL_COSTS=Object.freeze({attack:1,dodge:2,parry:2,block:2,shove:3});
 export const MAX_ROLL=100;
 export const RNG_MAX=4294967295;
 

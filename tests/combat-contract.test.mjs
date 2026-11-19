@@ -126,7 +126,7 @@ test("DEV-070: an enemy beyond its aggro range is not falsely announced as attac
 
 test("DEV-070: defensive states and action identifiers are explicit and guarded", () => {
   assert.deepEqual(DEFENSE_MODES,["none","dodge","parry","block"]);
-  assert.deepEqual(COMBAT_ACTIONS,["attack","dodge","parry","block","retreat"]);
+  assert.deepEqual(COMBAT_ACTIONS,["attack","dodge","parry","block","shove","retreat"]);
   for (const kind of ["idle","approach","melee","rift_charge","rift_pulse"]) {
     assert.ok(INTENT_KINDS.includes(kind));
   }

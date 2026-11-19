@@ -1,8 +1,9 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, shoveTarget, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
 import {MAX_FLOOR_DEPTH,floorChoiceAvailable,canDescendFurther} from "./floors.js";
 import {depthIntel} from "./depth-balance.js";
+import {SHOVE_ENDURANCE_COST,shoveOpportunity} from "./terrain-tactics.js";
 import { narrativeObjective, NAR093_LORE } from "./narrative.js";
 import { echoDossier } from "./echo-investigation.js";
 import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
@@ -638,6 +639,15 @@ function renderCombatPreview() {
   $("combat-parry").disabled=
     EQUIPMENT_CATALOG[state.run.loadout?.mainHand]?.kind!=="weapon" || stamina<TACTICAL_COSTS.parry;
   $("combat-block").disabled=stamina<TACTICAL_COSTS.block;
+  const shove=shoveOpportunity(state.run,enemy);
+  $("combat-shove").disabled=!shove||stamina<SHOVE_ENDURANCE_COST;
+  $("combat-shove-hint").textContent=shove
+    ?"Repousser : 3 END, un tour, aucun dégât en terrain normal."+
+      (shove.trapKind==="unstable_slab"
+        ?" La dalle instable identifiée peut blesser l'ennemi."
+        :shove.trapKind==="alarm_wire"
+          ?" Le fil d'alarme identifié alertera les Charognards.":"")
+    :"Repousser : cible Charognard au contact et case libre visible derrière elle.";
   $("combat-range-note").textContent=snapshot.meleeAvailable
     ? "Cible au CONTACT : tu peux attaquer. Chaque action valide consomme un tour."
     : "Hors de portée de mêlée : rapproche-toi, prépare une défense ou recule.";
@@ -923,6 +933,7 @@ $("combat-dodge").addEventListener("click",()=>act(defend(state,"dodge")));
 $("combat-parry").addEventListener("click",()=>act(defend(state,"parry")));
 $("combat-block").addEventListener("click",()=>act(defend(state,"block")));
 $("combat-retreat").addEventListener("click",()=>act(retreat(state)));
+$("combat-shove").addEventListener("click",()=>act(shoveTarget(state)));
 window.addEventListener("keydown", (event) => {
   if (!state.run) return;
   const target = event.target;
@@ -957,7 +968,7 @@ window.addEventListener("keydown", (event) => {
     }
     return;
   }
-  const action = { " ":"wait", "1":"bandage", "2":"tonic", "f":"attack", "e":"dodge", "p":"parry", "b":"block", "r":"retreat" }[event.key.toLowerCase()];
+  const action = { " ":"wait", "1":"bandage", "2":"tonic", "f":"attack", "e":"dodge", "p":"parry", "b":"block", "r":"retreat", "g":"shove" }[event.key.toLowerCase()];
   if (action && target?.tagName !== "BUTTON") {
     event.preventDefault();
     if (action === "wait") act(waitTurn(state));
@@ -968,6 +979,7 @@ window.addEventListener("keydown", (event) => {
     if (action === "parry") act(defend(state,"parry"));
     if (action === "block") act(defend(state,"block"));
     if (action === "retreat") act(retreat(state));
+    if (action === "shove") act(shoveTarget(state));
   }
 });
 renderLegend();

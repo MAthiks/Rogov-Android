@@ -4,7 +4,7 @@ import { MAP, ENEMY_TYPES, enemyAt } from "./game.js";
 import {guardianIntent,charognardIntent} from "./enemy-ai.js";
 
 export const RANGES = Object.freeze({ CONTACT: "CONTACT", PROCHE: "PROCHE", LOIN: "LOIN" });
-export const COMBAT_ACTIONS = Object.freeze(["attack", "dodge", "parry", "block", "retreat"]);
+export const COMBAT_ACTIONS = Object.freeze(["attack", "dodge", "parry", "block", "shove", "retreat"]);
 export const DEFENSE_MODES = Object.freeze(["none", "dodge", "parry", "block"]);
 export const INTENT_KINDS = Object.freeze(["idle", "approach", "melee", "rift_charge", "rift_pulse",
   "guardian_prepare","guardian_heavy","guardian_guard",

@@ -556,3 +556,59 @@ test("GAME-095C1 Android 13 Chrome: telegraph survives reload, sidestep cancels"
     console.log("GAME-095C1 ANDROID 13: visible charge / saved windup / sidestep PASS");
   }finally{await browser.close();}
 });
+
+
+test("GAME-095C2 Chrome Android 13: shove an adjacent Charognard and reload", {timeout:90000},async()=>{
+  const browser=await androidBrowser();
+  try{
+    const context=browser.contexts()[0];
+    const page=context.pages().find(p=>p.url().includes("127.0.0.1:8765"))||
+      await context.newPage();
+    await page.goto(URL,{waitUntil:"load",timeout:20000});
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.beginRun(game.newGame(),["weapon.rusty_sword"]).state;
+      s.run.x=1;s.run.y=5;
+      s.run.enemies=[{id:"c2-android",kind:"charognard",
+        x:2,y:5,hp:3,tactic:"stalking"}];
+      s.run.targetId="c2-android";
+      if(!game.validateSave(s))throw Error("Invalid C2 Chrome Android fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    await page.locator("#jump-combat").click();
+    assert.equal(await page.locator("#combat-shove").isVisible(),true);
+    assert.equal(await page.locator("#combat-shove").isEnabled(),true);
+    const prior=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {end:s.run.endurance,turns:s.run.turns,rng:s.run.rngState};
+    });
+    await page.locator("#combat-shove").click();
+    const now=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),turns:s.run.turns,
+        end:s.run.endurance,rng:s.run.rngState,hp:s.run.hp,
+        x:s.run.enemies[0].x,y:s.run.enemies[0].y};
+    });
+    assert.equal(now.valid,true);
+    assert.equal(now.turns,prior.turns+1);
+    assert.equal(now.end,prior.end-3);
+    assert.equal(now.rng,prior.rng);
+    assert.equal(now.hp,12);
+    assert.deepEqual([now.x,now.y],[3,5]);
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    const restored=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),turns:s.run.turns,
+        end:s.run.endurance,rng:s.run.rngState,hp:s.run.hp,
+        x:s.run.enemies[0].x,y:s.run.enemies[0].y};
+    });
+    assert.deepEqual(restored,now);
+    console.log("GAME-095C2 ANDROID 13: shove / stamina / persisted target PASS");
+  }finally{await browser.close();}
+});

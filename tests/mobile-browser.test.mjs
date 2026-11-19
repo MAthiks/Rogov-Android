@@ -1236,8 +1236,8 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
         Math.round(b.getBoundingClientRect().top))).size,
         minHeight:Math.min(...buttons.map(b=>b.getBoundingClientRect().height))};
     });
-    assert.equal(actionLayout.count,5);
-    assert.equal(actionLayout.rows,2,"five actions use two rows on 360px Android");
+    assert.equal(actionLayout.count,6);
+    assert.equal(actionLayout.rows,2,"six actions use two rows on 360px Android");
     assert.ok(actionLayout.minHeight>=44,"action targets support touch");
     await page.locator("#combat-analysis summary").tap();
     assert.equal(await page.locator("#combat-target-profile").isVisible(),true);
@@ -2564,6 +2564,65 @@ test("GAME-095C1 Android portrait: visible charge warning, reload and sidestep",
     });
     assert.deepEqual(escaped,{valid:true,state:"stalking",hp:during.hp,
       seed:during.seed,turns:2});
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+
+test("GAME-095C2 Android portrait: shove button, stamina and save persistence", {timeout:70000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",err=>errors.push(err.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.beginRun(game.newGame(),["weapon.rusty_sword"]).state;
+      s.run.x=1;s.run.y=5;
+      s.run.enemies=[{id:"c2-mobile",kind:"charognard",
+        x:2,y:5,hp:3,tactic:"stalking"}];
+      s.run.targetId="c2-mobile";
+      if(!game.validateSave(s))throw Error("Invalid C2 mobile fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#combat-shove").isVisible(),true);
+    assert.equal(await page.locator("#combat-shove").isEnabled(),true);
+    assert.match(await page.locator("#combat-shove-hint").textContent(),
+      /aucun dégât en terrain normal/);
+    const first=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {hp:s.run.hp,turns:s.run.turns,end:s.run.endurance,
+        rng:s.run.rngState};
+    });
+    await page.locator("#combat-shove").tap();
+    const after=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),hp:s.run.hp,turns:s.run.turns,
+        end:s.run.endurance,rng:s.run.rngState,
+        x:s.run.enemies[0].x,y:s.run.enemies[0].y};
+    });
+    assert.equal(after.valid,true);
+    assert.equal(after.hp,first.hp);
+    assert.equal(after.turns,first.turns+1);
+    assert.equal(after.end,first.end-3);
+    assert.equal(after.rng,first.rng);
+    assert.deepEqual([after.x,after.y],[3,5]);
+    assert.equal(await page.locator("#combat-shove").isEnabled(),false);
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    const persisted=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),hp:s.run.hp,turns:s.run.turns,
+        end:s.run.endurance,rng:s.run.rngState,
+        x:s.run.enemies[0].x,y:s.run.enemies[0].y};
+    });
+    assert.deepEqual(persisted,after);
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });

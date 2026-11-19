@@ -11,6 +11,8 @@ import {generateDeepLayout,validateDeepLayout,isDeepMap} from "./deep-dungeon.js
 import {MAX_FLOOR_DEPTH,deepFloorSeed,floorChoiceAvailable,canDescendFurther}
   from "./floors.js";
 import {DEPTH_BALANCE_VERSION,balanceDepthLayout} from "./depth-balance.js";
+import {SHOVE_ENDURANCE_COST,SLAB_SHOVE_DAMAGE,shoveOpportunity}
+  from "./terrain-tactics.js";
 import {visibleCells,explorationState,visionKey,validExploration,revealAround,hasFog} from "./exploration-visibility.js";
 import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
@@ -933,6 +935,56 @@ export function attackTarget(state) {
   }
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||"Attaque résolue.",changed:true};
+}
+
+/** GAME-095C2: a player-chosen, deterministic positional action.
+ * Only an adjacent visible Charognard may be shoved into known, empty ground.
+ * Requires 3 END; no hit roll, free normal-terrain damage, healing or XP.
+ * A revealed optional trap resolves once and is recorded in the saved run.
+ * Repositioning makes the Charognard recover for the current enemy phase,
+ * avoiding an instant follow-up hit and providing a genuine tactical window.
+ */
+export function shoveTarget(state){
+  const run=state.run;
+  if(!run)return info(state,"Repousser nécessite une descente active.",false);
+  const enemy=run.enemies?.find(e=>e.id===run.targetId&&e.hp>0);
+  if(!enemy)return info(state,"Sélectionne un Charognard visible à repousser.",false);
+  const opportunity=shoveOpportunity(run,enemy);
+  if(!opportunity)
+    return info(state,"Repoussement impossible : cible trop loin, ancrée ou terrain bloqué/inconnu.",false);
+  if((run.endurance??0)<SHOVE_ENDURANCE_COST)
+    return info(state,"Repoussement : 3 END nécessaires.",false);
+  const s=copy(state),target=s.run.enemies.find(e=>e.id===enemy.id);
+  s.run.turns+=1;
+  s.run.endurance-=SHOVE_ENDURANCE_COST;
+  target.x=opportunity.x;target.y=opportunity.y;
+  // Both legacy and C1 Charognards gain only one local recovery phase.
+  target.tactic="recovering";
+  const trap=trapAt(s.run,target.x,target.y);
+  let message="REPOUSSEMENT — "+ENEMY_TYPES.charognard.name+
+    " projeté d'une case. 3 END. Il reprend ses appuis.";
+  if(trap?.status==="revealed"){
+    trap.status="triggered";
+    if(trap.kind==="unstable_slab"){
+      target.hp-=SLAB_SHOVE_DAMAGE;
+      message="DALLE INSTABLE — Le Charognard est repoussé sur le piège connu : -"+
+        SLAB_SHOVE_DAMAGE+" PV. La dalle est désormais hors service.";
+      if(target.hp<=0){
+        s.run.enemies=s.run.enemies.filter(e=>e.id!==target.id);
+        s.run.targetId=null;
+        gainXp(s,ENEMY_TYPES.charognard.xp);
+        message+=" Ennemi vaincu : +"+ENEMY_TYPES.charognard.xp+" XP.";
+      }
+    }else if(trap.kind==="alarm_wire"){
+      s.run.alarmUntil=s.run.turns+3;
+      message="FIL D'ALARME — Le Charognard déclenche le piège connu. "+
+        "Les Charognards peuvent repérer plus loin pendant 3 tours.";
+    }
+  }
+  recordEvent(s,trap?.status==="triggered"?"danger":"combat",message,s.run.turns);
+  revealAround(s.run);
+  const after=enemyPhase(s);
+  return {state:after,changed:true,message};
 }
 
 /** A defensive preparation consumes one turn and is resolved by the enemy phase. */

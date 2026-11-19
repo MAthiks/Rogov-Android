@@ -1,7 +1,7 @@
 # ART-096A — Relief de Nhal et lisibilité de Sprite C
 
 **Date :** 19 novembre 2026.  
-**Statut :** lot graphique en validation avant fusion.  
+**Statut :** fusionné dans `main` via [PR #43](https://github.com/MAthiks/Rogov-Android/pull/43). CI Web/Chromium/Chrome Android 13/APK validée ; test visuel sur téléphone physique encore ouvert.  
 **Base :** [UI-096](UI096_V3_VISUAL_MOCKUPS.md), [Nhal v2](UI096A_NHAL_V2_REVIEW.md), [UI-096B fusionné](UI096B_NHAL_COCKPIT_IMPLEMENTATION.md), [Sprite C](ART_DIRECTION_SPRITE_C_V1.md).
 
 ## Objectif
@@ -24,9 +24,9 @@ Rendre le donjon **plus lisible à taille réelle Android**, sans inventer de d�
 
 **Sauvegardes :** `SAVE_KEY=rogov-web-v1`, `SCHEMA_VERSION=1`, inventaire, RNG et actions inchangés. Le remplacement de la texture ne consomme aucun tour.
 
-## Conditions de validation
+## Résultats de validation technique (19 novembre 2026)
 
-- `npm run check:web` puis `npm run test:web` (ensemble Node), Chromium mobile portrait, Chrome Android 13, build/signature/installation APK.
+- **Réussite CI avant fusion : 352/352 tests Node, 45/45 tests Chromium mobile, Chrome Android 13 et build/signature/installation APK.**
 - Contrôle réel en Chromium : 24×24 SVG rendus sur la carte 11×11, sols/murs visibles, cellule inconnue vide, porte ouverte puis fermeture réellement exécutée en **un tour**, sauvegarde compatible.
 - **Reste à faire sur appareil physique :** vérifier 320×640 / 360×780 / 393×704 selon téléphones disponibles, inspecter les trois silhouettes à environ 20–30 CSS px, distinguer immédiatement le Gardien et le PJ, identifier l'Arche et la Faille, contrôler les contrastes sous un écran peu lumineux.
 - **Jalon joueur non rempli :** cinq testeurs × deux descentes et au moins quatre ayant envie de rejouer. Ne pas écrire « DA finale validée » uniquement grâce aux tests automatiques.

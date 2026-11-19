@@ -1,6 +1,7 @@
 // ROGOV Web — deterministic, offline-first gameplay core. No DOM dependencies.
 import { DEFAULT_HERO_STATS, ENEMY_STATS, migrateHero, migrateEnemy, migrateRunStats,
-  validAttributes, validClassId, validLoadout, heroDerivedStats, enemyDerivedStats } from "./stats.js";
+  validAttributes, validClassId, validLoadout, playerLoadout, EMPTY_LOADOUT, GEAR_SLOTS,
+  heroDerivedStats, enemyDerivedStats } from "./stats.js";
 import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDefense,
   regenEndurance,roll } from "./combat-rules.js";
 import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS} from "./enemy-ai.js";
@@ -20,6 +21,10 @@ export const MAX_HP = 12;
 export const HEALING_ITEMS = Object.freeze({
   "consumable.bandage": 4,
   "consumable.dusk_tonic": 6
+});
+// GAME-095A2: stamina recovery is not healing and does not pull from the stash.
+export const ENDURANCE_ITEMS = Object.freeze({
+  "consumable.vigor_salts": 6
 });
 export const JOURNAL_LIMIT = 30;
 export const EVENT_TYPES = Object.freeze(["system", "action", "loot", "danger", "extraction", "recall", "combat", "heal", "defense"]);
@@ -408,25 +413,42 @@ export function craftAtRefuge(state,recipeId) {
   return {state:s,changed:true,message:s.journal[0].text};
 }
 
-export function beginRun(state, equipment=[]) {
+/** Arrays remain the strict historical one-per-ID API. GAME-095A2 also
+ * accepts a count record, so several bandages can be prepared without
+ * changing the on-disk count-based inventory schema.
+ */
+export function beginRun(state, equipment=[], loadoutChoice=null) {
   if (state.run) return info(state, "Une descente est déjà en cours.", false);
-  if (equipment.length > INVENTORY_LIMIT || new Set(equipment).size !== equipment.length) {
-    return info(state, "Équipement invalide ou sac trop rempli.", false);
-  }
-  if (equipment.some((id) => !ITEMS[id] || (state.meta.stash[id] || 0) < 1)) {
-    return info(state, "Objet absent du coffre sécurisé.", false);
-  }
+  const legacy=Array.isArray(equipment);
+  if (!legacy && (!equipment || typeof equipment!=="object" ||
+      Object.getPrototypeOf(equipment)!==Object.prototype))
+    return info(state,"Sélection du sac invalide.",false);
+  if(legacy && new Set(equipment).size!==equipment.length)
+    return info(state,"Équipement en double : utilise les quantités de préparation.",false);
+  const entries=legacy?equipment.map(id=>[id,1]):Object.entries(equipment);
+  if(entries.some(([id,count])=>!Object.hasOwn(ITEMS,id) ||
+      !Number.isSafeInteger(count)||count<1) ||
+      entries.reduce((sum,[,count])=>sum+count,0)>INVENTORY_LIMIT)
+    return info(state,"Équipement invalide ou sac trop rempli.",false);
+  if(entries.some(([id,count])=>(state.meta.stash[id]||0)<count))
+    return info(state,"Objet absent du coffre sécurisé.",false);
+  const carried=Object.fromEntries(entries);
+  if(loadoutChoice!==null &&
+      (!loadoutChoice || typeof loadoutChoice!=="object" ||
+       Array.isArray(loadoutChoice) ||
+       Object.keys(loadoutChoice).some(key=>!GEAR_SLOTS.includes(key))))
+    return info(state,"Équipement de départ invalide.",false);
+  const chosen=loadoutChoice===null?playerLoadout(carried):
+    {...EMPTY_LOADOUT,...loadoutChoice};
+  if(!validLoadout(chosen,carried))
+    return info(state,"Le matériel équipé doit être présent dans le sac.",false);
   const s = copy(state);
   s.meta.hero=migrateHero(s.meta.hero);
-  const carried = {};
-  for (const id of equipment) {
-    s.meta.stash[id] -= 1;
-    carried[id] = 1;
-  }
+  for (const [id,count] of entries) s.meta.stash[id]-=count;
   s.meta.descents += 1;
   const layout=s.meta.descents===1?generateLayout(1):generateDeepLayout(s.meta.descents);
   s.run = migrateCombatRun({ x:layout.start.x, y:layout.start.y, hp:MAX_HP,
-    turns:0,carried,collected:[],enemies:layout.enemies,
+    turns:0,carried,loadout:chosen,collected:[],enemies:layout.enemies,
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
@@ -817,28 +839,103 @@ export function retreat(state) {
   return move(state,moves[0].direction,"retreat");
 }
 
-/** Spend a carried healing item. Consuming it costs one turn and triggers enemy reactions. */
-export function useItem(state, itemId) {
-  if (!state.run) return info(state, "Prépare d'abord une descente.", false);
-  const healing = HEALING_ITEMS[itemId];
-  if (!healing) return info(state, "Cet objet ne peut pas être utilisé.", false);
-  if ((state.run.carried[itemId] || 0) < 1) {
-    return info(state, ITEMS[itemId].name + " absent de ton sac.", false);
+/** Changing equipment in a dungeon is a deliberate, one-turn tactical action.
+ * The item remains in the carried bag and is never copied or moved to Veyr.
+ */
+export function equipItem(state,itemId){
+  const run=state.run;
+  if(!run)return info(state,"Tu dois être dans Nhal pour changer d'équipement.",false);
+  const item=Object.hasOwn(EQUIPMENT_CATALOG,itemId)?EQUIPMENT_CATALOG[itemId]:null;
+  if(!item || !Object.hasOwn(ITEMS,itemId) ||
+      (run.carried[itemId]||0)<1 || !GEAR_SLOTS.includes(item.slot))
+    return info(state,"Cet équipement n'est pas dans ton sac.",false);
+  const current=run.loadout??playerLoadout(run.carried);
+  if(current[item.slot]===itemId)
+    return info(state,"Cet objet est déjà équipé.",false);
+  const next={...EMPTY_LOADOUT,...current,[item.slot]:itemId};
+  if(!validLoadout(next,run.carried))
+    return info(state,"Équipement incompatible.",false);
+  const s=copy(state);
+  s.run.loadout=next;
+  s.run.turns+=1;
+  const message="ÉQUIPEMENT — "+item.name+" équipé. Un tour s'écoule.";
+  recordEvent(s,"system",message,s.run.turns);
+  const after=enemyPhase(s);
+  return {state:after,changed:true,message};
+}
+
+/** Unequipping an item also costs a turn, and never destroys its bag entry. */
+export function unequipItem(state,slot){
+  const run=state.run;
+  if(!run||!GEAR_SLOTS.includes(slot))
+    return info(state,"Aucun emplacement à retirer.",false);
+  const current=run.loadout??playerLoadout(run.carried);
+  if(!current[slot])return info(state,"Cet emplacement est déjà vide.",false);
+  const s=copy(state);
+  s.run.loadout={...EMPTY_LOADOUT,...current,[slot]:null};
+  s.run.turns+=1;
+  const message="ÉQUIPEMENT — "+EQUIPMENT_CATALOG[current[slot]].name+
+    " rangé dans le sac. Un tour s'écoule.";
+  recordEvent(s,"system",message,s.run.turns);
+  const after=enemyPhase(s);
+  return {state:after,changed:true,message};
+}
+
+/** Discard exactly one exposed item, never an equipped last copy.
+ * The UI must request explicit confirmation; engine never trusts that UI.
+ */
+export function discardItem(state,itemId){
+  const run=state.run;
+  if(!run||!Object.hasOwn(ITEMS,itemId)||(run.carried[itemId]||0)<1)
+    return info(state,"Objet absent du sac.",false);
+  const current=run.loadout??playerLoadout(run.carried);
+  if(Object.values(current).includes(itemId)&&run.carried[itemId]<=1)
+    return info(state,"Retire d'abord cet équipement avant de l'abandonner.",false);
+  const s=copy(state);
+  s.run.carried[itemId]-=1;
+  if(s.run.carried[itemId]===0)delete s.run.carried[itemId];
+  s.run.turns+=1;
+  const message="ABANDON — "+ITEMS[itemId].name+
+    " laissé dans Nhal. Cet objet est définitivement perdu.";
+  recordEvent(s,"loot",message,s.run.turns);
+  const after=enemyPhase(s);
+  return {state:after,changed:true,message};
+}
+
+/** Consumables use the same one-turn enemy phase, but healing and Endurance
+ * remain separate resources. Invalid/full-resource use never costs a turn.
+ */
+export function useItem(state,itemId){
+  if(!state.run)return info(state,"Prépare d'abord une descente.",false);
+  const healing=HEALING_ITEMS[itemId];
+  const stamina=ENDURANCE_ITEMS[itemId];
+  if(!healing && !stamina)return info(state,"Cet objet ne peut pas être utilisé.",false);
+  if((state.run.carried[itemId]||0)<1)
+    return info(state,ITEMS[itemId].name+" absent de ton sac.",false);
+  if(healing && state.run.hp>=MAX_HP)
+    return info(state,"Tes points de vie sont déjà au maximum.",false);
+  if(stamina && state.run.endurance>=state.run.enduranceMax)
+    return info(state,"Ton Endurance est déjà au maximum.",false);
+  const s=copy(state),run=s.run;
+  let message;
+  if(healing){
+    const healed=Math.min(healing,MAX_HP-run.hp);
+    run.hp+=healed;
+    regenEndurance(s,1);
+    message=ITEMS[itemId].name+" utilisé : +"+healed+" PV. ("+
+      run.hp+"/"+MAX_HP+")";
+  } else {
+    const gained=Math.min(stamina,run.enduranceMax-run.endurance);
+    run.endurance+=gained;
+    message=ITEMS[itemId].name+" utilisés : +"+gained+" END. ("+
+      run.endurance+"/"+run.enduranceMax+")";
   }
-  if (state.run.hp >= MAX_HP) {
-    return info(state, "Tes points de vie sont déjà au maximum.", false);
-  }
-  const s = copy(state);
-  const run = s.run;
-  const healed = Math.min(healing, MAX_HP - run.hp);
-  run.hp += healed;
-  run.carried[itemId] -= 1;
-  if (run.carried[itemId] === 0) delete run.carried[itemId];
-  run.turns += 1;
-  regenEndurance(s,1);
-  recordEvent(s, "heal", ITEMS[itemId].name + " utilisé : +" + healed + " PV. (" + run.hp + "/" + MAX_HP + ")", run.turns);
-  const after = enemyPhase(s);
-  return { state:after, message:after.journal[0]?.text || "Soin effectué.", changed:true };
+  run.carried[itemId]-=1;
+  if(run.carried[itemId]===0)delete run.carried[itemId];
+  run.turns+=1;
+  recordEvent(s,"heal",message,run.turns);
+  const after=enemyPhase(s);
+  return {state:after,message,changed:true};
 }
 
 /** Waiting costs one turn; nearby enemies can still move or attack. */

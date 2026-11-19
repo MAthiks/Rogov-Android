@@ -7,9 +7,9 @@ export function syncUi096Threat({get,isRun}){
   const hostiles=get("threat-state");
   const immediate=Boolean(isRun && forecast && !forecast.hidden &&
     forecast.textContent.trim());
-  const present=Boolean(isRun && hostiles?.dataset.threat==="danger");
-  banner.hidden=!immediate&&!present;
+  // The HUD already names visible hostiles; do not repeat that count.
+  // Reserve the banner for an actual imminent attack, still from visible-only DOM.
+  banner.hidden=!immediate;
   banner.dataset.urgent=String(immediate);
-  banner.textContent=immediate?forecast.textContent:
-    present?"⚠ "+hostiles.textContent:"";
+  banner.textContent=immediate?forecast.textContent:"";
 }

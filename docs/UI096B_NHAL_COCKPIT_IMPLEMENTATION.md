@@ -1,6 +1,6 @@
 # UI-096B — Premier lot de refonte réelle du cockpit Nhal
 
-**État :** prototype isolé sur branche `feature/ui096b-nhal-cockpit-polish`, validation CI requise avant toute fusion.  
+**État :** code fusionné dans `main` par [PR #42](https://github.com/MAthiks/Rogov-Android/pull/42), contrôles Web/Android automatisés réussis ; validation esthétique sur téléphone physique encore ouverte.  
 **Date :** 19 novembre 2026.  
 **Conception :** [UI-096](UI096_V3_VISUAL_MOCKUPS.md), [Nhal v2](UI096A_NHAL_V2_REVIEW.md).
 
@@ -22,12 +22,12 @@ Le lot ne remplace **pas** les sprites et tiles eux-mêmes : leur relecture visu
 
 Le travail UI-092A conserve les vrais éléments du DOM des panneaux et leurs vrais handlers ; une nouvelle navigation en parallèle risquerait de casser combat et inventaire. Ce lot **valorise l'existant avant de restructurer**. Le choix des boutons, polices et proportions n'est pas un aval artistique final ; c'est une base utilisable à tester.
 
-## Régression à prouver
+## Régression validée en CI (19 novembre 2026)
 
 1. Tests Node ciblés : aucun contenu d'ennemi invisible affiché, distinction menace visible vs imminente, absence d'effet sur les tours et les sauvegardes.
 2. Tests Chromium à **320×640, 360×780 et 393×704** : aucune carte sous le dock, six raccourcis ≥44px, commande Attendre, ASCII, reprise après rechargement.
 3. Test Chromium en situation réelle avec ennemi visible : bandeau d'alerte visible et ouverture du tiroir Combat sans tour gratuit.
-4. Tests PWA offline + validation du cache, Chrome Android 13, build/signature/installation APK, tous verts avant fusion.
+4. Tests PWA offline + validation du cache, Chrome Android 13, build/signature/installation APK : **validés avant fusion**, avec **348 tests Node**, **44 scénarios Chromium mobile** et Chrome Android 13 réussi.
 5. **Non remplaçable par CI :** photo/capture et test manuel sur téléphone Android physique, taille des sprites, aisance des gestes, compréhension des avertissements et 5 joueurs × 2 descentes. Ne pas attribuer une note artistique sur la base de CSS.
 
 ## Exclusions

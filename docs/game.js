@@ -197,23 +197,63 @@ function canRiftPulse(enemy, run) {
  * A player's active defense checks stats + equipment, and applies to the first
  * matching landed hit in the enemy phase only. Enemy strikes may miss or crit.
  */
-function receiveEnemyAttack(s,enemy,type,base,source) {
+/** GAME-095D2 — reward anticipation, NOT passive dodge spamming.
+ * Only a telegraphed, adjacent strike creates a counter window. It uses the
+ * hero's actual equipped weapon, hit/crit/armor formulas and saved combat RNG.
+ * An active dodge that fails never counters. Neither parry nor block changes.
+ */
+function dodgeRiposte(s,enemy,type){
+  if(!s.run||enemy.hp<=0||distance(s.run,enemy)!==1)return;
+  const weapon=EQUIPMENT_CATALOG[s.run.loadout?.mainHand];
+  if(!weapon||weapon.kind!=="weapon")return;
+  const result=resolveStrike(s,heroDerivedStats(s),enemyDerivedStats(enemy),
+    weapon.baseDamage);
+  // Dodge creates an opening in the Guardian's high guard. The normal
+  // offensive roll can still miss and does not bypass armor or hit chances.
+  if(enemy.kind==="guardian")enemy.tactic="ready";
+  if(!result.hit){
+    recordEvent(s,"combat","RIPOSTE D'ESQUIVE — tu manques "+type.name+".",
+      s.run.turns);
+    return;
+  }
+  enemy.hp-=result.damage;
+  recordEvent(s,"combat","RIPOSTE D'ESQUIVE — "+type.name+
+    " reçoit "+result.damage+" dégât(s)"+
+    (result.critical?" (critique).":"."),s.run.turns);
+  if(enemy.hp<=0){
+    s.run.enemies=s.run.enemies.filter(e=>e.id!==enemy.id);
+    if(s.run.targetId===enemy.id)s.run.targetId=null;
+    gainXp(s,type.xp);
+    recordEvent(s,"loot",type.name+" vaincu en riposte : +"+
+      type.xp+" XP.",s.run.turns);
+  }
+}
+function receiveEnemyAttack(s,enemy,type,base,source,telegraphed=false) {
   const run=s.run;
   const attacker=enemyDerivedStats(enemy);
   const defender=heroDerivedStats(s);
   const result=resolveStrike(s,attacker,defender,base,{source});
   if(!result.hit){
     recordEvent(s,"combat",type.name+" manque son attaque.",run.turns);
+    // An announced swing still opens a narrow riposte window even if
+    // the enemy misses outright. Consume the stance once, no extra turn.
+    if(telegraphed&&run.defense==="dodge"){
+      run.defense="none";
+      dodgeRiposte(s,enemy,type);
+    }
     return s;
   }
-  let damage=result.damage;
+  let damage=result.damage, counter=false;
   const mode=run.defense||"none";
   if(mode!=="none") {
     const defense=resolveActiveDefense(s,mode,defender,attacker,source);
     if(defense.attempted) {
       run.defense="none";
       if(defense.success) {
-        if(mode==="dodge")damage=0;
+        if(mode==="dodge"){
+          damage=0;
+          counter=telegraphed;
+        }
         if(mode==="parry"){
           damage=Math.max(0,damage-1-Math.floor(defender.parryChance/25));
           enemy.hp-=1+Math.floor((defender.attackPower-5)/5);
@@ -242,7 +282,9 @@ function receiveEnemyAttack(s,enemy,type,base,source) {
   } else if(!run.defense){
     recordEvent(s,"combat","Le coup de "+type.name+" ne cause aucun dégât.",run.turns);
   }
-  return run.hp<=0?recall(s).state:s;
+  if(run.hp<=0)return recall(s).state;
+  if(counter)dodgeRiposte(s,enemy,type);
+  return s;
 }
 function enemyPhase(s) {
   const run=s.run;
@@ -271,7 +313,7 @@ function enemyPhase(s) {
         recordEvent(s,"danger",type.name+" arme un COUP LOURD. Éloigne-toi ou prépare une défense !",run.turns);
       } else if(decision==="heavy"){
         enemy.tactic="guarding";
-        s=receiveEnemyAttack(s,enemy,type,type.damage+GUARDIAN_HEAVY_BONUS,"melee");
+        s=receiveEnemyAttack(s,enemy,type,type.damage+GUARDIAN_HEAVY_BONUS,"melee",true);
         if(!s.run)return s;
       } else if(decision==="legacy_attack"){
         // Unmigrated direct-state compatibility. Normalized saved encounters
@@ -299,7 +341,7 @@ function enemyPhase(s) {
         if(!landing)throw new Error("Charognard charge route mismatch");
         enemy.x=landing.x;enemy.y=landing.y;
         enemy.tactic="recovering";
-        s=receiveEnemyAttack(s,enemy,type,type.damage,"melee");
+        s=receiveEnemyAttack(s,enemy,type,type.damage,"melee",true);
         if(!s.run)return s;
         continue;
       }

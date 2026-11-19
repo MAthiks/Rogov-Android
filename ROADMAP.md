@@ -69,9 +69,9 @@
 
 **ART-097A1 — PR #48 fusionnée**, commit `2ab130a` : biseaux de pierre, joints ombrés et patines sur les **54 variantes SVG déterministes** de sol/mur, sans nouvelle tuile mécanique ni fuite des voisins inconnus. **367/367 Node et 53/53 Chromium**, Chrome Android 13 et compilation/install APK validés en automatisation. [Contrat et recette](docs/ART097A1_STONEWORK_IMPLEMENTATION.md).
 
-**ART-097A2 — Interactifs existants (en développement, PR à valider) :** portes ouvertes/fermées, coffres fermés/ouverts, Arche turquoise et Faille cramoisie en SVG 24×24 enrichis ; `INTERACTIVE_IDS` reste à 15, pièges cachés intacts. Aucun faux objet ni nouveau gameplay ; cache PWA renouvelé. [Contrat et recette](docs/ART097A2_INTERACTIVE_ASSETS.md). Node/Chromium, Android 13/APK et contrôle de la lisibilité **obligatoires avant fusion**.
+**ART-097A2 — PR #49 fusionnée**, commit `0cfacd0` : portes ouvertes/fermées, coffres fermés/ouverts, Arche turquoise et Faille cramoisie en SVG 24×24 enrichis ; `INTERACTIVE_IDS` reste à 15, pièges cachés intacts. Aucun faux objet ni nouveau gameplay ; cache PWA renouvelé. [Contrat et recette](docs/ART097A2_INTERACTIVE_ASSETS.md). **370/370 tests Node, 53/53 Chromium, Chrome Android 13 et APK automatisés réussis** ; contrôle physique de la lisibilité encore ouvert.
 
-**Suite WIP=1 :** ART-097B (personnages Sprite C et ennemis), UI-097A (bandeau, HUD, carte, alerte et commandes tactiles réelles), ART-097C (lumières et ambiance à coût réduit). Toujours pas de Godot ni portage PC actif.
+**Prochaine priorité ajustée après comparaison des captures Chromium : UI-097A**, alléger le bandeau supérieur et les panneaux, renforcer la carte et les commandes sans recouvrement (cartes actuellement 220 / 335 / 284 CSS px en 320×640 / 360×780 / 393×704). Ensuite **ART-097B** (PJ Sprite C et ennemis) et **ART-097C** (lumières et ambiance sans coût excessif). WIP=1, pas de changement de gameplay ni portage Godot/PC actif.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

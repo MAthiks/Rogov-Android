@@ -61,6 +61,14 @@
 
 **Suite de QA-096**, [contrat UI-096D](docs/UI096D_ANDROID_COMPACT_POLISH.md). Deux captures réelles ont révélé une carte trop petite sur écrans courts, une alerte de menace redondante, un refuge trop vertical avant ses accès et un sous-titre alpha obsolète. Correctifs UI seulement : carte agrandie sur hauteur ≤760px, alerte réservée aux véritables coups imminents, Veyr condensé, endurance désaturée, cache PWA versionné. **Tests et capture de contrôle à valider avant fusion ; aucune règle, save, Sprite C, brouillard, combat ou objet modifié.** Le GO graphique humain reste ouvert.
 
+## UI/ART-097 — Objectif haute fidélité sur Android (progressif)
+
+**Référence :** nouvelle maquette de Nhal en pixel art dark fantasy, fournie dans le chat le 20 novembre 2026. Le rendu doit être **réel et interactif** ; une peinture plein écran ne peut remplacer le moteur. **Pré-requis :** traiter UI-096D / PR #47 et ses changements de proportions avant validation de cette série.
+
+**ART-097A1 — Relief des sols et murs de Nhal (PR empilée sur UI-096D, non fusionnée) :** amélioration de l'atlas SVG 24×24 existant avec biseaux de dalles, joints ombrés, chaperons et patines discrètes ; 54 variantes déterministes, masque des voisins déjà connus inchangé. Aucun nouveau type de tuile ni objet décoratif trompeur ; `SAVE_KEY`, schéma, modes ASCII/offline, sprites et gameplay conservés. [Contrat et recette](docs/ART097A1_STONEWORK_IMPLEMENTATION.md). Tests Node/Chromium, Android 13/APK et contrôle du rendu **requis avant toute fusion**. La validation esthétique physique QA-096 reste ouverte.
+
+**Suite programmée (WIP=1) :** ART-097A2 — portes/coffres/Arche/Faille existants ; ART-097B — personnages Sprite C et ennemis ; UI-097A — bandeau, HUD, carte, alertes et contrôles réellement cliquables ; ART-097C — éclairage et ambiance peu coûteux. Pas de nouvelle mécanique, pas de Godot ni portage PC durant cette séquence. Objectif de maquette, pas promesse d'identité pixel pour pixel sur une grille de 24×24.
+
 ## Plateformes — Android en priorité, PC conservé dans le GDD
 
 **Décision du 19 novembre 2026 :** poursuivre exclusivement la **production active sur Android** (PWA/JavaScript, APK et tests tactiles). **Godot est mis en attente** : pas de changement de moteur ni de projet de migration actif. Le **portage PC futur**, Windows en premier, reste inscrit comme objectif de long terme, avec moteur à choisir après stabilisation du gameplay mobile et tests utilisateurs. Préserver autant que possible les règles déterministes, le mode ASCII, les assets Sprite C et les contrats de sauvegarde pour réduire le coût d'une éventuelle adaptation. Aucune date de portage annoncée.

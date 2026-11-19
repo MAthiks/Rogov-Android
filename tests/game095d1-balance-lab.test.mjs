@@ -41,7 +41,7 @@ test("GAME-095D1: every profile is a real combat path with sound metrics",()=>{
   assert.ok(names.length>=12,"observed real combat scenarios across 3 floors");
   for(const id of names){
     const row=sample.encounters[id];
-    assert.ok(row.fights>0&&row.fights<=4,id);
+    assert.ok(row.fights>0&&row.fights<=8,id); // 4 seeds × up to 2 Guardians/Larvae
     assert.equal(row.wins+row.recalls+row.timeouts,row.fights,id);
     assert.ok(row.winRatePct>=0&&row.winRatePct<=100,id);
     assert.ok(row.avgHpLost>=0&&row.avgHpLost<=MAX_HP,id);

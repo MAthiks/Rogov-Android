@@ -46,7 +46,7 @@ test("GAME-095D3B: two visible contact enemies generate two real attack forecast
 test("GAME-095D3B: closed walls and fog must never disclose remembered threats",()=>{
   const run=roomRun();
   run.enemies=[{id:"far",kind:"charognard",x:4,y:2,hp:4}];
-  run.map[2]="..#..";
+  run.map[2]="...#."; // barrier at x=3; hero remains on floor x=2
   // A known/remembered enemy tile is not live sight.
   run.exploration.seen=[14];
   assert.equal(pressureSnapshot(run).visible,0);

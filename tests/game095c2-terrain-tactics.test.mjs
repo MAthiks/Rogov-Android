@@ -12,8 +12,8 @@ import {validateDeepLayout} from "../docs/deep-dungeon.js";
 
 function basic(){
   const s=beginRun(newGame(),["weapon.rusty_sword"]).state;
-  s.run.x=1;s.run.y=7;
-  s.run.enemies=[{id:"shove-foe",kind:"charognard",x:2,y:7,hp:3,
+  s.run.x=1;s.run.y=5;
+  s.run.enemies=[{id:"shove-foe",kind:"charognard",x:2,y:5,hp:3,
     tactic:"stalking"}];
   s.run.targetId="shove-foe";
   assert.ok(validateSave(s));
@@ -63,7 +63,7 @@ test("GAME-095C2: action contract and historic save keys stay compatible",()=>{
 test("GAME-095C2: a normal shove costs 3 END and one turn, not RNG/HP",()=>{
   const s=basic(),old=structuredClone(s);
   assert.deepEqual(shoveOpportunity(s.run,foe(s)),{
-    x:3,y:7,trapKind:null
+    x:3,y:5,trapKind:null
   });
   const outcome=shoveTarget(s);
   assert.equal(outcome.changed,true);
@@ -75,7 +75,7 @@ test("GAME-095C2: a normal shove costs 3 END and one turn, not RNG/HP",()=>{
   assert.equal(a.run.hp,s.run.hp);
   assert.equal(a.run.enemies.length,1);
   assert.equal(a.run.enemies[0].hp,3);
-  assert.deepEqual({x:foe(a).x,y:foe(a).y},{x:3,y:7});
+  assert.deepEqual({x:foe(a).x,y:foe(a).y},{x:3,y:5});
   assert.equal(foe(a).tactic,"stalking",
     "enemy recovery consumes this phase, with no immediate bite");
   assert.equal(a.run.targetId,"shove-foe");
@@ -100,11 +100,11 @@ test("GAME-095C2: invalid, blocked or exhausted shoves cost nothing",()=>{
     const s=basic();s.run.enemies[0].kind="rift_larva";
     s.run.enemies[0].hp=4;delete s.run.enemies[0].tactic;return s;
   },()=>{
-    const s=basic();s.run.map[7]=s.run.map[7].slice(0,3)+"#"+
-      s.run.map[7].slice(4);return s;
+    const s=basic();s.run.map[5]=s.run.map[5].slice(0,3)+"#"+
+      s.run.map[5].slice(4);return s;
   },()=>{
     const s=basic();s.run.enemies.push({id:"occupant",kind:"charognard",
-      x:3,y:7,hp:3});return s;
+      x:3,y:5,hp:3});return s;
   }];
   for(const make of cases){
     const s=make(),before=JSON.stringify(s),output=shoveTarget(s);

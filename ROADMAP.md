@@ -33,7 +33,7 @@
 
 ## UI-096 — Refonte visuelle par maquettes (nouvelle priorité du studio)
 
-**UI-096B — premier prototype Nhal Android (en cours, branche dédiée) :** CSS additionnel sobre/contrasté, 6 accès rapides repérés visuellement, carte 11×11 préservée, bandeau de menaces alimenté exclusivement par les avertissements/ennemis visibles déjà filtrés par le moteur, dock et ASCII inchangés. [Contrat et recette UI-096B](docs/UI096B_NHAL_COCKPIT_IMPLEMENTATION.md). **Prototype non fusionné tant que la CI Web/Chromium, Chrome Android 13 et APK n'est pas verte ; revue visuelle sur téléphone physique et tests joueurs restent ouverts.** Aucun Sprite C n'est remplacé par ce lot.
+**UI-096B — premier prototype Nhal Android (fusionné, PR #42) :** CSS additionnel sobre/contrasté, 6 accès rapides repérés visuellement, carte 11×11 préservée, bandeau de menaces alimenté exclusivement par les avertissements/ennemis visibles déjà filtrés par le moteur, dock et ASCII inchangés. [Contrat et recette UI-096B](docs/UI096B_NHAL_COCKPIT_IMPLEMENTATION.md). **CI confirmée : 348/348 tests Node, 44/44 Chromium mobile, Chrome Android 13 et APK signée/installée réussis. Revue visuelle sur téléphone physique et tests joueurs toujours ouverts.** Aucun Sprite C n'est remplacé par ce lot.
 
 
 

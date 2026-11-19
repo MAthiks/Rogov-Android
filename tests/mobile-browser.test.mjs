@@ -2626,3 +2626,84 @@ test("GAME-095C2 Android portrait: shove button, stamina and save persistence", 
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("GAME-095D2 Android portrait: one-turn chest exchange never reveals mystery reward early", {timeout:75000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    page.on("dialog",d=>d.accept());
+    await page.goto(origin);
+    const chest=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const base=game.newGame();base.meta.descents=1;
+      const s=game.beginRun(base,["weapon.rusty_sword"],null,{multiFloor:true}).state;
+      const [key,reward]=Object.entries(s.run.loot)
+        .find(([,id])=>id==="consumable.bandage");
+      const [x,y]=key.split(",").map(Number);
+      const point=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:x+dx,y:y+dy}))
+        .find(p=>s.run.map[p.y]?.[p.x]==="."&&
+          !(s.run.traps||[]).some(t=>t.x===p.x&&t.y===p.y));
+      if(!point)throw Error("No reachable chest neighbor");
+      s.run.enemies=[];
+      s.run.x=point.x;s.run.y=point.y;
+      s.run.carried={
+        "weapon.rusty_sword":1,"weapon.iron_mace":1,
+        "consumable.bandage":2,"consumable.dusk_tonic":1,
+        "consumable.vigor_salts":1,"armor.scavenged_cuirass":1,
+        "relic.ashen_fragment":1
+      };
+      if(!game.validateSave(s)||game.inventoryCount(s)!==8)
+        throw Error("Invalid D2 full-bag mobile fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+      return {key,reward};
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    await page.locator("#jump-action").tap();
+    assert.equal(await page.locator("#chest-swap-panel").isVisible(),true);
+    assert.equal(await page.locator("#chest-action").isDisabled(),true);
+    assert.equal(await page.locator("#chest-swap-action").isEnabled(),true);
+    assert.equal(await page.locator("#chest-swap-item option[value='weapon.rusty_sword']").count(),0);
+    assert.doesNotMatch(await page.locator("#chest-swap-panel").textContent(),
+      /Contenu :.*Bandage/,"unknown chest reward must not appear in the preview");
+    await page.locator("#chest-swap-item").selectOption("weapon.iron_mace");
+    const prior=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {turns:s.run.turns,seed:s.run.rngState,end:s.run.endurance};
+    });
+    await page.locator("#chest-swap-action").tap();
+    const after=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),count:game.inventoryCount(s),
+        turns:s.run.turns,seed:s.run.rngState,
+        iron:s.run.carried["weapon.iron_mace"]||0,
+        bandages:s.run.carried["consumable.bandage"],
+        opened:s.run.collected};
+    });
+    assert.equal(after.valid,true);
+    assert.equal(after.count,8);
+    assert.equal(after.turns,prior.turns+1);
+    assert.equal(after.seed,prior.seed);
+    assert.equal(after.iron,0);
+    assert.equal(after.bandages,3);
+    assert.deepEqual(after.opened,[chest.key]);
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    const saved=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),count:game.inventoryCount(s),
+        turns:s.run.turns,seed:s.run.rngState,
+        iron:s.run.carried["weapon.iron_mace"]||0,
+        bandages:s.run.carried["consumable.bandage"],
+        opened:s.run.collected};
+    });
+    assert.deepEqual(saved,after,"exchanged reward survives reload without reroll");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

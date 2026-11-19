@@ -568,9 +568,9 @@ test("GAME-095C2 Chrome Android 13: shove an adjacent Charognard and reload", {t
     await page.evaluate(async()=>{
       const game=await import("./game.js");
       const s=game.beginRun(game.newGame(),["weapon.rusty_sword"]).state;
-      s.run.x=1;s.run.y=7;
+      s.run.x=1;s.run.y=5;
       s.run.enemies=[{id:"c2-android",kind:"charognard",
-        x:2,y:7,hp:3,tactic:"stalking"}];
+        x:2,y:5,hp:3,tactic:"stalking"}];
       s.run.targetId="c2-android";
       if(!game.validateSave(s))throw Error("Invalid C2 Chrome Android fixture");
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
@@ -598,7 +598,7 @@ test("GAME-095C2 Chrome Android 13: shove an adjacent Charognard and reload", {t
     assert.equal(now.end,prior.end-3);
     assert.equal(now.rng,prior.rng);
     assert.equal(now.hp,12);
-    assert.deepEqual([now.x,now.y],[3,7]);
+    assert.deepEqual([now.x,now.y],[3,5]);
     await page.reload({waitUntil:"load"});
     await page.locator("#title-continue").click();
     const restored=await page.evaluate(async()=>{

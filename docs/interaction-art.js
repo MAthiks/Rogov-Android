@@ -45,6 +45,9 @@ const loot=svg(
   '<rect x="17" y="13" width="2" height="8" fill="'+iron+'"/>'+
   '<rect x="10" y="11" width="4" height="7" fill="'+amber+'"/>'+
   '<rect x="11" y="13" width="2" height="3" fill="'+dark+'"/>'+
+  // Gold latch and two wide clasps read as a sealed treasure at 20 CSS px.
+  '<path data-detail="chest-sealed-bands" d="M4 10h4v2H4ZM16 10h4v2h-4ZM3 17h7M14 17h7" fill="#d9b983" stroke="#b69b70" stroke-width="1"/>'+
+  '<rect x="11" y="15" width="2" height="2" fill="#f6d894"/>'+
   '</g>'
 );
 const chest_open=svg(
@@ -57,6 +60,8 @@ const chest_open=svg(
   '<rect x="5" y="13" width="2" height="9" fill="'+iron+'"/>'+
   '<rect x="17" y="13" width="2" height="9" fill="'+iron+'"/>'+
   '<rect x="11" y="17" width="2" height="3" fill="'+amber+'"/>'+
+  '<path data-detail="chest-empty-cavity" d="M6 14h12v3H6Z" fill="#090f18"/>'+
+  '<path d="M5 4l13-1M5 7h14" stroke="#c8b08d" stroke-width="1"/>'+
   '</g>'
 );
 // The clue is a floor scratch, not an armed device; identified has clearly
@@ -65,6 +70,8 @@ const trap_clue=svg(
   '<g data-feature="subtle-floor-scratches">'+
   '<path d="M3 17l5-4 3 1 5-6M11 19l4-3 5 1" fill="none" stroke="#9b8c70" stroke-width="1"/>'+
   '<path d="M7 8h5M15 11h4M5 21h4" stroke="#6b6c5c" stroke-width="1"/>'+
+  // A subtle dust shift only: never draw spikes or a trap kind while hidden.
+  '<path data-detail="ambiguous-stone-traces" d="M6 18h3M16 7h3" stroke="#847761" stroke-width="1" opacity=".6"/>'+
   '</g>'
 );
 const trap_revealed=svg(
@@ -73,6 +80,7 @@ const trap_revealed=svg(
   '<path d="M3 17l3-11 3 11 3-13 3 13 3-11 3 11Z" fill="#d5b78e" stroke="#7f4c40" stroke-width="1"/>'+
   '<rect x="3" y="19" width="18" height="2" fill="#372d30"/>'+
   '<path d="M5 2v2M12 1v2M19 2v2" stroke="#e6b389" stroke-width="2"/>'+
+  '<path data-detail="armed-trap-fangs" d="M6 15l2-5 2 5M13 15l2-7 2 7" fill="#f1cea2" stroke="#7f4c40" stroke-width="1"/>'+
   '</g>'
 );
 const trap_disabled=svg(
@@ -81,6 +89,7 @@ const trap_disabled=svg(
   '<path d="M5 16l3-6 1 4 4-3 3 5 3-3" stroke="#8c9992" stroke-width="2" fill="none"/>'+
   '<path d="M3 6l18 15" stroke="#8fd0ad" stroke-width="3"/>'+
   '<rect x="3" y="19" width="18" height="2" fill="#263536"/>'+
+  '<path data-detail="disarmed-trap-lockout" d="M6 10l3 3-3 3M18 10l-3 3 3 3" fill="none" stroke="#b6c4b7" stroke-width="2"/>'+
   '</g>'
 );
 const trap_triggered=svg(
@@ -88,6 +97,7 @@ const trap_triggered=svg(
   '<rect x="2" y="15" width="20" height="7" fill="#42464a" stroke="#7e8681" stroke-width="1"/>'+
   '<path d="M4 17l4-6 3 6 4-6 4 6" fill="none" stroke="#717e83" stroke-width="2"/>'+
   '<path d="M3 4l18 18M21 4L3 22" stroke="#b1a99b" stroke-width="1"/>'+
+  '<path data-detail="spent-trap-empty-bed" d="M4 19h16M8 21h8" stroke="#8d9794" stroke-width="1"/>'+
   '</g>'
 );
 // Extraction = inhabitable stone portal with a standing TURQUOISE interior;

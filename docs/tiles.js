@@ -6,6 +6,7 @@ import {trapAppearance} from "./traps.js";
 import {roomSiteAppearance} from "./room-events.js";
 import {TERRAIN_SVGS,terrainSpriteAt} from "./terrain-art.js";
 import {HERO_SVGS} from "./hero-art.js";
+import {currentEnemyIntent} from "./combat.js";
 import {ENEMY_SVGS} from "./enemy-art.js";
 import {INTERACTIVE_SVGS} from "./interaction-art.js";
 const svg = (parts) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + parts + '</svg>';
@@ -45,6 +46,13 @@ export const LEGEND_ITEMS=Object.freeze([
   ["trap_clue","Sol suspect"],["trap_revealed","Piège identifié"],["trap_disabled","Piège désamorcé"],
   ["site_atelier","Atelier"],["site_echo","Chambre de l’Écho"],["site_cache","Cache oubliée"],["site_resolved","Lieu exploré"]
 ]);
+// UI-only cue taxonomy: the combat engine alone decides what happens next.
+const VISUAL_CUES=Object.freeze({
+  guardian_heavy:"imminent",rift_pulse:"imminent",
+  charognard_lunge:"imminent",melee:"imminent",
+  guardian_prepare:"preparing",rift_charge:"preparing",
+  charognard_prepare:"preparing",guardian_guard:"guarding"
+});
 export function drawTileMap(state,host,heroFacing="down") {
   host.replaceChildren();
   if(!state.run)return;
@@ -97,6 +105,20 @@ export function drawTileMap(state,host,heroFacing="down") {
         cell.classList.add("hostile-tile");
         if(enemy.kind==="charognard"&&enemy.tactic==="winding")
           cell.classList.add("enemy-charge");
+        // Only inspect the intention of a VISIBLE foe; never query hidden actors
+        // or attach a premonition to a remembered map cell.
+        const intent=currentEnemyIntent(run,enemy);
+        const cue=VISUAL_CUES[intent?.kind];
+        if(cue){
+          cell.classList.add("intent-"+cue);
+          cell.dataset.intent=intent.kind;
+          cell.title=intent.label;
+          const symbol=document.createElement("span");
+          symbol.className="tile-intent-marker";
+          symbol.setAttribute("aria-hidden","true");
+          symbol.textContent=cue==="imminent"?"!":cue==="guarding"?"▣":"…";
+          cell.append(symbol);
+        }
         if (run.targetId===enemy.id) cell.classList.add("selected-target-tile");
         cell.dataset.hp=String(enemy.hp);
       }

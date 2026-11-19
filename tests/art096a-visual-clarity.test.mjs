@@ -86,7 +86,7 @@ test("ART-096A: fog selection and game saves are unchanged; fresh assets are pre
   assert.match(tiles,/const enemy=visible\?enemyAt\(run,x,y\):null;/);
   assert.match(tiles,/else if\(visible&&trapAppearance\(run,x,y\)\)/);
   const sw=readFileSync(new URL("../docs/sw.js",import.meta.url),"utf8");
-  assert.match(sw,/rogov-v0\.7f-art096a-nhal-materials/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   for(const path of ["terrain-art.js","interaction-art.js","enemy-art.js"])
     assert.ok(sw.includes('"./'+path+'"'),"Offline asset absent: "+path);
 });

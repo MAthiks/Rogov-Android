@@ -27,6 +27,8 @@ const floorDetails=Object.freeze([
 function floorSvg(variant){
   return svg(
     '<rect width="24" height="24" fill="#202d33"/>'+
+    '<path data-material="worn-floor-slabs" d="M1 1h11v7H1ZM15 11h8v8h-8ZM1 12h7v7H1Z" fill="#2e3c42" opacity=".52"/>'+
+    '<path d="M2 2h8M16 12h5M2 13h4" stroke="#526068" stroke-width="1" opacity=".45"/>'+
     '<path d="M0 9h12M14 9h10M14 0v9M9 9v15M0 20h9M10 20h14" stroke="#151f25" stroke-width="1"/>'+
     '<path d="M0 10h12M14 10h10M15 0v9M10 10v14M0 21h9M11 21h13" stroke="#37454b" stroke-width="1"/>'+
     '<rect x="2" y="12" width="1" height="1" fill="#435257"/>'+
@@ -52,6 +54,8 @@ function wallSvg(mask,variant){
   return svg(
     '<rect width="24" height="24" fill="#111b23"/>'+
     '<rect x="1" y="1" width="22" height="10" fill="#4b5c63"/>'+
+    '<path data-material="raised-stone-ledge" d="M1 1h22v3H1ZM2 5h20v2H2Z" fill="#73848a"/>'+
+    '<path d="M2 7h20v3H2Z" fill="#394f58"/>'+
     '<rect x="1" y="13" width="10" height="10" fill="'+face+'"/>'+
     '<rect x="13" y="13" width="10" height="10" fill="'+face+'"/>'+
     '<path d="M0 12h24M12 12v12" stroke="#111d24" stroke-width="2"/>'+

@@ -3047,3 +3047,123 @@ test("UI-096C mobile: actual forge recipe updates secured resources without touc
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("QA-096 mobile: visual evidence, contrast and hit-area measurements on three Android portraits", {timeout:145000}, async()=>{
+  // CI provides six genuine Chromium screenshots, not photographs of a physical Android.
+  const {mkdir,writeFile}=await import("node:fs/promises");
+  const folder="qa096-screenshots";
+  await mkdir(folder,{recursive:true});
+  const observations=[];
+  for(const viewport of [{width:320,height:640},{width:360,height:780},{width:393,height:704}]){
+    const label=viewport.width+"x"+viewport.height;
+    const context=await browser.newContext({
+      viewport,deviceScaleFactor:3,isMobile:true,hasTouch:true,
+      reducedMotion:"reduce",serviceWorkers:"block"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",err=>errors.push(err.message));
+      await page.goto(origin);
+      await page.evaluate(async()=>{
+        const game=await import("./game.js");
+        const state=game.newGame();
+        if(!game.validateSave(state))throw Error("Invalid QA-096 refuge state");
+        localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      });
+      await page.reload();
+      await page.locator("#title-continue").tap();
+      await page.locator("#refuge").waitFor({state:"visible"});
+      await page.screenshot({path:folder+"/qa096-veyr-"+label+".png",animations:"disabled"});
+      const refuge=await page.evaluate(()=>{
+        const rect=id=>document.getElementById(id).getBoundingClientRect();
+        const box=rect("start-btn");
+        const nav=[...document.querySelectorAll("#refuge-quick-nav button")]
+          .map(n=>n.getBoundingClientRect().height);
+        const rgb=(s)=>(s.match(/\d+(?:\.\d+)?/g)||[]).slice(0,3).map(Number);
+        const lum=(s)=>{
+          const c=rgb(s).map(n=>{
+            const v=n/255;
+            return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;
+          });
+          return c[0]*.2126+c[1]*.7152+c[2]*.0722;
+        };
+        const contrast=(fg,bg)=>{
+          const a=lum(getComputedStyle(document.querySelector(fg)).color);
+          const b=lum(getComputedStyle(document.querySelector(bg)).backgroundColor);
+          return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+        };
+        return {
+          viewportHeight:innerHeight,clientWidth:document.documentElement.clientWidth,
+          scrollWidth:document.documentElement.scrollWidth,
+          launch:{top:box.top,bottom:box.bottom,height:box.height},
+          nav,characterNodes:document.querySelectorAll("#actor-stats-sheet").length,
+          contrasts:{
+            launch:contrast("#start-btn","#start-btn"),
+            safeLabel:contrast(".refuge-secured-label",".refuge-secured-label"),
+            mission:contrast("#mission-refuge-text","#mission-refuge")
+          }
+        };
+      });
+      assert.ok(refuge.scrollWidth<=refuge.clientWidth+1,
+        "QA-096 Veyr horizontal overflow at "+label+": "+JSON.stringify(refuge));
+      assert.ok(refuge.launch.top>=0&&refuge.launch.bottom<=refuge.viewportHeight+1,
+        "QA-096 Veyr departure CTA not usable at "+label);
+      assert.ok(refuge.nav.length===4&&refuge.nav.every(h=>h>=44),
+        "QA-096 Veyr four touch shortcuts must be at least 44 CSS px at "+label);
+      assert.equal(refuge.characterNodes,1,"QA-096 single character sheet");
+      assert.ok(Object.values(refuge.contrasts).every(c=>c>=4.5),
+        "QA-096 solid-background text should reach contrast 4.5:1 at "+label);
+
+      await preloadDeepRun(page);
+      await page.screenshot({path:folder+"/qa096-nhal-"+label+".png",animations:"disabled"});
+      const nhal=await page.evaluate(async()=>{
+        const map=document.getElementById("tile-map").getBoundingClientRect();
+        const dock=document.getElementById("field-controls").getBoundingClientRect();
+        const hero=document.querySelector("#tile-map .tile-hero");
+        const sprite=hero?.querySelector("img");
+        if(sprite)await sprite.decode();
+        const tiles=[...document.querySelectorAll("#tile-map .pixel-tile")];
+        const tap=id=>document.getElementById(id).getBoundingClientRect().height;
+        const nav=[...document.querySelectorAll("#expedition-shortcuts button")]
+          .map(n=>n.getBoundingClientRect().height);
+        return {
+          clientWidth:document.documentElement.clientWidth,
+          scrollWidth:document.documentElement.scrollWidth,
+          viewportHeight:innerHeight,
+          map:{left:map.left,right:map.right,top:map.top,bottom:map.bottom,
+            width:map.width,height:map.height},
+          dock:{top:dock.top,bottom:dock.bottom},
+          tileCount:tiles.length,tileWidth:tiles[0]?.getBoundingClientRect().width,
+          heroCount:document.querySelectorAll("#tile-map .tile-hero").length,
+          nativeHero:sprite?[sprite.naturalWidth,sprite.naturalHeight]:null,
+          shortcuts:nav,
+          controls:["wait-btn","use-bandage","use-tonic"].map(tap),
+          moveButtons:[...document.querySelectorAll("#field-controls .dpad button")]
+            .filter(n=>getComputedStyle(n).display!=="none")
+            .map(n=>n.getBoundingClientRect().height)
+        };
+      });
+      assert.ok(nhal.scrollWidth<=nhal.clientWidth+1,
+        "QA-096 Nhal horizontal overflow at "+label+": "+JSON.stringify(nhal));
+      assert.ok(nhal.map.left>=-1&&nhal.map.right<=nhal.clientWidth+1,
+        "QA-096 map must fit screen at "+label);
+      assert.ok(nhal.map.bottom<=nhal.dock.top+1,
+        "QA-096 map must not overlap fixed dock at "+label);
+      assert.equal(nhal.tileCount,121,"QA-096 deep-map viewport 11x11");
+      assert.ok(nhal.tileWidth>=16,"QA-096 legible minimum map cell width at "+label);
+      assert.equal(nhal.heroCount,1);
+      assert.deepEqual(nhal.nativeHero,[24,24],"QA-096 original 24px Sprite C");
+      assert.ok(nhal.shortcuts.length===6&&nhal.shortcuts.every(h=>h>=44),
+        "QA-096 six tactically neutral shortcuts must be reachable at "+label);
+      assert.ok([...nhal.moveButtons,...nhal.controls].every(h=>h>=44),
+        "QA-096 critical movement, wait and healing targets >=44px at "+label);
+      assert.deepEqual(errors,[],"QA-096 no browser script errors at "+label);
+      observations.push({viewport:label,refuge,nhal});
+    }finally{await context.close();}
+  }
+  await writeFile(folder+"/report.json",JSON.stringify({
+    source:"Chromium emulation only — not physical Android user QA",
+    measurements:observations
+  },null,2)+"\n");
+});

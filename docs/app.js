@@ -1,4 +1,4 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
 import { narrativeObjective, NAR093_LORE } from "./narrative.js";
@@ -12,7 +12,7 @@ import {expeditionReport} from "./expedition-report.js";
 import { hasFog,explorationState,visibleCells,minimapText } from "./exploration-visibility.js";
 import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
-  heroDerivedStats, enemyDerivedStats } from "./stats.js";
+  heroDerivedStats, enemyDerivedStats, playerLoadout, EMPTY_LOADOUT } from "./stats.js";
 import {TACTICAL_COSTS, hitChance, defenseChance} from "./combat-rules.js";
 import { selectTarget, clearTarget, combatSnapshot, currentEnemyIntent,
   rangeBand, tileDistance } from "./combat.js";
@@ -20,6 +20,8 @@ import { selectTarget, clearTarget, combatSnapshot, currentEnemyIntent,
 const $ = (id) => document.getElementById(id);
 let state = newGame();
 let selected = new Set();
+let selectedQuantities = new Map();
+let preparedLoadout = {};
 let selectedDoor = null;
 let storageLocked = false;
 let installPrompt = null;
@@ -66,15 +68,24 @@ function persist() {
   catch { showWarning("La sauvegarde locale est indisponible (stockage ou navigation privée)."); }
 }
 function infoItem(id, count, checkable=false) {
-  const row = document.createElement("label");
+  const row = document.createElement(checkable?"label":"div");
   row.className = "item-row";
+  let qtyInput=null;
   if (checkable) {
     const box = document.createElement("input");
     box.type = "checkbox";
     box.checked = selected.has(id);
     box.setAttribute("aria-label", "Emporter " + ITEMS[id].name);
     box.addEventListener("change", () => {
-      if (box.checked) selected.add(id); else selected.delete(id);
+      if(box.checked) {
+        selected.add(id);
+        selectedQuantities.set(id,selectedQuantities.get(id)||1);
+      } else {
+        selected.delete(id);
+        selectedQuantities.delete(id);
+      }
+      if(qtyInput)qtyInput.disabled=!box.checked;
+      updatePreparationControls();
     });
     row.append(box);
   }
@@ -104,6 +115,24 @@ function infoItem(id, count, checkable=false) {
   amount.className = "count";
   amount.textContent = "×" + count;
   row.append(icon,text,amount);
+  if(checkable&&count>1){
+    qtyInput=document.createElement("select");
+    qtyInput.className="prep-quantity";
+    qtyInput.setAttribute("aria-label","Quantité à emporter : "+ITEMS[id].name);
+    for(let i=1;i<=Math.min(count,8);i++){
+      const opt=document.createElement("option");
+      opt.value=String(i);opt.textContent=String(i);
+      qtyInput.append(opt);
+    }
+    qtyInput.value=String(Math.min(count,selectedQuantities.get(id)||1,8));
+    qtyInput.disabled=!selected.has(id);
+    qtyInput.addEventListener("change",()=>{
+      if(!selected.has(id))return;
+      selectedQuantities.set(id,Number(qtyInput.value));
+      updatePreparationControls();
+    });
+    row.append(qtyInput);
+  }
   return row;
 }
 // Display-only concepts: no NPC actor IDs, encounters, dialogue or actions.
@@ -160,6 +189,97 @@ function renderEchoDossier(){
     $(listId).replaceChildren(list);
   }
 }
+/** GAME-095A2: preparation state is UI-only; only the chosen bag and
+ * loadout enter the serialized run when the player explicitly starts.
+ */
+function preparationCounts(){
+  return Object.fromEntries([...selected].map(id=>[
+    id,Math.max(1,Math.min(state.meta.stash[id]||1,selectedQuantities.get(id)||1,8))
+  ]));
+}
+function updatePreparationControls(){
+  if(state.run)return;
+  const carried=preparationCounts();
+  const total=Object.values(carried).reduce((a,b)=>a+b,0);
+  const valid=total<=8;
+  const summary=$("prep-summary");
+  summary.textContent="Préparation : "+total+" / 8 places"+
+    (valid?"":" — sac trop rempli");
+  summary.dataset.full=String(!valid);
+  $("start-btn").disabled=!valid;
+  const defaults=playerLoadout(carried);
+  for(const slot of ["mainHand","offHand","body"]){
+    const select=$("prep-"+slot);
+    const available=Object.keys(carried).filter(id=>
+      EQUIPMENT_CATALOG[id]?.slot===slot);
+    const previous=preparedLoadout[slot];
+    if(previous!==undefined && previous!==null && !available.includes(previous))
+      delete preparedLoadout[slot];
+    const chosen=preparedLoadout[slot]===undefined?defaults[slot]:preparedLoadout[slot];
+    select.replaceChildren();
+    const empty=document.createElement("option");
+    empty.value="";empty.textContent="Aucun";
+    select.append(empty);
+    for(const id of available){
+      const opt=document.createElement("option");
+      opt.value=id;opt.textContent=ITEMS[id].name;
+      select.append(opt);
+    }
+    select.value=chosen||"";
+  }
+}
+function preparedChoice(){
+  return {...EMPTY_LOADOUT,
+    mainHand:$("prep-mainHand").value||null,
+    offHand:$("prep-offHand").value||null,
+    body:$("prep-body").value||null};
+}
+function resetPreparation(){
+  selected.clear();selectedQuantities.clear();preparedLoadout={};
+}
+function renderBagEquipped(){
+  const panel=$("bag-equipped");
+  if(!state.run){panel.replaceChildren();return;}
+  panel.replaceChildren();
+  for(const [slot,title] of [
+    ["mainHand","ARME"],["offHand","SECONDAIRE"],["body","ARMURE"],["relic","RELIQUE"]
+  ]){
+    const line=document.createElement("span");
+    const item=state.run.loadout?.[slot];
+    line.textContent=title+" : "+(EQUIPMENT_CATALOG[item]?.name||"Aucun");
+    panel.append(line);
+  }
+}
+function bagActions(row,id,count){
+  const equippedSlot=Object.entries(state.run?.loadout||{})
+    .find(([,value])=>value===id)?.[0];
+  const item=EQUIPMENT_CATALOG[id];
+  const host=document.createElement("div");
+  host.className="bag-item-actions";
+  const add=(label,callback)=>{
+    const btn=document.createElement("button");
+    btn.type="button";btn.className="secondary bag-item-action";
+    btn.textContent=label;btn.addEventListener("click",callback);
+    host.append(btn);
+  };
+  if(item&&Object.hasOwn(ITEMS,id)){
+    if(equippedSlot){
+      add("Retirer · 1 tour",()=>act(unequipItem(state,equippedSlot)));
+    } else {
+      add("Équiper · 1 tour",()=>act(equipItem(state,id)));
+    }
+  }
+  if(id==="consumable.vigor_salts"){
+    add("Utiliser · +6 END · 1 tour",()=>act(useItem(state,id)));
+  }
+  if(!equippedSlot||count>1){
+    add("Abandonner 1 · 1 tour",()=>{
+      if(window.confirm("Abandonner définitivement un exemplaire de "+
+        ITEMS[id].name+" dans Nhal ?"))act(discardItem(state,id));
+    });
+  }
+  if(host.childElementCount)row.append(host);
+}
 function renderInventory(container, items, selectable=false) {
   container.replaceChildren();
   const entries = Object.entries(items).filter(([, count]) => count > 0);
@@ -184,7 +304,9 @@ function renderInventory(container, items, selectable=false) {
       heading.textContent=type;
       container.append(heading);
     }
-    container.append(infoItem(id,count,selectable));
+    const row=infoItem(id,count,selectable);
+    if(!selectable&&state.run)bagActions(row,id,count);
+    container.append(row);
     previousType=type;
   }
 }
@@ -604,6 +726,7 @@ function render() {
     renderThreatForecast();
     renderCombatPreview();
     renderInventory($("bag-items"), run.carried);
+    renderBagEquipped();
   } else {
     $("mission-refuge-title").textContent=mission.title;
     $("mission-refuge-text").textContent=mission.text;
@@ -612,7 +735,12 @@ function render() {
     selectedDoor=null;
     const available = new Set(Object.keys(state.meta.stash).filter((id) => state.meta.stash[id] > 0));
     selected = new Set([...selected].filter((id) => available.has(id)));
+    for(const [id,q] of [...selectedQuantities]){
+      if(!available.has(id))selectedQuantities.delete(id);
+      else selectedQuantities.set(id,Math.min(q,state.meta.stash[id],8));
+    }
     renderInventory($("stash-items"), state.meta.stash, true);
+    updatePreparationControls();
     renderVeyrConceptGallery();
     const fragments=state.meta.stash[RESOURCE_ID]||0;
     $("forge-fragments").textContent=fragments+" Fragment"+(fragments>1?"s":"")+" de cendre";
@@ -645,7 +773,7 @@ function act(result) {
       explorationState(state.run,e.x,e.y)==="visible")) {
     state=clearTarget(state).state;
   }
-  if (!state.run) selected.clear();
+  if (!state.run) resetPreparation();
   persist();
   render();
 }
@@ -691,7 +819,7 @@ $("title-new").addEventListener("click", () => {
   hasStoredGame = false;
   state = newGame();
   heroFacing = "down";
-  selected.clear();
+  resetPreparation();
   transientMessage = null;
   $("warning").hidden = true;
   persist();
@@ -712,12 +840,18 @@ $("back-to-title").addEventListener("click", returnToTitle);
 for(const button of document.querySelectorAll("[data-recipe]")){
   button.addEventListener("click",()=>act(craftAtRefuge(state,button.dataset.recipe)));
 }
+for(const select of document.querySelectorAll("[data-prep-slot]")){
+  select.addEventListener("change",()=>{
+    preparedLoadout[select.dataset.prepSlot]=select.value||null;
+    updatePreparationControls();
+  });
+}
 $("start-btn").addEventListener("click", () => {
   if (storageLocked) {
     showWarning("La sauvegarde actuelle n'est pas accessible. Réinitialise d'abord ou accepte de jouer sans sauvegarde.");
     return;
   }
-  act(beginRun(state,[...selected]));
+  act(beginRun(state,preparationCounts(),preparedChoice()));
 });
 for (const button of document.querySelectorAll("[data-direction]")) {
   button.addEventListener("click", () => act(move(state,button.dataset.direction)));

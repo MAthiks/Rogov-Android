@@ -51,6 +51,7 @@
         <img src="./title-scene.webp" width="620" height="342" alt="L'Égaré, vêtu d'une cape sombre et sans arme, observe une arche de pierre menant à Nhal dans une brume surnaturelle.">
       </div>
       <p class="title-tagline">Les profondeurs n'oublient personne.</p>
+      <p id="title-premise" class="title-premise">Tu es l'Égaré. Même après ta mort, le Rappel te ramène au refuge de Veyr, mais sans ton sac. <strong>Rapporte un Fragment de cendre depuis Nhal</strong> et cherche pourquoi tu reviens.</p>
       <div class="title-menu">
         <button id="title-continue" class="title-button title-primary" type="button">CONTINUER</button>
         <p id="title-save-info" class="title-save-info">Aucune sauvegarde — commence une nouvelle aventure.</p>
@@ -90,7 +91,16 @@
     <main>
       <section id="refuge" class="panel" aria-labelledby="refuge-title">
         <div class="section-head"><span class="eyebrow">01 — Sanctuaire</span><h2 id="refuge-title">Refuge de Veyr</h2></div>
-        <p class="copy">Ton héros revient ici après chaque descente. Le coffre est sûr. Tout ce que tu emportes dans Nhal peut être perdu.</p>
+        <p class="copy">Veyr est ton refuge. Ton coffre reste à l'abri ; ce que tu emportes dans Nhal peut être perdu au Rappel.</p>
+        <section id="mission-refuge" class="mission-brief" aria-labelledby="mission-refuge-title">
+          <span class="eyebrow">OBJECTIF ACTUEL</span>
+          <h3 id="mission-refuge-title">Première mission : une preuve pour Veyr</h3>
+          <p id="mission-refuge-text">Rapporte un Fragment de cendre en franchissant une Arche d'extraction.</p>
+        </section>
+        <details id="lore-primer" class="lore-primer">
+          <summary>Comprendre Veyr, Nhal et le Rappel</summary>
+          <dl id="lore-terms"></dl>
+        </details>
         <div class="rule"></div>
         <h3>Coffre sécurisé</h3>
         <p class="hint">Coche le matériel à emporter. Tu peux aussi partir sans équipement.</p>
@@ -143,7 +153,7 @@
           <progress id="endurance-meter" aria-label="Endurance de combat" max="15" value="15">15/15</progress>
         </div>
         <div class="dungeon-wrap">
-          <div class="render-controls"><span>PACK VISUEL / NHAL</span><button type="button" id="renderer-toggle" class="secondary" aria-pressed="true">Passer en ASCII</button></div>
+          <div class="render-controls"><span id="mission-compact" aria-label="Objectif de la descente">MISSION · 1 FRAGMENT</span><button type="button" id="renderer-toggle" class="secondary" aria-pressed="true">Passer en ASCII</button></div>
           <div id="tile-map" class="pixel-map" role="group" aria-label="Carte graphique du donjon. Touchez un ennemi pour le cibler." tabindex="0"></div>
           <pre id="dungeon-map" aria-label="Carte ASCII du donjon" tabindex="0" hidden></pre>
         <section id="field-controls" class="field-controls" aria-label="Commandes de déplacement et de survie">

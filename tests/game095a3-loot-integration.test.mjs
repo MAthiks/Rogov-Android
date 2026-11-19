@@ -5,6 +5,9 @@ import {generateDeepLayout,validateDeepLayout,deepRoute,deepTwoReturnWays}
   from "../docs/deep-dungeon.js";
 import {planDeepChestLoot,EQUIPMENT_LOOT_POOL,CONSUMABLE_LOOT_POOL}
   from "../docs/loot.js";
+import {damageFromStats} from "../docs/combat-rules.js";
+import {deriveStats,ENEMY_STATS,DEFAULT_HERO_STATS,EMPTY_LOADOUT}
+  from "../docs/stats.js";
 import {newGame,beginRun,normalizeJournal,validateSave,openChest,
   extract,recall,ITEMS,SAVE_KEY,SCHEMA_VERSION,INVENTORY_LIMIT}
   from "../docs/game.js";
@@ -175,4 +178,27 @@ test("GAME-095A4: deterministic candidate distribution has useful diversity",()=
   assert.ok(count.get("armor.broken_plate")>70,"rare armor absent from long-run samples");
   assert.ok(count.get("weapon.bone_dagger")>300,"dagger absent from long-run samples");
   assert.equal(INVENTORY_LIMIT,8);
+});
+
+
+test("GAME-095A4: heavy armor cannot nullify a landed physical strike",()=>{
+  const foe=deriveStats(ENEMY_STATS.charognard);
+  const bare=deriveStats(DEFAULT_HERO_STATS);
+  const cuirass=deriveStats(DEFAULT_HERO_STATS,{
+    ...EMPTY_LOADOUT,body:"armor.scavenged_cuirass"
+  });
+  const plate=deriveStats(DEFAULT_HERO_STATS,{
+    ...EMPTY_LOADOUT,body:"armor.broken_plate"
+  });
+  assert.equal(damageFromStats(1,foe,bare),1);
+  assert.equal(damageFromStats(1,foe,cuirass),1);
+  assert.equal(damageFromStats(1,foe,plate),1,
+    "armor must not create permanent immunity to common monsters");
+  assert.equal(damageFromStats(8,foe,cuirass),7);
+  assert.equal(damageFromStats(8,foe,plate),6,
+    "heavy attacks still reward the protective armor tradeoff");
+  assert.ok(plate.dodgeChance<cuirass.dodgeChance,
+    "heavy armor has a real evasion penalty");
+  assert.equal(damageFromStats(1,foe,plate,{source:"rift"}),1,
+    "rift magic still uses its existing separate resistance rule");
 });

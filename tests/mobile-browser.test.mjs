@@ -2790,3 +2790,45 @@ test("UI-096B mobile: visible enemies show pressure, unseen ones cannot leak via
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("ART-096A mobile: Sprite C stone and door states render at 24px without fog leaks", {timeout:50000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    const {door}=await preloadDeepRun(page,true);
+    const assets=await page.evaluate(()=>{
+      const cells=[...document.querySelectorAll("#tile-map .pixel-tile")];
+      const known=cells.filter(el=>el.dataset.knowledge==="visible");
+      const backgrounds=known.map(el=>el.style.backgroundImage);
+      const unknown=cells.filter(el=>el.dataset.knowledge==="unknown");
+      return {
+        count:cells.length,known:known.length,unknown:unknown.length,
+        floor:backgrounds.some(url=>url.includes("worn-floor-slabs")),
+        wall:backgrounds.some(url=>url.includes("raised-stone-ledge")),
+        unknownEmpty:unknown.every(el=>!el.querySelector("img")&&!el.style.backgroundImage)
+      };
+    });
+    assert.equal(assets.count,121);
+    assert.ok(assets.known>0);
+    assert.ok(assets.floor,"Worn stone is rendered by the real map");
+    assert.ok(assets.wall,"Raised masonry is rendered by the real map");
+    assert.equal(assets.unknownEmpty,true,"Unknown fog cells have no graphic asset");
+    const doorCell=page.locator('#tile-map .pixel-tile[data-x="'+door.x+'"][data-y="'+door.y+'"]');
+    let src=await doorCell.locator("img").getAttribute("src");
+    assert.match(decodeURIComponent(src),/arch-keystone/);
+    const size=await doorCell.locator("img").evaluate(async img=>{
+      await img.decode();return {width:img.naturalWidth,height:img.naturalHeight};
+    });
+    assert.deepEqual(size,{width:24,height:24});
+    const before=Number(await page.locator("#turns").textContent());
+    await doorCell.tap();
+    assert.equal(await page.locator("#turns").textContent(),String(before),
+      "Examining enhanced art is free");
+    await page.locator("#door-action").tap();
+    assert.equal(await page.locator("#turns").textContent(),String(before+1));
+    src=await doorCell.locator("img").getAttribute("src");
+    assert.match(decodeURIComponent(src),/opaque-door-lock/);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

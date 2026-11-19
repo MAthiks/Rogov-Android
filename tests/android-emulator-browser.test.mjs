@@ -673,3 +673,58 @@ test("GAME-095D2 Chrome Android 13: chest exchange saves once without duplicatin
     console.log("GAME-095D2 ANDROID 13: deliberate one-turn bag exchange PASS");
   }finally{await browser.close();}
 });
+
+
+test("QA-096 Android 13 Chrome: actual Veyr and Nhal UI screenshots", {timeout:95000}, async()=>{
+  // CDP captures Chrome's web viewport on Android 13, excluding OS permission
+  // prompts that can obscure an ADB screencap of the physical display.
+  const browser=await androidBrowser();
+  try{
+    const context=browser.contexts()[0];
+    assert.ok(context,"Real Android Chrome context");
+    const page=context.pages().find(p=>p.url().includes("127.0.0.1:8765"))||
+      await context.newPage();
+    await page.goto(URL,{waitUntil:"load",timeout:20000});
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const refuge=game.newGame();
+      if(!game.validateSave(refuge))throw Error("QA-096 refuge fixture invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(refuge));
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    await page.locator("#refuge").waitFor({state:"visible",timeout:12000});
+    assert.equal(await page.locator("#refuge-character-slot #actor-stats-sheet").count(),1);
+    await page.screenshot({path:"rogov-qa096-android13-veyr.png",animations:"disabled"});
+
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const start=game.newGame();start.meta.descents=1;
+      const deep=game.beginRun(start).state;
+      deep.run.enemies=[]; // isolate visual QA, without changing enemy behavior.
+      if(!game.validateSave(deep))throw Error("QA-096 deep fixture invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(deep));
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    if(await page.locator("#tile-map").isHidden())
+      await page.locator("#renderer-toggle").click();
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
+    assert.equal(await page.locator("#tile-map .tile-hero").count(),1);
+    const metric=await page.evaluate(()=>{
+      const map=document.getElementById("tile-map").getBoundingClientRect();
+      const dock=document.getElementById("field-controls").getBoundingClientRect();
+      return {
+        viewportWidth:document.documentElement.clientWidth,
+        scrollWidth:document.documentElement.scrollWidth,
+        mapBottom:map.bottom,dockTop:dock.top
+      };
+    });
+    assert.ok(metric.scrollWidth<=metric.viewportWidth+1,
+      "QA-096 real Android Chrome must not scroll horizontally");
+    assert.ok(metric.mapBottom<=metric.dockTop+1,
+      "QA-096 real Android Chrome map must not overlap dock");
+    await page.screenshot({path:"rogov-qa096-android13-nhal.png",animations:"disabled"});
+    console.log("QA-096 Android 13 Chrome visual references:",JSON.stringify(metric));
+  }finally{await browser.close();}
+});

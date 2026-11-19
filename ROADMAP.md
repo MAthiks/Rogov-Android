@@ -49,6 +49,14 @@
 
 **Fusionné, PR #45 :** Veyr reçoit un véritable écran pierre/ambre avec panorama pixel original et **quatre accès aux sections existantes** (Préparer / Forge / Échos / Égaré), coffre explicitement sécurisé, préparation à **8 unités** avec jauge, même bouton de départ accessible sur Android, et palette de danger dans le sac de descente. **La fiche existante `#actor-stats-sheet` est déplacée sans duplication** entre Veyr et Nhal ; statistiques du moteur inchangées, aucune nouvelle ressource, boutique ou PNJ actif. [Contrat UI-096C](docs/UI096C_VEYR_REFUGE_IMPLEMENTATION.md). **CI validée : 361/361 tests Node, 49/49 Chromium mobile, Chrome Android 13 et build/installation APK.** **QA téléphone physique et 5 joueurs × 2 descentes toujours ouverts.**
 
+## QA-096 — Recette visuelle et ergonomique Android (chantier actif)
+
+**Ouvert le 19 novembre 2026, GO artistique non accordé.** Après UI-096C / PR #45, le dernier workflow GitHub Pages `main` du commit `ed2459c` est **réussi**, déploiement compris ([run](https://github.com/MAthiks/Rogov-Android/actions/runs/44629654676)); APK `main` réussi ([run](https://github.com/MAthiks/Rogov-Android/actions/runs/44629654708)). Ce succès CI ne valide pas l'affichage sur téléphone.
+
+**Outillage QA-096 en préparation sur branche dédiée** : capture Chromium automatisée de Veyr et Nhal aux trois résolutions 320×640, 360×780, 393×704 ; métriques de carte, zone tactile ≥44px et contraste de textes à fond uni ; PNG et JSON archivés en artefact PR. Voir le [protocole QA-096](docs/QA096_ANDROID_VISUAL_RECIPE.md). Le résultat des tests du nouveau lot doit être vérifié avant fusion.
+
+**Reste obligatoire** : captures et gestes sur **Android physique**, test ASCII/PWA hors ligne et sauvegardes, perception Sprite C (capuche quatre directions, coffres, pièges, intentions, Arche vs Faille), puis **cinq testeurs × deux descentes**, dont ≥4/5 souhaitant rejouer, sans P0. La note Alpha provisoire **7,5/10** et la note DA **6/10** sont maintenues jusqu'à cette preuve. Aucune nouvelle mécanique ni portage PC actif avant l'arbitrage.
+
 ## Plateformes — Android en priorité, PC conservé dans le GDD
 
 **Décision du 19 novembre 2026 :** poursuivre exclusivement la **production active sur Android** (PWA/JavaScript, APK et tests tactiles). **Godot est mis en attente** : pas de changement de moteur ni de projet de migration actif. Le **portage PC futur**, Windows en premier, reste inscrit comme objectif de long terme, avec moteur à choisir après stabilisation du gameplay mobile et tests utilisateurs. Préserver autant que possible les règles déterministes, le mode ASCII, les assets Sprite C et les contrats de sauvegarde pour réduire le coût d'une éventuelle adaptation. Aucune date de portage annoncée.

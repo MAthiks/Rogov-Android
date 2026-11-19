@@ -57,3 +57,11 @@ jobs:
           fi
       - name: Android portrait browser interactions and offline cache
         run: node --test tests/mobile-browser.test.mjs
+      - name: Archive QA-096 Chromium screenshots and layout metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa096-chromium-portraits
+          path: qa096-screenshots/
+          if-no-files-found: warn
+          retention-days: 14

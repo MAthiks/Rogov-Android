@@ -33,3 +33,7 @@
 ## Décision studio
 
 Développer et fusionner UI-096D **uniquement si** `test-web`, `android-web`, `build` sont verts et si le rapport de géométrie montre les bonnes proportions. Maintenir Alpha 7,5/10, direction artistique 6/10 provisoires jusqu'à validation physique et 5 testeurs × 2 descentes. Ne pas ouvrir de nouveau lot fonctionnel.
+
+## Incident CI pendant la recette (résolu côté protocole, nouvelle CI à vérifier)
+
+Le premier passage de la PR #47 a obtenu `test-web=success` et `build=success`, mais `android-web=failure` : les **neuf scénarios Android 13 précédents ont réussi**, puis `page.screenshot()` a dépassé les 30 s sur le Chrome 109 de l'émulateur pendant la capture de Veyr. Aucune erreur fonctionnelle du jeu n'est remontée dans ces neuf parcours. Pour éviter qu'une panne facultative de la voie CDP fasse échouer des assertions ergonomiques, les deux captures Android sont désormais **best effort avec délai borné** ; la validité du refuge, les 121 cellules, la présence du PJ, le non-recouvrement, l'absence de défilement horizontal et une largeur minimale de carte **275 CSS px** en 393×704 restent des assertions bloquantes. Les six captures Chromium de QA-096 et les captures réelles fournies par l'utilisateur constituent les références visuelles principales ; ne pas affirmer que les deux nouveaux PNG Android existent sans vérifier l'artefact. Relancer les trois jobs sur le dernier commit avant fusion.

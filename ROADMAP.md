@@ -8,8 +8,10 @@
 
 **GAME-095A1 — Fondations du butin :** définitions de six objets, système de tirage de récompenses déterministe indépendant du RNG de combat et tests, en branche de travail [PR #29](https://github.com/MAthiks/Rogov-Android/pull/29) **brouillon, non fusionnée**. La distribution et les interactions ne sont pas encore jouables. [Spécification GAME-095A](docs/GAME095A_LOOT_EQUIPMENT.md). La suite est A2 (équipement/consommables), puis A3 (récompenses des coffres), puis A4 (QA mobile).
 
-**GAME-095A2 — Équipement et sac :** développement sur branche `feature/game095a2-equipment-and-bag`, non fusionné : quantités à Veyr (sans modifier les anciennes signatures), choix des slots, équipement tactique coûtant un tour, abandon avec confirmation, Sels de vigueur (+6 END), inventaire Android. [Contrat A2](docs/GAME095A_LOOT_EQUIPMENT.md). Distribution de nouveaux objets en donjon reportée à A3. CI et tests Android requis avant validation.
+**GAME-095A2 — Équipement et sac (fusionné, PR #30) :** quantités à Veyr (sans modifier les anciennes signatures), choix des slots, équipement tactique coûtant un tour, abandon avec confirmation, Sels de vigueur (+6 END), inventaire Android. [Contrat A2](docs/GAME095A_LOOT_EQUIPMENT.md). Distribution de nouveaux objets en donjon reportée à A3. CI et tests Android requis avant validation.
 
+
+**GAME-095A3 — Butin de coffres réellement variable (en développement) :** nouvelles descentes profondes avec Fragment + Bandage garantis et troisième récompense déterministe (armes, boucliers, armures ou consommables) ; nouvelle validation `lootPlanVersion: 1` uniquement pour ces descentes ; sauvegardes anciennes non régénérées. [Recette A3/A4](docs/GAME095A3_A4_QA_BALANCE.md). **GAME-095A4** : simulations, minimum 1 PV par attaque physique réussie après armure passive, tests Web/Android automatisés ; recette **5 joueurs × 2 descentes** encore ouverte. GAME-095B/C/D ne sont pas développés.
 
 ## NAR-094 — Enquête persistante dans les Chambres de l'Écho
 

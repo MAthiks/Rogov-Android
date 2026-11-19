@@ -259,5 +259,6 @@ test("GAME-095B2: Android forecast, offline PWA and programmatic tests stay in s
   assert.match(app,/forecast\.risk/);
   assert.match(app,/forecast\.prize/);
   assert.match(sw,/"\.\/depth-balance\.js"/);
-  assert.match(file("package.json"),/game095b2-depth-balance\.test\.mjs/);
+  const packageJson=readFileSync(new URL("../package.json",import.meta.url),"utf8");
+  assert.match(packageJson,/game095b2-depth-balance\.test\.mjs/);
 });

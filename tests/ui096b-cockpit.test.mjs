@@ -29,9 +29,9 @@ test("UI-096B: no warning when hidden fog or no visible hostile",()=>{
 
 test("UI-096B: visible pressure and imminent combat intent are copied unchanged",()=>{
   const nearby=projected({hostiles:"2 HOSTILES VISIBLES",threat:"danger"});
-  assert.equal(nearby.hidden,false);
+  assert.equal(nearby.hidden,true,"Hostile count is already in the visible HUD");
   assert.equal(nearby.dataset.urgent,"false");
-  assert.equal(nearby.textContent,"⚠ 2 HOSTILES VISIBLES");
+  assert.equal(nearby.textContent,"");
   const exact="⚠ MENACES AU PROCHAIN TOUR — Gardien : Coup lourd annoncé";
   const imminent=projected({forecast:exact,forecastHidden:false,
     hostiles:"1 HOSTILE VISIBLE",threat:"danger"});

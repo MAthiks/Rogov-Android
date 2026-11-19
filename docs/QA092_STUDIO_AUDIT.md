@@ -21,6 +21,7 @@ La dernière base avant cet audit a **réussi** la compilation APK et le workflo
 
 | Priorité | Constat | Conséquence | Action proposée |
 |---|---|---|---|
+| **P0 — BUG découvert en CI QA-092** | Sur un viewport Chromium **320×640**, le pavé de déplacement fixe de UI-092A recouvrait le bas de la carte 11×11. | Le PJ et les éléments de la carte pouvaient être masqués par une commande permanente. | Correctif CSS dans UI-092A : échelle réduite sur les écrans courts **sans réduire les cibles tactiles** ; test géométrique dédié, résultat de retest à vérifier. |
 | **P0** | Pas encore de recette visuelle / tactile confirmée sur un téléphone physique, après UI-092A | Alpha 0.8 ne doit pas être annoncée comme validée | Effectuer le protocole humain, captures et test Android réel |
 | **P1** | Les cases du coffre sélectionnent **un identifiant d'objet à la fois**. `beginRun` n'autorise pas les identifiants répétés et transfère un exemplaire par ID. | Quatre bandages au coffre n'autorisent actuellement l'emport que d'un bandage à la préparation. Les choix de soin peuvent être trop limités. | Faire observer la compréhension et décider des quantités au lot futur UI-092B/C, **sans modifier la règle pendant l'audit** |
 | **P1** | Le premier niveau possède un itinéraire sûr connu, historique de QA-074 ; les descentes profondes sont désormais procédurales. | L'introduction peut être comprise comme trop facile, mais un tutoriel relativement sûr peut être intentionnel. | Tester séparément l'apprentissage en descente 1 et la tension en descente 2 ; ne pas généraliser la faiblesse du tutoriel à tout Nhal |
@@ -54,9 +55,9 @@ La réussite des tests automatisés et du workflow GitHub n'efface aucun « non 
 |---|---|---|
 | Web + déploiement Pages sur la version de référence | **PASS** — workflow terminé avec succès | CI GitHub précédente |
 | APK Android sur la version de référence | **PASS** — workflow terminé avec succès | CI GitHub précédente |
-| Tests Node de parcours et 30 graines ajoutés par QA-092 | **À confirmer via PR QA-092** | CI à venir |
-| Tests Chromium tactiles ajoutés par QA-092 | **À confirmer via PR QA-092** | CI à venir |
-| Chrome Android 13 de la branche QA-092 | **À confirmer via PR QA-092** | CI à venir |
+| Tests Node de parcours et 30 graines ajoutés par QA-092 | **248/248 réussis au premier passage** ; retest du correctif responsive requis | CI PR #23, premier passage |
+| Tests Chromium tactiles ajoutés par QA-092 | **33/34 au premier passage** ; 320×640 a révélé un chevauchement, correctif engagé | CI PR #23, premier passage |
+| Chrome Android 13 de la branche QA-092 | **Indéterminé au premier passage** : Chrome bloqué à l'écran de premier démarrage de l'émulateur ; relance requise | CI PR #23, infra Android |
 | Smartphone physique et PWA hors ligne | **NON TESTÉ sur appareil physique** | Recette humaine |
 | 5 testeurs × 2 descentes / 4 sur 5 prêts à rejouer | **AUCUN résultat recueilli** | Playtests |
 | Homologation Alpha 0.8 | **NO-GO provisoire** | Manque de preuve humaine |

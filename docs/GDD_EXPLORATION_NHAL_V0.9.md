@@ -398,4 +398,27 @@ Les familles ne transforment pas automatiquement un sol esthétique en piège ni
 >
 > Ses pierres racontent l'ancienneté et l'étrangeté du lieu ; ses couloirs offrent des décisions réelles. La beauté du décor ne doit jamais faire perdre la lecture d'un danger, d'une porte, d'une issue ni de ce qu'on peut sauver en rentrant à Veyr.
 
+## 16. Stratégie de plateformes — Android maintenant, PC ultérieurement (décision du 19 novembre 2026)
+
+**Décision de production :** ROGOV continue d'être développé, testé et publié **prioritairement sur Android** à partir de la base actuelle HTML/CSS/JavaScript (PWA hors ligne, version APK/compatibilité). **Le portage PC reste un objectif à long terme inscrit au GDD, pas un chantier actif ni un prérequis des lots GAME-095.**
+
+### 16.1. Portage PC — cible future
+
+- **Plateformes envisagées :** Windows en premier ; Linux éventuellement selon les moyens et les retours. Aucune date de sortie ni engagement de parité immédiate.
+- **Expérience commune :** conserver Veyr et Nhal, donjons procéduraux, exploration tour par tour, combat tactique, équipement, extraction, Rappel, persistance des connaissances, Sprite C et lisibilité des cartes.
+- **Commandes et affichage :** conserver le tactile Android, prévoir un mappage clavier/souris indépendant des règles du jeu ; UI réorganisable selon taille et rapport d'écran. Le mode ASCII reste une référence utile de lecture et d'accessibilité.
+- **Sauvegardes et logique :** privilégier des règles déterministes, données de contenu séparées des écrans et formats sérialisables documentés. Avant toute migration PC, définir et tester la reprise ou l'import des sauvegardes Android : ne jamais supposer qu'une sauvegarde Web peut être chargée directement par un autre moteur.
+- **Stratégie technique à réévaluer :** soit adaptation de la version Web actuelle au bureau, soit portage vers un moteur 2D. **Godot est une possibilité étudiée, pas le moteur retenu.** Aucun projet Godot parallèle ni réécriture du moteur n'est lancé à ce stade.
+- **Critères de lancement du portage :** boucle roguelike Android stabilisée, tests utilisateurs satisfaisants, contrats de sauvegarde et d'assets documentés, puis prototype comparatif PC validant coût et ergonomie.
+
+### 16.2. Priorités et garde-fous
+
+1. **Maintenant — Android :** GAME-095B2 (difficulté et ressources par profondeur), GAME-095C (tactique et ennemis), GAME-095D (équilibrage et rejouabilité), optimisation des commandes et tests sur appareils réels.
+2. **Ensuite — préparation transversale seulement si utile :** préserver la séparation moteur/interface, les ressources réutilisables et une documentation des entrées/sorties, sans détourner la production mobile.
+3. **Plus tard — PC :** prototype sur un seul niveau, mesure des performances et de l'effort de maintenance, décision du moteur, puis plan de migration ; le choix de Godot sera rouvert à ce moment.
+
+**Hors périmètre immédiat :** changement de moteur, portage Godot, exécutable PC natif et promesse de sortie multiplateforme. Toute décision future devra préserver la version Android jouable.
+
+---
+
 **Historique :** [GDD exploration v0.8](GDD_EXPLORATION_NHAL_V0.8.md) conservé inchangé. **Document de référence courant : v0.9.**

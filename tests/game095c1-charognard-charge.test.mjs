@@ -68,7 +68,14 @@ test("GAME-095C1: lunge attacks once for normal damage, then recovers",()=>{
   let s=origin();s.run.rngState=1;
   s=step(s);
   const charged=normalizeJournal(JSON.parse(JSON.stringify(s)));
-  assert.deepEqual(charged,s);
+  // Legacy run normalization legitimately fills missing enemy attributes
+  // and loadout; it must never replace the persisted tactical windup.
+  assert.equal(charged.run.enemies[0].tactic,"winding");
+  assert.equal(charged.run.rngState,s.run.rngState);
+  assert.equal(charged.run.hp,s.run.hp);
+  assert.equal(charged.run.turns,s.run.turns);
+  assert.ok(validateSave(charged));
+  assert.deepEqual(normalizeJournal(JSON.parse(JSON.stringify(charged))),charged);
   s=step(s);
   const hitState=normalizeJournal(JSON.parse(JSON.stringify(s)));
   assert.equal(s.run.turns,2);

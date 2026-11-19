@@ -82,6 +82,13 @@ function recordEvent(state, type, message, turn) {
 export const ITEMS = Object.freeze({
   "weapon.rusty_sword": { name: "Épée usée", type: "Arme", symbol: "/" },
   "weapon.ashen_blade": { name: "Lame cendrée", type: "Arme +1", symbol: "†" },
+  // GAME-095A1 — definitions recognized in saves, not yet distributed in Nhal.
+  "weapon.bone_dagger": { name: "Dague d'ossement", type: "Arme", symbol: ")" },
+  "weapon.iron_mace": { name: "Masse ferrée", type: "Arme", symbol: "T" },
+  "shield.worn_buckler": { name: "Rondache usée", type: "Bouclier", symbol: "]" },
+  "armor.scavenged_cuirass": { name: "Cuirasse de récupération", type: "Armure", symbol: "[" },
+  "armor.broken_plate": { name: "Armure de plaques disjointes", type: "Armure", symbol: "{" },
+  "consumable.vigor_salts": { name: "Sels de vigueur", type: "Consommable", symbol: "~" },
   "consumable.bandage": { name: "Bandage", type: "Soin", symbol: "+" },
   "relic.ashen_fragment": { name: "Fragment de cendre", type: "Relique", symbol: "*" },
   "consumable.dusk_tonic": { name: "Tonique du crépuscule", type: "Potion", symbol: "!" }

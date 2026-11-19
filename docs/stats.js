@@ -32,6 +32,27 @@ export const EQUIPMENT_CATALOG=Object.freeze({
     name:"Lame cendrée",slot:"mainHand",kind:"weapon",quality:1,baseDamage:4,
     bonuses:Object.freeze({attack:2,accuracy:3,parry:7,critical:4})
   }),
+  // GAME-095A1 — definitions only; obtainable items arrive in A3.
+  "weapon.bone_dagger":Object.freeze({
+    name:"Dague d'ossement",slot:"mainHand",kind:"weapon",quality:0,baseDamage:2,
+    bonuses:Object.freeze({attack:0,accuracy:8,parry:2,critical:6})
+  }),
+  "weapon.iron_mace":Object.freeze({
+    name:"Masse ferrée",slot:"mainHand",kind:"weapon",quality:0,baseDamage:5,
+    bonuses:Object.freeze({attack:2,accuracy:-8,parry:1,critical:0})
+  }),
+  "shield.worn_buckler":Object.freeze({
+    name:"Rondache usée",slot:"offHand",kind:"shield",quality:0,
+    bonuses:Object.freeze({block:6,absorption:1,mobilityPenalty:1})
+  }),
+  "armor.scavenged_cuirass":Object.freeze({
+    name:"Cuirasse de récupération",slot:"body",kind:"armor",quality:0,
+    bonuses:Object.freeze({armor:3,mobilityPenalty:1})
+  }),
+  "armor.broken_plate":Object.freeze({
+    name:"Armure de plaques disjointes",slot:"body",kind:"armor",quality:0,
+    bonuses:Object.freeze({armor:6,mobilityPenalty:4})
+  }),
   "natural.charognard_claws":Object.freeze({
     name:"Serres caveuses",slot:"mainHand",kind:"natural",quality:0,
     bonuses:Object.freeze({attack:1,accuracy:1,critical:2})

@@ -10,8 +10,8 @@ const source=path=>readFileSync(new URL(path,import.meta.url),"utf8");
 
 test("ART-091D: every existing game item has one distinct transparent 24px Sprite C icon",()=>{
   assert.deepEqual([...ITEM_ART_IDS].sort(),Object.keys(ITEMS).sort());
-  assert.equal(new Set(ITEM_ART_IDS).size,5);
-  assert.equal(new Set(Object.values(ITEM_SVGS)).size,5);
+  assert.equal(new Set(ITEM_ART_IDS).size,Object.keys(ITEMS).length);
+  assert.equal(new Set(Object.values(ITEM_SVGS)).size,Object.keys(ITEMS).length);
   for(const id of ITEM_ART_IDS){
     const svg=ITEM_SVGS[id],uri=ITEM_SPRITES[id];
     assert.match(svg,/viewBox="0 0 24 24" width="24" height="24"/);
@@ -27,6 +27,15 @@ test("ART-091D: every existing game item has one distinct transparent 24px Sprit
   assert.match(ITEM_SVGS["consumable.bandage"],/rolled-cloth-bandage/);
   assert.match(ITEM_SVGS["relic.ashen_fragment"],/faceted-ashen-mineral/);
   assert.match(ITEM_SVGS["consumable.dusk_tonic"],/stoppered-dusk-tonic/);
+  // Sprite C contract extends to every A1 candidate, not only legacy items.
+  for(const [id,feature] of Object.entries({
+    "weapon.bone_dagger":"bone-dagger",
+    "weapon.iron_mace":"iron-mace",
+    "shield.worn_buckler":"worn-buckler",
+    "armor.scavenged_cuirass":"scavenged-cuirass",
+    "armor.broken_plate":"broken-plate",
+    "consumable.vigor_salts":"vigor-salts"
+  }))assert.match(ITEM_SVGS[id],new RegExp('data-feature="'+feature+'"'));
 });
 
 test("ART-091D: three clearly distinct Veyr NPCs remain noninteractive art concepts",()=>{
@@ -52,15 +61,22 @@ test("ART-091D: three clearly distinct Veyr NPCs remain noninteractive art conce
   assert.doesNotMatch(artSource,/import\s|export function |newGame\(|localStorage|Math\.random/);
 });
 
-test("ART-091D: saved schemas and gameplay items are unchanged",()=>{
+test("ART-091D: save schemas and five legacy gameplay items remain intact",()=>{
   const state=beginRun(newGame(),[]).state;
   assert.equal(SCHEMA_VERSION,1);
   assert.equal(SAVE_KEY,"rogov-web-v1");
   assert.equal(validateSave(state),true);
-  assert.deepEqual(Object.keys(ITEMS).sort(),[
+  const legacyItems=[
     "weapon.rusty_sword","weapon.ashen_blade","consumable.bandage",
     "relic.ashen_fragment","consumable.dusk_tonic"
-  ].sort());
+  ];
+  const newCandidates=[
+    "weapon.bone_dagger","weapon.iron_mace","shield.worn_buckler",
+    "armor.scavenged_cuirass","armor.broken_plate","consumable.vigor_salts"
+  ];
+  assert.deepEqual(Object.keys(ITEMS).sort(),[...legacyItems,...newCandidates].sort());
+  assert.ok(legacyItems.every(id=>ITEM_SPRITES[id]),
+    "every pre-GAME-095 item retains its original art and ID");
   assert.equal(Object.hasOwn(state,"npcs"),false);
   assert.equal(Object.hasOwn(state.meta,"npcs"),false);
   assert.equal(Object.hasOwn(state.run,"npcs"),false);

@@ -1703,7 +1703,7 @@ test("ART-091C mobile: real door action swaps silhouette, ASCII and saved state"
 });
 
 
-test("ART-091D mobile: all five inventory pictograms and three Veyr concepts stay compact", {timeout:60000}, async()=>{
+test("ART-091D / GAME-095A1 mobile: all inventory pictograms and three Veyr concepts stay compact", {timeout:60000}, async()=>{
   const context=await mobileContext();
   try{
     const page=await context.newPage(),errors=[];
@@ -1719,7 +1719,9 @@ test("ART-091D mobile: all five inventory pictograms and three Veyr concepts sta
     });
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#refuge").isVisible(),true);
-    assert.equal(await page.locator("#stash-items .item-row").count(),5);
+    const iconCount=await page.evaluate(async()=> (await import("./veyr-art.js")).ITEM_ART_IDS.length);
+    assert.equal(iconCount,11,"five existing items and six new Sprite C candidates");
+    assert.equal(await page.locator("#stash-items .item-row").count(),iconCount);
     const items=await page.locator("#stash-items .item-row").evaluateAll(async rows=>{
       return Promise.all(rows.map(async row=>{
         const icon=row.querySelector(".item-icon"),img=icon.querySelector("img");
@@ -1731,7 +1733,7 @@ test("ART-091D mobile: all five inventory pictograms and three Veyr concepts sta
           svg:decodeURIComponent(img.src)};
       }));
     });
-    assert.equal(new Set(items.map(x=>x.svg)).size,5);
+    assert.equal(new Set(items.map(x=>x.svg)).size,iconCount);
     for(const item of items){
       assert.deepEqual(item.natural,[24,24]);
       assert.equal(item.alt,"","A visible text label provides the accessible name");

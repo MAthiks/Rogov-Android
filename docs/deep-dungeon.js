@@ -461,9 +461,9 @@ export function validateDeepLayout(layout,live=false){
     return /^\d+,\d+$/.test(pos)&&tile(map,{x,y})==="$"&&
       acceptedLootIds.has(id);
   }))return false;
-  // Only generated layouts are constrained to exactly one optional reward.
-  // Live runs may already contain legacy or partially collected chest records.
-  if(!live&&!legacyLoot){
+  // A complete chest record always holds one of each reward role.
+  // Live saves with already removed chest records remain backward compatible.
+  if(!legacyLoot&&(!live||Object.keys(loot).length===3)){
     const ids=Object.values(loot);
     if(ids.filter(id=>id==="relic.ashen_fragment").length!==1||
        ids.filter(id=>id==="consumable.bandage").length!==1||

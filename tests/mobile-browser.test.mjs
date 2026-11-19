@@ -525,8 +525,14 @@ test("QA-084 mobile: end-to-end two descents, discovered secret, public extracti
     const exit=state.run.exit;
     const finalPath=await walk(exit);
     assert.ok(finalPath.steps>0,"Public extraction remains possible without a mandatory door");
+    // GAME-095B1: new Android expeditions stop at the Arche for a fair
+    // voluntary choice; the first tutorial and older saves still auto-extract.
     state=await saved();
-    assert.equal(state.run,null,"Return to Veyr through the ordinary Arche");
+    assert.equal(state.run.floorDepth,1);
+    assert.equal(await page.locator("#floor-choice").isVisible(),true);
+    await page.locator("#floor-extract").tap();
+    state=await saved();
+    assert.equal(state.run,null,"Voluntary return to Veyr through the ordinary Arche");
     assert.equal(state.meta.extractions,2);
     assert.equal(state.meta.stash["weapon.rusty_sword"],1);
     assert.equal(state.meta.stash["relic.ashen_fragment"],relicBeforeDeep+1,

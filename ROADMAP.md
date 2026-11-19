@@ -33,6 +33,10 @@
 
 ## UI-096 — Refonte visuelle par maquettes (nouvelle priorité du studio)
 
+**UI-096B — premier prototype Nhal Android (en cours, branche dédiée) :** CSS additionnel sobre/contrasté, 6 accès rapides repérés visuellement, carte 11×11 préservée, bandeau de menaces alimenté exclusivement par les avertissements/ennemis visibles déjà filtrés par le moteur, dock et ASCII inchangés. [Contrat et recette UI-096B](docs/UI096B_NHAL_COCKPIT_IMPLEMENTATION.md). **Prototype non fusionné tant que la CI Web/Chromium, Chrome Android 13 et APK n'est pas verte ; revue visuelle sur téléphone physique et tests joueurs restent ouverts.** Aucun Sprite C n'est remplacé par ce lot.
+
+
+
 **Décision du 19 novembre 2026 :** priorité à l'interface Android et aux graphismes, **avant** de reprendre l'ajout de mécaniques. [Checkpoint de maquettes UI-096 v0.1](docs/UI096_V3_VISUAL_MOCKUPS.md) : design system sombre/contrasté Sprite C, **maquette A Nhal (carte dominante, menace lisible, dock tactile), maquette B Veyr (coffre/forge/préparation)**, puis C sac et D personnage. **Maquettes conceptuelles, non encore validées ; pas de refonte du moteur fusionnée.** Reprise sur plusieurs sessions depuis le document, choix utilisateur avant PR de code, compatibilité sauvegardes/ASCII/PWA hors ligne et tests Android.
 
 ## Plateformes — Android en priorité, PC conservé dans le GDD

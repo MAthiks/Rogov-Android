@@ -123,5 +123,5 @@ test("GAME-095D3C: new rule must be precached for offline Android",()=>{
   assert.match(src,/deepTwoReturnWays/);
   assert.match(src,/lineOfSight/);
   assert.match(sw,/"\.\/optional-duo\.js"/);
-  assert.match(sw,/game095d3c/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
 });

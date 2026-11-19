@@ -202,5 +202,5 @@ test("GAME-095D2: Android controls and offline update are present",()=>{
   assert.match(html,/id="chest-swap-action"/);
   assert.match(app,/swapChestReward\(state,chest\.x,chest\.y,discardId\)/);
   assert.match(app,/chestSwapChoices\(state\.run\)/);
-  assert.match(sw,/game095(d2|d3c)/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
 });

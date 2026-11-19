@@ -1,0 +1,229 @@
+#ui096-threat-banner{display:none}
+/* UI-096B — First playable visual refinement of the existing UI-092A cockpit.
+ * Android expedition only. Original panels, handlers, map renderer, save and
+ * touch targets stay unchanged. Pixel Dungeon is a usability reference, not art. */
+@media(max-width:730px){
+  .frame.is-expedition{
+    --ui096-ink:#0b1017;
+    --ui096-panel:#19212a;
+    --ui096-stone:#536069;
+    --ui096-text:#e9e2d3;
+    --ui096-amber:#cba36a;
+    --ui096-alert:#c36f6b;
+    --ui096-teal:#67b9ac;
+    background:var(--ui096-ink);
+  }
+  .frame.is-expedition #expedition{
+    padding:5px 6px calc(var(--ui092-dock-height) + 38px);
+    background:radial-gradient(ellipse at 50% 0%,#20232c 0%,#111923 30%,#0b1017 72%);
+  }
+  .frame.is-expedition #expedition>.section-head{
+    min-height:39px;
+    margin:0 1px 3px;
+    padding:2px 3px 3px;
+    border-bottom:1px solid #52616d66;
+  }
+  .frame.is-expedition #expedition>.section-head h2{
+    font-size:15px;letter-spacing:.025em;
+    color:var(--ui096-text);
+  }
+  .frame.is-expedition #expedition>.section-head .eyebrow{
+    font-size:9px;color:var(--ui096-amber);
+  }
+  .frame.is-expedition #expedition .run-bar{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:4px;
+    padding:5px 7px;
+    margin:0 0 4px;
+    border:1px solid #4c535e;
+    border-radius:5px;
+    background:#131d26;
+    color:#bcbfbd;font:700 9px/1.3 ui-monospace,monospace;
+  }
+  .frame.is-expedition #expedition .run-bar strong{
+    font-size:10px;color:#f1e8d8;
+    margin-left:2px;
+  }
+  .frame.is-expedition #expedition .run-bar #bag-count{
+    color:var(--ui096-amber);
+  }
+  .frame.is-expedition .expedition-shortcuts{
+    gap:3px;
+    padding:3px;
+    margin:0 0 5px;
+    border:1px solid #3c4b56;
+    border-radius:6px;
+    background:#101921f5;
+    box-shadow:none;
+  }
+  .frame.is-expedition .expedition-shortcuts button{
+    flex-direction:column;
+    gap:1px;min-height:46px;
+    padding:3px 0;
+    border:1px solid #56616b;
+    border-radius:5px;
+    background:linear-gradient(180deg,#29323b,#1b252e);
+    color:#e6e5df;
+    font:700 clamp(9px,2.5vw,11px)/1.1 system-ui,sans-serif;
+  }
+  .frame.is-expedition #jump-map::before{content:"◇"}
+  .frame.is-expedition #jump-combat::before{content:"⚔"}
+  .frame.is-expedition #jump-action::before{content:"◎"}
+  .frame.is-expedition #jump-report::before{content:"▤"}
+  .frame.is-expedition #jump-bag::before{content:"▣"}
+  .frame.is-expedition #jump-journal::before{content:"☷"}
+  .frame.is-expedition .expedition-shortcuts button::before{
+    display:block;line-height:16px;
+    font-size:15px;font-weight:400;
+    color:#c9bca8;
+    pointer-events:none;
+  }
+  .frame.is-expedition .expedition-shortcuts button.is-active{
+    color:#fff1da;border-color:var(--ui096-amber);
+    background:#36302d;
+  }
+  .frame.is-expedition .expedition-shortcuts button:focus-visible,
+  .frame.is-expedition #field-controls button:focus-visible{
+    outline:2px solid #f1ce85;outline-offset:2px;
+  }
+  .frame.is-expedition .survival-hud{
+    gap:1px;
+    margin:0 0 4px;
+    padding:5px 8px;
+    border:1px solid #394b58;
+    border-radius:5px;
+    background:#111d27;
+  }
+  .frame.is-expedition .survival-hud .health-header,
+  .frame.is-expedition .survival-hud .endurance-header{
+    align-items:center;font-size:10px;
+    letter-spacing:0;
+    color:#c6c5be;
+  }
+  .frame.is-expedition .survival-hud .endurance-header{margin:1px 0 0}
+  .frame.is-expedition .survival-hud .endurance-header small{display:none}
+  .frame.is-expedition #health-meter,
+  .frame.is-expedition #endurance-meter{
+    height:7px;min-height:7px;margin:1px 0 2px;
+    border-radius:2px;
+  }
+  .frame.is-expedition #threat-state{
+    display:inline-block;
+    max-width:59%;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap;
+    border:1px solid #36544a;
+    border-radius:3px;
+    padding:2px 5px;
+    background:#1b302d;
+    color:#b5d5c5;
+    font:800 9px/1.2 ui-monospace,monospace;
+  }
+  .frame.is-expedition #threat-state[data-threat="danger"]{
+    border-color:#8c5552;
+    color:#ffd3c4;
+    background:#47272a;
+  }
+  /* Rendered from the existing visible-only engine forecast; never a new
+   * enemy query or projection through closed doors/fog. */
+  .frame.is-expedition #ui096-threat-banner{
+    display:block;
+    max-width:100%;min-height:29px;
+    margin:0 0 5px;padding:6px 9px;
+    overflow-wrap:anywhere;
+    border:1px solid #75604d;
+    border-left:3px solid var(--ui096-amber);
+    border-radius:4px;
+    background:#2c2926;
+    color:#f2dcb2;
+    font:800 10px/1.35 system-ui,sans-serif;
+  }
+  .frame.is-expedition #ui096-threat-banner[data-urgent="true"]{
+    border-color:#985653;
+    border-left-color:#ed8b79;
+    background:#3b2227;
+    color:#ffe0d4;
+  }
+  .frame.is-expedition #ui096-threat-banner[hidden]{display:none!important}
+  .frame.is-expedition #expedition .dungeon-wrap{
+    padding:3px 3px 7px;
+    border:1px solid #394c55;
+    border-radius:5px;
+    background:#080f16;
+    box-shadow:none;
+  }
+  .frame.is-expedition .render-controls{
+    padding:0 3px 3px;min-height:28px;
+  }
+  .frame.is-expedition .render-controls span{
+    color:var(--ui096-amber);
+    font-size:10px;letter-spacing:.01em;
+  }
+  .frame.is-expedition .render-controls button{
+    min-height:30px;
+    padding:5px 8px;
+    border-color:#516570;
+    border-radius:4px;
+    background:#23313b;
+    color:var(--ui096-text);
+  }
+  .frame.is-expedition .pixel-map{
+    width:min(100%,43dvh,430px);
+    border:1px solid #687783;
+    border-radius:2px;
+    background:#121b23;
+    box-shadow:0 0 0 1px #070b0d,0 7px 14px #0009;
+  }
+  .frame.is-expedition #field-controls{
+    border-color:#6f665a;
+    border-radius:10px 10px 0 0;
+    padding:6px 9px calc(7px + env(safe-area-inset-bottom));
+    background:linear-gradient(168deg,#25313b,#151f28 65%,#111923);
+    box-shadow:0 -5px 18px #000b;
+  }
+  .frame.is-expedition .field-controls .dpad button{
+    border-color:#78818a;border-radius:6px;
+    background:#293540;color:#ece3d6;
+  }
+  .frame.is-expedition .field-controls .dpad .wait{
+    background:#3e352e;
+    border-color:var(--ui096-amber);
+    color:#f5dfad;
+  }
+  .frame.is-expedition .field-quick-actions button{
+    border-color:#657580;border-radius:6px;
+    background:#283741;color:#f0e9db;
+  }
+  .frame.is-expedition .field-quick-actions button:disabled{
+    opacity:.52;color:#a4adb0;
+  }
+  .frame.is-expedition .ui092-sheet{
+    border-color:#7b746e;
+    border-radius:9px 9px 0 0;
+    background:linear-gradient(160deg,#222c35,#151e27);
+  }
+  .frame.is-expedition .ui092-sheet-head{
+    border-bottom-color:#47545d;
+  }
+  .frame.is-expedition #ui092-sheet-close{
+    border-color:#88705e;
+    background:#42352c;color:#f4dfc3;
+  }
+}
+@media(max-width:730px) and (max-height:760px){
+  /* Reserve the bottom dock's hit area even when a warning is present. */
+  .frame.is-expedition .pixel-map{
+    width:min(100%,30dvh,430px);
+  }
+}
+@media(max-width:350px){
+  .frame.is-expedition .expedition-shortcuts button{
+    font-size:9px;padding-inline:0;
+  }
+  .frame.is-expedition #threat-state{max-width:56%}
+}
+@media(prefers-reduced-motion:reduce){
+  .frame.is-expedition #ui096-threat-banner,
+  .frame.is-expedition .expedition-shortcuts button{
+    transition:none;animation:none;
+  }
+}

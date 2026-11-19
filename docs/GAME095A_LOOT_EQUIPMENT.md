@@ -15,6 +15,8 @@
 | `armor.broken_plate` | Armure de plaques disjointes | body, armure +6 | Mobilité -4 |
 | `consumable.vigor_salts` | Sels de vigueur | futur consommable d'Endurance | Aucun effet actif avant A2 |
 
+Les six objets disposent de pictogrammes SVG Sprite C 24×24 pour le sac Android, avec symboles ASCII de repli. Les cinq icônes historiques restent présentes ; aucun de ces nouveaux objets n'apparaît dans la génération active.
+
 Ces chiffres sont **provisoires et non équilibrés sur Android**. La formule actuelle retranche `Math.floor(armor/3)` aux dégâts physiques : cuirasse -1, plaques -2. Vérifier l'absence d'immunité frustrante avant activation du butin.
 
 ## Contrat de la future troisième récompense profonde

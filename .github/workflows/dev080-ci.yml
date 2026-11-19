@@ -7,6 +7,7 @@ on:
       - "package.json"
       - "tools/balance-lab.mjs"
       - "tools/expedition-audit.mjs"
+      - "tools/pressure-audit.mjs"
       - ".github/workflows/dev080-ci.yml"
   workflow_dispatch:
 permissions:
@@ -38,7 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           node tools/expedition-audit.mjs --count=6 --start=2 --max-actions=440 | tee game095d3-expedition-audit.json
-          node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync("game095d3-expedition-audit.json","utf8")); if(r.expeditionSeeds!==6||r.engineActionTrials!==12||r.trials.some(t=>t.outcome.startsWith("invalid_")))process.exit(1);'
+          node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync("game095d3-expedition-audit.json","utf8")); if(r.auditVersion!==2||r.expeditionSeeds!==6||r.engineActionTrials!==12||r.trials.some(t=>t.outcome.startsWith("invalid_")||t.pressureByFloor?.length!==3||t.pressureByFloor.reduce((s,f)=>s+f.observedTurns,0)!==t.actualTurns)||Object.values(r.policies).some(p=>p.byFloor.length!==3))process.exit(1);'
       - name: Publish action-based resource audit (NOT human playtest results)
         uses: actions/upload-artifact@v4
         with:

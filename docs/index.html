@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./style.css?v=0.7f">
   <link rel="stylesheet" href="./ui092.css?v=2">
   <link rel="stylesheet" href="./ui096.css?v=1">
+  <link rel="stylesheet" href="./ui096c.css?v=1">
   <!-- Critical responsive shell: renders correctly even if Chrome serves an older PWA stylesheet. -->
   <style id="title-critical-style">
     html,body{max-width:100%;overflow-x:hidden}
@@ -92,12 +93,19 @@
     <main>
       <section id="refuge" class="panel" aria-labelledby="refuge-title">
         <div class="section-head"><span class="eyebrow">01 — Sanctuaire</span><h2 id="refuge-title">Refuge de Veyr</h2></div>
+        <div class="refuge-banner" aria-hidden="true"></div>
         <p class="copy">Veyr est ton refuge. Ton coffre reste à l'abri ; ce que tu emportes dans Nhal peut être perdu au Rappel.</p>
         <section id="mission-refuge" class="mission-brief" aria-labelledby="mission-refuge-title">
           <span class="eyebrow">OBJECTIF ACTUEL</span>
           <h3 id="mission-refuge-title">Première mission : une preuve pour Veyr</h3>
           <p id="mission-refuge-text">Rapporte un Fragment de cendre en franchissant une Arche d'extraction.</p>
         </section>
+        <nav id="refuge-quick-nav" class="refuge-quick-nav" aria-label="Naviguer dans le refuge">
+          <button type="button" data-refuge-go="prepare" aria-pressed="false">◇ Préparer</button>
+          <button type="button" data-refuge-go="forge" aria-pressed="false">⚒ Forge</button>
+          <button type="button" data-refuge-go="echoes" aria-pressed="false">◈ Échos</button>
+          <button type="button" data-refuge-go="character" aria-pressed="false">♟ Égaré</button>
+        </nav>
         <details id="lore-primer" class="lore-primer">
           <summary>Comprendre Veyr, Nhal et le Rappel</summary>
           <dl id="lore-terms"></dl>
@@ -107,11 +115,12 @@
           <p id="echo-refuge-next" class="echo-dossier-next">Cherche une Chambre de l'Écho pour conserver un indice.</p>
           <ol id="echo-refuge-list" class="echo-dossier-list"></ol>
         </details>
-        <div class="rule"></div>
-        <h3>Coffre sécurisé</h3>
+        <section id="refuge-preparation" class="refuge-preparation" aria-labelledby="refuge-prep-title">
+        <h3 id="refuge-prep-title">Coffre sécurisé <span class="refuge-secured-label">Conservé à Veyr</span></h3>
         <p class="hint">Coche le matériel à emporter, puis choisis les quantités. Huit unités maximum. Tu peux aussi partir sans équipement.</p>
         <div id="stash-items" class="item-list"></div>
         <p id="prep-summary" class="prep-summary" aria-live="polite">Préparation : 0 / 8 places</p>
+        <progress id="refuge-prep-meter" max="8" value="0" aria-label="Places sélectionnées pour la prochaine descente">0 / 8</progress>
         <section id="prep-loadout" class="prep-loadout" aria-labelledby="prep-loadout-title">
           <h3 id="prep-loadout-title">Équipement de départ</h3>
           <p class="hint">Choisis parmi les objets cochés. Les autres restent dans le sac.</p>
@@ -121,6 +130,8 @@
             <label for="prep-body">Armure<select id="prep-body" data-prep-slot="body"></select></label>
           </div>
         </section>
+        </section>
+        <div id="refuge-character-slot" class="refuge-character-slot" aria-label="Fiche de l'Égaré"></div>
         <section id="veyr-forge" class="veyr-forge" aria-labelledby="forge-title">
           <div class="forge-heading">
             <div><span class="eyebrow">ATELIER DE VEYR</span><h3 id="forge-title">La forge des cendres</h3></div>
@@ -307,7 +318,7 @@
           </div>
         </section>
         <details id="bag-panel" class="bag-panel">
-          <summary><strong>Inventaire de descente</strong><span id="bag-summary">0 / 8 objets</span></summary>
+          <summary><strong>Sac de descente · butin exposé</strong><span id="bag-summary">0 / 8 objets</span></summary>
           <div class="bag-content">
             <p class="bag-risk">Butin transporté : perdu en cas de Rappel, sécurisé uniquement par extraction.</p>
             <p class="bag-risk">Équiper, retirer, utiliser ou abandonner coûte un tour et laisse réagir les ennemis.</p>

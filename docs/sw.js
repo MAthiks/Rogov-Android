@@ -1,4 +1,4 @@
-const CACHE_NAME = "rogov-v0.7f-ui096b-nhal-cockpit";
+const CACHE_NAME = "rogov-v0.7f-art096a-nhal-materials";
 const CORE = [
   "./", "./index.html", "./style.css?v=0.7f", "./ui092.css?v=2", "./ui096.css?v=1", "./app.js?v=0.7f", "./ui092.js", "./ui096.js", "./narrative.js", "./echo-investigation.js", "./game.js", "./tiles.js", "./hero-art.js", "./enemy-art.js", "./interaction-art.js", "./veyr-art.js", "./terrain-art.js", "./combat.js", "./terrain-tactics.js", "./stats.js", "./combat-rules.js", "./enemy-ai.js", "./dungeon.js", "./deep-dungeon.js", "./floors.js", "./depth-balance.js", "./optional-duo.js", "./deep-topology.js", "./exploration-visibility.js", "./secrets.js", "./traps.js", "./room-events.js", "./expedition-report.js", "./economy.js", "./loot.js",
   "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./title-scene.webp"

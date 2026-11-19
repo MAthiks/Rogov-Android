@@ -2440,3 +2440,79 @@ test("GAME-095B1 mobile: explicit floor choice, resume and extraction", {timeout
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("GAME-095B2 mobile: depth risk forecast, balanced encounters and resume", {timeout:75000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    page.on("dialog",dialog=>dialog.accept());
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=game.newGame();state.meta.descents=1;
+      const run=game.beginRun(state,["weapon.rusty_sword"],null,{multiFloor:true}).state;
+      run.run.x=run.run.exit.x;run.run.y=run.run.exit.y;
+      run.run.enemies=[];
+      if(!game.validateSave(run))throw Error("B2 initial fixture rejected");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(run));
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#floor-depth").textContent(),"1 / 3");
+    assert.match(await page.locator("#floor-choice-description").textContent(),
+      /Résonances de la Faille.*soins/);
+    assert.equal(await page.locator("#floor-descend").isEnabled(),true);
+    await page.locator("#floor-descend").tap();
+    assert.equal(await page.locator("#floor-depth").textContent(),"2 / 3");
+    const second=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(s),depth:s.run.floorDepth,version:s.run.depthBalanceVersion,
+        enemies:s.run.enemies.map(e=>e.kind),
+        reward:Object.values(s.run.loot).find(id=>
+          id!=="relic.ashen_fragment"&&id!=="consumable.bandage"),
+        rng:s.run.rngState,map:s.run.map.join("")};
+    });
+    assert.equal(second.valid,true);
+    assert.equal(second.depth,2);
+    assert.equal(second.version,1);
+    assert.equal(second.enemies.filter(x=>x==="rift_larva").length,2);
+    assert.ok(second.reward);
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    const replay=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(s),depth:s.run.floorDepth,version:s.run.depthBalanceVersion,
+        enemies:s.run.enemies.map(e=>e.kind),
+        reward:Object.values(s.run.loot).find(id=>
+          id!=="relic.ashen_fragment"&&id!=="consumable.bandage"),
+        rng:s.run.rngState,map:s.run.map.join("")};
+    });
+    assert.deepEqual(replay,second,"Reload cannot reroll enemy composition or loot");
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      s.run.x=s.run.exit.x;s.run.y=s.run.exit.y;s.run.enemies=[];
+      if(!game.validateSave(s))throw Error("B2 second Arche fixture rejected");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+    });
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.match(await page.locator("#floor-choice-description").textContent(),
+      /Veille de pierre.*équipements/);
+    await page.locator("#floor-descend").tap();
+    assert.equal(await page.locator("#floor-depth").textContent(),"3 / 3");
+    const third=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(s),depth:s.run.floorDepth,
+        version:s.run.depthBalanceVersion,
+        guardians:s.run.enemies.filter(e=>e.kind==="guardian").length};
+    });
+    assert.deepEqual(third,{valid:true,depth:3,version:1,guardians:2});
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

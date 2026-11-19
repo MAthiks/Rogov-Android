@@ -65,6 +65,13 @@ def is_first_run():
 for step in range(12):
     time.sleep(2)
     nodes = dump_ui()
+    # Android 13 may briefly expose a null accessibility root immediately
+    # after Chrome starts. This is not a dismissed onboarding screen: retry
+    # rather than treating it as an unknown button and failing the build.
+    if not nodes and is_first_run():
+        print("Chrome first-run UI is not ready; retrying safe inspection.",
+              flush=True)
+        continue
     labels = [(n.get("text") or n.get("content-desc") or "").strip()
               for n in nodes]
     displayed = [x for x in labels if x]

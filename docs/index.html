@@ -108,8 +108,18 @@
         </details>
         <div class="rule"></div>
         <h3>Coffre sécurisé</h3>
-        <p class="hint">Coche le matériel à emporter. Tu peux aussi partir sans équipement.</p>
+        <p class="hint">Coche le matériel à emporter, puis choisis les quantités. Huit unités maximum. Tu peux aussi partir sans équipement.</p>
         <div id="stash-items" class="item-list"></div>
+        <p id="prep-summary" class="prep-summary" aria-live="polite">Préparation : 0 / 8 places</p>
+        <section id="prep-loadout" class="prep-loadout" aria-labelledby="prep-loadout-title">
+          <h3 id="prep-loadout-title">Équipement de départ</h3>
+          <p class="hint">Choisis parmi les objets cochés. Les autres restent dans le sac.</p>
+          <div class="prep-slot-grid">
+            <label for="prep-mainHand">Arme principale<select id="prep-mainHand" data-prep-slot="mainHand"></select></label>
+            <label for="prep-offHand">Main secondaire<select id="prep-offHand" data-prep-slot="offHand"></select></label>
+            <label for="prep-body">Armure<select id="prep-body" data-prep-slot="body"></select></label>
+          </div>
+        </section>
         <section id="veyr-forge" class="veyr-forge" aria-labelledby="forge-title">
           <div class="forge-heading">
             <div><span class="eyebrow">ATELIER DE VEYR</span><h3 id="forge-title">La forge des cendres</h3></div>
@@ -279,6 +289,8 @@
           <summary><strong>Inventaire de descente</strong><span id="bag-summary">0 / 8 objets</span></summary>
           <div class="bag-content">
             <p class="bag-risk">Butin transporté : perdu en cas de Rappel, sécurisé uniquement par extraction.</p>
+            <p class="bag-risk">Équiper, retirer, utiliser ou abandonner coûte un tour et laisse réagir les ennemis.</p>
+            <div id="bag-equipped" class="bag-equipped" aria-label="Équipement actuellement porté"></div>
             <progress id="bag-meter" max="8" value="0" aria-label="Capacité du sac">0 / 8</progress>
             <div id="bag-items" class="item-list" aria-label="Objets transportés"></div>
           </div>

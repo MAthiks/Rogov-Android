@@ -4,7 +4,8 @@ import { DEFAULT_HERO_STATS, ENEMY_STATS, migrateHero, migrateEnemy, migrateRunS
   heroDerivedStats, enemyDerivedStats } from "./stats.js";
 import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDefense,
   regenEndurance,roll } from "./combat-rules.js";
-import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS} from "./enemy-ai.js";
+import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS,
+  charognardDecision,charognardLane} from "./enemy-ai.js";
 import {BASE_MAP,BASE_LOOT,generateLayout,validateLayout} from "./dungeon.js";
 import {generateDeepLayout,validateDeepLayout,isDeepMap} from "./deep-dungeon.js";
 import {MAX_FLOOR_DEPTH,deepFloorSeed,floorChoiceAvailable,canDescendFurther}
@@ -277,6 +278,43 @@ function enemyPhase(s) {
         if(!s.run)return s;
       }
       continue;
+    }
+    // GAME-095C1 — a new deep Charognard must visibly brace before lunging.
+    // Same one-point melee damage formula, no hidden stat bonus or RNG roll.
+    // A sidestep, closed passage, nearby trap or forward approach interrupts.
+    if(enemy.kind==="charognard"&&enemy.tactic!==undefined){
+      const decision=charognardDecision(enemy,run);
+      if(decision==="prepare"){
+        enemy.tactic="winding";
+        if(explorationState(run,enemy.x,enemy.y)==="visible")
+          recordEvent(s,"danger",
+            type.name+" prépare une CHARGE en ligne droite. Quitte l'axe ou défends-toi !",
+            run.turns);
+        continue;
+      }
+      if(decision==="lunge"){
+        const landing=charognardLane(run,enemy);
+        if(!landing)throw new Error("Charognard charge route mismatch");
+        enemy.x=landing.x;enemy.y=landing.y;
+        enemy.tactic="recovering";
+        s=receiveEnemyAttack(s,enemy,type,type.damage,"melee");
+        if(!s.run)return s;
+        continue;
+      }
+      if(decision==="interrupt"){
+        enemy.tactic="stalking";
+        if(explorationState(run,enemy.x,enemy.y)==="visible")
+          recordEvent(s,"danger",type.name+" perd son axe : charge interrompue.",
+            run.turns);
+        continue;
+      }
+      if(decision==="recover"){
+        enemy.tactic="stalking";
+        if(explorationState(run,enemy.x,enemy.y)==="visible")
+          recordEvent(s,"combat",type.name+" reprend ses appuis après la charge.",
+            run.turns);
+        continue;
+      }
     }
     if (d===1) {
       s=receiveEnemyAttack(s,enemy,type,type.damage,"melee");

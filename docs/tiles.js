@@ -95,6 +95,8 @@ export function drawTileMap(state,host,heroFacing="down") {
         cell.dataset.entity="enemy";
         cell.dataset.enemyId=enemy.id;
         cell.classList.add("hostile-tile");
+        if(enemy.kind==="charognard"&&enemy.tactic==="winding")
+          cell.classList.add("enemy-charge");
         if (run.targetId===enemy.id) cell.classList.add("selected-target-tile");
         cell.dataset.hp=String(enemy.hp);
       }

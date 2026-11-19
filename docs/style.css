@@ -732,3 +732,8 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
   .frame.is-expedition .run-bar{flex-wrap:wrap;gap:5px}
   .frame.is-expedition .floor-choice{max-width:100%}
 }
+
+/* GAME-095C1: warning only on a currently visible, truly winding foe.
+   Uses the enemy's own outline — never adds a frame around Sprite C hero. */
+.hostile-tile.enemy-charge:before{border:2px dashed #f2c877;inset:1px}
+.hostile-tile.enemy-charge:after{background:#68412d;color:#fff3cb}

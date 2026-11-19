@@ -30,7 +30,8 @@ test("DEV-073C: guardian state machine and forecast share the same contract",()=
   assert.equal(GUARDIAN_HEAVY_BONUS,1);
   for(const tactic of GUARDIAN_TACTICS)assert.ok(validEnemyTactic({kind:"guardian",tactic}));
   assert.equal(validEnemyTactic({kind:"guardian",tactic:"infinite"}),false);
-  assert.equal(validEnemyTactic({kind:"charognard",tactic:"winding"}),false);
+  assert.equal(validEnemyTactic({kind:"charognard",tactic:"winding"}),true);
+  assert.equal(validEnemyTactic({kind:"charognard",tactic:"guarding"}),false);
   assert.equal(guardianDecision({tactic:"ready"},1),"prepare");
   assert.equal(guardianDecision({tactic:"winding"},1),"heavy");
   assert.equal(guardianDecision({tactic:"guarding"},1),"prepare");

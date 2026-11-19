@@ -535,10 +535,12 @@ function renderTargetChoices() {
     const details=document.createElement("small");
     const intent=currentEnemyIntent(state.run,enemy);
     details.textContent=rangeBand(tileDistance(state.run,enemy))+" · "+enemy.hp+" PV";
-    if(intent?.kind==="guardian_heavy" || intent?.kind==="rift_pulse"){
+    if(["guardian_heavy","rift_pulse","charognard_lunge"].includes(intent?.kind)){
       choice.classList.add("threat-imminent");
       details.textContent+=" · ⚠";
       choice.setAttribute("aria-label",label.textContent+" : "+intent.label);
+    } else if(intent?.kind==="charognard_prepare"){
+      details.textContent+=" · prépare une charge";
     } else if(intent?.kind==="guardian_guard"){
       choice.classList.add("threat-guarded");
       details.textContent+=" · garde";
@@ -558,7 +560,7 @@ function renderThreatForecast(){
     if(explorationState(run,enemy.x,enemy.y)!=="visible")continue;
     const intent=currentEnemyIntent(run,enemy);
     if(!intent)continue;
-    if(["guardian_heavy","rift_pulse","melee"].includes(intent.kind)){
+    if(["guardian_heavy","rift_pulse","charognard_lunge","melee"].includes(intent.kind)){
       const name=enemy.kind==="guardian"?"Gardien":
         enemy.kind==="rift_larva"?"Larve":"Charognard";
       warnings.push(name+" : "+intent.label);

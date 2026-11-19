@@ -65,7 +65,8 @@ export function planDepthReward(descentNumber,depth){
 /** Tactical escalation via ENEMY COMPOSITION, not stat scaling:
  * depth 2: a vault scavenger is replaced with a stationary ranged larva
  * depth 3: the same vault is guarded by a telegraphed heavy sentinel.
- * The starting scavenger, all enemy coordinates, attack stats, hazards,
+ * The starting scavenger keeps its position and stats; C1 adds a visible
+ * charge windup only to newly spawned scouts. Enemy coordinates, hazards,
  * two routes to extraction and the bandage near entrance are unchanged.
  */
 export function balanceDepthLayout(layout,descentNumber,depth){
@@ -90,7 +91,11 @@ export function balanceDepthLayout(layout,descentNumber,depth){
   return {
     ...layout,
     loot:{...layout.loot,[optional[0][0]]:planDepthReward(descentNumber,depth)},
-    enemies:layout.enemies.map(e=>e===original[0]?guard:{...e}),
+    // Only freshly generated B2 floors opt the vestibule scout into C1.
+    // Existing saved B2 and B1 enemies have no tactic and never change.
+    enemies:layout.enemies.map(e=>e===original[0]?guard:
+      e.kind==="charognard"&&e.id==="nhal-charognard-scout-01"
+        ?{...e,tactic:"stalking"}:{...e}),
     depthBalanceVersion:DEPTH_BALANCE_VERSION
   };
 }

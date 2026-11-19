@@ -1,13 +1,14 @@
 // ROGOV v0.7 DEV-070 — pure combat contract; no UI or change to v0.6 gameplay.
 // Future combat actions will use this contract, while v0.6 remains playable.
 import { MAP, ENEMY_TYPES, enemyAt } from "./game.js";
-import {guardianIntent} from "./enemy-ai.js";
+import {guardianIntent,charognardIntent} from "./enemy-ai.js";
 
 export const RANGES = Object.freeze({ CONTACT: "CONTACT", PROCHE: "PROCHE", LOIN: "LOIN" });
 export const COMBAT_ACTIONS = Object.freeze(["attack", "dodge", "parry", "block", "retreat"]);
 export const DEFENSE_MODES = Object.freeze(["none", "dodge", "parry", "block"]);
 export const INTENT_KINDS = Object.freeze(["idle", "approach", "melee", "rift_charge", "rift_pulse",
-  "guardian_prepare","guardian_heavy","guardian_guard"]);
+  "guardian_prepare","guardian_heavy","guardian_guard",
+  "charognard_prepare","charognard_lunge"]);
 
 /** Manhattan distance on the orthogonal roguelike grid. */
 export function tileDistance(a, b) {
@@ -56,6 +57,10 @@ export function currentEnemyIntent(run, enemy, map = MAP) {
   if (enemy.kind==="guardian"){
     const next=guardianIntent(enemy,d);
     return Object.freeze({...next,nextTurn});
+  }
+  if(enemy.kind==="charognard"){
+    const tactical=charognardIntent(enemy,run);
+    if(tactical)return intent(tactical.kind,tactical.label);
   }
   if (d === 1) return intent("melee", "Attaque de contact imminente");
   if (enemy.kind === "charognard" && d <= ENEMY_TYPES.charognard.aggro) {

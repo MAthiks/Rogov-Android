@@ -742,3 +742,14 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
 .combat-shove-hint{margin:10px 0 0;font-size:12px;line-height:1.5;
   color:#b9cec1;overflow-wrap:anywhere}
 #combat-shove:disabled{opacity:.46;cursor:not-allowed}
+
+/* GAME-095D2: deliberate inventory-for-chest trade, not a free bag expansion. */
+.chest-swap-panel{display:grid;gap:8px;border:1px solid #6c6653;border-radius:10px;
+  background:#242c29;padding:11px;margin:8px 0}
+.chest-swap-panel[hidden]{display:none}
+.chest-swap-panel label{color:#e7d9ac;font:700 12px/1.4 system-ui,sans-serif}
+#chest-swap-item{min-width:0;width:100%;min-height:44px;padding:10px 9px;
+  border:1px solid #667b70;border-radius:8px;background:#17252a;color:#f0f3ed;
+  font:600 13px/1.3 system-ui,sans-serif}
+#chest-swap-action{min-height:44px;white-space:normal}
+.chest-swap-panel .hint{margin:0;color:#c9c2aa;font-size:11px;line-height:1.45}

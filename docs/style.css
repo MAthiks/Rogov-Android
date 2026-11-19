@@ -753,3 +753,39 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
   font:600 13px/1.3 system-ui,sans-serif}
 #chest-swap-action{min-height:44px;white-space:normal}
 .chest-swap-panel .hint{margin:0;color:#c9c2aa;font-size:11px;line-height:1.45}
+
+/* ART-096B — legible static tactical markers on ALREADY VISIBLE enemy tiles.
+ * The SVG hero never receives a frame; hidden fog never receives these nodes.
+ * Marker is independent of the bottom-right HP label and cannot eat taps. */
+.pixel-tile.hostile-tile .tile-intent-marker{
+  position:absolute;top:0;right:0;z-index:5;
+  display:flex;align-items:center;justify-content:center;
+  width:11px;height:12px;min-width:0;
+  border:1px solid #d1a877;border-radius:2px;
+  background:#49362b;color:#ffeac5;
+  font:900 10px/1 ui-monospace,monospace;
+  pointer-events:none;
+  text-shadow:0 1px 1px #000;
+}
+.pixel-tile.hostile-tile.intent-imminent:before{
+  border:2px solid #ed8b79;inset:1px;
+}
+.pixel-tile.hostile-tile.intent-imminent .tile-intent-marker{
+  border-color:#f1a69a;background:#6e292d;color:#fff1dd;
+}
+.pixel-tile.hostile-tile.intent-preparing:before{
+  border:2px dashed #e7bd72;inset:1px;
+}
+.pixel-tile.hostile-tile.intent-preparing .tile-intent-marker{
+  border-color:#e7bd72;background:#604b2c;color:#fff0ce;
+}
+.pixel-tile.hostile-tile.intent-guarding:before{
+  border:2px double #c4d1c8;inset:1px;
+}
+.pixel-tile.hostile-tile.intent-guarding .tile-intent-marker{
+  border-color:#c4d1c8;background:#385055;color:#eef3e9;
+}
+/* Once identified, traps get a stable material/state language. The clue
+ * remains understated; an unknown trap has no visual overlay at all. */
+.pixel-tile.tile-trap_disabled{box-shadow:inset 0 0 0 1px #819890}
+.pixel-tile.tile-trap_triggered{box-shadow:inset 0 0 0 1px #606c70}

@@ -14,7 +14,7 @@ test("GAME-095D1: reproducible 3-floor survey of actual generated expeditions",(
   const sample=runBalanceLab({start:2,count:5});
   const repeated=runBalanceLab({start:2,count:5});
   assert.deepEqual(sample,repeated);
-  assert.equal(sample.labVersion,1);
+  assert.equal(sample.labVersion,2);
   assert.equal(sample.expeditionSamples,5);
   assert.equal(sample.generatedFloors,15);
   assert.equal(sample.floors.length,3);
@@ -27,7 +27,7 @@ test("GAME-095D1: reproducible 3-floor survey of actual generated expeditions",(
     assert.equal(row.missingReturnPath,0);
     assert.equal(row.chests,15);
     assert.equal(row.bandageClose,5);
-    assert.equal(row.encounterSlots,15);
+    assert.equal(row.encounterSlots,20);
     assert.equal(row.healingOptional+row.equipmentOptional,5);
     assert.ok(row.averageSafeRouteSteps>1);
     assert.ok(row.duelsSkipped>=0&&row.duelsSkipped<=row.encounterSlots);
@@ -50,7 +50,7 @@ test("GAME-095D1: every profile is a real combat path with sound metrics",()=>{
     assert.ok(row.avgEnduranceLeft>=0,id);
   }
   assert.deepEqual(LAB_POLICIES,["attack","telegraph_dodge"]);
-  assert.equal(BALANCE_LAB_VERSION,1);
+  assert.equal(BALANCE_LAB_VERSION,2);
   assert.equal(BALANCE_LAB_DEFAULT_COUNT,100);
 });
 
@@ -100,6 +100,7 @@ test("GAME-095D1: CLI accepts equals and separated arguments, JSON cannot be emp
   assert.deepEqual(a,b);
   assert.equal(a.expeditionSamples,2);
   assert.equal(a.generatedFloors,6);
+  assert.equal(a.floors[0].encounterSlots,8);
   const bad=spawnSync(process.execPath,[cli.pathname,"--count","bad"],
     {encoding:"utf8",timeout:30000});
   assert.notEqual(bad.status,0);

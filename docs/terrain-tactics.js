@@ -3,8 +3,9 @@
 // The target is an adjacent, visible Charognard; Guardians and Rift larvae
 // are anchored and cannot be moved by this action.
 import {explorationState} from "./exploration-visibility.js";
+import {TACTICAL_COSTS} from "./combat-rules.js";
 
-export const SHOVE_ENDURANCE_COST=3;
+export const SHOVE_ENDURANCE_COST=TACTICAL_COSTS.shove;
 export const SLAB_SHOVE_DAMAGE=2;
 
 export function shoveOpportunity(run,enemy){

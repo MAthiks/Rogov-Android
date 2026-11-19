@@ -17,6 +17,9 @@ const door_open=svg(
   '<path d="M6 21h12M9 4h6" fill="none" stroke="#3b5256" stroke-width="1"/>'+
   '<path data-detail="arch-keystone" d="M9 2h6v3H9Z" fill="#c0c8bc"/>'+
   '<path d="M2 8h4M18 8h4M2 14h3M19 14h3" stroke="#3f5258" stroke-width="1"/>'+
+  // Recessed joints and a walkable threshold: never draw a timber panel.
+  '<path data-detail="door-ribbed-voussoirs" d="M2 7h5M17 7h5M3 12h3M18 12h3M2 17h4M18 17h4M7 3l2 3M17 3l-2 3" fill="none" stroke="#48595b" stroke-width="1"/>'+
+  '<path data-detail="door-recessed-threshold" d="M6 21h12M7 23h10" fill="none" stroke="#77817e" stroke-width="1"/>'+
   '<path d="M1 23h22" fill="none" stroke="'+rim+'" stroke-width="2"/>'+
   '</g>'
 );
@@ -32,6 +35,10 @@ const door_closed=svg(
   '<rect data-detail="opaque-door-lock" x="13" y="14" width="4" height="5" fill="#322c29"/>'+
   '<rect x="15" y="15" width="1" height="2" fill="'+amber+'"/>'+
   '<path d="M7 10h10M8 17h3M17 17h1" stroke="#b19a78" stroke-width="1"/>'+
+  // Heavy opaque door: visible straps, rivets and a separate pull ring.
+  '<path data-detail="door-iron-straps" d="M7 10h10M7 12h10M7 20h10" stroke="#9c917b" stroke-width="1"/>'+
+  '<path d="M8 11h1M15 11h1M8 20h1M15 20h1" stroke="#e3caa0" stroke-width="1"/>'+
+  '<circle data-detail="door-ring-pull" cx="12" cy="15" r="2" fill="none" stroke="#d0b48b" stroke-width="1"/>'+
   '<path d="M2 23h20" stroke="'+rim+'" stroke-width="2"/>'+
   '</g>'
 );
@@ -47,7 +54,9 @@ const loot=svg(
   '<rect x="11" y="13" width="2" height="3" fill="'+dark+'"/>'+
   // Gold latch and two wide clasps read as a sealed treasure at 20 CSS px.
   '<path data-detail="chest-sealed-bands" d="M4 10h4v2H4ZM16 10h4v2h-4ZM3 17h7M14 17h7" fill="#d9b983" stroke="#b69b70" stroke-width="1"/>'+
-  '<rect x="11" y="15" width="2" height="2" fill="#f6d894"/>'+
+  // The crown and corner caps clearly signal an unopened container.
+  '<path data-detail="chest-gold-corners" d="M3 12h4v2H5v4H3ZM17 12h4v6h-2v-4h-2ZM4 20h4M16 20h4" fill="#ce9f55" stroke="#60432c" stroke-width=".5"/>'+
+  '<rect data-detail="chest-lock-glint" x="11" y="15" width="2" height="2" fill="#f6d894"/>'+
   '</g>'
 );
 const chest_open=svg(
@@ -61,6 +70,9 @@ const chest_open=svg(
   '<rect x="17" y="13" width="2" height="9" fill="'+iron+'"/>'+
   '<rect x="11" y="17" width="2" height="3" fill="'+amber+'"/>'+
   '<path data-detail="chest-empty-cavity" d="M6 14h12v3H6Z" fill="#090f18"/>'+
+  // Keep the cavity visibly empty, with the lid raised above the hinges.
+  '<path data-detail="chest-open-hinges" d="M5 12h3M16 12h3" stroke="#d7b580" stroke-width="2"/>'+
+  '<path data-detail="chest-void-recess" d="M7 15h10M8 16h8" stroke="#050b12" stroke-width="1"/>'+
   '<path d="M5 4l13-1M5 7h14" stroke="#c8b08d" stroke-width="1"/>'+
   '</g>'
 );
@@ -111,6 +123,10 @@ const exit=svg(
   '<path data-detail="extraction-keystone" d="M9 1h6v3H9Z" fill="#c6c9b6"/>'+
   '<path d="M2 15h3M19 15h3M7 4h3M14 4h3" stroke="#98b6b0" stroke-width="1"/>'+
   '<rect x="10" y="20" width="4" height="2" fill="#8fd9c9"/>'+
+  // The sole upright luminous portal: teal rune crown and bright steps.
+  '<path data-detail="arch-carved-stones" d="M2 10h4M18 10h4M2 15h3M19 15h3M7 4l2 2M17 4l-2 2" stroke="#9aaca8" stroke-width="1" fill="none"/>'+
+  '<path data-detail="arch-rune-crown" d="M12 2l2 3-2 2-2-2Z" fill="#b4f4dd" stroke="#46968b" stroke-width="1"/>'+
+  '<path data-detail="arch-luminous-threshold" d="M6 22h12M8 21h8" stroke="#a5eee1" stroke-width="1"/>'+
   '<path d="M2 23h20M3 9h3M18 9h3" stroke="'+rim+'" stroke-width="2"/>'+
   '</g>'
 );
@@ -121,6 +137,9 @@ const hazard=svg(
   '<path d="M12 6l-2 6 4 2-2 5" fill="none" stroke="#f7b7aa" stroke-width="2"/>'+
   '<path data-detail="rift-black-center" d="M13 9l2 3-2 5-2-3Z" fill="#161721"/>'+
   '<path d="M7 11l-3-2M17 15l4 2" stroke="#e58d84" stroke-width="1"/>'+
+  // Branching fracture on the ground, never an apparent open portal.
+  '<path data-detail="rift-branch-fractures" d="M10 7L5 3M9 15L4 19M15 10l5-6M16 17l5 3" stroke="#cc817b" stroke-width="1" fill="none"/>'+
+  '<path data-detail="rift-ember-flecks" d="M4 11h2M18 12h2M9 20h2" stroke="#f5a58f" stroke-width="1"/>'+
   '<path d="M3 5l4 4M19 4l-4 4M3 20l5-4M20 19l-5-4" stroke="#74404a" stroke-width="1"/>'+
   '</g>'
 );

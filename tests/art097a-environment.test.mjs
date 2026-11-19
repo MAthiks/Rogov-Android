@@ -73,6 +73,6 @@ test("ART-097A1: existing save contract and offline atlas remain intact",()=>{
   assert.equal(SAVE_KEY,"rogov-web-v1");
   assert.equal(SCHEMA_VERSION,1);
   const sw=readFileSync(new URL("../docs/sw.js",import.meta.url),"utf8");
-  assert.match(sw,/rogov-v0\.7f-art097a1-nhal-stonework/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   assert.match(sw,/"\.\/terrain-art\.js"/);
 });

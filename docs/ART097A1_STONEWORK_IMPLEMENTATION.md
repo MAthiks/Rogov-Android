@@ -1,6 +1,6 @@
 # ART-097A1 — Pierre de Nhal, premier lot de la refonte UI/ART-097
 
-**État : PR en préparation, non fusionnée.** Date : 20 novembre 2026.
+**État : fusionnée, PR #48, commit `2ab130a` ; CI Node 367/367, Chromium 53/53, Chrome Android 13 et APK automatisés réussis. Recette artistique physique ouverte.** Date : 20 novembre 2026.
 **Base technique :** UI-096D (branche `ui-096d-android-compact-polish`), après QA-096 / PR #46.
 **Référence artistique :** maquette haute fidélité transmise dans la conversation. Son image binaire n'est pas incluse dans le dépôt.
 

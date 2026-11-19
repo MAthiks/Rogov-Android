@@ -2255,9 +2255,9 @@ test("GAME-095A2 mobile: quantity selection, chosen loadout, tactical swap and s
     assert.equal(state.run.turns,1);
     assert.equal(state.run.carried["weapon.bone_dagger"],1);
 
-    // The bag's stamina action is explicit and consumes one turn.
-    await page.locator("#jump-bag").tap();
+    // The contextual bag sheet may remain open after a saved action.
     const salts=page.locator("#bag-items .item-row").filter({hasText:"Sels de vigueur"});
+    if(!(await salts.isVisible()))await page.locator("#jump-bag").tap();
     await salts.getByRole("button",{name:/Utiliser/}).tap();
     state=await page.evaluate(async()=>{
       const {SAVE_KEY}=await import("./game.js");

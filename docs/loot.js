@@ -28,9 +28,9 @@ function weightedPick(pool,roll){
   throw new RangeError("Invalid loot table: weights must sum to 100");
 }
 
-/** Return a proposal, not a mutation of layout, state, or live loot.
+/** Return a reward plan, not a mutation of layout, state, or live loot.
  * Calling this before or after combat cannot change any combat RNG outcome.
- * Future A3 integration must preserve already saved run.loot exactly.
+ * A3 stores the optional reward in run.loot once, when a new descent starts.
  */
 export function planDeepChestLoot(descentNumber){
   if(!Number.isSafeInteger(descentNumber)||descentNumber<2)

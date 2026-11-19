@@ -8,6 +8,8 @@
 
 **GAME-095A1 — Fondations du butin :** définitions de six objets, système de tirage de récompenses déterministe indépendant du RNG de combat et tests, en branche de travail [PR #29](https://github.com/MAthiks/Rogov-Android/pull/29) **brouillon, non fusionnée**. La distribution et les interactions ne sont pas encore jouables. [Spécification GAME-095A](docs/GAME095A_LOOT_EQUIPMENT.md). La suite est A2 (équipement/consommables), puis A3 (récompenses des coffres), puis A4 (QA mobile).
 
+**GAME-095A2 — Équipement et sac :** développement sur branche `feature/game095a2-equipment-and-bag`, non fusionné : quantités à Veyr (sans modifier les anciennes signatures), choix des slots, équipement tactique coûtant un tour, abandon avec confirmation, Sels de vigueur (+6 END), inventaire Android. [Contrat A2](docs/GAME095A_LOOT_EQUIPMENT.md). Distribution de nouveaux objets en donjon reportée à A3. CI et tests Android requis avant validation.
+
 
 ## NAR-094 — Enquête persistante dans les Chambres de l'Écho
 

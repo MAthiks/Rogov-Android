@@ -163,7 +163,10 @@ export function inspectTile(state, x, y) {
   }
   if (tile==="#") return { kind:"wall", name:"Mur de pierre", description:"Obstacle infranchissable." };
   if (tile==="^") return { kind:"danger", name:"Faille mortelle", description:"La traverser déclenche le Rappel. Le sac sera perdu." };
-  if (tile==="E") return { kind:"extraction", name:"Arche d'extraction", description:"Atteins-la pour sécuriser ton équipement." };
+  if (tile==="E") return { kind:"extraction", name:"Arche d'extraction",
+    description:state.run.floorDepth
+      ?"Arche de palier : rejoins-la pour choisir de rentrer avec ton sac ou de poursuivre l'expédition. Aucun choix n'est automatique."
+      :"Atteins-la pour sécuriser ton équipement." };
   if(tile==="$"&&state.run.rooms){
     const opened=state.run.collected.includes(positionKey(x,y));
     return {kind:"chest",name:opened?"Coffre ouvert":"Coffre de Nhal",

@@ -90,7 +90,11 @@ export function balanceDepthLayout(layout,descentNumber,depth){
   return {
     ...layout,
     loot:{...layout.loot,[optional[0][0]]:planDepthReward(descentNumber,depth)},
-    enemies:layout.enemies.map(e=>e===original[0]?guard:{...e}),
+    // Only freshly generated B2 floors opt the vestibule scout into C1.
+    // Existing saved B2 and B1 enemies have no tactic and never change.
+    enemies:layout.enemies.map(e=>e===original[0]?guard:
+      e.kind==="charognard"&&e.id==="nhal-charognard-scout-01"
+        ?{...e,tactic:"stalking"}:{...e}),
     depthBalanceVersion:DEPTH_BALANCE_VERSION
   };
 }

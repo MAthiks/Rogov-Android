@@ -39,6 +39,10 @@
 
 **Décision du 19 novembre 2026 :** priorité à l'interface Android et aux graphismes, **avant** de reprendre l'ajout de mécaniques. [Checkpoint de maquettes UI-096 v0.1](docs/UI096_V3_VISUAL_MOCKUPS.md) : design system sombre/contrasté Sprite C, **maquette A Nhal (carte dominante, menace lisible, dock tactile), maquette B Veyr (coffre/forge/préparation)**, puis C sac et D personnage. **Maquettes conceptuelles, non encore validées ; pas de refonte du moteur fusionnée.** Reprise sur plusieurs sessions depuis le document, choix utilisateur avant PR de code, compatibilité sauvegardes/ASCII/PWA hors ligne et tests Android.
 
+## ART-096 — Première passe graphique sur Nhal
+
+**ART-096A (PR en validation) :** développement isolé du polissage **sol/murs (reliefs 24×24)**, **porte ouverte/fermée**, **Arche/Faille** et des silhouettes Sprite C Charognard/Gardien/Larve. [Contrat ART-096A](docs/ART096A_MATERIAL_SILHOUETTE.md). Atlas et états fonctionnels inchangés, brouillard de guerre intact, PWA hors ligne versionnée, tests régressifs Node/Chromium Android 13/APK exigés avant fusion. **La validation esthétique sur téléphone physique et les 5 joueurs × 2 expéditions restent ouvertes.**
+
 ## Plateformes — Android en priorité, PC conservé dans le GDD
 
 **Décision du 19 novembre 2026 :** poursuivre exclusivement la **production active sur Android** (PWA/JavaScript, APK et tests tactiles). **Godot est mis en attente** : pas de changement de moteur ni de projet de migration actif. Le **portage PC futur**, Windows en premier, reste inscrit comme objectif de long terme, avec moteur à choisir après stabilisation du gameplay mobile et tests utilisateurs. Préserver autant que possible les règles déterministes, le mode ASCII, les assets Sprite C et les contrats de sauvegarde pour réduire le coût d'une éventuelle adaptation. Aucune date de portage annoncée.

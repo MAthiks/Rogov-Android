@@ -3,6 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {execFileSync,spawnSync} from "node:child_process";
 import {runBalanceLab,isolatedEncounter,runIsolatedDuel,LAB_POLICIES,
   BALANCE_LAB_VERSION,BALANCE_LAB_DEFAULT_COUNT}
   from "../tools/balance-lab.mjs";
@@ -88,4 +89,18 @@ test("GAME-095D1: analysis uses true engine and keeps PWA game unchanged",()=>{
   assert.match(src,/not human win rates/);
   assert.match(pkg,/tools\/balance-lab\.mjs/);
   assert.match(pkg,/tests\/game095d1-balance-lab\.test\.mjs/);
+});
+
+test("GAME-095D1: CLI accepts equals and separated arguments, JSON cannot be empty",()=>{
+  const cli=new URL("../tools/balance-lab.mjs",import.meta.url);
+  const run=args=>JSON.parse(execFileSync(process.execPath,
+    [cli.pathname,...args],{encoding:"utf8",timeout:30000}));
+  const a=run(["--count=2","--start=2"]);
+  const b=run(["--count","2","--start","2"]);
+  assert.deepEqual(a,b);
+  assert.equal(a.expeditionSamples,2);
+  assert.equal(a.generatedFloors,6);
+  const bad=spawnSync(process.execPath,[cli.pathname,"--count","bad"],
+    {encoding:"utf8",timeout:30000});
+  assert.notEqual(bad.status,0);
 });

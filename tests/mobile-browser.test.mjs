@@ -1977,12 +1977,18 @@ test("QA-092 Android portrait: a real player journey from Veyr earns loot, extra
     const page=await context.newPage(),errors=[];
     page.on("pageerror",error=>errors.push(error.message));
     await page.goto(origin);
+    assert.match(await page.locator("#title-premise").textContent(),/Égaré.*Rappel.*Fragment de cendre/);
     await page.locator("#title-new").tap();
     assert.equal(await page.locator("#refuge").isVisible(),true);
+    assert.match(await page.locator("#mission-refuge-title").textContent(),/Première mission/);
+    assert.match(await page.locator("#mission-refuge-text").textContent(),/Arche d.extraction/);
+    await page.locator("#lore-primer").locator("summary").tap();
+    assert.match(await page.locator("#lore-terms").textContent(),/Le Rappel.*sac transporté est perdu/);
     await page.locator('#stash-items input[aria-label="Emporter Épée usée"]').check();
     await page.locator('#stash-items input[aria-label="Emporter Bandage"]').check();
     await page.locator("#start-btn").tap();
     assert.equal(await page.locator("#expedition").isVisible(),true);
+    assert.match(await page.locator("#mission-compact").textContent(),/1 FRAGMENT/);
     assert.equal(await page.locator("#turns").textContent(),"0");
     const path=["up","right","right",...Array(9).fill("right"),"down"];
     for(const [i,direction] of path.entries()){
@@ -1991,6 +1997,8 @@ test("QA-092 Android portrait: a real player journey from Veyr earns loot, extra
         assert.equal(await page.locator("#bag-count").textContent(),"3 / 8",
           "The first relic is now exposed in the carried bag");
         assert.equal(await page.locator("#turns").textContent(),"3");
+        assert.match(await page.locator("#mission-compact").textContent(),/REJOINDRE L.ARCHE/);
+        assert.match(await page.locator("#route-hint").textContent(),/Rappel.*perdre tout ton sac/);
         await page.locator("#jump-bag").tap();
         assert.equal(await page.locator("#ui092-sheet-body #bag-panel").count(),1);
         assert.match(await page.locator("#bag-items").textContent(),/Fragment de cendre/);
@@ -2000,6 +2008,7 @@ test("QA-092 Android portrait: a real player journey from Veyr earns loot, extra
     }
     await page.locator("#refuge").waitFor({state:"visible"});
     assert.equal(await page.locator("#expedition").isHidden(),true);
+    assert.match(await page.locator("#mission-refuge-text").textContent(),/1 Fragment de cendre au coffre/);
     const arrived=await page.evaluate(async()=>{
       const {SAVE_KEY,validateSave}=await import("./game.js");
       const state=JSON.parse(localStorage.getItem(SAVE_KEY));
@@ -2016,10 +2025,12 @@ test("QA-092 Android portrait: a real player journey from Veyr earns loot, extra
         bandages:s.meta.stash["consumable.bandage"]};
     });
     assert.deepEqual(crafted,{valid:true,fragments:0,bandages:4});
+    assert.match(await page.locator("#mission-refuge-title").textContent(),/Poursuivre l.enquête/);
     await page.locator('#stash-items input[aria-label="Emporter Bandage"]').check();
     await page.locator("#start-btn").tap();
     assert.equal(await page.locator("#turns").textContent(),"0");
     assert.equal(await page.locator("#bag-count").textContent(),"1 / 8");
+    assert.match(await page.locator("#mission-compact").textContent(),/EXPLORER NHAL/);
     await page.locator("#jump-report").tap();
     assert.equal(await page.locator("#ui092-sheet-body #expedition-report").count(),1);
     assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);

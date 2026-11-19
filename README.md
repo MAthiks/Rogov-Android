@@ -1,5 +1,12 @@
 # ROGOV — Roguelike d'extraction tactique
 
+## NAR-093 — Premier objectif jouable et lore clarifié
+
+À Veyr, **L'Égaré** revient après sa mort dans Nhal : c'est le **Rappel** (sac perdu, coffre conservé). **Première mission : rapporter au moins 1 Fragment de cendre par une Arche d'extraction.** Le fragment a une utilité immédiate à la forge : 1 = 2 bandages, 2 = une Lame cendrée. Les Chambres de l'Écho évoquent une cité enfouie et le mystère du Rappel, **sans prétendre qu'une campagne scénarisée est déjà jouable**.
+
+Le [document NAR-093](docs/NAR093_MISSION_AND_LORE.md) précise les textes de mission qui changent après butin, Rappel, extraction et forge. L'affichage est **en lecture seule** des sauvegardes existantes. Ce chantier répond au premier signalement qualitatif [#25](https://github.com/MAthiks/Rogov-Android/issues/25) pendant QA-092.
+
+
 **Version Web : v0.7f — forge de Veyr et valeur du butin (HTML/PWA).**  
 **Prochaine version en développement : v0.7 — combat tactique hybride (non jouable intégralement).**
 

@@ -8,6 +8,10 @@
 
 Développer rapidement un roguelike d'extraction tactique, solo, hors ligne, lisible au téléphone et facile à mettre à jour. Monde low fantasy et horreur cosmique originale : **Veyr** (refuge) et **Nhal** (profondeurs).
 
+## Narration / onboarding NAR-093 — priorité de production du 19 novembre 2026
+
+**Prémisse :** l'Égaré renaît au Refuge de Veyr après sa mort dans Nhal (Rappel), mais perd le sac transporté. Le joueur descend rechercher des Fragments de cendre et se demande pourquoi le Rappel existe. La première mission effective consiste à **sécuriser au moins un Fragment via l'Arche d'extraction** (1 Fragment = 2 bandages, 2 = une Lame cendrée une fois au coffre). L'Écho évoque une cité enfouie mais les chapitres de campagne, les révélations et la fin ne sont pas implémentés. **Ne pas afficher de fausse quête terminable**. Texte et état de mission sont dérivés uniquement des données existantes, sans nouveau champ de sauvegarde. [Dossier NAR-093](NAR093_MISSION_AND_LORE.md) · [Retour joueur et ticket #25](https://github.com/MAthiks/Rogov-Android/issues/25).
+
 ## Règle économique ECO-078
 
 Les Fragments de cendre n'ont de valeur artisanale **qu'une fois sécurisés au coffre**. À Veyr, choisir entre **forger une Lame cendrée pour 2 Fragments** et **préparer 2 Bandages pour 1 Fragment** ; aucun objet n'est fabriqué en descente. La Lame cendrée (base 4, précision et parade améliorées) se perd si transportée puis perdue au Rappel ; elle reste sécurisée quand elle n'est pas emportée. La recette de lame n'exige pas de posséder l'ancienne épée pour ne pas bloquer un joueur sans matériel. Source de vérité : [ECO078_REFUGE_ECONOMY.md](ECO078_REFUGE_ECONOMY.md). Les coûts et l'utilité perçue exigent encore des tests humains avant de revendiquer 8/10.

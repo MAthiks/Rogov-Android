@@ -1,3 +1,11 @@
+## NAR-093 — Objectif immédiat et lore lisible (19 novembre 2026)
+
+- L'écran titre présente l'Égaré, Veyr, Nhal et le Rappel en quelques phrases.
+- Le Refuge donne une mission vérifiable : sécuriser un Fragment de cendre par l'Arche d'extraction ; ajoute un lexique repliable.
+- Le cockpit mobile affiche un repère de mission **sans hauteur supplémentaire** dans la ligne graphique ; la description s'adapte au butin transporté, à l'extraction et à la forge.
+- Objectifs de pure présentation calculés depuis la sauvegarde existante ; **aucun nouvel état de quête, système de jeu, génération ni campagne fictive**.
+- Service Worker mis à jour pour embarquer le module de texte hors ligne ; tests Node et parcours Chromium ajoutés.
+
 ## QA-092 — Audit de studio avant Alpha 0.8 (19 novembre 2026)
 
 - Tests automatisés ajoutés pour le vrai cycle de jeu refuge → extraction → forge → deuxième descente, perte au Rappel et 30 graines profondes.

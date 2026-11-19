@@ -251,3 +251,15 @@
   }
   .frame.is-expedition .ui092-sheet-body>.panel-aside h2{font-size:18px}
 }
+
+
+/* QA-092 / P0: short Android screens must never let the fixed movement dock
+ * cover the 11x11 map. Reduce *only* map scale, never the hit targets. */
+@media(max-width:730px) and (max-height:700px){
+  .frame.is-expedition .pixel-map{
+    width:min(100%,32dvh,430px);
+  }
+  .frame.is-expedition #expedition .run-bar{padding-block:4px}
+  .frame.is-expedition .survival-hud{padding-block:4px}
+  .frame.is-expedition .expedition-shortcuts{padding-block:3px;margin-bottom:4px}
+}

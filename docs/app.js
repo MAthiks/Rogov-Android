@@ -1,6 +1,7 @@
 import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
+import { narrativeObjective, NAR093_LORE } from "./narrative.js";
 import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
 import {heroFacingFromStep} from "./hero-art.js";
 import { nearbySecretHint } from "./secrets.js";
@@ -120,6 +121,18 @@ function renderVeyrConceptGallery() {
     const name=document.createElement("strong");name.textContent=entry.name;
     const note=document.createElement("small");note.textContent=entry.role;
     caption.append(name,note);card.append(img,caption);host.append(card);
+  }
+}
+// The glossary only describes public world rules; no NPCs or quest progression.
+function renderLorePrimer(){
+  const host=$("lore-terms");
+  if(host.childElementCount)return;
+  const titles={veyr:"Veyr",nhal:"Nhal",fragment:"Fragments de cendre",
+    arche:"Arche d'extraction",rappel:"Rappel",echo:"Chambre de l'Écho"};
+  for(const [id,description] of Object.entries(NAR093_LORE)){
+    const term=document.createElement("dt"),definition=document.createElement("dd");
+    term.textContent=titles[id];definition.textContent=description;
+    host.append(term,definition);
   }
 }
 function renderInventory(container, items, selectable=false) {
@@ -514,6 +527,7 @@ function render() {
   $("refuge").hidden = Boolean(run);
   $("expedition").hidden = !run;
   renderJournal();
+  const mission=narrativeObjective(state);
   if (run) {
     $("hp").textContent = run.hp + " / " + MAX_HP;
     $("endurance-state").textContent = run.endurance+" / "+run.enduranceMax;
@@ -537,10 +551,8 @@ function render() {
     $("bag-count").textContent = inventoryCount(state) + " / 8";
     updateBagStatus();
     updateExpeditionReport();
-    $("route-hint").textContent = !run.map || run.layoutId==="nhal-introduction"
-      ? "Première descente : repère les dangers et l'Arche d'extraction. Tu peux éviter le combat."
-      : run.rooms?"Secteur "+state.meta.descents+" : les ennemis, coffres et failles doivent se découvrir dès la première salle. Ouvre les coffres proches ; les failles rouges sont mortelles. La caméra suit l'Égaré.":
-      "Secteur historique : routes alternatives préservées. Observe avant de t'engager.";
+    $("mission-compact").textContent=mission.tag;
+    $("route-hint").textContent=mission.text;
     const clue=nearbySecretHint(run,state.meta.hero.attributes?.perception??5);
     $("secret-clue").hidden=!clue;
     $("secret-clue").textContent=clue?clue.text+" "+clue.hint:"";
@@ -567,6 +579,9 @@ function render() {
     renderCombatPreview();
     renderInventory($("bag-items"), run.carried);
   } else {
+    $("mission-refuge-title").textContent=mission.title;
+    $("mission-refuge-text").textContent=mission.text;
+    renderLorePrimer();
     $("expedition-report").hidden=true;
     selectedDoor=null;
     const available = new Set(Object.keys(state.meta.stash).filter((id) => state.meta.stash[id] > 0));

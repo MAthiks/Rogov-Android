@@ -2,14 +2,14 @@
 
 **Repo :** `MAthiks/Rogov-Android`.
 **Priorité :** reproduction fidèle de la maquette dark fantasy **dans le vrai jeu**, jamais comme écran statique.
-**Statut à la création de ce checkpoint :** PR ART-097A2 en préparation ; **ne pas annoncer fusion ni QA réussie avant les workflows**.
+**Dernier lot fusionné :** ART-097A2, [PR #49](https://github.com/MAthiks/Rogov-Android/pull/49), merge SHA `0cfacd0e88e8065835903dd7d62805f775dc8553`. **370/370 tests Node, 53/53 Chromium, Chrome Android 13 et APK automatisés réussis.** Validation esthétique sur téléphone physique ouverte.
 
 ## Merges confirmées
 - UI-096D, PR #47, merge SHA `9596f9f402d887705fa9e84eadbc9dca884ea7ee` ; `test-web`, `android-web`, `build` verts.
 - ART-097A1, PR #48, merge SHA `2ab130a709d3498ce7aefb195632ddee19f2d2e3` ; 367/367 Node, 53/53 Chromium, Android Chrome 13 et APK (automatisés) verts.
 
 ## Développements actifs
-**ART-097A2 — haute fidélité des interactifs existants :**
+**ART-097A2 — haute fidélité des interactifs existants, fusionné :**
 `docs/interaction-art.js` : portes ouverte/fermée, coffre intact/ouvert,
 Arche et Faille enrichis de détails structuraux 24×24. Garder exactement
 15 clés d'art, 4 états des pièges inchangés, brouillard et sauvegardes intacts.
@@ -26,11 +26,11 @@ hors ligne et contrat `docs/ART097A2_INTERACTIVE_ASSETS.md`.
 - Aucun test physique Android ni campagne de 5×2 descentes revendiqué.
 
 ## QA et suite
-Attendre `test-web`, `android-web`, `build` verts, comparer les screenshots
+Les trois workflows `test-web`, `android-web`, `build` sont verts. Comparer les screenshots
 Chromium à 320×640, 360×780, 393×704 ; tester visuellement ouvert/fermé,
 plein/vide, Arche/Faille, pièges, sauvegardes et tactile sur Android réel
 avant d'augmenter la note DA 6/10 ou l'Alpha provisoire 7,5/10.
-Prochaines priorités après validation : ART-097B personnages puis UI-097A
+Prochaine priorité après revue Chromium : UI-097A cockpit Android puis ART-097B personnages
 interface et ART-097C ambiance, WIP=1.
 
 ## Références

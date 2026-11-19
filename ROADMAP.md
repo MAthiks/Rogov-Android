@@ -61,13 +61,19 @@
 
 **Suite de QA-096**, [contrat UI-096D](docs/UI096D_ANDROID_COMPACT_POLISH.md). Deux captures réelles ont révélé une carte trop petite sur écrans courts, une alerte de menace redondante, un refuge trop vertical avant ses accès et un sous-titre alpha obsolète. Correctifs UI seulement : carte agrandie sur hauteur ≤760px, alerte réservée aux véritables coups imminents, Veyr condensé, endurance désaturée, cache PWA versionné. **Tests et capture de contrôle à valider avant fusion ; aucune règle, save, Sprite C, brouillard, combat ou objet modifié.** Le GO graphique humain reste ouvert.
 
-## UI/ART-097 — Objectif haute fidélité sur Android (progressif)
+## UI/ART-097 — Objectif haute fidélité sur Android (en production)
 
-**Référence :** nouvelle maquette de Nhal en pixel art dark fantasy, fournie dans le chat le 20 novembre 2026. Le rendu doit être **réel et interactif** ; une peinture plein écran ne peut remplacer le moteur. **Pré-requis :** traiter UI-096D / PR #47 et ses changements de proportions avant validation de cette série.
+**Référence :** nouvelle maquette de Nhal en pixel art dark fantasy, fournie le 20 novembre 2026. Le rendu doit être **réel et interactif** ; ne pas remplacer le moteur par une peinture d'écran. Sprite C, 11×11, état du monde, brouillard, sauvegardes et ASCII prioritaires.
 
-**ART-097A1 — Relief des sols et murs de Nhal (PR empilée sur UI-096D, non fusionnée) :** amélioration de l'atlas SVG 24×24 existant avec biseaux de dalles, joints ombrés, chaperons et patines discrètes ; 54 variantes déterministes, masque des voisins déjà connus inchangé. Aucun nouveau type de tuile ni objet décoratif trompeur ; `SAVE_KEY`, schéma, modes ASCII/offline, sprites et gameplay conservés. [Contrat et recette](docs/ART097A1_STONEWORK_IMPLEMENTATION.md). Tests Node/Chromium, Android 13/APK et contrôle du rendu **requis avant toute fusion**. La validation esthétique physique QA-096 reste ouverte.
+**UI-096D — PR #47 fusionnée**, commit `9596f9f` : carte agrandie en portrait court, Veyr condensé, avertissement de menace réservé aux attaques imminentes ; contrôles Web, Chrome Android 13 et APK réussis. Recette esthétique physique ouverte.
 
-**Suite programmée (WIP=1) :** ART-097A2 — portes/coffres/Arche/Faille existants ; ART-097B — personnages Sprite C et ennemis ; UI-097A — bandeau, HUD, carte, alertes et contrôles réellement cliquables ; ART-097C — éclairage et ambiance peu coûteux. Pas de nouvelle mécanique, pas de Godot ni portage PC durant cette séquence. Objectif de maquette, pas promesse d'identité pixel pour pixel sur une grille de 24×24.
+**ART-097A1 — PR #48 fusionnée**, commit `2ab130a` : biseaux de pierre, joints ombrés et patines sur les **54 variantes SVG déterministes** de sol/mur, sans nouvelle tuile mécanique ni fuite des voisins inconnus. **367/367 Node et 53/53 Chromium**, Chrome Android 13 et compilation/install APK validés en automatisation. [Contrat et recette](docs/ART097A1_STONEWORK_IMPLEMENTATION.md).
+
+**ART-097A2 — Interactifs existants (en développement, PR à valider) :** portes ouvertes/fermées, coffres fermés/ouverts, Arche turquoise et Faille cramoisie en SVG 24×24 enrichis ; `INTERACTIVE_IDS` reste à 15, pièges cachés intacts. Aucun faux objet ni nouveau gameplay ; cache PWA renouvelé. [Contrat et recette](docs/ART097A2_INTERACTIVE_ASSETS.md). Node/Chromium, Android 13/APK et contrôle de la lisibilité **obligatoires avant fusion**.
+
+**Suite WIP=1 :** ART-097B (personnages Sprite C et ennemis), UI-097A (bandeau, HUD, carte, alerte et commandes tactiles réelles), ART-097C (lumières et ambiance à coût réduit). Toujours pas de Godot ni portage PC actif.
+
+**Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 
 ## Plateformes — Android en priorité, PC conservé dans le GDD
 

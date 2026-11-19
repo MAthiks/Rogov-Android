@@ -129,7 +129,11 @@ test("GAME-095C1: a defense can respond to the telegraphed attack",()=>{
   s=defend(s,"dodge").state;
   assert.ok(s.run);
   assert.equal(s.run.turns,2);
-  assert.equal(char(s).tactic,"recovering");
+  // GAME-095D2: an earned armed dodge can now riposte and defeat this
+  // wounded Charognard; otherwise the original recovery turn still applies.
+  if(s.run.enemies.length===0)
+    assert.ok(s.journal.some(e=>e.text.includes("RIPOSTE D'ESQUIVE")));
+  else assert.equal(char(s).tactic,"recovering");
   assert.ok(s.run.hp<=before&&s.run.hp>=before-1,
     "same defensive resolver, no artificial damage boost");
   assert.ok(validateSave(s));

@@ -207,6 +207,6 @@ test("GAME-095C1: Android telegraph is visible-only, PWA cached",()=>{
   assert.match(app,/explorationState\(state\.run,e\.x,e\.y\)==="visible"/);
   assert.match(tiles,/enemy\.kind==="charognard"&&enemy\.tactic==="winding"/);
   assert.match(css,/\.hostile-tile\.enemy-charge/);
-  assert.match(sw,/game095(c[1-9]|d[1-9])/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   assert.match(sw,/"\.\/enemy-ai\.js"/);
 });

@@ -129,7 +129,11 @@ test("GAME-095C1: a defense can respond to the telegraphed attack",()=>{
   s=defend(s,"dodge").state;
   assert.ok(s.run);
   assert.equal(s.run.turns,2);
-  assert.equal(char(s).tactic,"recovering");
+  // GAME-095D2: an earned armed dodge can now riposte and defeat this
+  // wounded Charognard; otherwise the original recovery turn still applies.
+  if(s.run.enemies.length===0)
+    assert.ok(s.journal.some(e=>e.text.includes("RIPOSTE D'ESQUIVE")));
+  else assert.equal(char(s).tactic,"recovering");
   assert.ok(s.run.hp<=before&&s.run.hp>=before-1,
     "same defensive resolver, no artificial damage boost");
   assert.ok(validateSave(s));
@@ -203,6 +207,6 @@ test("GAME-095C1: Android telegraph is visible-only, PWA cached",()=>{
   assert.match(app,/explorationState\(state\.run,e\.x,e\.y\)==="visible"/);
   assert.match(tiles,/enemy\.kind==="charognard"&&enemy\.tactic==="winding"/);
   assert.match(css,/\.hostile-tile\.enemy-charge/);
-  assert.match(sw,/game095c[1-9]/);
+  assert.match(sw,/game095(c[1-9]|d[1-9])/);
   assert.match(sw,/"\.\/enemy-ai\.js"/);
 });

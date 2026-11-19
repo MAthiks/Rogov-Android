@@ -518,3 +518,41 @@ test("GAME-095B2 Android 13: floor-2 Faille encounter and preserved rewards", {t
     console.log("GAME-095B2 ANDROID 13: balanced floor / saved loot PASS");
   }finally{await browser.close();}
 });
+
+
+test("GAME-095C1 Android 13 Chrome: telegraph survives reload, sidestep cancels", {timeout:85000},async()=>{
+  const browser=await androidBrowser();
+  try{
+    const context=browser.contexts()[0];
+    const page=context.pages().find(p=>p.url().includes("127.0.0.1:8765"))||
+      await context.newPage();
+    await page.goto(URL,{waitUntil:"load",timeout:20000});
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.beginRun(game.newGame(),["weapon.rusty_sword"]).state;
+      s.run.x=1;s.run.y=7;
+      s.run.enemies=[{id:"c1-android",kind:"charognard",
+        x:3,y:7,hp:3,tactic:"stalking"}];
+      if(!game.validateSave(s))throw Error("Invalid C1 Android scenario");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(s));
+    });
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    await page.locator("#wait-btn").click();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),1);
+    assert.match(await page.locator("#threat-forecast").textContent(),/Charge imminente/);
+    await page.reload({waitUntil:"load"});
+    await page.locator("#title-continue").click();
+    assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),1);
+    await page.locator('[data-direction="up"]').click();
+    const after=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(s),hp:s.run.hp,turns:s.run.turns,
+        tactic:s.run.enemies[0].tactic};
+    });
+    assert.deepEqual(after,{valid:true,hp:12,turns:2,tactic:"stalking"});
+    console.log("GAME-095C1 ANDROID 13: visible charge / saved windup / sidestep PASS");
+  }finally{await browser.close();}
+});

@@ -686,3 +686,27 @@ html, body, #title-screen, #game-shell { max-width:100%; overflow-x:clip; }
   font:12px/1.5 system-ui,sans-serif}
 .echo-dossier-inline{margin:14px 0 6px}
 @media(max-width:370px){.echo-dossier{padding:9px 10px}}
+
+
+/* GAME-095A2 — compact equipment/preparation controls, usable at 320px portrait.
+ * Scoped to existing refuge inventory and expedition bag, no map/dock changes. */
+.prep-summary{margin:8px 0 14px;font:700 12px/1.5 ui-monospace,monospace;color:var(--accent)}
+.prep-summary[data-full="true"]{color:var(--red)}
+.prep-loadout{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#121e25;margin:0 0 18px}
+.prep-loadout h3{margin:2px 0 4px}
+.prep-slot-grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.prep-slot-grid label{display:grid;gap:6px;color:var(--muted);font-size:12px}
+.prep-slot-grid select,.prep-quantity{border:1px solid #59756a;border-radius:7px;background:#1c2c32;color:var(--text);min-height:42px;font:inherit;padding:6px}
+.prep-slot-grid select{width:100%;min-width:0}
+.prep-quantity{min-width:54px;max-width:72px;flex:0 0 auto}
+.prep-quantity:disabled{opacity:.55}
+.bag-equipped{display:grid;gap:4px;grid-template-columns:repeat(2,minmax(0,1fr));padding:8px 10px;margin:10px 0;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:11px}
+#bag-items .item-row{flex-wrap:wrap;align-items:center}
+.bag-item-actions{display:flex;flex-wrap:wrap;gap:6px;flex-basis:100%;margin-top:4px}
+.bag-item-action{min-height:42px;margin:0!important;padding:8px 12px!important;font-size:12px}
+#bag-items .item-label{min-width:100px}
+@media(max-width:370px){
+  .prep-slot-grid{grid-template-columns:1fr}
+  .bag-equipped{grid-template-columns:1fr}
+  .bag-item-action{flex:1 1 auto}
+}

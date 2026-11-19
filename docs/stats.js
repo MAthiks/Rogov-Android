@@ -104,12 +104,18 @@ export function validLoadout(loadout,carried=null){
   }
   return true;
 }
-/** The old bag remains the source of truth for owned items. No item is copied. */
+/** The bag remains the only source of truth. Existing swords keep their
+ * historical priority when both are carried; new categories are optional.
+ * Choosing equipment explicitly at Veyr or in Nhal can override these defaults.
+ */
 export function playerLoadout(carried={}){
+  const first=ids=>ids.find(id=>(carried[id]||0)>0)??null;
   return {
     ...EMPTY_LOADOUT,
-    mainHand:(carried["weapon.ashen_blade"]||0)>0?"weapon.ashen_blade":
-      (carried["weapon.rusty_sword"]||0)>0?"weapon.rusty_sword":null
+    mainHand:first(["weapon.ashen_blade","weapon.rusty_sword",
+      "weapon.iron_mace","weapon.bone_dagger"]),
+    offHand:first(["shield.worn_buckler"]),
+    body:first(["armor.broken_plate","armor.scavenged_cuirass"])
   };
 }
 export function migrateHero(hero){

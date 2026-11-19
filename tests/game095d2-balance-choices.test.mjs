@@ -70,7 +70,11 @@ test("GAME-095D2: telegraphed dodge counter is deterministic and earned",()=>{
           "a counter opens the guardian's high guard");
       const reloaded=normalizeJournal(JSON.parse(JSON.stringify(after)));
       assert.ok(validateSave(reloaded));
-      assert.deepEqual(reloaded.run.enemies,after.run.enemies);
+      assert.deepEqual(reloaded.run.enemies.map(e=>({
+        id:e.id,kind:e.kind,hp:e.hp,tactic:e.tactic
+      })),after.run.enemies.map(e=>({
+        id:e.id,kind:e.kind,hp:e.hp,tactic:e.tactic
+      })),"normalization can add default stats, not change persisted combat state");
       assert.equal(reloaded.run.rngState,after.run.rngState);
     }
   }
@@ -149,7 +153,9 @@ test("GAME-095D2: full bag trades exactly one item for one unknown chest reward"
   const saved=extract(exit).state;
   assert.ok(validateSave(saved));
   assert.equal(saved.meta.stash["weapon.iron_mace"]||0,0);
-  assert.equal(saved.meta.stash[reward],after.run.carried[reward]);
+  assert.equal(saved.meta.stash[reward],
+    (s.meta.stash[reward]||0)+after.run.carried[reward],
+    "extraction adds carried reward to existing secured stash");
 });
 
 test("GAME-095D2: invalid swaps never cost a turn or spoil unseen loot",()=>{

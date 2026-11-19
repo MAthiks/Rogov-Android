@@ -6,12 +6,14 @@
 
 **Ordre de production (WIP = 1) :** GAME-095A (variété d'objets et décisions d'équipement), GAME-095B (étages successifs), GAME-095C (tactique/environnements/ennemis), GAME-095D (équilibrage Android et rejouabilité). Le lore NAR-093/094 reste présent mais **n'est plus le moteur des priorités**. Ne pas ajouter de quêtes ou révélations avant d'avoir validé le plaisir des descentes.
 
-**GAME-095A1 — Fondations du butin :** définitions de six objets, système de tirage de récompenses déterministe indépendant du RNG de combat et tests, en branche de travail [PR #29](https://github.com/MAthiks/Rogov-Android/pull/29) **brouillon, non fusionnée**. La distribution et les interactions ne sont pas encore jouables. [Spécification GAME-095A](docs/GAME095A_LOOT_EQUIPMENT.md). La suite est A2 (équipement/consommables), puis A3 (récompenses des coffres), puis A4 (QA mobile).
+**GAME-095A1 — Fondations du butin (fusionné, PR #29) :** six objets avec pictogrammes Sprite C, RNG de butin déterministe indépendant, catalogue et tests. [Spécification GAME-095A](docs/GAME095A_LOOT_EQUIPMENT.md).
 
 **GAME-095A2 — Équipement et sac (fusionné, PR #30) :** quantités à Veyr (sans modifier les anciennes signatures), choix des slots, équipement tactique coûtant un tour, abandon avec confirmation, Sels de vigueur (+6 END), inventaire Android. [Contrat A2](docs/GAME095A_LOOT_EQUIPMENT.md). Distribution de nouveaux objets en donjon reportée à A3. CI et tests Android requis avant validation.
 
 
-**GAME-095A3 — Butin de coffres réellement variable (en développement) :** nouvelles descentes profondes avec Fragment + Bandage garantis et troisième récompense déterministe (armes, boucliers, armures ou consommables) ; nouvelle validation `lootPlanVersion: 1` uniquement pour ces descentes ; sauvegardes anciennes non régénérées. [Recette A3/A4](docs/GAME095A3_A4_QA_BALANCE.md). **GAME-095A4** : simulations, minimum 1 PV par attaque physique réussie après armure passive, tests Web/Android automatisés ; recette **5 joueurs × 2 descentes** encore ouverte. GAME-095B/C/D ne sont pas développés.
+**GAME-095A3/A4 (code fusionné, PR #31) :** trois coffres profonds (Fragment + Bandage garantis, butin variable), validation rétrocompatible, équilibrage de base et workflows Web/Android validés. [Recette A3/A4](docs/GAME095A3_A4_QA_BALANCE.md). La recette physique Android et les **5 joueurs × 2 expéditions** restent ouvertes ; ne pas assimiler tests automatiques et plaisir de jouer.
+
+**GAME-095B1 — Étages successifs (branche de travail) :** boucle de trois étages, choix libre à l'Arche (extraire ou descendre), blessures et sac persistants, profondeurs/XP sauvegardés, compatibilité des anciens runs et tutoriel, UI mobile, tests automatisés. [Contrat et recette B1](docs/GAME095B1_MULTIFLOOR.md). **En attente de CI et fusion ; aucune validation humaine revendiquée.** Le calibrage des ennemis et récompenses par étage sera évalué ensuite (B2 / C / D).
 
 ## NAR-094 — Enquête persistante dans les Chambres de l'Écho
 

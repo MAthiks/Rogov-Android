@@ -1,6 +1,7 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
+import {MAX_FLOOR_DEPTH,floorChoiceAvailable,canDescendFurther} from "./floors.js";
 import { narrativeObjective, NAR093_LORE } from "./narrative.js";
 import { echoDossier } from "./echo-investigation.js";
 import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
@@ -663,6 +664,22 @@ function updateExpeditionReport(){
     " objet(s) exposé(s) · "+(report.knownRoute
       ?"retour connu":"retour à reconnaître");
 }
+function renderFloorChoice(run){
+  const onArche=floorChoiceAvailable(run);
+  $("floor-hud").hidden=!run?.floorDepth;
+  if(run?.floorDepth)
+    $("floor-depth").textContent=run.floorDepth+" / "+MAX_FLOOR_DEPTH;
+  $("floor-choice").hidden=!onArche;
+  if(!onArche)return;
+  const canContinue=canDescendFurther(run);
+  $("floor-choice-title").textContent="ARCHE ATTEINTE · ÉTAGE "+
+    run.floorDepth+" / "+MAX_FLOOR_DEPTH;
+  $("floor-choice-description").textContent=canContinue
+    ?"Ton butin est encore exposé. Rentrer ou poursuivre : à toi de choisir."
+    :"Dernier étage atteint. Tu peux sécuriser ton expédition à Veyr.";
+  $("floor-descend").hidden=!canContinue;
+  $("floor-extract").disabled=false;
+}
 function render() {
   const run = state.run;
   $("game-shell").classList.toggle("is-expedition", Boolean(run));
@@ -673,6 +690,11 @@ function render() {
   $("run-stats").textContent = state.meta.extractions + " / " + state.meta.recalls;
   $("refuge").hidden = Boolean(run);
   $("expedition").hidden = !run;
+  renderFloorChoice(run);
+  $("refuge-depth-record").hidden=!(!run&&state.meta.bestDepth);
+  if(!run&&state.meta.bestDepth)
+    $("refuge-depth-record").textContent="· Profondeur record : étage "+
+      state.meta.bestDepth+"/"+MAX_FLOOR_DEPTH+".";
   renderJournal();
   renderEchoDossier();
   const mission=narrativeObjective(state);
@@ -767,6 +789,7 @@ function act(result) {
   transientMessage = null;
   const previousRun=state.run;
   state = result.state;
+  if(previousRun?.floorDepth!==state.run?.floorDepth)ui092.close();
   heroFacing=heroFacingFromStep(previousRun,state.run,heroFacing);
   // If an enemy dies during the v0.6 collision combat, never leave a stale target.
   if (state.run?.targetId && !state.run.enemies?.some(e=>e.id===state.run.targetId && e.hp>0 &&
@@ -851,7 +874,9 @@ $("start-btn").addEventListener("click", () => {
     showWarning("La sauvegarde actuelle n'est pas accessible. Réinitialise d'abord ou accepte de jouer sans sauvegarde.");
     return;
   }
-  act(beginRun(state,preparationCounts(),preparedChoice()));
+  // B1 is opt-in for freshly started GUI expeditions. Old engine callers,
+  // already saved descents and the tutorial keep their extraction contract.
+  act(beginRun(state,preparationCounts(),preparedChoice(),{multiFloor:true}));
 });
 for (const button of document.querySelectorAll("[data-direction]")) {
   button.addEventListener("click", () => act(move(state,button.dataset.direction)));
@@ -860,6 +885,13 @@ for (const button of document.querySelectorAll("[data-direction]")) {
 // bottom sheet on mobile and the existing scroll navigation on desktop.
 const ui092=setupUi092({get:$,isRun:()=>Boolean(state.run),
   isAscii:()=>renderMode==="ascii"});
+$("floor-extract").addEventListener("click",()=>act(resolveFloorExit(state,"extract")));
+$("floor-descend").addEventListener("click",()=>{
+  if(window.confirm("Descendre vers l'étage suivant ? Tes blessures et ton sac "+
+      "te suivent. Cet étage ne sera plus accessible, mais une nouvelle Arche "+
+      "permettra l'extraction."))
+    act(resolveFloorExit(state,"descend"));
+});
 $("wait-btn").addEventListener("click", () => act(waitTurn(state)));
 $("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.bandage")));
 $("use-tonic").addEventListener("click", () => act(useItem(state, "consumable.dusk_tonic")));

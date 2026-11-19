@@ -7,6 +7,8 @@ import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDef
 import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS} from "./enemy-ai.js";
 import {BASE_MAP,BASE_LOOT,generateLayout,validateLayout} from "./dungeon.js";
 import {generateDeepLayout,validateDeepLayout,isDeepMap} from "./deep-dungeon.js";
+import {MAX_FLOOR_DEPTH,deepFloorSeed,floorChoiceAvailable,canDescendFurther}
+  from "./floors.js";
 import {visibleCells,explorationState,visionKey,validExploration,revealAround,hasFog} from "./exploration-visibility.js";
 import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
@@ -161,7 +163,10 @@ export function inspectTile(state, x, y) {
   }
   if (tile==="#") return { kind:"wall", name:"Mur de pierre", description:"Obstacle infranchissable." };
   if (tile==="^") return { kind:"danger", name:"Faille mortelle", description:"La traverser déclenche le Rappel. Le sac sera perdu." };
-  if (tile==="E") return { kind:"extraction", name:"Arche d'extraction", description:"Atteins-la pour sécuriser ton équipement." };
+  if (tile==="E") return { kind:"extraction", name:"Arche d'extraction",
+    description:state.run.floorDepth
+      ?"Arche de palier : rejoins-la pour choisir de rentrer avec ton sac ou de poursuivre l'expédition. Aucun choix n'est automatique."
+      :"Atteins-la pour sécuriser ton équipement." };
   if(tile==="$"&&state.run.rooms){
     const opened=state.run.collected.includes(positionKey(x,y));
     return {kind:"chest",name:opened?"Coffre ouvert":"Coffre de Nhal",
@@ -346,6 +351,9 @@ export function validateSave(s) {
   if (!s || s.schemaVersion !== SCHEMA_VERSION) return false;
   if (!s.meta || !s.meta.hero || !s.meta.stash || !Array.isArray(s.journal)) return false;
   if (!validEchoFindings(s.meta.echoFindings)) return false;
+  if(s.meta.bestDepth!==undefined&&
+     (!Number.isSafeInteger(s.meta.bestDepth)||s.meta.bestDepth<1||
+      s.meta.bestDepth>MAX_FLOOR_DEPTH))return false;
   if (!s.journal.every(validJournalEntry)) return false;
   if (!Number.isSafeInteger(s.meta.hero.xp) || s.meta.hero.xp < 0) return false;
   if (!Number.isSafeInteger(s.meta.hero.level) || s.meta.hero.level !== 1 + Math.floor(s.meta.hero.xp / 5)) return false;
@@ -360,6 +368,10 @@ export function validateSave(s) {
     if (!r || !Number.isInteger(r.x) || !Number.isInteger(r.y)) return false;
     if (r.map!==undefined && !(isDeepMap(r.map)?
         validateDeepLayout(r,true):validateLayout(r.map,r.loot))) return false;
+    if(r.floorDepth!==undefined&&
+       (!Number.isSafeInteger(r.floorDepth)||r.floorDepth<1||
+        r.floorDepth>MAX_FLOOR_DEPTH||!isDeepMap(r.map)||
+        r.lootPlanVersion!==1||s.meta.descents<2))return false;
     if(r.exploration!==undefined && !validExploration(r))return false;
     if(!validSecrets(r)||!validTraps(r)||!validRoomSites(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
@@ -417,7 +429,10 @@ export function craftAtRefuge(state,recipeId) {
  * accepts a count record, so several bandages can be prepared without
  * changing the on-disk count-based inventory schema.
  */
-export function beginRun(state, equipment=[], loadoutChoice=null) {
+export function beginRun(state, equipment=[], loadoutChoice=null, options={}) {
+  if(options===null||typeof options!=="object"||Array.isArray(options)||
+     (options.multiFloor!==undefined&&typeof options.multiFloor!=="boolean"))
+    return info(state,"Options de descente invalides.",false);
   if (state.run) return info(state, "Une descente est déjà en cours.", false);
   const legacy=Array.isArray(equipment);
   if (!legacy && (!equipment || typeof equipment!=="object" ||
@@ -460,6 +475,10 @@ export function beginRun(state, equipment=[], loadoutChoice=null) {
       ...(layout.secrets?{secrets:layout.secrets}:{}),
       ...(layout.traps?{traps:layout.traps}:{}),
       ...(layout.sites?{sites:layout.sites}:{})}:{}) },s.meta);
+  if(options.multiFloor===true&&s.meta.descents>=2){
+    s.run.floorDepth=1;
+    s.meta.bestDepth=Math.max(s.meta.bestDepth||0,1);
+  }
   if(s.run.exploration)revealAround(s.run);
   return info(s,"Descente "+s.meta.descents+
     (s.meta.descents===1?" : les profondeurs de Nhal s'ouvrent.":
@@ -487,6 +506,59 @@ export function extract(state) {
   s.meta.extractions += 1;
   gainXp(s, 2);
   return info(s, "EXTRACTION RÉUSSIE — Ton butin rejoint le coffre. +2 XP.", true, "extraction", finalTurn);
+}
+
+/** GAME-095B1: a voluntary decision at the current floor's Arche.
+ * The entrance and all legacy saved deep maps still auto-extract as before.
+ * Choosing either action adds no second turn or hidden enemy phase; reaching
+ * the Arche already consumed one movement turn.
+ */
+export function resolveFloorExit(state,choice){
+  const run=state.run;
+  if(!floorChoiceAvailable(run))
+    return info(state,"Rejoins l'Arche E de ton étage pour décider du retour.",false);
+  if(choice==="extract")return extract(state);
+  if(choice!=="descend")
+    return info(state,"Choisis l'extraction ou la poursuite de l'expédition.",false);
+  if(!canDescendFurther(run))
+    return info(state,"Dernier étage atteint : l'Arche te ramène à Veyr.",false);
+  const nextDepth=run.floorDepth+1;
+  let layout;
+  try{
+    layout=generateDeepLayout(deepFloorSeed(state.meta.descents,nextDepth));
+  }catch{
+    return info(state,"La voie plus profonde est instable. Tu peux toujours extraire.",false);
+  }
+  const s=copy(state),previous=s.run;
+  // Construct the next floor from scratch: never reuse explored rooms,
+  // enemies, opened doors, traps, secret flags or already collected chests.
+  // Carry only the expedition's belongings, survival stats and combat seed.
+  s.run=migrateCombatRun({
+    x:layout.start.x,y:layout.start.y,hp:previous.hp,
+    turns:previous.turns,carried:previous.carried,loadout:previous.loadout,
+    enduranceMax:previous.enduranceMax,endurance:previous.endurance,
+    rngState:previous.rngState,targetId:null,defense:"none",alarmUntil:0,
+    collected:[],enemies:layout.enemies,
+    map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
+    ...(layout.lootPlanVersion?{lootPlanVersion:layout.lootPlanVersion}:{}),
+    rooms:layout.rooms,doors:layout.doors,
+    doorPlanVersion:layout.doorPlanVersion,
+    geometryVersion:layout.geometryVersion,
+    topologyVersion:layout.topologyVersion,
+    links:layout.links,networkKind:layout.networkKind,
+    start:layout.start,exit:layout.exit,exploration:{seen:[]},
+    ...(layout.secrets?{secrets:layout.secrets}:{}),
+    ...(layout.traps?{traps:layout.traps}:{}),
+    ...(layout.sites?{sites:layout.sites}:{}),
+    floorDepth:nextDepth
+  },s.meta);
+  s.meta.bestDepth=Math.max(s.meta.bestDepth||0,nextDepth);
+  gainXp(s,1);
+  revealAround(s.run);
+  const message="NHAL — Étage "+nextDepth+"/"+MAX_FLOOR_DEPTH+
+    ". Tu t'enfonces avec ton butin et tes blessures. +1 XP. L'Arche de cet étage reste ton issue.";
+  recordEvent(s,"system",message,s.run.turns);
+  return {state:s,message,changed:true};
 }
 export function move(state, direction, context="move") {
   if (!state.run) return info(state, "Commence une descente depuis Veyr.", false);
@@ -525,7 +597,18 @@ export function move(state, direction, context="move") {
   regenEndurance(s,1);
   s.run.x=x; s.run.y=y;
   if(tile==="^") return recall(s);
-  if(tile==="E") return extract(s);
+  if(tile==="E"){
+    if(floorChoiceAvailable(s.run)){
+      const message="ARCHE — Étage "+s.run.floorDepth+"/"+MAX_FLOOR_DEPTH+
+        ". Choisis de sécuriser ton butin à Veyr"+
+        (canDescendFurther(s.run)?" ou de poursuivre vers le prochain étage.":".");
+      recordEvent(s,"system",message,s.run.turns);
+      revealAround(s.run);
+      // At the Arche, deliberation is safe and costs no extra turn.
+      return {state:s,message,changed:true};
+    }
+    return extract(s);
+  }
   let message=context==="retreat" ? "Repli tactique vers une case libre." : "Déplacement dans Nhal.";
   let type=context==="retreat" ? "combat" : "action";
   const mechanism=trapAt(s.run,x,y);

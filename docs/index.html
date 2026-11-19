@@ -146,13 +146,13 @@
           <div id="veyr-concept-grid" class="veyr-concept-grid" aria-label="Trois concepts de personnages non jouables"></div>
         </details>
         <button id="start-btn" class="primary full" type="button">COMMENCER UNE DESCENTE <span aria-hidden="true">↗</span></button>
-        <p class="notice">L'expérience et le personnage restent permanents, même après une mort.</p>
+        <p class="notice">L'expérience et le personnage restent permanents, même après une mort. <span id="refuge-depth-record" hidden></span></p>
         <div id="refuge-log-slot" class="log-slot"></div>
       </section>
 
       <section id="expedition" class="panel" hidden aria-labelledby="exp-title">
         <div class="section-head"><span class="eyebrow">02 — Territoire hostile</span><h2 id="exp-title">Profondeurs de Nhal</h2><button type="button" id="jump-menu" class="ui092-menu-toggle" aria-controls="options-panel" aria-expanded="false">☰ Menu</button></div>
-        <div class="run-bar"><span>VIE <strong id="hp">12 / 12</strong></span><span>TOURS <strong id="turns">0</strong></span><span>SAC <strong id="bag-count">0 / 8</strong></span></div>
+        <div class="run-bar"><span>VIE <strong id="hp">12 / 12</strong></span><span>TOURS <strong id="turns">0</strong></span><span>SAC <strong id="bag-count">0 / 8</strong></span><span id="floor-hud" hidden>ÉTAGE <strong id="floor-depth">1 / 3</strong></span></div>
         <nav id="expedition-shortcuts" class="expedition-shortcuts" aria-label="Accès rapide aux éléments de l'expédition">
           <button type="button" id="jump-map" aria-controls="tile-map">Carte</button>
           <button type="button" id="jump-combat" aria-controls="combat-dock">Combat</button>
@@ -167,6 +167,17 @@
           <div class="endurance-header"><span>ENDURANCE <strong id="endurance-state">15 / 15</strong></span><small>Attaquer 1 · Défendre 2 · Attendre +3</small></div>
           <progress id="endurance-meter" aria-label="Endurance de combat" max="15" value="15">15/15</progress>
         </div>
+        <section id="floor-choice" class="floor-choice" aria-labelledby="floor-choice-title" hidden>
+          <div class="floor-choice-heading">
+            <strong id="floor-choice-title">ARCHE ATTEINTE · ÉTAGE 1 / 3</strong>
+            <span id="floor-choice-description">Choisis la sécurité ou une nouvelle descente.</span>
+          </div>
+          <div class="floor-choice-actions" role="group" aria-label="Décision à l'Arche de l'étage">
+            <button id="floor-extract" type="button" class="primary">Extraire à Veyr · sécuriser le sac</button>
+            <button id="floor-descend" type="button" class="secondary">Continuer vers l'étage suivant · risque accru</button>
+          </div>
+          <p class="hint">Décision volontaire, sans tour supplémentaire. Descendre garde tes PV, ton Endurance et tes objets, mais tu ne peux pas revenir à cet étage.</p>
+        </section>
         <div class="dungeon-wrap">
           <div class="render-controls"><span id="mission-compact" aria-label="Objectif de la descente">MISSION · 1 FRAGMENT</span><button type="button" id="renderer-toggle" class="secondary" aria-pressed="true">Passer en ASCII</button></div>
           <div id="tile-map" class="pixel-map" role="group" aria-label="Carte graphique du donjon. Touchez un ennemi pour le cibler." tabindex="0"></div>

@@ -15,6 +15,7 @@ test("PWA offline cache only precaches files that really exist",()=>{
   const assets=JSON.parse(entry[1]);
   assert.ok(assets.includes("./deep-dungeon.js"),"Deep dungeon engine included offline");
   assert.ok(assets.includes("./loot.js"),"Deterministic reward resolver must work offline");
+  assert.ok(assets.includes("./floors.js"),"Deep floor choices must work offline");
   for(const asset of assets){
     const name=asset.split("?")[0]==="./"?"index.html":asset.split("?")[0];
     assert.ok(existsSync(pathOf(name)),"Missing PWA cache resource: "+name);

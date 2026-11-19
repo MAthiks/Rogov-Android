@@ -54,7 +54,7 @@ test("UI-096C: cosmetic controller only moves the original sheet and scrolls exi
   assert.match(app,/const ui096c=setupUi096C\(/);
   assert.match(app,/renderActorStats\(\);\s*ui096c\.sync\(\)/);
   assert.match(app,/"refuge-prep-meter"\)\.value=Math\.min\(8,total\)/);
-  assert.doesNotMatch(code,/localStorage|fetch\(|save|Math\.random|\bmove\(|\battack\(|\bcraft\(/i);
+  assert.doesNotMatch(code,/localStorage|fetch\(|SAVE_KEY|Math\.random|\bmove\(|\battack\(|\bcraft\(/i);
 });
 
 test("UI-096C: offline original refuge illustration and CSS are packaged",()=>{

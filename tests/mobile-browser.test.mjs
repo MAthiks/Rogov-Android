@@ -3498,3 +3498,75 @@ test("ART-097B1 browser: decode seven character sprites and capture native/neare
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("ART-097B2 mobile: a real step triggers one-shot sprites, free menus and reload never do", {timeout:90000}, async()=>{
+  const context=await browser.newContext({
+    viewport:{width:360,height:780},deviceScaleFactor:3,
+    isMobile:true,hasTouch:true,serviceWorkers:"block",reducedMotion:"no-preference"
+  });
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    assert.equal(await page.locator("#tile-map .art097b2-step").count(),0);
+    assert.equal(await page.locator("#tile-map .art097b2-foe-turn").count(),0);
+    const before=await page.locator("#turns").textContent();
+    await page.locator("#jump-bag").tap();
+    assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
+    await page.locator("#ui092-sheet-close").tap();
+    assert.equal(await page.locator("#turns").textContent(),before);
+    assert.equal(await page.locator("#tile-map .art097b2-step").count(),0);
+
+    const step=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      const r=JSON.parse(localStorage.getItem(SAVE_KEY)).run;
+      const choices=[
+        {name:"up",dx:0,dy:-1},{name:"down",dx:0,dy:1},
+        {name:"left",dx:-1,dy:0},{name:"right",dx:1,dy:0}
+      ];
+      return choices.find(d=>r.map[r.y+d.dy]?.[r.x+d.dx]===".")||null;
+    });
+    assert.ok(step,"Deep map has a traversable floor neighbor");
+    await page.locator('[data-direction="'+step.name+'"]').tap();
+    assert.equal(await page.locator("#tile-map .tile-hero.art097b2-step").count(),1);
+    const facts=await page.evaluate(()=>{
+      const hero=document.querySelector("#tile-map .tile-hero.art097b2-step img");
+      const foes=[...document.querySelectorAll("#tile-map .art097b2-foe-turn")];
+      return {
+        heroName:getComputedStyle(hero).animationName,
+        heroCount:document.querySelectorAll("#tile-map .tile-hero").length,
+        foeCount:foes.length,
+        allVisible:foes.every(el=>el.dataset.knowledge==="visible"),
+        allEnemies:foes.every(el=>el.classList.contains("hostile-tile")),
+        noHiddenMotion:[...document.querySelectorAll("#tile-map [data-knowledge='unknown'],#tile-map [data-knowledge='remembered']")]
+          .every(el=>!el.classList.contains("art097b2-step")&&!el.classList.contains("art097b2-foe-turn")),
+        scrollWidth:document.documentElement.scrollWidth,
+        viewportWidth:document.documentElement.clientWidth
+      };
+    });
+    assert.match(facts.heroName,/art097b2-step/);
+    assert.equal(facts.heroCount,1);
+    assert.ok(facts.foeCount<=3,"The animation budget must never exceed 3 visible enemies");
+    assert.equal(facts.allVisible,true);
+    assert.equal(facts.allEnemies,true);
+    assert.equal(facts.noHiddenMotion,true);
+    assert.ok(facts.scrollWidth<=facts.viewportWidth+1);
+    assert.equal(Number(await page.locator("#turns").textContent()),Number(before)+1);
+
+    await page.emulateMedia({reducedMotion:"reduce"});
+    const reduced=await page.locator("#tile-map .tile-hero.art097b2-step img")
+      .evaluate(el=>getComputedStyle(el).animationName);
+    assert.equal(reduced,"none","OS reduce-motion preference disables all motion");
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+    await page.locator("#renderer-toggle").tap();
+    assert.equal(await page.locator("#tile-map .art097b2-step").count(),0,
+      "A UI-only redraw must not replay the last movement");
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#tile-map .art097b2-step").count(),0,
+      "Resuming an old save never creates artificial movement");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

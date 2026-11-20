@@ -90,7 +90,8 @@ test("ART-097B1: visuals preserve fog, ASCII, combat/save contract and offline c
   assert.match(tiles,/if\(!visible&&!remembered\)/);
   assert.match(tiles,/cell\.dataset\.hp=String\(enemy\.hp\)/);
   const sw=source("../docs/sw.js");
-  assert.match(sw,/rogov-v0\.7f-art097b1-character-polish/);
+  // Subsequent animation/art bundles rotate the version; their sprites stay offline.
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   assert.match(sw,/"\.\/hero-art\.js"/);
   assert.match(sw,/"\.\/enemy-art\.js"/);
 });

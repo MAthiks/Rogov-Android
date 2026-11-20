@@ -72,6 +72,7 @@ export function drawTileMap(state,host,heroFacing="down",motion=null) {
   const artSeed=run.layoutId||"rogov-legacy";
   host.style.gridTemplateColumns="repeat("+viewport.width+", minmax(0, 1fr))";
   const fragment=document.createDocumentFragment();
+  let remainingAnimatedFoes=3; // Bound simultaneous transforms on low-end Android.
   for(let y=viewport.top;y<viewport.top+viewport.height;y++)
     for(let x=viewport.left;x<viewport.left+viewport.width;x++){
     const tile=map[y][x];
@@ -105,7 +106,10 @@ export function drawTileMap(state,host,heroFacing="down",motion=null) {
         cell.dataset.enemyId=enemy.id;
         cell.classList.add("hostile-tile");
         // Only VISIBLE enemy sprites react on an action turn; badges stay still.
-        if(motion?.foeTurn)cell.classList.add("art097b2-foe-turn");
+        if(motion?.foeTurn&&remainingAnimatedFoes>0){
+          cell.classList.add("art097b2-foe-turn");
+          remainingAnimatedFoes--;
+        }
         if(enemy.kind==="charognard"&&enemy.tactic==="winding")
           cell.classList.add("enemy-charge");
         // Only inspect the intention of a VISIBLE foe; never query hidden actors

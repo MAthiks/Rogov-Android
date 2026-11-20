@@ -70,7 +70,7 @@ export function expeditionReport(state){
       const [x,y]=pos.split(",").map(Number);
       return discovered(x,y);
     }).length;
-  const knownSites=(run.sites||[])
+  const knownSites=[...(run.sites||[]),...(run.encounters||[])]
     .filter(site=>site.status==="untouched"&&discovered(site.x,site.y))
     .length;
   const enemies=(run.enemies||[])

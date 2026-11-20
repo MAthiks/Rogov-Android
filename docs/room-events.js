@@ -12,7 +12,11 @@ export const ROOM_SITES=Object.freeze({
         text:"ATELIER — Un fragment intact survit sous la poussière."}),
       bandage:Object.freeze({label:"Confectionner un bandage · 1 tour",
         item:"consumable.bandage",xp:1,endurance:0,
-        text:"ATELIER — Tu rassembles un nécessaire de soin rudimentaire."})
+        text:"ATELIER — Tu rassembles un nécessaire de soin rudimentaire."}),
+      // GAME-101C: opt-in on newly generated deep descents only.
+      cartographie:Object.freeze({label:"Relever un plan de repli · 1 tour, 2 END",
+        item:null,xp:1,endurance:2,
+        text:"ATELIER — Un vieux croquis indique un chemin vers l’Arche. Il n’indique ni ennemis, ni pièges, ni butin."})
     })
   }),
   echo:Object.freeze({
@@ -117,6 +121,7 @@ export function validRoomSites(run){
         (s.status==="untouched"?s.choice!==null:
           !Object.hasOwn(ROOM_SITES[s.kind].options,s.choice))||
         (s.choice==="buckler"&&run.branchPlanVersion!==1)||
+        (s.choice==="cartographie"&&run.scoutingPlanVersion!==1)||
         Object.keys(run.loot||{}).includes(key(s))||
         run.doors?.some(d=>key(d)===key(s))||
         run.traps?.some(t=>key(t)===key(s)||key(t.clue)===key(s))||

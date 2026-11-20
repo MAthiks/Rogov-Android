@@ -9,6 +9,7 @@ import {HERO_SVGS} from "./hero-art.js";
 import {currentEnemyIntent} from "./combat.js";
 import {ENEMY_SVGS} from "./enemy-art.js";
 import {INTERACTIVE_SVGS} from "./interaction-art.js";
+import {localLightAt,SCONCE_SPRITE} from "./nhal-lighting.js";
 const svg = (parts) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">' + parts + '</svg>';
 // Terrain is now sourced from the reusable, fog-safe DEV-089B atlas.
 // Preserve the original floor/wall sprite keys for the legend and older UI.
@@ -70,6 +71,9 @@ export function drawTileMap(state,host,heroFacing="down",motion=null) {
     return live.has(key)||seen.has(key);
   };
   const artSeed=run.layoutId||"rogov-legacy";
+  // Knowledge boundary shared by ambient shading and wall sconces.
+  const visibleAt=(cx,cy)=>cy>=0&&cy<map.length&&cx>=0&&cx<map[0].length&&
+    (!live||live.has(visionKey(run,cx,cy)));
   host.style.gridTemplateColumns="repeat("+viewport.width+", minmax(0, 1fr))";
   const fragment=document.createDocumentFragment();
   let remainingAnimatedFoes=3; // Bound simultaneous transforms on low-end Android.
@@ -89,6 +93,10 @@ export function drawTileMap(state,host,heroFacing="down",motion=null) {
       continue; // No map texture, sprite or hidden entity data in the DOM.
     }
     if(remembered)cell.classList.add("tile-remembered");
+    // Do not calculate local light for unseen/remembered tiles. Any source
+    // queried by localLightAt must itself pass visibleAt before reading map.
+    const ambience=visible?localLightAt(map,x,y,visibleAt,artSeed):null;
+    if(ambience)cell.classList.add("art097c-"+ambience);
     cell.style.backgroundImage="url('"+terrainSpriteAt(map,x,y,knows,artSeed)+"')";
     let spriteId=null;
     if(x===run.x&&y===run.y){
@@ -149,6 +157,15 @@ export function drawTileMap(state,host,heroFacing="down",motion=null) {
       img.src=TILE_SPRITES[spriteId];
       cell.append(img);
       cell.classList.add("tile-"+spriteId);
+    }
+    // Decorative wall torch ONLY on a visible real wall, never an
+    // interactive sprite or an object hinted through the fog.
+    if(visible&&ambience==="sconce"){
+      const torch=document.createElement("img");
+      torch.src=SCONCE_SPRITE;torch.alt="";torch.draggable=false;
+      torch.decoding="async";torch.className="art097c-wall-sconce";
+      // Empty alt makes this decorative sconce invisible to screen readers.
+      cell.append(torch);
     }
     fragment.append(cell);
   }

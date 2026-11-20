@@ -60,7 +60,8 @@ test("ART-097B2: no animation fields enter old saves; styles and module are prec
   assert.equal(SAVE_KEY,"rogov-web-v1");
   assert.equal(SCHEMA_VERSION,1);
   const sw=read("../docs/sw.js"),html=read("../docs/index.html");
-  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-art097b2-turn-motion"/);
+  // Following ART/UI releases rotate the cache without removing B2 animations.
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   assert.ok(sw.includes('"./art097b2.css?v=1"'));
   assert.ok(sw.includes('"./character-motion.js"'));
   assert.ok(sw.includes('"./tiles.js"'));

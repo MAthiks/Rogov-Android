@@ -3570,3 +3570,93 @@ test("ART-097B2 mobile: a real step triggers one-shot sprites, free menus and re
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("ART-097C1 browser: real visible wall torches, Arche and Faille glow without fog leaks", {timeout:75000}, async()=>{
+  const {mkdir}=await import("node:fs/promises");
+  const context=await browser.newContext({
+    viewport:{width:360,height:780},deviceScaleFactor:3,
+    isMobile:true,hasTouch:true,serviceWorkers:"block",reducedMotion:"reduce"
+  });
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",err=>errors.push(err.message));
+    await preloadDeepRun(page);
+    const original=await page.evaluate(()=>({
+      save:localStorage.getItem("rogov-web-v1"),
+      turn:document.getElementById("turns").textContent
+    }));
+    const data=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const {drawTileMap}=await import("./tiles.js");
+      const {terrainHash}=await import("./terrain-art.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const run=state.run;
+      const map=[
+        "###########","#.........#","#.........#","#.........#",
+        "#....#....#","#..^......#","#...E.....#",
+        "#.........#","#.........#","#.........#","###########"
+      ];
+      run.map=map;
+      run.x=4;run.y=4;
+      run.enemies=[];run.traps=[];run.secrets=[];run.doors=[];run.rooms={};
+      let seed;
+      for(let k=0;k<1000;k++){
+        const candidate="art097c-qa-"+k;
+        if(terrainHash(candidate,5,4)%13===0){seed=candidate;break;}
+      }
+      if(!seed)throw Error("Unable to seed a deterministic torch");
+      run.layoutId=seed;
+      const el=document.createElement("div");
+      el.id="art097c1-qa-map";el.className="pixel-map";
+      el.style.cssText="position:fixed;top:0;left:0;z-index:999999;width:330px;height:330px;";
+      document.body.append(el);
+      drawTileMap(state,el,"down",null);
+      const cells=[...el.querySelectorAll(".pixel-tile")];
+      const at=(x,y)=>cells.find(cell=>cell.dataset.x===String(x)&&cell.dataset.y===String(y));
+      const torch=at(5,4),arch=at(4,6),rift=at(3,5);
+      if(!torch||!arch||!rift)throw Error("Missing map fixture cells");
+      await Promise.all([...el.querySelectorAll("img")].map(img=>img.decode()));
+      return {
+        count:cells.length,
+        torchClass:torch.className,torchKnowledge:torch.dataset.knowledge,
+        torchImages:torch.querySelectorAll("img.art097c-wall-sconce").length,
+        torchColor:getComputedStyle(torch).boxShadow,
+        archClass:arch.className,archKnowledge:arch.dataset.knowledge,
+        riftClass:rift.className,riftKnowledge:rift.dataset.knowledge,
+        unknownCount:cells.filter(cell=>cell.dataset.knowledge!=="visible").length,
+        badCells:cells.filter(cell=>cell.dataset.knowledge!=="visible"&&
+          (cell.querySelector(".art097c-wall-sconce")||
+           [...cell.classList].some(n=>n.startsWith("art097c-")))).length,
+        visibleLight:cells.filter(cell=>cell.dataset.knowledge==="visible"&&
+          [...cell.classList].some(n=>n.startsWith("art097c-"))).length,
+        atSize:[el.getBoundingClientRect().width,el.getBoundingClientRect().height],
+        scrollWidth:document.documentElement.scrollWidth,
+        clientWidth:document.documentElement.clientWidth
+      };
+    });
+    assert.equal(data.count,121);
+    assert.match(data.torchClass,/art097c-sconce/);
+    assert.equal(data.torchKnowledge,"visible");
+    assert.equal(data.torchImages,1,"One decorative-only SVG on the real wall");
+    assert.notEqual(data.torchColor,"none");
+    assert.match(data.archClass,/art097c-arch/);
+    assert.match(data.riftClass,/art097c-rift/);
+    assert.equal(data.archKnowledge,"visible");
+    assert.equal(data.riftKnowledge,"visible");
+    assert.ok(data.unknownCount>0,"QA fixture must retain active fog, not fake all-visible cells");
+    assert.equal(data.badCells,0,"Unknown or remembered tiles must carry no light class");
+    assert.ok(data.visibleLight>=3);
+    assert.ok(data.scrollWidth<=data.clientWidth+1);
+    await mkdir("qa096-screenshots",{recursive:true});
+    await page.locator("#art097c1-qa-map").screenshot({
+      path:"qa096-screenshots/art097c1-visible-lighting.png",animations:"disabled"
+    });
+    const after=await page.evaluate(()=>({
+      save:localStorage.getItem("rogov-web-v1"),
+      turn:document.getElementById("turns").textContent
+    }));
+    assert.deepEqual(after,original,"Cosmetic lighting must not write saves or turns");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

@@ -1,0 +1,39 @@
+/* ART-097C1 — local, static, visibility-checked ambient light.
+ * Every class is assigned after FOV checks in tiles.js; nothing paints
+ * onto unknown/remembered cells, no fullscreen masks, global filters,
+ * fog-dependent blur, timers or animations.
+ */
+.pixel-tile[data-knowledge="visible"].art097c-sconce:not(.tile-hero):not(.hostile-tile){
+  box-shadow:inset 0 0 7px 2px #be722d65;
+}
+.pixel-tile[data-knowledge="visible"].art097c-sconce-edge:not(.tile-hero):not(.hostile-tile){
+  box-shadow:inset 0 0 8px 1px #b67e3a38;
+}
+.pixel-tile[data-knowledge="visible"].art097c-arch:not(.tile-hero):not(.hostile-tile){
+  box-shadow:inset 0 0 8px 2px #52c9b87a;
+}
+.pixel-tile[data-knowledge="visible"].art097c-arch-edge:not(.tile-hero):not(.hostile-tile){
+  box-shadow:inset 0 0 7px 1px #3dbea851;
+}
+.pixel-tile[data-knowledge="visible"].art097c-rift:not(.tile-hero):not(.hostile-tile){
+  box-shadow:inset 0 0 7px 2px #ce5d556b;
+}
+.pixel-tile[data-knowledge="visible"].art097c-rift-edge:not(.tile-hero):not(.hostile-tile){
+  box-shadow:inset 0 0 7px 1px #c9605345;
+}
+.pixel-tile[data-knowledge="visible"]>img.art097c-wall-sconce{
+  position:relative;z-index:1;
+  width:100%;height:100%;
+  image-rendering:pixelated;
+  pointer-events:none;
+}
+@media(prefers-reduced-motion:reduce){
+  .pixel-tile.art097c-sconce,
+  .pixel-tile.art097c-sconce-edge,
+  .pixel-tile.art097c-arch,
+  .pixel-tile.art097c-arch-edge,
+  .pixel-tile.art097c-rift,
+  .pixel-tile.art097c-rift-edge{
+    animation:none!important;transition:none!important;
+  }
+}

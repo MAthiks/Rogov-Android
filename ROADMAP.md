@@ -96,7 +96,7 @@ et APK réussis en automatisation. Carte entière et six boutons ≥44px
 au-dessus du pavé fixe confirmés sur captures Chromium. [Contrat UI-097A2](docs/UI097A2_MAP_FIRST_NAVIGATION.md).
 Recette physique et 5×2 descentes toujours ouvertes.
 
-**ART-097B1 — Polissage des 7 personnages (PR en préparation) :**
+**ART-097B1 — PR #52 fusionnée**, merge `58e981a` :
 Sprite C encapuchonné 4 directions : bottes, manteau, attache et harnais
 plus lisibles à 24×24 ; Charognard : plumes abîmées ; Gardien déchu :
 armure fissurée et masse conservée ; Larve : facettes segmentées.
@@ -104,8 +104,10 @@ armure fissurée et masse conservée ; Larve : facettes segmentées.
 tests Node/Chromium de la galerie 24px/60px, cache PWA versionné.
 Pas de modification du moteur, des 3 familles d'ennemis, des tours,
 du FOV, des sauvegardes, d'ASCII ou du gameplay. [Contrat](docs/ART097B1_CHARACTER_FIDELITY.md).
-**CI Node/Chromium, Chrome Android 13 et APK + inspection de galerie obligatoires
-avant fusion.** Tests esthétiques physiques et 5×2 joueurs ouverts.
+**378/378 Node, 57/57 Chromium, Chrome Android 13 et APK automatisés réussis.**
+Galerie des 7 sprites (24px / agrandissement nearest-neighbor) et captures
+Nhal 320×640 / 360×780 / 393×704 examinées ; aucune case du donjon
+recouverte par le dock. Tests esthétiques physiques et 5×2 joueurs ouverts.
 
 **Suite WIP=1 :** décider ART-097B2 (animations optionnelles)
 puis ART-097C (éclairages légers) après contrôle des performances Android.

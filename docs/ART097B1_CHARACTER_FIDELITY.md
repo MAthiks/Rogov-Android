@@ -1,6 +1,6 @@
 # ART-097B1 — Personnages Sprite C, finition haute lisibilité 24×24
 
-**Date :** 20 novembre 2026. **Statut :** branche de travail, PR et CI à valider.
+**Date :** 20 novembre 2026. **Statut : fusionné dans `main` via PR #52**, commit `58e981aa3617adae0cc665c4794a581bc9b9bcb5`. Recette physique ouverte.
 **Référence :** [Direction artistique Sprite C](ART_DIRECTION_SPRITE_C_V1.md)
 et maquette UI/ART-097 fournie dans la conversation.
 **Base :** UI-097A2 (PR #51 fusionnée).
@@ -72,3 +72,11 @@ navigation, SVG de terrain et carte 11×11 inchangés. `SAVE_KEY` demeure
 **Suite : ART-097B2** éventuelles poses/animations pixel art à budget Android
 fixé, uniquement après revue de ce lot ; **ART-097C** ambiance/éclairages à
 coût faible. Aucune nouvelle mécanique.
+
+## Bilan de livraison — PR #52
+
+**Validation automatisée complète : 378/378 tests Node, 57/57 tests Chromium**, Chrome Android 13 et compilation/signature/installation/lancement APK sur émulateur réussis. Une assertion de cache héritée de UI-097A2 a été rendue compatible avec les versions suivantes ; aucune logique du moteur modifiée.
+
+Les captures Chromium en 320×640, 360×780 et 393×704 montrent toujours le donjon entier, les raccourcis et le pavé accessibles. La planche `art097b1-seven-character-views.png` (artefact `qa096-chromium-portraits`, run `44687908197`) a été inspectée : les quatre capuches conservent la même identité et les trois ennemis ont des silhouettes distinctes. Ces constats restent limités à des captures d'émulateur Chromium.
+
+**Non effectué :** recette sur un téléphone Android physique, validation artistique finale, animations et campagne de cinq testeurs × deux descentes. Ne pas rehausser la note DA provisoire sans retour humain.

@@ -1,6 +1,6 @@
 # UI-097A1 — Cockpit Nhal pierre/bronze sur Android
 
-**Date :** 20 novembre 2026. **Statut :** lot en PR, non fusionné avant validation.  
+**Date :** 20 novembre 2026. **Statut : fusionné dans `main` via PR #50**, merge `5951506f15a8dfceb6a5b57189144ec6b7195482` ; QA esthétique physique ouverte.  
 **Base :** [UI-096D / PR #47](https://github.com/MAthiks/Rogov-Android/pull/47),
 [ART-097A1 / PR #48](https://github.com/MAthiks/Rogov-Android/pull/48),
 [ART-097A2 / PR #49](https://github.com/MAthiks/Rogov-Android/pull/49).  
@@ -63,3 +63,19 @@ visible conserve la priorité.
 **Priorité suivante :** UI-097A2, étude de hiérarchie carte/raccourcis/dock
 avec mesure de chaque viewport puis ART-097B Sprite C/ennemis ; ne pas
 fusionner de changement structurel sans QA.
+
+## Résultats de validation de la PR #50
+
+- **Node 373/373** et **Chromium portrait 54/54** ; suite QA 320×640,
+  360×780, 393×704 sans scroll horizontal ni recouvrement de la carte.
+- **Chrome Android 13 en émulateur et build APK : succès** (GitHub Actions).
+- **Capture Chromium inspectée :** frise et en-tête effectivement visibles,
+  jauges PV/END côte à côte, accès et contrôles réels. Carte 11×11 :
+  **220 / 335,4 / 284 CSS px** selon les trois formats ; écart carte→dock
+  **26 / 41,5 / 25,9 CSS px**, touches terrain ≥44 CSS px.
+- **Limites :** sur les petits écrans, les six raccourcis restent au-dessus
+  de la carte pour préserver les cibles tactiles ; le réagencement plus proche
+  de la maquette est reporté à UI-097A2. Une fiche/section sous la carte
+  peut être partiellement visible derrière le dock pendant le défilement,
+  sans masquer les cases du donjon. Validation sur un vrai téléphone et
+  tests joueurs non réalisés par l'assistant.

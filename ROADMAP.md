@@ -73,17 +73,21 @@
 
 **Prochaine priorité ajustée après comparaison des captures Chromium : UI-097A**, alléger le bandeau supérieur et les panneaux, renforcer la carte et les commandes sans recouvrement (cartes actuellement 220 / 335 / 284 CSS px en 320×640 / 360×780 / 393×704). Ensuite **ART-097B** (PJ Sprite C et ennemis) et **ART-097C** (lumières et ambiance sans coût excessif). WIP=1, pas de changement de gameplay ni portage Godot/PC actif.
 
-**UI-097A1 — Cockpit Nhal haute fidélité (PR en préparation, non fusionnée) :**
-premier habillage fonctionnel pierre froide/bronze avec bandeau ROGOV et frise
-originale hors ligne, quatre données de run, jauges PV/END côte à côte,
-raccourcis, cadre de carte et pavé réel resculptés par CSS mobile.
-`docs/index.html` ne crée aucune nouvelle action, tous les contrôles
-originaux et valeurs du moteur demeurent en place. Pas de modification du
-moteur, de la génération, du brouillard, des sauvegardes, du mode ASCII ou
-du Sprite C. [Contrat, tests et recette](docs/UI097A1_COCKPIT_FIDELITY.md).
-**Fusion soumise aux trois workflows** `test-web`, `android-web`, `build`
-et à l'inspection des captures 320×640, 360×780, 393×704. Les tests
-physiques et utilisateurs restent distincts.
+**UI-097A1 — PR #50 fusionnée**, commit `5951506` : bandeau ROGOV et
+frise originale de ruines SVG, pierre/bronze pour HUD, jauges côte à côte,
+raccourcis tactiles, encadrement de carte et pavé directionnel existant. Le
+moteur, les IDs/handlers, 11×11, Sprite C 24×24, brouillard/ASCII/offline,
+save `rogov-web-v1` schéma 1 sont inchangés.
+**373/373 tests Node, 54/54 Chromium mobile, Chrome Android 13 émulé et
+APK installée en émulateur réussis**, captures 320×640, 360×780 et 393×704
+inspectées ; sans avertissement, la carte mesure 220 / 335,4 / 284 CSS px,
+respectivement, et ne touche pas le dock (écart minimal 26px). Seuls les
+tests automatisés sont certifiés. [Contrat et recette](docs/UI097A1_COCKPIT_FIDELITY.md).
+
+**Prochain lot UI-097A2 (non engagé) :** hiérarchie entre carte, raccourcis
+et panneaux contextuels sur Android court, sans supprimer les six accès ni
+descendre sous 44 CSS px ; ensuite ART-097B (Sprite C et ennemis) et
+ART-097C (lumière/ambiance). Le GO artistique sur téléphone physique reste ouvert.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

@@ -12,12 +12,13 @@ const ROOT="https://appassets.androidplatform.net/assets/";
 async function connect(){
   let previous;
   for(let tries=0;tries<30;tries++){
+    let socket;
     try{
       const resp=await fetch("http://127.0.0.1:9223/json/list");
       if(!resp.ok)throw Error("CDP HTTP "+resp.status);
       const target=(await resp.json()).find(t=>t.url?.startsWith(ROOT)&&t.webSocketDebuggerUrl);
       if(!target)throw Error("ROGOV's real WebView target not yet available");
-      const socket=new WebSocket(target.webSocketDebuggerUrl);
+      socket=new WebSocket(target.webSocketDebuggerUrl);
       await new Promise((resolve,reject)=>{
         const timeout=setTimeout(()=>reject(Error("WebSocket timed out")),3500);
         socket.addEventListener("open",()=>{clearTimeout(timeout);resolve();},{once:true});
@@ -38,10 +39,30 @@ async function connect(){
         if(response.error)job.reject(Error(JSON.stringify(response.error)));
         else job.resolve(response.result);
       });
+      // Cold Android WebView sockets occasionally close between the CDP
+      // target lookup and Runtime.enable. Keep an actual timeout for every
+      // request: an unresolved promise alone does NOT keep Node's loop alive
+      // and otherwise becomes an unhelpful cancelledByParent CI failure.
+      socket.addEventListener("close",()=>{
+        for(const [id,job] of outstanding){
+          outstanding.delete(id);
+          job.reject(Error("CDP WebSocket closed before response"));
+        }
+      });
       const call=(method,params={})=>new Promise((resolve,reject)=>{
         const id=++next;
-        outstanding.set(id,{resolve,reject});
-        socket.send(JSON.stringify({id,method,params}));
+        const timeout=setTimeout(()=>{
+          outstanding.delete(id);
+          reject(Error("CDP startup or command timed out: "+method));
+        },3500);
+        outstanding.set(id,{
+          resolve:value=>{clearTimeout(timeout);resolve(value);},
+          reject:error=>{clearTimeout(timeout);reject(error);}
+        });
+        try{socket.send(JSON.stringify({id,method,params}));}
+        catch(error){
+          outstanding.delete(id);clearTimeout(timeout);reject(error);
+        }
       });
       const evaluate=async expression=>{
         const data=await call("Runtime.evaluate",{
@@ -54,7 +75,11 @@ async function connect(){
       await call("Runtime.enable");
       await call("Page.enable");
       return {call,evaluate,close:()=>socket.close()};
-    }catch(e){previous=e;await pause(750);}
+    }catch(e){
+      previous=e;
+      try{socket?.close();}catch{/* Socket already closed or connecting. */}
+      await pause(750);
+    }
   }
   throw Error("Android WebView JS inspection failed: "+previous?.message);
 }

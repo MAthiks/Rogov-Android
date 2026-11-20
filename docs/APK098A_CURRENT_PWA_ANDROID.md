@@ -65,8 +65,10 @@ continuer à utiliser Chrome/PWA. Ce lot évalue l'APK de la même version
 
 1. CI PR : `APK-098A — Current PWA WebView Android` vert et
    test Node `tests/webapk-parity.test.mjs` vert.
-2. Android 13 : WebView CDP lit le **vrai DOM** du jeu, 121 tuiles,
-   vrais boutons, mode ASCII, sauvegarde locale après redémarrage.
+2. Android 13 : WebView CDP lit le **vrai DOM** du jeu,
+   **135 cases au premier tutoriel historique (15×9)** puis **121 cases
+   en descente profonde procédurale (11×11)** ; vrais boutons, mode
+   ASCII et sauvegarde locale après redémarrage.
 3. Test hors ligne **dans l'APK** avec WebView locale et aucun
    accès HTTP externe requis.
 4. Capture Android natif : doit montrer l'interface graphique
@@ -79,3 +81,5 @@ continuer à utiliser Chrome/PWA. Ce lot évalue l'APK de la même version
 Si le workflow échoue, laisser la PR en brouillon et diagnostiquer
 sans fusionner. Après confirmation, tester le nouvel APK sur téléphone
 **en conservant les installations existantes**.
+
+**Signature du package de test :** le debug APK Android généré par CI utilise une signature de développement. Ne pas considérer des builds CI successifs comme des mises à jour installables sans migration ; une signature de publication stable et une procédure de mise à jour sont à préparer avant toute distribution générale. Ne pas désinstaller une application porteuse de sauvegardes en cours.

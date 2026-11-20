@@ -4458,7 +4458,11 @@ test("GAME-101E mobile: tactile opening costs END, persists and stays fog-safe",
       return {endurance:state.run.endurance};
     });
     await page.reload();await page.locator("#title-continue").tap();
+    // UI-099 keeps contextual combat controls in a drawer until opened.
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#combat-panel").isVisible(),true);
     const action=page.locator("#combat-opening");
+    assert.equal(await action.isVisible(),true);
     assert.equal(await action.isEnabled(),true);
     assert.match(await page.locator("#combat-opening-hint").textContent(),/Récupération du Charognard/);
     await action.tap();

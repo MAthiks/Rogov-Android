@@ -36,5 +36,6 @@ kotlin {
     }
 }
 dependencies {
-    implementation("androidx.webkit:webkit:1.13.0")
+    // AssetLoader is supported here without the new jspecify runtime dependency.
+    implementation("androidx.webkit:webkit:1.11.0")
 }

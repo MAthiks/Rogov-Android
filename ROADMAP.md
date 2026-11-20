@@ -138,9 +138,22 @@ validés en automatisation.** Capture de scène fog-safe torche/Arche/Faille
 et portraits Nhal examinés ; aucune lumière sur case inconnue ou
 mémorisée, aucun halo de personnage, interfaces tactiles préservées.
 
-**Suite WIP=1 :** QA-097 : contrôler les performances, le toucher et
-l'atmosphère sur Android physique avant tout effet plus coûteux.
-Godot et PC toujours reportés.
+**QA-097 — Lot d'acceptation Android en cours (branche `qa/qa097-android-acceptance`) :**
+gel des mécaniques et des effets supplémentaires ; tests Playwright
+tactiles sur 320×640 / 360×780 / 393×704 (13 centres réellement
+touchables et ≥44×44 px, carte et navigation sans recouvrement,
+brouillard/intentions/lumières sans fuite), 22 rendus de carte mesurés
+par format en diagnostic Chromium, sauvegarde et tours inchangés.
+[Recette QA-097](docs/QA097_ANDROID_ACCEPTANCE.md) et
+[fiche terrain 5×2](docs/QA097_FIELD_REPORT_TEMPLATE.md).
+Les tests Web, Chrome Android 13 et APK doivent passer avant
+fusion du lot de tests. **NO-GO artistique tant qu'aucun test physique
+Android ni campagne 5 testeurs × 2 descentes n'est constaté.**
+Ne pas rehausser DA 6/10 ou Alpha 7,5/10 sur la seule base de la CI.
+
+**Suite WIP=1 :** récolter captures, rapports et gestes sur téléphone
+réel ; corriger les défauts P0/P1 reproduits, avant de reprendre
+ART-097C2. Godot et portage PC toujours reportés.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

@@ -64,7 +64,8 @@ test("ART-097A2: decoration never exposes hidden traps or maps",()=>{
 
 test("ART-097A2: offline cache includes actual interactive atlas",()=>{
   const sw=read("../docs/sw.js");
-  assert.match(sw,/rogov-v0\.7f-art097a2-interactive-contrast/);
+  // Later UI/ART releases must rotate the PWA cache without breaking A2 artwork.
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   assert.ok(sw.includes('"./interaction-art.js"'));
   assert.ok(sw.includes('"./tiles.js"'));
   assert.ok(sw.includes('"./terrain-art.js"'));

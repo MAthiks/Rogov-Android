@@ -3,11 +3,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {generateDeepLayout,validateDeepLayout,deepRoute,deepTwoReturnWays} from "../docs/deep-dungeon.js";
-import {ROOM_SITES,roomSiteAppearance,nearbyRoomSite} from "../docs/room-events.js";
+import {ROOM_SITES,roomSiteAppearance,nearbyRoomSite,validRoomSites} from "../docs/room-events.js";
 import {encounterRoomPlan,validRoomEncounters} from "../docs/room-encounters.js";
 import {newGame,beginRun,resolveRoomSite,inspectTile,validateSave,normalizeJournal,
   mapText,MAX_HP,SAVE_KEY,SCHEMA_VERSION,INVENTORY_LIMIT} from "../docs/game.js";
-import {revealAround,minimapText,explorationState} from "../docs/exploration-visibility.js";
+import {revealAround,minimapText,explorationState,validExploration} from "../docs/exploration-visibility.js";
+import {validTraps} from "../docs/traps.js";
+import {validSecrets} from "../docs/secrets.js";
 import {retreatSketchCells} from "../docs/route-survey.js";
 import {expeditionReport} from "../docs/expedition-report.js";
 
@@ -81,6 +83,7 @@ test("GAME-101D: camp healing or bandage is a paid, exclusive, persistent choice
   assert.ok(validateSave(resource.state));
 });
 test("GAME-101D: signal rewards quiet salvage or a five-turn Charognard alarm",()=>{
+  let quietRun;
   for(const [choice,expected] of Object.entries({
     quiet:{item:"consumable.vigor_salts",xp:1,endurance:1,alarm:undefined},
     alarm:{item:"relic.ashen_fragment",xp:2,endurance:3,alarm:6}
@@ -97,6 +100,12 @@ test("GAME-101D: signal rewards quiet salvage or a five-turn Charognard alarm",(
     assert.equal(result.state.run.encounters[1].choice,choice);
     assert.ok(validateSave(result.state),JSON.stringify({
       choice,siteStatus:result.state.run.encounters[1],
+      validSites:validRoomSites(result.state.run),
+      validTraps:validTraps(result.state.run),
+      validSecrets:validSecrets(result.state.run),
+      validExploration:validExploration(result.state.run),
+      twoReturn:deepTwoReturnWays(result.state.run.map,result.state.run.start,result.state.run.exit),
+      diff:quietRun?Object.keys(result.state.run).filter(k=>JSON.stringify(result.state.run[k])!==JSON.stringify(quietRun[k])):[],
       validEncounters:validRoomEncounters(result.state.run),
       validLayout:validateDeepLayout(result.state.run,true),
       run: {turns:result.state.run.turns,hp:result.state.run.hp,
@@ -104,6 +113,7 @@ test("GAME-101D: signal rewards quiet salvage or a five-turn Charognard alarm",(
         carried:result.state.run.carried},
       hero:result.state.meta.hero,journal:result.state.journal[0]
     }));
+    if(choice==="quiet")quietRun=structuredClone(result.state.run);
     assert.equal(resolveRoomSite(result.state,site.id,choice).changed,false);
   }
 });

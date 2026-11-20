@@ -73,6 +73,18 @@
 
 **Prochaine priorité ajustée après comparaison des captures Chromium : UI-097A**, alléger le bandeau supérieur et les panneaux, renforcer la carte et les commandes sans recouvrement (cartes actuellement 220 / 335 / 284 CSS px en 320×640 / 360×780 / 393×704). Ensuite **ART-097B** (PJ Sprite C et ennemis) et **ART-097C** (lumières et ambiance sans coût excessif). WIP=1, pas de changement de gameplay ni portage Godot/PC actif.
 
+**UI-097A1 — Cockpit Nhal haute fidélité (PR en préparation, non fusionnée) :**
+premier habillage fonctionnel pierre froide/bronze avec bandeau ROGOV et frise
+originale hors ligne, quatre données de run, jauges PV/END côte à côte,
+raccourcis, cadre de carte et pavé réel resculptés par CSS mobile.
+`docs/index.html` ne crée aucune nouvelle action, tous les contrôles
+originaux et valeurs du moteur demeurent en place. Pas de modification du
+moteur, de la génération, du brouillard, des sauvegardes, du mode ASCII ou
+du Sprite C. [Contrat, tests et recette](docs/UI097A1_COCKPIT_FIDELITY.md).
+**Fusion soumise aux trois workflows** `test-web`, `android-web`, `build`
+et à l'inspection des captures 320×640, 360×780, 393×704. Les tests
+physiques et utilisateurs restent distincts.
+
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 
 ## Plateformes — Android en priorité, PC conservé dans le GDD

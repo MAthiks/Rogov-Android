@@ -245,7 +245,11 @@ test("DEV-081 mobile: fog hides unseen enemies from DOM, target panel, ASCII and
     assert.equal(await page.locator("#combat-panel").isHidden(),true);
     assert.equal(await page.locator("#threat-forecast").isHidden(),true);
     assert.match(await page.locator("#threat-state").textContent(),/AUCUNE MENACE VISIBLE/);
-    assert.equal(await page.locator("#exploration-map-panel").isHidden(),false);
+    assert.equal(await page.locator("#exploration-map-panel").evaluate(el=>el.hidden),false,
+      "Fog-safe known map is available in the original Menu node");
+    await page.locator("#jump-menu").tap();
+    assert.equal(await page.locator("#ui099-info-slot #exploration-map-panel").isVisible(),true);
+    await page.locator("#ui092-sheet-close").tap();
     const mini=await page.locator("#exploration-mini-map").textContent();
     assert.equal(mini.split("\n").length,32);
     assert.equal(mini.split("\n")[point.y][point.x]," ");
@@ -668,7 +672,7 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
           attacks++;
         }
         if(await page.locator("#ui092-sheet").isVisible())
-          await page.locator("#jump-map").tap();
+          await page.locator("#ui092-sheet-close").tap();
       }else{
         const route=await plan(foe,true);
         assert.ok(route?.length>=2,"Mobile player can approach the live target");
@@ -917,9 +921,13 @@ test("DEV-088 mobile: report is fog-safe, costs no turn and persists after reloa
     const page=await context.newPage(),errors=[];
     page.on("pageerror",e=>errors.push(e.message));
     await preloadDeepRun(page);
-    assert.equal(await page.locator("#expedition-report").isVisible(),true);
+    assert.equal(await page.locator("#expedition-report").isHidden(),true,
+      "Report is intentionally not repeated below the map");
     const before=await page.locator("#turns").textContent();
-    await page.locator("#expedition-report summary").tap();
+    await page.locator("#jump-report").tap();
+    assert.equal(await page.locator("#ui092-sheet-body #expedition-report").count(),1);
+    assert.equal(await page.locator("#expedition-report").isVisible(),true);
+    assert.equal(await page.locator("#expedition-report").evaluate(el=>el.open),true);
     assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
     assert.equal(await page.locator("#report-carried").textContent(),"0 objet");
     assert.equal(await page.locator("#report-fragments").textContent(),"0");
@@ -933,8 +941,9 @@ test("DEV-088 mobile: report is fog-safe, costs no turn and persists after reloa
     assert.ok(bounds.outer<=bounds.inner+1,"Mobile report must not overflow viewport");
     await page.reload();
     await page.locator("#title-continue").tap();
-    assert.equal(await page.locator("#expedition-report").isVisible(),true);
-    await page.locator("#expedition-report summary").tap();
+    assert.equal(await page.locator("#expedition-report").isHidden(),true);
+    await page.locator("#jump-report").tap();
+    assert.equal(await page.locator("#expedition-report").evaluate(el=>el.open),true);
     assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
     assert.equal(await page.locator("#turns").textContent(),before);
     assert.deepEqual(errors,[]);
@@ -1065,13 +1074,14 @@ test("DEV-089C mobile: eight-room network and expedition UI survive reload", {ti
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
     assert.ok(await page.locator("#tile-map .tile-unknown").count()>0);
-    assert.equal(await page.locator("#expedition-report").isVisible(),true);
+    assert.equal(await page.locator("#expedition-report").isHidden(),true);
     const geometry=await page.evaluate(()=>({
       scroll:document.documentElement.scrollWidth,
       viewport:document.documentElement.clientWidth}));
     assert.ok(geometry.scroll<=geometry.viewport+1,
       "Variable networks must not overflow mobile portrait");
-    await page.locator("#expedition-report summary").tap();
+    await page.locator("#jump-report").tap();
+    assert.equal(await page.locator("#expedition-report").evaluate(el=>el.open),true);
     assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
     assert.equal(await page.locator("#turns").textContent(),"0");
     await page.reload();await page.locator("#title-continue").tap();
@@ -1125,8 +1135,13 @@ test("DEV-090A mobile cockpit: map touches controls, shortcuts cost no turns and
     const before=await page.locator("#turns").textContent();
     await page.locator("#jump-report").tap();
     assert.equal(await page.locator("#expedition-report").evaluate(n=>n.open),true);
+    await page.locator("#ui092-sheet-close").tap();
     await page.locator("#jump-bag").tap();
+    await page.locator("#ui092-sheet-close").tap();
+    // When there are no enemies Combat is unavailable and remains free.
     await page.locator("#jump-combat").tap();
+    if(await page.locator("#ui092-sheet").isVisible())
+      await page.locator("#ui092-sheet-close").tap();
     await page.locator("#jump-map").tap();
     assert.equal(await page.locator("#turns").textContent(),before,
       "navigation never consumes a turn");
@@ -1921,13 +1936,16 @@ test("UI-092A mobile: contextual sheets reuse real doors, bag, journal and repor
     assert.equal(await page.locator("#turns").textContent(),before);
     await page.locator("#door-action").tap();
     assert.equal(await page.locator("#turns").textContent(),String(Number(before)+1));
+    await page.locator("#ui092-sheet-close").tap();
     await page.locator("#jump-bag").tap();
     assert.equal(await mount.locator("#bag-panel").count(),1);
     assert.equal(await mount.locator("#interaction-dock").count(),0);
     assert.equal(await page.locator("#bag-panel").evaluate(e=>e.open),true);
+    await page.locator("#ui092-sheet-close").tap();
     await page.locator("#jump-report").tap();
     assert.equal(await mount.locator("#expedition-report").count(),1);
     assert.equal(await page.locator("#expedition-report").evaluate(e=>e.open),true);
+    await page.locator("#ui092-sheet-close").tap();
     await page.locator("#jump-journal").tap();
     assert.equal(await mount.locator("#history-details").count(),1);
     await page.locator("#ui092-sheet-close").tap();
@@ -1979,7 +1997,7 @@ test("UI-092A mobile: combat sheet keeps targeting and active tactical defenses 
     await page.locator("#combat-dodge").tap();
     assert.equal(await page.locator("#turns").textContent(),"1");
     assert.equal(await page.locator("#tile-map .pixel-tile").count(),mapCount);
-    await page.locator("#jump-map").tap();
+    await page.locator("#ui092-sheet-close").tap();
     assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
     assert.equal(await page.locator("#combat-dock").count(),1);
     const restored=await page.evaluate(async()=>{
@@ -2024,7 +2042,7 @@ test("QA-092 Android portrait: a real player journey from Veyr earns loot, extra
         await page.locator("#jump-bag").tap();
         assert.equal(await page.locator("#ui092-sheet-body #bag-panel").count(),1);
         assert.match(await page.locator("#bag-items").textContent(),/Fragment de cendre/);
-        await page.locator("#jump-map").tap();
+        await page.locator("#ui092-sheet-close").tap();
         assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
       }
     }
@@ -2057,7 +2075,7 @@ test("QA-092 Android portrait: a real player journey from Veyr earns loot, extra
     assert.equal(await page.locator("#ui092-sheet-body #expedition-report").count(),1);
     assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
     const previous=await page.locator("#turns").textContent();
-    await page.locator("#jump-map").tap();
+    await page.locator("#ui092-sheet-close").tap();
     assert.equal(await page.locator("#turns").textContent(),previous);
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#turns").textContent(),"0");
@@ -2553,9 +2571,14 @@ test("GAME-095C1 Android portrait: visible charge warning, reload and sidestep",
     await page.locator("#wait-btn").tap();
     assert.equal(await page.locator("#turns").textContent(),"1");
     assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),1);
+    // A real imminent charge must appear in the persistent map warning;
+    // the detailed forecast lives in Combat rather than below the map.
+    assert.equal(await page.locator("#ui096-threat-banner").isVisible(),true);
+    await page.locator("#jump-combat").tap();
     assert.equal(await page.locator("#threat-forecast").isVisible(),true);
     assert.match(await page.locator("#threat-forecast").textContent(),
       /Charge imminente/);
+    await page.locator("#ui092-sheet-close").tap();
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),1);
     const during=await page.evaluate(async()=>{
@@ -2569,7 +2592,10 @@ test("GAME-095C1 Android portrait: visible charge warning, reload and sidestep",
     await page.locator('[data-direction="up"]').tap();
     assert.equal(await page.locator("#turns").textContent(),"2");
     assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),0);
+    await page.locator("#jump-combat").tap();
     assert.equal(await page.locator("#threat-forecast").isHidden(),true);
+    if(await page.locator("#ui092-sheet").isVisible())
+      await page.locator("#ui092-sheet-close").tap();
     const escaped=await page.evaluate(async()=>{
       const {SAVE_KEY,validateSave}=await import("./game.js");
       const s=JSON.parse(localStorage.getItem(SAVE_KEY));
@@ -2793,9 +2819,9 @@ test("UI-096B mobile: visible enemies show pressure, unseen ones cannot leak via
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(run));
     });
     await page.reload();await page.locator("#title-continue").tap();
-    const forecastVisible=await page.locator("#threat-forecast").isVisible();
-    assert.equal(await page.locator("#ui096-threat-banner").isVisible(),forecastVisible,
-      "Threat banner is reserved for an actual imminent forecast, never a duplicated hostile count");
+    const imminent=await page.locator("#threat-forecast").evaluate(el=>!el.hidden);
+    assert.equal(await page.locator("#ui096-threat-banner").isVisible(),imminent,
+      "Threat banner follows existing engine forecast, even when Combat drawer is closed");
     assert.match(await page.locator("#threat-state").textContent(),/HOSTILE/);
     const turns=await page.locator("#turns").textContent();
     await page.locator("#jump-combat").tap();

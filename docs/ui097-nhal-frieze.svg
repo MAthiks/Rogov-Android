@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 160" width="960" height="160" aria-hidden="true">
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#172c38"/><stop offset="1" stop-color="#071018"/></linearGradient>
+    <radialGradient id="moon"><stop stop-color="#aac8bf" stop-opacity=".55"/><stop offset="1" stop-color="#6f9c99" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="960" height="160" fill="url(#night)"/>
+  <circle cx="505" cy="42" r="97" fill="url(#moon)"/>
+  <path d="M0 106 38 68 77 92 109 50 145 97 183 54 218 81 267 38 304 70 347 35 378 63 430 21 469 75 509 37 550 72 596 30 640 70 680 52 723 92 773 42 808 83 854 44 904 87 938 57 960 97V160H0Z" fill="#0a1923"/>
+  <path d="M0 121h48V85h10V67h8v18h12v36h32V64h10V44h7V25h6v19h8v20h14v57h42V91h14V75h7V62h8v13h12v16h22v30h21V72h14V47h8V32h6v15h8v25h13v49h54V84h9V60h9V84h14v37h33V71h15V53h7V32h6v21h14v68h39V85h16V69h9V85h12v36h26V57h10V39h8V20h7v19h8v18h11v64h42V80h9V55h8v25h15v41h45V86h10V70h7V50h8v20h12v51h48V73h13V50h8V73h13v48h54V160H0Z" fill="#08121b"/>
+  <path d="M0 137h960v23H0Z" fill="#070d13"/>
+  <path d="M0 130h960" stroke="#34434b" stroke-opacity=".35"/>
+</svg>

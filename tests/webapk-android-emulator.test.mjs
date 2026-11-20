@@ -93,25 +93,31 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     assert.equal(shell.bypass,true);
     await dev.evaluate('document.querySelector("#title-continue").click();true');
     await until(dev,'!document.querySelector("#refuge").hidden',isTrue);
-    const beforeStart=await dev.evaluate(`({
-      disabled:document.querySelector("#start-btn").disabled,
-      visibility:document.querySelector("#start-btn").getBoundingClientRect().height,
-      refugeHidden:document.querySelector("#refuge").hidden,
-      savePresent:!!localStorage.getItem("rogov-web-v1")
-    })`);
-    console.log("APK098A BEFORE START:",JSON.stringify(beforeStart));
     await dev.evaluate('document.querySelector("#start-btn").click();true');
-    await pause(500);
-    const afterStart=await dev.evaluate(`({
-      refugeHidden:document.querySelector("#refuge").hidden,
-      expeditionHidden:document.querySelector("#expedition").hidden,
+    // Actual first run is the *legacy tutorial* 15x9 = 135 tiles.
+    await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===135',isTrue);
+    const tutorial=await dev.evaluate(`({
       tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
-      warning:document.querySelector("#warning")?.textContent,
-      errorBanner:document.querySelector("#warning")?.hidden,
-      save:localStorage.getItem("rogov-web-v1")?.slice(0,180),
-      lastAction:document.querySelector("#last-action")?.textContent?.slice(0,240)
+      hero:document.querySelectorAll("#tile-map .tile-hero img").length,
+      run:JSON.parse(localStorage.getItem("rogov-web-v1"))?.run
     })`);
-    console.log("APK098A AFTER START:",JSON.stringify(afterStart));
+    assert.equal(tutorial.tiles,135);
+    assert.equal(tutorial.hero,1);
+    assert.ok(tutorial.run);
+
+    // Next, test the actual 11x11 procedural Nhal camera independently.
+    await dev.evaluate(`(async()=>{
+      const game=await import("./game.js");
+      const newHero=game.newGame();
+      newHero.meta.descents=1;
+      const deep=game.beginRun(newHero).state;
+      if(!game.validateSave(deep))throw Error("Invalid deep expedition fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(deep));
+      return true;
+    })()`);
+    await dev.call("Page.reload",{ignoreCache:true});
+    await until(dev,'document.querySelector("#title-continue")!==null',isTrue);
+    await dev.evaluate('document.querySelector("#title-continue").click();true');
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
     const scene=await dev.evaluate(`({
       tiles:document.querySelectorAll("#tile-map .pixel-tile").length,

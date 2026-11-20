@@ -156,18 +156,24 @@ de tour/sauvegarde. Médiane Chromium CI 0,9 / 0,8 / 0,8 ms,
 Android ni campagne 5 testeurs × 2 descentes n'est constaté.**
 Ne pas rehausser DA 6/10 ou Alpha 7,5/10 sur la seule base de la CI.
 
-**APK-098A — Correctif de distribution en cours, PR à valider :**
+**APK-098A — PR #56 fusionnée**, commit `ae68c5e` :
 audit du workflow `android-debug.yml` : son APK reste un ancien prototype
 **Kotlin/ASCII v0.1.3-compat**, malgré l'interface Web/PWA moderne
 UI/ART-097. La CI Android Chrome 13 vérifie la **PWA**, pas l'ancien
 APK. Nouveau module `:webapp` indépendant, package
 `com.rogov.webapk`, WebView HTTPS locale et fichiers `docs/` réellement
-empaquetés, sans changer le moteur ni les sauvegardes Web. Nouveau
-workflow Android 13 avec tests CDP de 121 tuiles, Sprite C, panneaux,
-ASCII, sauvegarde reprise et absence de réseau. Ancien APK et données
+empaquetés, sans changer le moteur ni les sauvegardes Web. Nouveau workflow Android 13 **réussi**, contrôle CDP du tutoriel
+historique 15×9 (135 cases), de Nhal procédural 11×11 (121 cases),
+Sprite C, panneaux, ASCII, sauvegarde après fermeture du processus
+et rechargement **sans Wi-Fi ni données mobiles**. Ancien APK et données
 Kotlin non écrasés ; **sauvegardes Chrome et WebView isolées,
 migration non fournie**. [Contrat APK-098A](docs/APK098A_CURRENT_PWA_ANDROID.md).
-**Ne pas déclarer le nouvel APK livré avant CI et inspection de capture.**
+**Les quatre workflows PR sont verts** : modern-apk, test-web,
+android-web et ancien build. Capture Android native inspectée :
+le cockpit graphique UI/ART-097 est présent. Artefact
+[ROGOV-modern-web-0.7f-qa098a-android13-apk](https://github.com/MAthiks/Rogov-Android/actions/runs/44714799523).
+**APK debug uniquement :** signature de publication stable et essais
+physiques restent à faire ; aucune migration de sauvegarde Chrome.
 
 **Suite WIP=1 :** fiabiliser le nouvel APK, puis tester réellement
 graphismes, FPS ressentis, commandes et sauvegardes sur téléphone ;

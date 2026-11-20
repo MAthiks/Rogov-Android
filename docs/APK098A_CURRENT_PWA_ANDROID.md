@@ -1,6 +1,6 @@
 # APK-098A — APK WebView du vrai ROGOV UI/ART-097
 
-**Date :** 20 novembre 2026. **Statut :** branche/PR en validation,
+**Date :** 20 novembre 2026. **Statut : PR #56 fusionnée**, commit `ae68c5ecde8a49692a3528c8d3dfd7283fec78c7`, CI Android 13 WebView verte ;
 aucune installation Android physique revendiquée.
 
 ## Incident QA-097 découvert dans l'APK existant
@@ -83,3 +83,13 @@ sans fusionner. Après confirmation, tester le nouvel APK sur téléphone
 **en conservant les installations existantes**.
 
 **Signature du package de test :** le debug APK Android généré par CI utilise une signature de développement. Ne pas considérer des builds CI successifs comme des mises à jour installables sans migration ; une signature de publication stable et une procédure de mise à jour sont à préparer avant toute distribution générale. Ne pas désinstaller une application porteuse de sauvegardes en cours.
+
+## Validation de livraison — PR #56
+
+Le [workflow Android moderne du commit de PR](https://github.com/MAthiks/Rogov-Android/actions/runs/44714799523) a réussi. Il a construit un APK debug distinct, vérifié la signature, installé et lancé l'application dans un émulateur Android 13 et contrôlé **son DOM WebView réel** via Chrome DevTools direct.
+
+**Le parcours automatisé a été réussi :** écran titre puis Veyr, première descente tutoriel 135 cases (15×9), descente profonde 121 cases (11×11), Sprite C, six boutons, ouverture/fermeture du vrai Sac, basculement graphique ↔ ASCII sans tour, reprise de sauvegarde `rogov-web-v1` après `force-stop`, puis rechargement sans Wi-Fi ni données. La capture native `rogov-webapk-qa098a-nhal.png` montre le nouveau cockpit graphique ; la capture COMPAT `Prototype v0.1.1` appartient seulement à l'ancien module.
+
+**Les quatre contrôles PR étaient verts :** `modern-apk`, `test-web`, `android-web`, ancien `build`. L'artefact ZIP inclut le nouveau `webapp-debug.apk` et deux captures. Les sauvegardes navigateur et ancien prototype **ne sont toujours pas migrées**. Cette version est un **APK debug d'évaluation**, non une release signée pour mises à jour régulières.
+
+**Restent ouverts :** test sur le téléphone réel de l'utilisateur, validité de l'installation selon fabricant, autonomie/latence, campagne de cinq testeurs × deux descentes et politique de signature/updates. Les workflows `main` postfusion doivent être contrôlés indépendamment.

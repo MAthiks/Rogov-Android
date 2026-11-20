@@ -1,5 +1,23 @@
 # ROGOV — Roguelike d'extraction tactique
 
+## APK-098A — Version graphique Android (test)
+
+Après l'audit QA-097, le projet distingue **deux APK** :
+le vieux `com.rogov.android.compat` (Kotlin/ASCII, prototype 0.1.x)
+et le nouveau **`com.rogov.webapk`** (WebView Android 13 avec
+l'interface et le moteur HTML/JavaScript de la PWA actuelle).
+Le second a été testé sur émulateur Android 13 avec reprise de
+sauvegarde après redémarrage et rechargement hors réseau.
+[Documentation et limites](docs/APK098A_CURRENT_PWA_ANDROID.md),
+[PR #56](https://github.com/MAthiks/Rogov-Android/pull/56).
+
+**Attention :** ce nouvel APK reste un **debug de test** ;
+les sauvegardes Chrome/PWA et l'APK sont séparées et ne sont pas
+automatiquement transférées. Ne désinstallez pas une ancienne
+application porteuse de sauvegardes. Le jeu à jour reste aussi
+disponible en [PWA](https://mathiks.github.io/Rogov-Android/).
+
+
 ## NAR-094 — L'enquête garde une trace de tes descentes
 
 Les **Chambres de l'Écho** des profondeurs livrent maintenant jusqu'à **3 indices distincts** après une vraie interaction. Les découvertes persistent à Veyr, même au Rappel ; le sac et les règles de mort restent inchangés. Le **Dossier des Échos** est accessible au refuge et dans le rapport d'expédition, sans dévoiler les indices futurs ni de carte inexplorée. La troisième trace ouvre des questions, **pas une conclusion de campagne inventée**. [GDD et contrat technique](docs/NAR094_PERSISTENT_ECHO_INVESTIGATION.md).

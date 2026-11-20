@@ -231,6 +231,10 @@ test("GAME-095B2: old B1 level-2 saves never regenerate enemies or rewards",()=>
     start:vanilla.start,exit:vanilla.exit,
     enemies:vanilla.enemies,exploration:{seen:[]},
     secrets:vanilla.secrets,traps:vanilla.traps,sites:vanilla.sites};
+  // The B1 save was recorded before GAME-101D introduced extra encounters.
+  // Its simulated old floor must not inherit current-floor encounter markers.
+  delete existing.run.encounterPlanVersion;
+  delete existing.run.encounters;
   existing.meta.bestDepth=2;
   assert.equal(existing.run.depthBalanceVersion,undefined);
   assert.ok(validateSave(existing));

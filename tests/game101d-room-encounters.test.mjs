@@ -95,7 +95,15 @@ test("GAME-101D: signal rewards quiet salvage or a five-turn Charognard alarm",(
     assert.equal(result.state.run.alarmUntil,expected.alarm);
     assert.equal(result.state.run.rngState,rng);
     assert.equal(result.state.run.encounters[1].choice,choice);
-    assert.ok(validateSave(result.state));
+    assert.ok(validateSave(result.state),JSON.stringify({
+      choice,siteStatus:result.state.run.encounters[1],
+      validEncounters:validRoomEncounters(result.state.run),
+      validLayout:validateDeepLayout(result.state.run,true),
+      run: {turns:result.state.run.turns,hp:result.state.run.hp,
+        endurance:result.state.run.endurance,alarmUntil:result.state.run.alarmUntil,
+        carried:result.state.run.carried},
+      hero:result.state.meta.hero,journal:result.state.journal[0]
+    }));
     assert.equal(resolveRoomSite(result.state,site.id,choice).changed,false);
   }
 });

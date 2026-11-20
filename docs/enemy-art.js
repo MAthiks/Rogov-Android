@@ -29,6 +29,7 @@ const charognard=svg(
   '<path data-detail="scavenger-barbed-feathers" d="M2 14l-1-3M5 13l-3-3M9 12l-2-4M4 19l-2 2" stroke="#d0af8b" stroke-width="1" fill="none"/>'+
   '<path data-detail="scavenger-worn-pinions" d="M9 16h3M10 18h3M14 16h2" stroke="#9e8071" stroke-width="1" fill="none"/>'+
   // Crisp internal wing and beak landmarks, no rectangle/halo around the enemy.
+  '<path data-detail="ui100-scavenger-hooked-profile" d="M19 15h3M3 18l2 2M7 9l2 3" stroke="#edc99c" stroke-width="1" fill="none"/>'+
   '<path data-detail="art097c2-scavenger-readable-profile" d="M3 14l2-3M9 15h3M17 11h2M20 16h2" stroke="#d3b798" stroke-width="1" fill="none"/>'+
   '</g>'
 );
@@ -63,6 +64,7 @@ const guardian=svg(
   '<path data-detail="guardian-heavy-greaves" d="M5 22h6M14 22h5M8 19h2M15 19h2" stroke="#a3a7a0" stroke-width="1" fill="none"/>'+
   '<path data-detail="guardian-helmet-slit" d="M11 10h5" stroke="#dcd4b8" stroke-width="1" fill="none"/>'+
   // Opposing flat pauldrons and a readable chest are the Gardien signature.
+  '<path data-detail="ui100-guardian-shoulder-depth" d="M4 6h6M15 6h5M7 18h3M14 18h4" stroke="#e1d5bb" stroke-width="1" fill="none"/>'+
   '<path data-detail="art097c2-guardian-armor-profile" d="M4 5h5M16 5h4M8 16h8" stroke="#d0c9b4" stroke-width="1" fill="none"/>'+
   '</g>'
 );
@@ -91,6 +93,7 @@ const rift_larva=svg(
   '<path data-detail="larva-dorsal-spines" d="M4 8L3 5M11 7l-1-3M17 8l1-3" stroke="#8baea4" stroke-width="1" fill="none"/>'+
   '<path data-detail="larva-ventral-shadows" d="M3 20h3M9 20h4M15 20h4" stroke="#18313b" stroke-width="1" fill="none"/>'+
   // Three crisp dorsal plates remain horizontal and distinct from the Arche.
+  '<path data-detail="ui100-larva-dorsal-contrast" d="M4 9h3M10 8h3M16 9h3M11 19h3" stroke="#e6ead2" stroke-width="1" fill="none"/>'+
   '<path data-detail="art097c2-larva-segment-steps" d="M4 11h3M10 10h3M16 11h3" stroke="#d4e2c8" stroke-width="1" fill="none"/>'+
   '</g>'
 );

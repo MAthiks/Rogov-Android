@@ -34,6 +34,15 @@ const floorPatina=Object.freeze([
   '<path data-detail="floor-patina" d="M17 18h3M3 5h2" stroke="#405a4a" stroke-width="1"/>',
   '<path data-detail="floor-patina" d="M4 4h2M17 17h2" stroke="#485456" stroke-width="1"/>'
 ]);
+// UI/ART-100: broad, low-contrast repaired slabs; no new tile types.
+const floorRelief=Object.freeze([
+  '<path d="M2 5h8v1H2M15 16h7" fill="none" stroke="#6b7978" stroke-width="1"/>',
+  '<path d="M3 15h4l2 3M16 3h5v3" fill="none" stroke="#67746f" stroke-width="1"/>',
+  '<path d="M2 3h7M4 16v4M17 14h5" fill="none" stroke="#727875" stroke-width="1"/>',
+  '<path d="M3 7h7M15 12v6M18 19h4" fill="none" stroke="#766958" stroke-width="1"/>',
+  '<path d="M2 17h5M16 4h6M19 5v3" fill="none" stroke="#667b70" stroke-width="1"/>',
+  '<path d="M3 3v5M4 4h6M17 16h4v3" fill="none" stroke="#647278" stroke-width="1"/>'
+]);
 function floorSvg(variant){
   return svg(
     '<rect width="24" height="24" fill="#202d33"/>'+
@@ -53,7 +62,9 @@ function floorSvg(variant){
     // UI/ART-099: reduce high-frequency scratches and moss at real phone
     // scale; stable hash/number of variants and masonry landmarks unchanged.
     '<g data-detail="ui099-quiet-floor" opacity=".32">'+floorDetails[variant]+'</g>'+
-    '<g data-detail="ui099-soft-patina" opacity=".45">'+floorPatina[variant]+'</g>'
+    '<g data-detail="ui099-soft-patina" opacity=".45">'+floorPatina[variant]+'</g>'+
+    '<g data-detail="ui100-floor-broad-relief" opacity=".48">'+floorRelief[variant]+'</g>'+
+    '<path data-detail="ui100-floor-recess" d="M1 9h11M14 9h9M9 20h14" stroke="#0c1920" stroke-width="1" opacity=".4"/>'
   );
 }
 
@@ -93,7 +104,10 @@ function wallSvg(mask,variant){
     '<path data-detail="art097c2-wall-face-depth" d="M2 12h20M12 14v9M2 22h8M14 22h8" stroke="#0c171e" stroke-width="1" opacity=".9"/>'+
     '<path data-detail="ui099-wall-shadow-face" d="M2 11h20M2 23h20" stroke="#07141c" stroke-width="1" opacity=".86"/>'+
     '<path data-detail="ui099-wall-cap-outline" d="M2 3h20M3 7h18" stroke="#bac0ad" stroke-width="1" opacity=".66"/>'+
-    '<g data-detail="ui099-wall-subtle-patina" opacity=".62">'+accents[variant]+'</g>'+rim
+    '<g data-detail="ui099-wall-subtle-patina" opacity=".62">'+accents[variant]+'</g>'+
+    '<path data-detail="ui100-wall-deep-overhang" d="M1 10h22v2H1Z" fill="#09161d" opacity=".9"/>'+
+    '<path data-detail="ui100-wall-upper-plane" d="M2 2h20v1H2ZM2 7h20v1H2Z" fill="#c3c7b5" opacity=".62"/>'+
+    '<path data-detail="ui100-wall-front-shadow" d="M3 22h7M14 22h7M11 14v9" stroke="#09151d" stroke-width="1" opacity=".82"/>'+rim
   );
 }
 export const TERRAIN_SVGS=Object.freeze({
@@ -134,6 +148,15 @@ export function wallEdgeMask(map,x,y,isKnown){
       mask|=bit;
   }
   return mask;
+}
+// Visible-only corridors: test all four neighbors for sight before lookup.
+export function knownCorridorAxis(map,x,y,isVisible){
+  if(!isVisible(x,y)||map[y]?.[x]!==".")return null;
+  if(![[0,-1],[1,0],[0,1],[-1,0]].every(([dx,dy])=>isVisible(x+dx,y+dy)))return null;
+  const n=map[y-1]?.[x],e=map[y]?.[x+1],s=map[y+1]?.[x],w=map[y]?.[x-1];
+  if(w==="#"&&e==="#"&&n==="."&&s===".")return "ns";
+  if(n==="#"&&s==="#"&&w==="."&&e===".")return "ew";
+  return null;
 }
 export function terrainSpriteAt(map,x,y,isKnown,seed="nhal"){
   if(map[y]?.[x]==="#")

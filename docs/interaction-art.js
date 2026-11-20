@@ -19,6 +19,7 @@ const door_open=svg(
   '<path d="M2 8h4M18 8h4M2 14h3M19 14h3" stroke="#3f5258" stroke-width="1"/>'+
   // Recessed joints and a walkable threshold: never draw a timber panel.
   '<path data-detail="door-ribbed-voussoirs" d="M2 7h5M17 7h5M3 12h3M18 12h3M2 17h4M18 17h4M7 3l2 3M17 3l-2 3" fill="none" stroke="#48595b" stroke-width="1"/>'+
+  '<path data-detail="ui100-open-jamb-depth" d="M3 9v11M20 9v11M7 21h10" stroke="#b6b8a6" stroke-width="1" fill="none"/>'+
   '<path data-detail="door-recessed-threshold" d="M6 21h12M7 23h10" fill="none" stroke="#77817e" stroke-width="1"/>'+
   '<path d="M1 23h22" fill="none" stroke="'+rim+'" stroke-width="2"/>'+
   '</g>'
@@ -38,6 +39,7 @@ const door_closed=svg(
   // Heavy opaque door: visible straps, rivets and a separate pull ring.
   '<path data-detail="door-iron-straps" d="M7 10h10M7 12h10M7 20h10" stroke="#9c917b" stroke-width="1"/>'+
   '<path d="M8 11h1M15 11h1M8 20h1M15 20h1" stroke="#e3caa0" stroke-width="1"/>'+
+  '<path data-detail="ui100-closed-plank-depth" d="M8 8v13M16 8v13M7 22h10" stroke="#ccb08a" stroke-width="1" fill="none"/>'+
   '<circle data-detail="door-ring-pull" cx="12" cy="15" r="2" fill="none" stroke="#d0b48b" stroke-width="1"/>'+
   '<path d="M2 23h20" stroke="'+rim+'" stroke-width="2"/>'+
   '</g>'
@@ -56,6 +58,7 @@ const loot=svg(
   '<path data-detail="chest-sealed-bands" d="M4 10h4v2H4ZM16 10h4v2h-4ZM3 17h7M14 17h7" fill="#d9b983" stroke="#b69b70" stroke-width="1"/>'+
   // The crown and corner caps clearly signal an unopened container.
   '<path data-detail="chest-gold-corners" d="M3 12h4v2H5v4H3ZM17 12h4v6h-2v-4h-2ZM4 20h4M16 20h4" fill="#ce9f55" stroke="#60432c" stroke-width=".5"/>'+
+  '<path data-detail="ui100-closed-chest-bevel" d="M4 12h16M5 20h14" stroke="#f0d3a1" stroke-width="1" fill="none"/>'+
   '<rect data-detail="chest-lock-glint" x="11" y="15" width="2" height="2" fill="#f6d894"/>'+
   '</g>'
 );
@@ -72,6 +75,7 @@ const chest_open=svg(
   '<path data-detail="chest-empty-cavity" d="M6 14h12v3H6Z" fill="#090f18"/>'+
   // Keep the cavity visibly empty, with the lid raised above the hinges.
   '<path data-detail="chest-open-hinges" d="M5 12h3M16 12h3" stroke="#d7b580" stroke-width="2"/>'+
+  '<path data-detail="ui100-open-chest-rim" d="M6 13h12M5 19h2M17 19h2" stroke="#e0c399" stroke-width="1" fill="none"/>'+
   '<path data-detail="chest-void-recess" d="M7 15h10M8 16h8" stroke="#050b12" stroke-width="1"/>'+
   '<path d="M5 4l13-1M5 7h14" stroke="#c8b08d" stroke-width="1"/>'+
   '</g>'
@@ -92,6 +96,7 @@ const trap_revealed=svg(
   '<path d="M3 17l3-11 3 11 3-13 3 13 3-11 3 11Z" fill="#d5b78e" stroke="#7f4c40" stroke-width="1"/>'+
   '<rect x="3" y="19" width="18" height="2" fill="#372d30"/>'+
   '<path d="M5 2v2M12 1v2M19 2v2" stroke="#e6b389" stroke-width="2"/>'+
+  '<path data-detail="ui100-armed-trap-bed" d="M4 21h16M5 18h2M17 18h2" stroke="#edc6a0" stroke-width="1" fill="none"/>'+
   '<path data-detail="armed-trap-fangs" d="M6 15l2-5 2 5M13 15l2-7 2 7" fill="#f1cea2" stroke="#7f4c40" stroke-width="1"/>'+
   '</g>'
 );
@@ -101,6 +106,7 @@ const trap_disabled=svg(
   '<path d="M5 16l3-6 1 4 4-3 3 5 3-3" stroke="#8c9992" stroke-width="2" fill="none"/>'+
   '<path d="M3 6l18 15" stroke="#8fd0ad" stroke-width="3"/>'+
   '<rect x="3" y="19" width="18" height="2" fill="#263536"/>'+
+  '<path data-detail="ui100-disarmed-trap-bolts" d="M5 20h3M16 20h3" stroke="#c0ccc1" stroke-width="1" fill="none"/>'+
   '<path data-detail="disarmed-trap-lockout" d="M6 10l3 3-3 3M18 10l-3 3 3 3" fill="none" stroke="#b6c4b7" stroke-width="2"/>'+
   '</g>'
 );
@@ -109,6 +115,7 @@ const trap_triggered=svg(
   '<rect x="2" y="15" width="20" height="7" fill="#42464a" stroke="#7e8681" stroke-width="1"/>'+
   '<path d="M4 17l4-6 3 6 4-6 4 6" fill="none" stroke="#717e83" stroke-width="2"/>'+
   '<path d="M3 4l18 18M21 4L3 22" stroke="#b1a99b" stroke-width="1"/>'+
+  '<path data-detail="ui100-spent-trap-mortar" d="M5 20h4M15 20h4" stroke="#5a656a" stroke-width="1" fill="none"/>'+
   '<path data-detail="spent-trap-empty-bed" d="M4 19h16M8 21h8" stroke="#8d9794" stroke-width="1"/>'+
   '</g>'
 );
@@ -125,6 +132,7 @@ const exit=svg(
   '<rect x="10" y="20" width="4" height="2" fill="#8fd9c9"/>'+
   // The sole upright luminous portal: teal rune crown and bright steps.
   '<path data-detail="arch-carved-stones" d="M2 10h4M18 10h4M2 15h3M19 15h3M7 4l2 2M17 4l-2 2" stroke="#9aaca8" stroke-width="1" fill="none"/>'+
+  '<path data-detail="ui100-arch-inner-runic" d="M8 11v6M16 11v6M10 20h4" stroke="#b1f1db" stroke-width="1" fill="none"/>'+
   '<path data-detail="arch-rune-crown" d="M12 2l2 3-2 2-2-2Z" fill="#b4f4dd" stroke="#46968b" stroke-width="1"/>'+
   '<path data-detail="arch-luminous-threshold" d="M6 22h12M8 21h8" stroke="#a5eee1" stroke-width="1"/>'+
   '<path d="M2 23h20M3 9h3M18 9h3" stroke="'+rim+'" stroke-width="2"/>'+
@@ -139,6 +147,7 @@ const hazard=svg(
   '<path d="M7 11l-3-2M17 15l4 2" stroke="#e58d84" stroke-width="1"/>'+
   // Branching fracture on the ground, never an apparent open portal.
   '<path data-detail="rift-branch-fractures" d="M10 7L5 3M9 15L4 19M15 10l5-6M16 17l5 3" stroke="#cc817b" stroke-width="1" fill="none"/>'+
+  '<path data-detail="ui100-rift-cracked-axis" d="M12 6l2 4-2 4 2 3M8 11l-2 2" stroke="#ffd0b5" stroke-width="1" fill="none"/>'+
   '<path data-detail="rift-ember-flecks" d="M4 11h2M18 12h2M9 20h2" stroke="#f5a58f" stroke-width="1"/>'+
   '<path d="M3 5l4 4M19 4l-4 4M3 20l5-4M20 19l-5-4" stroke="#74404a" stroke-width="1"/>'+
   '</g>'

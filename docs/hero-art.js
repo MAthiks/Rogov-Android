@@ -1,6 +1,9 @@
 // ART-091A — L'Égaré, Sprite C: four original 24x24 hood-up idle views.
 // Render-only assets: no save field, animation timer, RNG or external request.
-const svg=parts=>'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">'+parts+"</svg>";
+const svg=parts=>'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">'+parts+
+  '<path data-detail="ui100-hood-rim-contrast" d="M7 7v2M17 7v2M7 17v2M17 17v2" stroke="#bda69a" stroke-width="1" opacity=".8"/>'+
+  '<path data-detail="ui100-cloak-lower-separation" d="M7 22h3M15 22h3" stroke="#96857a" stroke-width="1"/>'+
+  "</svg>";
 const P=Object.freeze({
   outline:"#171b25",hood:"#3d3544",hoodShade:"#282733",hoodRim:"#665561",
   cape:"#514550",capeShadow:"#302d39",capeEdge:"#79656a",

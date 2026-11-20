@@ -175,6 +175,22 @@ le cockpit graphique UI/ART-097 est présent. Artefact
 **APK debug uniquement :** signature de publication stable et essais
 physiques restent à faire ; aucune migration de sauvegarde Chrome.
 
+**UI-098B1 — ergonomie Android des tiroirs Combat/Sac (PR en préparation, NON fusionnée) :**
+retour direct sur le véritable ROGOV Android : interface graphique,
+déplacements fluides, ouverture/fermeture des menus et reprise de
+sauvegarde fonctionnent ; **le pavé fixe occulte le bas des panneaux**.
+Correctif sur `fix/ui098b1-android-sheet-clearance` : écart mesuré
+depuis la vraie bordure supérieure du dock (`ResizeObserver` et viewport),
+tiroir plafonné à l'espace libre, entête Fermer fixe et contenu interne
+défilant. Aucun changement de mécanique, sauvegarde, Sprite C, 11×11
+ou contrôles du dock. Cache PWA actualisé pour PWA et WebView, tests
+Node/Chromium sur 320×640, 360×780, 393×704 ajoutés.
+[Contrat et recette UI-098B1](docs/UI098B1_ANDROID_SHEET_LAYOUT.md)
+et [checkpoint](docs/CHECKPOINT_CHAT_UI098B1.md).
+**CI PR et confirmation physique du correctif à venir ; pas de fusion
+avant validation.** Poursuivre ensuite ART-097C2 et la lisibilité des
+sols, murs et silhouettes, sans nouveau gameplay.
+
 **Suite WIP=1 :** fiabiliser le nouvel APK, puis tester réellement
 graphismes, FPS ressentis, commandes et sauvegardes sur téléphone ;
 corriger les P0/P1 reproduits avant ART-097C2. Godot/PC reportés.

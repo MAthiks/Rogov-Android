@@ -4020,3 +4020,133 @@ test("ART-097C2 mobile: inspect 54-material family and seven Sprite C portraits 
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+// UI/ART-099 — the large bundled Android-only improvement.
+// Screen captures deliberately use normal Chromium emulated touch, not a real
+// device. No synthetic sprites replace the running map.
+test("UI-099 mobile: map first, no duplicate long document, original Menu knowledge and real drawers", {timeout:160000},async()=>{
+  const {mkdir}=await import("node:fs/promises");
+  await mkdir("qa096-screenshots",{recursive:true});
+  for(const [width,height] of [[320,640],[360,780],[393,704]]){
+    const context=await browser.newContext({
+      viewport:{width,height},deviceScaleFactor:3,isMobile:true,hasTouch:true,
+      serviceWorkers:"block",reducedMotion:"reduce"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",e=>errors.push(e.message));
+      await preloadDeepRun(page);
+      const before=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+      const turns=await page.locator("#turns").textContent();
+      const state=await page.evaluate(()=>{
+        const box=id=>document.getElementById(id).getBoundingClientRect();
+        const map=box("tile-map"),nav=box("expedition-shortcuts"),dock=box("field-controls");
+        const display=id=>getComputedStyle(document.getElementById(id)).display;
+        return {
+          mapBottom:map.bottom,navTop:nav.top,navBottom:nav.bottom,
+          dockTop:dock.top,dockBottom:dock.bottom,vh:innerHeight,
+          width:document.documentElement.scrollWidth,vw:document.documentElement.clientWidth,
+          tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
+          hero:document.querySelectorAll("#tile-map .tile-hero").length,
+          bagDisplay:display("bag-panel"),
+          actionPanelDisplay:display("action-panel"),
+          statusDisplay:display("ui099-feedback"),
+          actorInMenu:document.querySelectorAll("#options-panel #actor-stats-sheet").length,
+          infoOriginalCount:document.querySelectorAll("#ui099-info-slot > *").length
+        };
+      });
+      assert.equal(state.tiles,121);assert.equal(state.hero,1);
+      assert.equal(state.bagDisplay,"none","No duplicate bag below map");
+      assert.equal(state.actionPanelDisplay,"none","No long journal below map");
+      assert.notEqual(state.statusDisplay,"none","Public action feedback survives compacting");
+      assert.equal(state.actorInMenu,1);
+      assert.equal(state.infoOriginalCount,5);
+      assert.ok(state.mapBottom<=state.navTop+1,JSON.stringify(state));
+      assert.ok(state.navBottom<=state.dockTop+1,JSON.stringify(state));
+      assert.ok(Math.abs(state.dockBottom-state.vh)<=2);
+      assert.ok(state.width<=state.vw+1,"No sideways page scrolling");
+
+      await page.locator("#jump-menu").tap();
+      assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
+      assert.equal(await page.locator("#ui099-extras").isVisible(),true);
+      assert.equal(await page.locator("#ui099-info-slot #actor-stats-sheet").count(),1);
+      assert.equal(await page.locator("#ui099-info-slot #route-hint").count(),1);
+      assert.equal(await page.locator("#ui099-info-slot #inspect-panel").count(),1);
+      assert.equal(await page.locator("#ui099-info-slot #exploration-map-panel").count(),1);
+      await page.locator("#actor-stats-sheet summary").tap();
+      assert.equal(await page.locator("#actor-stat-values").isVisible(),true);
+      await page.locator("#map-legend-details summary").tap();
+      assert.equal(await page.locator("#graphic-legend").isVisible(),true);
+      const edges=await page.evaluate(()=>{
+        const sheet=document.getElementById("ui092-sheet").getBoundingClientRect();
+        const dock=document.getElementById("field-controls").getBoundingClientRect();
+        return {sheetBottom:sheet.bottom,dockTop:dock.top};
+      });
+      assert.ok(edges.sheetBottom<=edges.dockTop-5,JSON.stringify(edges));
+      await page.locator("#ui092-sheet-close").tap();
+      assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+
+      await page.locator("#jump-bag").tap();
+      assert.equal(await page.locator("#ui092-sheet-body #bag-panel").count(),1);
+      assert.equal(await page.locator("#bag-panel").isVisible(),true);
+      await page.locator("#ui092-sheet-close").tap();
+
+      const tile=page.locator("#tile-map .pixel-tile[data-knowledge=visible]").filter({
+        hasNot:page.locator("img")
+      }).first();
+      // Some visible floors have a torch/sprite; at minimum an exposed cell
+      // must be inspected without spending a turn.
+      await page.locator("#tile-map .pixel-tile[data-knowledge=visible]").first().tap();
+      const inspectText=await page.locator("#ui099-inspect").textContent();
+      assert.ok(inspectText.trim().length>0);
+      assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),before);
+      assert.equal(await page.locator("#turns").textContent(),turns);
+      await page.screenshot({
+        path:"qa096-screenshots/ui099-map-first-"+width+"x"+height+".png",
+        animations:"disabled"
+      });
+      assert.deepEqual(errors,[]);
+    }finally{await context.close();}
+  }
+});
+
+test("UI-099 mobile: a visible hostile opens Combat only on request and can be defended against", {timeout:70000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js"),fog=await import("./exploration-visibility.js");
+      const hero=game.newGame();hero.meta.descents=1;
+      const state=game.beginRun(hero).state,run=state.run,foe=run.enemies[0];
+      const adjacent=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>
+        ({x:foe.x+dx,y:foe.y+dy})).find(p=>run.map[p.y]?.[p.x]==="." &&
+          !run.enemies.some(e=>e.x===p.x&&e.y===p.y));
+      if(!adjacent)throw Error("No adjacent visible combat fixture");
+      run.x=adjacent.x;run.y=adjacent.y;run.enemies=[foe];
+      fog.revealAround(run);
+      if(!game.validateSave(state))throw Error("UI-099 invalid fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    const before=await page.locator("#turns").textContent();
+    assert.equal(await page.locator("#combat-dock").evaluate(el=>el.hidden),false);
+    assert.equal(await page.locator("#combat-dock").isHidden(),true,
+      "The real combat dock no longer elongates the map-first page");
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#ui092-sheet-body #combat-dock").count(),1);
+    assert.equal(await page.locator("#combat-dock").isVisible(),true);
+    await page.locator("#target-choices button").first().tap();
+    assert.equal(await page.locator("#combat-panel").isVisible(),true);
+    assert.equal(await page.locator("#turns").textContent(),before,
+      "Target selection is still free");
+    await page.locator("#combat-dodge").tap();
+    assert.equal(Number(await page.locator("#turns").textContent()),Number(before)+1);
+    await page.locator("#ui092-sheet-close").tap();
+    assert.equal(await page.locator("#combat-dock").isHidden(),true);
+    assert.equal(await page.locator("#tile-map").isVisible(),true);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

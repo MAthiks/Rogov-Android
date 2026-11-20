@@ -37,6 +37,25 @@ sur les fichiers UI-098B1.
 - Aucun changement de règles, de partie sauvegardée, d'ASCII, d'IA,
   de FOV, de Sprite C ni de module Gradle Android.
 
+## Préparation du test Android physique sans désinstallation
+
+La PR #57 fabrique dans son workflow `modern-apk` un second APK
+**`com.rogov.webapk.pr57` — `ROGOV TEST PR 57`**, à partir des mêmes
+fichiers `docs/`, sous une signature debug indépendante.
+L'artefact dédié est `ROGOV-PR-57-side-by-side-Android` contenant
+`rogov-pr57-side-by-side.apk`. La WebView de référence
+`com.rogov.webapk` est toujours construite et testée séparément.
+Le téléphone peut donc conserver **toutes les installations et
+sauvegardes existantes**. L'APK de recette ne reprend pas l'ancienne
+partie ; il faut une nouvelle partie de test.
+
+Le test CDP de la WebView Android 13 contrôle désormais **la CSS
+UI-098B1, la marge réelle entre le tiroir Sac et le pavé, la cible
+Fermer, le texte Sac vide lisible et le défilement intérieur**.
+La capture `rogov-webapk-ui098b1-bag.png` est archivée.
+Les tests et la construction de l'APK parallèle doivent être validés
+par la CI avant de proposer le téléchargement au testeur.
+
 ## Avant fusion
 
 1. Vérifier les tests `test-web`, `android-web`, `modern-apk`,

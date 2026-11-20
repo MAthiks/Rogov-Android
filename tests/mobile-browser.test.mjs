@@ -915,6 +915,79 @@ test("DEV-087 mobile: hidden exploration rooms become visible and choices persis
   }finally{await context.close();}
 });
 
+test("GAME-101B mobile: visible fork clues and guarded cache survive Android reload", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    const start=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=game.newGame();s.meta.descents=1;
+      const active=game.beginRun(s).state;
+      if(!game.validateSave(active))throw Error("GAME-101B deep start invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(active));
+      return active.run.branchPlanVersion;
+    });
+    assert.equal(start,1);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#game101-branch-hint").count(),1);
+    const entry=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const room=state.run.rooms.find(r=>r.slot===8);
+      return state.run.doors.filter(d=>d.x>=room.x&&d.x<room.x+room.width&&
+        d.y>=room.y&&d.y<room.y+room.height)
+        .map(d=>game.inspectTile(state,d.x,d.y).description);
+    });
+    assert.equal(entry.length,2);
+    assert.ok(entry.some(t=>/entailles/.test(t))&&
+      entry.some(t=>/copeaux de métal/.test(t)),
+      "each seen threshold explains a different route");
+    assert.ok(entry.every(t=>!/Gardien déchu|rondache|\d+,\d+/.test(t)),
+      "no hidden foe identity or item detail in environmental clue");
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const {revealAround}=await import("./exploration-visibility.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const cache=state.run.sites.find(s=>s.kind==="cache");
+      const p=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:cache.x+dx,y:cache.y+dy}))
+        .find(q=>state.run.map[q.y]?.[q.x]==="."&&
+          !state.run.traps.some(t=>t.x===q.x&&t.y===q.y));
+      if(!p)throw Error("GAME-101B cache has no safe adjacent floor");
+      state.run.x=p.x;state.run.y=p.y;
+      state.run.enemies=[]; // Interaction isolated from AI; combat is tested elsewhere.
+      revealAround(state.run);
+      if(!game.validateSave(state))throw Error("GAME-101B guarded cache fixture invalid");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#room-site-panel").isVisible(),true);
+    assert.equal(await page.locator("#room-site-options button").count(),3);
+    const button=page.locator('[data-room-choice="buckler"]');
+    assert.equal(await button.isEnabled(),true);
+    await button.tap();
+    const earned=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(state),turns:state.run.turns,
+        carry:state.run.carried["shield.worn_buckler"],
+        end:state.run.endurance,endMax:state.run.enduranceMax,
+        site:state.run.sites.find(s=>s.kind==="cache")};
+    });
+    assert.equal(earned.valid,true);
+    assert.equal(earned.turns,1);
+    assert.equal(earned.carry,1);
+    assert.equal(earned.end,earned.endMax-3);
+    assert.equal(earned.site.status,"resolved");
+    assert.equal(earned.site.choice,"buckler");
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#room-site-panel").isHidden(),true);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
 test("DEV-088 mobile: report is fog-safe, costs no turn and persists after reload", {timeout:60000}, async()=>{
   const context=await mobileContext();
   try{

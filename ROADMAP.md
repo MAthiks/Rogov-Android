@@ -249,15 +249,20 @@ de changement de sauvegarde ni de migration.
 désormais le vrai chargement du JS et la visibilité du tiroir avant de
 mesurer les gestes, après une course au chargement reproduite sur émulateur.
 Fusion squash dans `main` à la demande d'un gros lot unique, commit
-`0ceb9688851708bff655031c12765b192bf73d1a`. Les captures de
-la version précédente ont motivé le chantier, mais **aucun essai physique
-de UI/ART-099 n'a encore été réalisé** ; l'APK déjà installé ne se met
-pas automatiquement à jour avec une fusion GitHub.
+`0ceb9688851708bff655031c12765b192bf73d1a`. Une nouvelle
+capture physique de UI/ART-099 montre carte dominante, six raccourcis,
+bande compacte et pavé fixe. **QA-099 sur Android réel, 20 novembre :
+retour favorable** après la proposition d'essai Menu, Sac, fermeture et
+mouvements ; l'utilisateur indique « Tout s3mble correct ». Aucun
+blocage n'est signalé, mais les gestes individuels ne sont pas
+documentés et il ne s'agit pas d'un essai complet de sauvegarde/offline.
+L'APK déjà installé ne se met pas automatiquement à jour après fusion.
 
-**Suite WIP=1 :** recette physique Android du lot UI/ART-099, vérification
-du déploiement PWA et plan de distribution de l'APK principal, en
-conservant les sauvegardes et les tiroirs 098B1. Godot/PC reportés.
-Aucune note artistique rehaussée sans retour de joueur.
+**Suite WIP=1 :** consolider QA-099 sur Android physique et vérifier le
+déploiement PWA / reprise des sauvegardes / usage hors ligne ; préparer
+une recette humaine élargie, en conservant les tiroirs 098B1.
+Godot/PC reportés. Le retour qualitatif ne vaut pas hausse automatique
+de la note artistique ni validation de la campagne 5 testeurs × 2 descentes.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

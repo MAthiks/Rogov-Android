@@ -39,8 +39,8 @@ function floorSvg(variant){
     '<rect width="24" height="24" fill="#202d33"/>'+
     '<path data-material="worn-floor-slabs" d="M1 1h11v7H1ZM15 11h8v8h-8ZM1 12h7v7H1Z" fill="#2e3c42" opacity=".38"/>'+
     '<path d="M2 2h8M16 12h5M2 13h4" stroke="#526068" stroke-width="1" opacity=".45"/>'+
-    '<path d="M0 9h12M14 9h10M14 0v9M9 9v15M0 20h9M10 20h14" stroke="#151f25" stroke-width="1"/>'+
-    '<path d="M0 10h12M14 10h10M15 0v9M10 10v14M0 21h9M11 21h13" stroke="#37454b" stroke-width="1"/>'+
+    '<path d="M0 9h12M14 9h10M14 0v9M9 9v15M0 20h9M10 20h14" stroke="#151f25" stroke-width="1" opacity=".54"/>'+
+    '<path d="M0 10h12M14 10h10M15 0v9M10 10v14M0 21h9M11 21h13" stroke="#37454b" stroke-width="1" opacity=".42"/>'+
     '<rect x="2" y="12" width="1" height="1" fill="#435257"/>'+
     '<rect x="18" y="3" width="2" height="1" fill="#334449"/>'+
     // One-pixel edge lighting adds volume without making the quiet floor
@@ -50,7 +50,10 @@ function floorSvg(variant){
     // ART-097C2: rest the center of each slab; concentrate visual contrast
     // on masonry joints so foes and the hooded hero stand out at 24px.
     '<path data-detail="art097c2-floor-joint-hierarchy" d="M1 11h7M15 20h7M2 4h3" stroke="#516267" stroke-width="1" opacity=".52"/>'+
-    floorDetails[variant]+floorPatina[variant]
+    // UI/ART-099: reduce high-frequency scratches and moss at real phone
+    // scale; stable hash/number of variants and masonry landmarks unchanged.
+    '<g data-detail="ui099-quiet-floor" opacity=".32">'+floorDetails[variant]+'</g>'+
+    '<g data-detail="ui099-soft-patina" opacity=".45">'+floorPatina[variant]+'</g>'
   );
 }
 
@@ -88,7 +91,9 @@ function wallSvg(mask,variant){
     // a door/secret nor any map-dependent texture or new terrain category.
     '<path data-detail="art097c2-wall-cap-plane" d="M3 4h18M3 6h8M15 6h6" stroke="#aab7ae" stroke-width="1" opacity=".74"/>'+
     '<path data-detail="art097c2-wall-face-depth" d="M2 12h20M12 14v9M2 22h8M14 22h8" stroke="#0c171e" stroke-width="1" opacity=".9"/>'+
-    accents[variant]+rim
+    '<path data-detail="ui099-wall-shadow-face" d="M2 11h20M2 23h20" stroke="#07141c" stroke-width="1" opacity=".86"/>'+
+    '<path data-detail="ui099-wall-cap-outline" d="M2 3h20M3 7h18" stroke="#bac0ad" stroke-width="1" opacity=".66"/>'+
+    '<g data-detail="ui099-wall-subtle-patina" opacity=".62">'+accents[variant]+'</g>'+rim
   );
 }
 export const TERRAIN_SVGS=Object.freeze({

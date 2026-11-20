@@ -176,7 +176,12 @@ test("DEV-081: Android 13 Chrome tests opaque doors, remembered fog, no target l
     assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
     assert.ok(await page.locator("#tile-map .tile-unknown").count()>0,
       "Unexplored room is black on actual Android Chrome");
-    assert.equal(await page.locator("#exploration-map-panel").isHidden(),false);
+    // UI-099: the same remembered map is now inside the Menu, not in the
+    // long expedition page. Opening the native Menu must reveal it.
+    assert.equal(await page.locator("#exploration-map-panel").evaluate(el=>el.hidden),false);
+    await page.locator("#jump-menu").click();
+    assert.equal(await page.locator("#ui099-info-slot #exploration-map-panel").isVisible(),true);
+    await page.locator("#ui092-sheet-close").click();
     const first=await page.evaluate(async loc=>{
       const game=await import("./game.js");
       const saved=JSON.parse(localStorage.getItem(game.SAVE_KEY));

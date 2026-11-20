@@ -1,3 +1,7 @@
+## GAME-101E — Frappe de brèche, fenêtres de combat et positionnement (WIP)
+
+Nouvelle action facultative : une frappe plus coûteuse (**3 END, 1 tour**) mais renforcée contre un Charognard en récupération, un Gardien préparant son coup lourd, ou un ennemi acculé à une paroi déjà visible. Même RNG et jets que l'attaque normale, prime XP uniquement sur la victoire risquée contre un Gardien, et aucune modification rétroactive des sauvegardes. Le bouton Android et la touche V sont prévus ; CI Web/Android et QA physique à confirmer. [Contrat et recette](docs/GAME101E_TACTICAL_OPENINGS.md).
+
 # Roadmap ROGOV — état du 20 novembre 2026
 
 ## GAME-101D — Rencontres de salle et risque/récompense (PR en validation)

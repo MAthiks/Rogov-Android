@@ -36,3 +36,21 @@ test("APK-098A: web engine untouched except bundled-only service-worker skip",()
   assert.match(app,/drawTileMap/);
   assert.match(app,/setupUi097A2/);
 });
+
+test("UI-098B1: PR test APK is separately installable without touching the current save",()=>{
+  const gradle=read("../webapp/build.gradle.kts");
+  const manifest=read("../webapp/src/main/AndroidManifest.xml");
+  const workflow=read("../.github/workflows/webapk-qa.yml");
+  const native=read("./webapk-android-emulator.test.mjs");
+  assert.match(gradle,/applicationId = "com\\.rogov\\.webapk"/);
+  assert.match(gradle,/providers\\.gradleProperty\\("rogovQaAppSuffix"\\)/);
+  assert.match(gradle,/applicationIdSuffix = qaSuffix/);
+  assert.match(gradle,/\\.pr\[1-9\]/);
+  assert.match(manifest,/android:label="\\$\\{rogovAppLabel\\}"/);
+  assert.match(workflow,/-ProgovQaAppSuffix=/);
+  assert.match(workflow,/rogov-pr\\$\\{PR\\}-side-by-side\\.apk/);
+  assert.match(workflow,/ROGOV-PR-/);
+  assert.match(workflow,/rogov-webapk-ui098b1-bag\\.png/);
+  assert.match(native,/drawer\\.clearance>=5/);
+  assert.match(native,/drawer\\.emptyFullyVisible/);
+});

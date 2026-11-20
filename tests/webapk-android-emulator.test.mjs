@@ -76,7 +76,7 @@ const isTrue=x=>x===true;
 test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and works offline", {timeout:145000},async()=>{
   let dev=await connect();
   try{
-    await until(dev,'Boolean(document.querySelector("#title-screen") && !document.querySelector("#title-screen").hidden)',isTrue);
+    await until(dev,'document.querySelector("#title-continue")?.textContent.trim()==="COMMENCER"',isTrue,20000);
     const shell=await dev.evaluate(`({
       host:location.hostname,path:location.pathname,
       ua:navigator.userAgent,secure:isSecureContext,
@@ -92,7 +92,7 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     assert.equal(shell.css,true);
     assert.equal(shell.bypass,true);
     await dev.evaluate('document.querySelector("#title-continue").click();true');
-    await until(dev,'!document.querySelector("#refuge").hidden',isTrue);
+    await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#refuge").hidden',isTrue);
     await dev.evaluate('document.querySelector("#start-btn").click();true');
     // Actual first run is the *legacy tutorial* 15x9 = 135 tiles.
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===135',isTrue);
@@ -116,8 +116,11 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
       return true;
     })()`);
     await dev.call("Page.reload",{ignoreCache:true});
-    await until(dev,'document.querySelector("#title-continue")!==null',isTrue);
+    // Merely finding a button in parsed HTML is not enough: it must be
+    // initialized by app.js with the restored-run description before click.
+    await until(dev,'document.querySelector("#title-save-info")?.textContent.includes("Descente en cours")',isTrue,25000);
     await dev.evaluate('document.querySelector("#title-continue").click();true');
+    await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
     const scene=await dev.evaluate(`({
       tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
@@ -133,6 +136,9 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     assert.ok(scene.save.run);
     await dev.evaluate('document.querySelector("#jump-bag").click();true');
     await until(dev,'!document.querySelector("#ui092-sheet").hidden',isTrue);
+    // The sheet may be flagged open before Android's first composited frame;
+    // insist on a genuinely laid-out, >=44px close button before testing.
+    await until(dev,'(()=>{const s=document.getElementById("ui092-sheet"),c=document.getElementById("ui092-sheet-close");return !s.hidden && s.getBoundingClientRect().height>0 && c.getBoundingClientRect().height>=44})()',isTrue,20000);
     assert.equal(await dev.evaluate('document.querySelector("#turns").textContent.trim()'),scene.turn);
     // UI-098B1: inspect the actual rendered Android WebView rather than
     // assuming a green Chromium/PWA result proves the APK has no overlap.
@@ -185,7 +191,7 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     adb("forward","--remove","tcp:9223");
     adb("forward","tcp:9223","localabstract:webview_devtools_remote_"+pid);
     dev=await connect();
-    await until(dev,'Boolean(document.querySelector("#title-screen") && !document.querySelector("#title-screen").hidden)',isTrue);
+    await until(dev,'document.querySelector("#title-save-info")?.textContent.includes("Descente en cours")',isTrue,25000);
     const beforeResume=await dev.evaluate(`({
       savePresent:!!localStorage.getItem("rogov-web-v1"),
       run:JSON.parse(localStorage.getItem("rogov-web-v1")||"null")?.run?.turns,
@@ -195,7 +201,7 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     })`);
     console.log("APK098A AFTER PROCESS RESTART:",JSON.stringify(beforeResume));
     await dev.evaluate('document.querySelector("#title-continue").click();true');
-    await pause(500);
+    await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
     const afterResume=await dev.evaluate(`({
       tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
       expeditionHidden:document.querySelector("#expedition").hidden,

@@ -63,3 +63,27 @@ l'utilisateur. Le portage PC/Godot reste reporté.
 de l'appareil.** Après ce lot, vérifier le déploiement `main`
 indépendamment, demander la recette physique et la campagne 5×2.
 Ne pas déclarer un GO artistique à partir de cette CI.
+
+## Retours physiques utilisateur — Android réel (20 novembre 2026)
+
+**Observations déclarées directement par le testeur**, à distinguer de
+la CI et d'une campagne de validation complète :
+
+- ROGOV graphique s'ouvre sur Android et affiche Nhal, Sprite C,
+  les ennemis, le HUD et les commandes ; deux captures des menus ont été
+  fournies dans la conversation QA.
+- Pavé directionnel : déplacements **fluides et réactifs** selon le retour.
+- Menus **Combat** et **Sac** : ouverture, fermeture par « Fermer », puis
+  reprise normale des déplacements **confirmées**.
+- Sauvegarde : fermeture complète de l'application puis relancement ;
+  la partie reprend **là où elle avait été laissée**, confirmé par le testeur.
+- **Défaut UI-098B1 à corriger :** pavé directionnel fixe visiblement
+  superposé au bas des panneaux ; dans le Sac, le texte « Ton sac est vide »
+  est partiellement masqué. Contrôler le défilement complet des menus
+  et les boutons avec du contenu plus long. Priorité P1 potentielle.
+
+**Non vérifiés sur appareil physique :** reprise sur ancienne sauvegarde
+avant APK-098A, intégrité après mise à jour, persistance après extraction,
+autonomie/FPS chiffrés, cas de combat complets, 5 testeurs × 2 descentes.
+**Décision :** sous-contrôles physiques ci-dessus réussis ; **NO-GO
+artistique global maintenu** jusqu'aux corrections et essais restants.

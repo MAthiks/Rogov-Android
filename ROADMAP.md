@@ -109,9 +109,19 @@ Galerie des 7 sprites (24px / agrandissement nearest-neighbor) et captures
 Nhal 320×640 / 360×780 / 393×704 examinées ; aucune case du donjon
 recouverte par le dock. Tests esthétiques physiques et 5×2 joueurs ouverts.
 
-**Suite WIP=1 :** décider ART-097B2 (animations optionnelles)
-puis ART-097C (éclairages légers) après contrôle des performances Android.
-Pas de moteur nouveau ni portage PC actif.
+**ART-097B2 — Animations discrètes de personnages (PR à valider) :**
+signal de présentation éphémère déclenché après **vrai tour de jeu**,
+pas cardinal Sprite C 180 ms, réaction courte (170–200 ms) de
+**trois ennemis visibles au maximum**. CSS sans boucles, timers,
+particules, filtres, ni animation de cases inconnues ; respect de
+`prefers-reduced-motion`. Les sprites SVG restent 24×24,
+les quatre capuches, trois ennemis, sauvegardes, brouillard, ASCII
+et mécaniques sont intacts. Tests Node/Chromium et Chrome Android 13/APK
+**requis avant fusion**. [Contrat ART-097B2](docs/ART097B2_TURN_BOUND_MOTION.md).
+
+**Suite WIP=1 :** ART-097C pour une ambiance lumineuse à budget Android
+contrôlé, puis revue tactile/esthétique sur appareil réel avant animation
+complexe. Godot/portage PC toujours reportés.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

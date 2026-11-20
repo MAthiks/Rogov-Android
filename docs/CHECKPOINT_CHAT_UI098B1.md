@@ -6,8 +6,8 @@
 supplémentaire sur `main` à cet instant.
 **Dernière PR fusionnée au départ :** APK-098A, PR #56.
 **Branche de correction :** `fix/ui098b1-android-sheet-clearance`.
-**Statut :** développement et revue automatique, **non fusionné** ;
-en attente de validation sur téléphone réel.
+**Statut :** contrôles CI 4/4 verts, **GO Android utilisateur reçu le 20 novembre 2026** ; PR #57 autorisée à la fusion.
+La présente fiche est le checkpoint pré-fusion ; son statut final est suivi dans la PR #57.
 
 ## Résultat du QA physique fourni par l'utilisateur
 
@@ -17,8 +17,11 @@ en attente de validation sur téléphone réel.
 - **P1 :** les boutons de direction fixes **cachent partiellement
   le bas du Sac/Combat** ; « Ton sac est vide » est tronqué.
 
-Aucune nouvelle vérification sur un téléphone réel n'a encore été faite
-sur les fichiers UI-098B1.
+**Retour de recette UI-098B1 du 20 novembre 2026 : « On est ok ».**
+Ce GO suit la demande explicite de vérifier le Sac, Combat, les contrôles,
+la fermeture des panneaux et la relance sur Android. Il autorise la fusion
+du correctif ergonomique. Il ne valide pas à lui seul la direction artistique
+globale, les performances à grande échelle ni la campagne 5 × 2 joueurs.
 
 ## Implémentation sur la branche
 
@@ -53,19 +56,25 @@ Le test CDP de la WebView Android 13 contrôle désormais **la CSS
 UI-098B1, la marge réelle entre le tiroir Sac et le pavé, la cible
 Fermer, le texte Sac vide lisible et le défilement intérieur**.
 La capture `rogov-webapk-ui098b1-bag.png` est archivée.
-Les tests et la construction de l'APK parallèle doivent être validés
-par la CI avant de proposer le téléchargement au testeur.
+**Tests et APK parallèle certifiés par les workflows GitHub Actions de la PR :**
+- [Node + Chromium](https://github.com/MAthiks/Rogov-Android/actions/runs/44725604009) : réussi.
+- [Chrome Android 13](https://github.com/MAthiks/Rogov-Android/actions/runs/44725603886) : réussi.
+- [WebView Android 13 + APK parallèle](https://github.com/MAthiks/Rogov-Android/actions/runs/44725603861) : réussi.
+- [APK de compatibilité](https://github.com/MAthiks/Rogov-Android/actions/runs/44725603935) : réussi.
 
-## Avant fusion
+## Bilan de validation et décision de fusion
 
-1. Vérifier les tests `test-web`, `android-web`, `modern-apk`,
-   `build` et capturer toute régression.
-2. Validation du correctif sur vrai téléphone Android par l'utilisateur :
-   Sac vide, sac rempli/long, Combat, toutes les actions, Fermer,
-   déplacement, fermeture/relance, barres système visibles.
-3. Fusionner uniquement après ces gates. La campagne humaine 5×2 et
-   le GO artistique global restent ouverts, tout comme la signature de
-   distribution stable APK-098A et le portage PC/Godot reporté.
+**GO CI :** les quatre workflows ont réussi ; les éléments WebView et
+APK installable en parallèle ont été archivés. **GO utilisateur Android :**
+confirmation « On est ok » reçue après les instructions de recette.
+**Décision :** intégrer UI-098B1 à `main` via la PR #57 en conservant
+le package d'essai isolé et le contrat de sauvegarde existant.
+
+**Reste ouvert après fusion :** revue esthétique et mesures de confort
+élargies, essai des 5 testeurs × 2 descentes, signature APK de
+publication stable, Godot et portage PC différés. La suite prioritaire
+est ART-097C2 (lisibilité sols, murs, silhouettes), sans altérer le
+moteur ni l'interface tactile validée.
 
 Voir `docs/UI098B1_ANDROID_SHEET_LAYOUT.md`,
 `docs/CHECKPOINT_CHAT_QA097.md` et

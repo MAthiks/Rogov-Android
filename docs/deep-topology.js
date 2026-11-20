@@ -54,13 +54,14 @@ export function planDeepTopology(index,rand){
   const offset=rand(other.length);
   for(const [i,shape] of ["pillar","collapsed","alcove"].entries())
     shapes.set(other[(i+offset)%other.length],shape);
-  const narrative=[0,1,4,7,11].filter(slot=>slot!==lSlot);
+  // GAME-101B: slot 4 hosts the guarded cache; slot 10 remains a supply atelier.
+  // Echo inscriptions still vary, but stay out of the guarded cache room.
+  const narrative=[0,1,11].filter(slot=>slot!==lSlot);
   const echoSlot=narrative[rand(narrative.length)];
-  const cacheSlot=narrative.filter(slot=>slot!==echoSlot)[rand(narrative.length-1)];
   return {
     slots,edges,shapes,
     roleSlots:{entry:8,exit:3,atelier:10,valuable:7,guardian:4,
-      echo:echoSlot,cache:cacheSlot},
+      echo:echoSlot,cache:4},
     networkKind:slots.length===8?"anneau":
       slots.includes(5)&&slots.includes(6)?"traverses":
       slots.includes(2)&&slots.includes(9)?"galeries":"ruines"

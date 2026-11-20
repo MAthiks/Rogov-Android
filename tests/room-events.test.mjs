@@ -126,6 +126,7 @@ test("DEV-087: legacy saves never gain room sites; tampered choices cannot enter
   const old=at(2);delete old.run.sites;
   delete old.run.scoutingPlanVersion; // Simulated pre-GAME-101C legacy run.
   delete old.run.encounterPlanVersion;delete old.run.encounters; // Pre-GAME-101D.
+  delete old.run.combatOpeningVersion; // GAME-101E not present in simulated older saves.
   assert.ok(validateSave(old),"older active deep save remains valid");
   assert.equal(nearbyRoomSite(old.run),null);
   assert.ok(validateSave(normalizeJournal(JSON.parse(JSON.stringify(old)))));

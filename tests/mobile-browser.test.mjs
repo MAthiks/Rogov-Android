@@ -1335,8 +1335,8 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
         Math.round(b.getBoundingClientRect().top))).size,
         minHeight:Math.min(...buttons.map(b=>b.getBoundingClientRect().height))};
     });
-    assert.equal(actionLayout.count,6);
-    assert.equal(actionLayout.rows,2,"six actions use two rows on 360px Android");
+    assert.equal(actionLayout.count,7);
+    assert.equal(actionLayout.rows,3,"seven deliberate actions use a legible three-row grid on 360px Android");
     assert.ok(actionLayout.minHeight>=44,"action targets support touch");
     await page.locator("#combat-analysis summary").tap();
     assert.equal(await page.locator("#combat-target-profile").isVisible(),true);
@@ -4418,6 +4418,66 @@ test("GAME-101D mobile: optional camp choices heal on touch and survive reload",
     assert.equal(saved.choice,"treat");
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#room-site-options button").count(),0);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("GAME-101E mobile: tactile opening costs END, persists and stays fog-safe", {timeout:60000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const setup=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const {revealAround}=await import("./exploration-visibility.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      // preloadDeepRun deliberately removes every foe; reconstruct exactly
+      // the seeded deep encounter to test a real enemy without synthetic tiles.
+      const {generateDeepLayout}=await import("./deep-dungeon.js");
+      const enemy=generateDeepLayout(state.meta.descents).enemies.find(e=>e.kind==="charognard");
+      if(!enemy)throw Error("GAME-101E missing seeded Charognard");
+      const p=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:enemy.x+dx,y:enemy.y+dy}))
+        .find(p=>state.run.map[p.y]?.[p.x]==="."&&
+          !state.run.traps.some(t=>t.x===p.x&&t.y===p.y));
+      if(!p)throw Error("GAME-101E no safe contact tile");
+      state.run.x=p.x;state.run.y=p.y;state.run.rngState=1;
+      // preloadDeepRun intentionally starts unarmed; transfer one actual
+      // sword from Veyr's stash to satisfy the paid, armed-only combat rule.
+      const sword="weapon.rusty_sword";
+      if((state.meta.stash[sword]||0)<1)throw Error("GAME-101E missing safe sword");
+      state.meta.stash[sword]-=1;
+      state.run.carried[sword]=(state.run.carried[sword]||0)+1;
+      state.run.loadout.mainHand=sword;
+      state.run.enemies=[enemy];enemy.tactic="recovering";
+      state.run.targetId=enemy.id;
+      revealAround(state.run);
+      if(!game.validateSave(state))throw Error("GAME-101E invalid mobile fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {endurance:state.run.endurance};
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    // UI-099 keeps contextual combat controls in a drawer until opened.
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#combat-panel").isVisible(),true);
+    const action=page.locator("#combat-opening");
+    assert.equal(await action.isVisible(),true);
+    assert.equal(await action.isEnabled(),true);
+    assert.match(await page.locator("#combat-opening-hint").textContent(),/Récupération du Charognard/);
+    await action.tap();
+    const outcome=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(state),turns:state.run.turns,
+        endurance:state.run.endurance,combatOpeningVersion:state.run.combatOpeningVersion};
+    });
+    assert.equal(outcome.valid,true);
+    assert.equal(outcome.turns,1);
+    assert.equal(outcome.endurance,setup.endurance-3);
+    assert.equal(outcome.combatOpeningVersion,1);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });

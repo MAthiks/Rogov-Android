@@ -13,6 +13,7 @@ import {MAX_FLOOR_DEPTH,deepFloorSeed,floorChoiceAvailable,canDescendFurther}
 import {DEPTH_BALANCE_VERSION,balanceDepthLayout} from "./depth-balance.js";
 import {SHOVE_ENDURANCE_COST,SLAB_SHOVE_DAMAGE,shoveOpportunity}
   from "./terrain-tactics.js";
+import {COMBAT_OPENING_VERSION,OPENING_STRIKE_ENDURANCE_COST,openingOpportunity} from "./opening-strike.js";
 import {visibleCells,explorationState,visionKey,validExploration,revealAround,hasFog} from "./exploration-visibility.js";
 import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
@@ -472,6 +473,9 @@ export function validateSave(s) {
     if(r.scoutingPlanVersion!==undefined&&
        (r.scoutingPlanVersion!==1||r.branchPlanVersion!==1||
         !r.exploration||!Array.isArray(r.sites)))return false;
+    if(r.combatOpeningVersion!==undefined&&
+       (r.combatOpeningVersion!==COMBAT_OPENING_VERSION||
+        r.encounterPlanVersion!==1))return false;
     if(!validSecrets(r)||!validTraps(r)||!validRoomSites(r)||
        !validRoomEncounters(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
@@ -569,6 +573,7 @@ export function beginRun(state, equipment=[], loadoutChoice=null, options={}) {
     ...(layout.branchPlanVersion?{branchPlanVersion:layout.branchPlanVersion}:{}),
     ...(layout.scoutingPlanVersion?{scoutingPlanVersion:layout.scoutingPlanVersion}:{}),
     ...(layout.encounterPlanVersion?{encounterPlanVersion:layout.encounterPlanVersion}:{}),
+    ...(layout.combatOpeningVersion?{combatOpeningVersion:layout.combatOpeningVersion}:{}),
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       ...(layout.geometryVersion?{geometryVersion:layout.geometryVersion}:{}),
@@ -652,6 +657,7 @@ export function resolveFloorExit(state,choice){
     ...(layout.branchPlanVersion?{branchPlanVersion:layout.branchPlanVersion}:{}),
     ...(layout.scoutingPlanVersion?{scoutingPlanVersion:layout.scoutingPlanVersion}:{}),
     ...(layout.encounterPlanVersion?{encounterPlanVersion:layout.encounterPlanVersion}:{}),
+    ...(layout.combatOpeningVersion?{combatOpeningVersion:layout.combatOpeningVersion}:{}),
     rooms:layout.rooms,doors:layout.doors,
     doorPlanVersion:layout.doorPlanVersion,
     geometryVersion:layout.geometryVersion,
@@ -997,8 +1003,11 @@ export function disarmTrap(state,x,y){
   return {state:after,message,changed:true};
 }
 
-/** Explicit one-tile melee attack; target must be selected and adjacent. */
-export function attackTarget(state) {
+/** Explicit one-tile melee strike with an optional, more expensive opening. */
+export function openingStrike(state){return attackTarget(state,"opening");}
+export function attackTarget(state,technique="normal") {
+  if(!["normal","opening"].includes(technique))
+    return info(state,"Technique de combat inconnue.",false);
   if (!state.run) return info(state,"Prépare une descente.",false);
   const enemy=state.run.enemies?.find(e=>e.id===state.run.targetId && e.hp>0);
   if (!enemy) return info(state,"Sélectionne une cible vivante.",false);
@@ -1006,47 +1015,57 @@ export function attackTarget(state) {
     return info(state,"Cible hors de vue : approche pour l’identifier.",false);
   if (distance(state.run,enemy)!==1)
     return info(state,"Cible hors de portée : approche au CONTACT.",false);
-  if ((state.run.endurance??0)<TACTICAL_COSTS.attack)
-    return info(state,"Endurance insuffisante : attends pour récupérer.",false);
+  const opening=technique==="opening"?openingOpportunity(state.run,enemy):null;
+  if(technique==="opening"&&!opening)
+    return info(state,"Aucune brèche visible : attends une récupération, une préparation ou accule l'ennemi.",false);
+  if(technique==="opening"&&
+      EQUIPMENT_CATALOG[state.run.loadout?.mainHand]?.kind!=="weapon")
+    return info(state,"Une frappe de brèche demande une arme équipée.",false);
+  const cost=technique==="opening"?OPENING_STRIKE_ENDURANCE_COST:TACTICAL_COSTS.attack;
+  if((state.run.endurance??0)<cost)
+    return info(state,"Endurance insuffisante : "+cost+" END nécessaires.",false);
   const s=copy(state);
   const target=s.run.enemies.find(e=>e.id===enemy.id);
   const type=ENEMY_TYPES[target.kind];
   const equipped=s.run.loadout?.mainHand;
   const base=EQUIPMENT_CATALOG[equipped]?.baseDamage??2;
-  s.run.endurance-=TACTICAL_COSTS.attack;
+  s.run.endurance-=cost;
   s.run.turns+=1;
   const attacker=heroDerivedStats(s);
   const defender=enemyDerivedStats(target);
   const result=resolveStrike(s,attacker,defender,base);
   if(!result.hit) {
-    recordEvent(s,"combat","Tu manques "+type.name+
+    recordEvent(s,"combat",(opening?"FRAPPE DE BRÈCHE — ":"")+"Tu manques "+type.name+
       " ("+result.accuracy+" % de précision).",s.run.turns);
   } else {
-    let damage=result.damage;
+    let damage=result.damage+(opening?.bonus||0);
     // The Guardian's high guard is an announced, stat/equipment-based defense.
     // Same seeded defense resolver as the player's shield action.
     if(target.kind==="guardian" && guardianTactic(target)==="guarding"){
       const guard=resolveActiveDefense(s,"block",defender,attacker,"melee");
       target.tactic="ready"; // High guard is spent on the first landed attack.
       if(guard.success){
+        const beforeGuard=damage;
         damage=Math.max(0,damage-defender.blockAbsorb);
         recordEvent(s,"defense","Garde du Gardien réussie ("+guard.chance+
-          " %) : "+(result.damage-damage)+" dégât(s) absorbé(s).",s.run.turns);
+          " %) : "+(beforeGuard-damage)+" dégât(s) absorbé(s).",s.run.turns);
       } else {
         recordEvent(s,"defense","Garde du Gardien échouée ("+guard.chance+" %).",s.run.turns);
       }
     }
     target.hp-=damage;
     const killed=target.hp<=0;
-    recordEvent(s,"combat","Tu frappes "+type.name+
+    recordEvent(s,"combat",(opening?"FRAPPE DE BRÈCHE — ":"")+"Tu frappes "+type.name+
       (result.critical?" — COUP CRITIQUE !":"")+
       " : "+damage+" dégât"+(damage>1?"s":"")+
+      (opening?" ("+opening.description+")":"")+
       (killed?" (vaincu).":"."),s.run.turns);
     if(killed) {
       s.run.enemies=s.run.enemies.filter(e=>e.id!==target.id);
       s.run.targetId=null;
-      gainXp(s,type.xp);
-      recordEvent(s,"loot","Victoire sur "+type.name+" : +"+type.xp+" XP.",s.run.turns);
+      const reward=type.xp+(opening?.xpBonus||0);
+      gainXp(s,reward);
+      recordEvent(s,"loot","Victoire sur "+type.name+" : +"+reward+" XP.",s.run.turns);
     }
   }
   const after=enemyPhase(s);

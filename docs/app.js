@@ -1,4 +1,4 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, swapChestReward, chestSwapChoices, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, shoveTarget, retreat, useItem, waitTurn, listenForThreats, mapViewportText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, swapChestReward, chestSwapChoices, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, openingStrike, defend, shoveTarget, retreat, useItem, waitTurn, listenForThreats, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
 import { setupUi097A2 } from "./ui097a2.js";
@@ -8,6 +8,7 @@ import { setupUi096C } from "./ui096c.js";
 import {MAX_FLOOR_DEPTH,floorChoiceAvailable,canDescendFurther} from "./floors.js";
 import {depthIntel} from "./depth-balance.js";
 import {SHOVE_ENDURANCE_COST,shoveOpportunity} from "./terrain-tactics.js";
+import {OPENING_STRIKE_ENDURANCE_COST,openingOpportunity} from "./opening-strike.js";
 import { narrativeObjective, NAR093_LORE } from "./narrative.js";
 import { echoDossier } from "./echo-investigation.js";
 import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
@@ -670,6 +671,12 @@ function renderCombatPreview() {
   $("combat-defense").textContent=snapshot.defense==="none" ? "Aucune" : snapshot.defense;
   const stamina=state.run.endurance??0;
   $("combat-attack").disabled=!snapshot.meleeAvailable || stamina<TACTICAL_COSTS.attack;
+  const opening=openingOpportunity(state.run,enemy);
+  const armed=EQUIPMENT_CATALOG[state.run.loadout?.mainHand]?.kind==="weapon";
+  $("combat-opening").disabled=!opening||!armed||stamina<OPENING_STRIKE_ENDURANCE_COST;
+  $("combat-opening-hint").textContent=opening
+    ?opening.description+" Coût : 3 END ; même jet de toucher que l'attaque normale."
+    :"Frappe de brèche : récupération, coup lourd annoncé ou paroi visible derrière la cible. Nouvelles descentes uniquement.";
   $("combat-dodge").disabled=stamina<TACTICAL_COSTS.dodge;
   $("combat-parry").disabled=
     EQUIPMENT_CATALOG[state.run.loadout?.mainHand]?.kind!=="weapon" || stamina<TACTICAL_COSTS.parry;
@@ -997,6 +1004,7 @@ $("door-action").addEventListener("click",()=>{
   if(selectedDoor)act(toggleDoor(state,selectedDoor.x,selectedDoor.y));
 });
 $("combat-attack").addEventListener("click",()=>act(attackTarget(state)));
+$("combat-opening").addEventListener("click",()=>act(openingStrike(state)));
 $("combat-dodge").addEventListener("click",()=>act(defend(state,"dodge")));
 $("combat-parry").addEventListener("click",()=>act(defend(state,"parry")));
 $("combat-block").addEventListener("click",()=>act(defend(state,"block")));
@@ -1036,7 +1044,7 @@ window.addEventListener("keydown", (event) => {
     }
     return;
   }
-  const action = { " ":"wait", "1":"bandage", "2":"tonic", "f":"attack", "e":"dodge", "p":"parry", "b":"block", "r":"retreat", "g":"shove", "l":"listen" }[event.key.toLowerCase()];
+  const action = { " ":"wait", "1":"bandage", "2":"tonic", "f":"attack", "v":"opening", "e":"dodge", "p":"parry", "b":"block", "r":"retreat", "g":"shove", "l":"listen" }[event.key.toLowerCase()];
   if (action && target?.tagName !== "BUTTON") {
     event.preventDefault();
     if (action === "wait") act(waitTurn(state));
@@ -1044,6 +1052,7 @@ window.addEventListener("keydown", (event) => {
     if (action === "bandage") act(useItem(state, "consumable.bandage"));
     if (action === "tonic") act(useItem(state, "consumable.dusk_tonic"));
     if (action === "attack") act(attackTarget(state));
+    if (action === "opening") act(openingStrike(state));
     if (action === "dodge") act(defend(state,"dodge"));
     if (action === "parry") act(defend(state,"parry"));
     if (action === "block") act(defend(state,"block"));

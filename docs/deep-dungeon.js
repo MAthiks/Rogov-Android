@@ -360,6 +360,8 @@ export function validateDeepLayout(layout,live=false){
        !Array.isArray(layout.sites)))return false;
   if(layout.encounterPlanVersion!==undefined&&
       (layout.encounterPlanVersion!==1||layout.scoutingPlanVersion!==1))return false;
+  if(layout.combatOpeningVersion!==undefined&&
+      (layout.combatOpeningVersion!==1||layout.encounterPlanVersion!==1))return false;
   if(graph&&(legacy||layout.geometryVersion!==ROOM_GEOMETRY_VERSION))return false;
   if(!graph&&Array.isArray(rooms)&&
       rooms.some(r=>Object.hasOwn(r||{},"slot")))return false;
@@ -573,6 +575,8 @@ export function generateDeepLayout(index){
         continue;
       }
       if(!validateDeepLayout(layout))continue;
+      // GAME-101E is opt-in per newly generated deep floor.
+      layout.combatOpeningVersion=1;
       // Reward is selected independently of dungeon geometry and combat RNG.
       // Preserve the entry bandage and valuable Fragment. Only the third,
       // previously tonic-only chest changes. Reward IDs are stored once.

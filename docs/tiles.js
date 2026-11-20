@@ -164,7 +164,7 @@ export function drawTileMap(state,host,heroFacing="down",motion=null) {
       const torch=document.createElement("img");
       torch.src=SCONCE_SPRITE;torch.alt="";torch.draggable=false;
       torch.decoding="async";torch.className="art097c-wall-sconce";
-      torch.setAttribute("aria-hidden","true");
+      // Empty alt makes this decorative sconce invisible to screen readers.
       cell.append(torch);
     }
     fragment.append(cell);

@@ -3599,7 +3599,7 @@ test("ART-097C1 browser: real visible wall torches, Arche and Faille glow withou
       ];
       run.map=map;
       run.x=4;run.y=4;
-      run.enemies=[];run.traps=[];run.secrets=[];run.doors=[];run.rooms=null;
+      run.enemies=[];run.traps=[];run.secrets=[];run.doors=[];run.rooms={};
       let seed;
       for(let k=0;k<1000;k++){
         const candidate="art097c-qa-"+k;
@@ -3624,6 +3624,7 @@ test("ART-097C1 browser: real visible wall torches, Arche and Faille glow withou
         torchColor:getComputedStyle(torch).boxShadow,
         archClass:arch.className,archKnowledge:arch.dataset.knowledge,
         riftClass:rift.className,riftKnowledge:rift.dataset.knowledge,
+        unknownCount:cells.filter(cell=>cell.dataset.knowledge!=="visible").length,
         badCells:cells.filter(cell=>cell.dataset.knowledge!=="visible"&&
           (cell.querySelector(".art097c-wall-sconce")||
            [...cell.classList].some(n=>n.startsWith("art097c-")))).length,
@@ -3643,6 +3644,7 @@ test("ART-097C1 browser: real visible wall torches, Arche and Faille glow withou
     assert.match(data.riftClass,/art097c-rift/);
     assert.equal(data.archKnowledge,"visible");
     assert.equal(data.riftKnowledge,"visible");
+    assert.ok(data.unknownCount>0,"QA fixture must retain active fog, not fake all-visible cells");
     assert.equal(data.badCells,0,"Unknown or remembered tiles must carry no light class");
     assert.ok(data.visibleLight>=3);
     assert.ok(data.scrollWidth<=data.clientWidth+1);

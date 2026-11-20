@@ -26,6 +26,8 @@ const charognard=svg(
   '<path d="M4 22h4M10 22h5M16 22h4" stroke="#d5b18b" stroke-width="1"/>'+
   '<rect x="8" y="18" width="2" height="1" fill="#9b7060"/>'+
   '<path data-detail="ragged-wing-rim" d="M5 12l-3 6 3 3M11 12l-3 6M13 11l2 4" stroke="#b49a83" stroke-width="1" fill="none" opacity=".86"/>'+
+  '<path data-detail="scavenger-barbed-feathers" d="M2 14l-1-3M5 13l-3-3M9 12l-2-4M4 19l-2 2" stroke="#d0af8b" stroke-width="1" fill="none"/>'+
+  '<path data-detail="scavenger-worn-pinions" d="M9 16h3M10 18h3M14 16h2" stroke="#9e8071" stroke-width="1" fill="none"/>'+
   '</g>'
 );
 
@@ -55,6 +57,9 @@ const guardian=svg(
   '<rect x="19" y="4" width="4" height="5" fill="#78858a"/>'+
   '<path d="M19 6h4M20 3v8" stroke="#c2c0ab" stroke-width="1"/>'+
   '</g>'+
+  '<path data-detail="guardian-fractured-pauldrons" d="M4 8l3 2M9 6l-2 4M16 7l3 3M20 9l-3 3" stroke="#c3b6a1" stroke-width="1" fill="none"/>'+
+  '<path data-detail="guardian-heavy-greaves" d="M5 22h6M14 22h5M8 19h2M15 19h2" stroke="#a3a7a0" stroke-width="1" fill="none"/>'+
+  '<path data-detail="guardian-helmet-slit" d="M11 10h5" stroke="#dcd4b8" stroke-width="1" fill="none"/>'+
   '</g>'
 );
 
@@ -78,6 +83,9 @@ const rift_larva=svg(
   '<rect x="20" y="14" width="2" height="2" fill="#e0f1d9"/>'+
   '<rect x="22" y="13" width="1" height="1" fill="#90c5b6"/>'+
   '</g>'+
+  '<path data-detail="larva-chitin-facets" d="M4 12l2-2M9 12l2-2M15 12l2-2M5 15h2M11 15h2M17 15h2" stroke="#b2bfae" stroke-width="1" fill="none"/>'+
+  '<path data-detail="larva-dorsal-spines" d="M4 8L3 5M11 7l-1-3M17 8l1-3" stroke="#8baea4" stroke-width="1" fill="none"/>'+
+  '<path data-detail="larva-ventral-shadows" d="M3 20h3M9 20h4M15 20h4" stroke="#18313b" stroke-width="1" fill="none"/>'+
   '</g>'
 );
 

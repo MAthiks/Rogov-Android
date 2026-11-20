@@ -40,7 +40,8 @@ test("ART-097C1: torch placement is deterministic, local and never reads the fog
   const hidden=(x,y)=>!(x===sx&&y===sy);
   assert.equal(sconceAt(map,sx,sy,hidden,seed),false);
   assert.equal(localLightAt(map,sx,sy,hidden,seed),null);
-  assert.equal(localLightAt(map,3,1,hidden,seed),null);
+  // The real visible Arche may still light this tile; only the torch is hidden.
+  assert.equal(localLightAt(map,3,1,hidden,seed),"arch-edge");
   // A Proxy throws if the renderer tries to inspect ANY unseen map row.
   const sealed=new Proxy(map,{get(target,key,receiver){
     if(key==="0")throw Error("Hidden map row was read");
@@ -49,7 +50,7 @@ test("ART-097C1: torch placement is deterministic, local and never reads the fog
   const belowOnly=(x,y)=>y>0&&visibleAll(x,y);
   assert.equal(localLightAt(sealed,sx,0,belowOnly,seed),null);
   assert.equal(sconceAt(sealed,sx,0,belowOnly,seed),false);
-  assert.equal(localLightAt(sealed,3,1,belowOnly,seed),null);
+  assert.equal(localLightAt(sealed,3,1,belowOnly,seed),"arch-edge");
 });
 
 test("ART-097C1: real torch SVG is original 24px, not an interactive object",()=>{

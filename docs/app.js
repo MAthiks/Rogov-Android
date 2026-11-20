@@ -2,6 +2,7 @@ import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspe
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
 import { setupUi097A2 } from "./ui097a2.js";
+import { setupUi099 } from "./ui099.js";
 import { syncUi096Threat } from "./ui096.js";
 import { setupUi096C } from "./ui096c.js";
 import {MAX_FLOOR_DEPTH,floorChoiceAvailable,canDescendFurther} from "./floors.js";
@@ -818,6 +819,7 @@ function render() {
   ui096c.sync();
   syncUi096Threat({get:$,isRun:Boolean(run)});
   ui092.sync();
+  ui099.sync();
 }
 function act(result) {
   if (result.changed) {
@@ -933,6 +935,7 @@ const ui092=setupUi092({get:$,isRun:()=>Boolean(state.run),
 // Reuse original nav/banner DOM nodes; layout-only, no extra gameplay calls.
 const ui097a2=setupUi097A2({get:$});
 const ui096c=setupUi096C({get:$,isRun:()=>Boolean(state.run)});
+const ui099=setupUi099({get:$,isRun:()=>Boolean(state.run)});
 $("floor-extract").addEventListener("click",()=>act(resolveFloorExit(state,"extract")));
 $("floor-descend").addEventListener("click",()=>{
   if(window.confirm("Descendre vers l'étage suivant ? Tes blessures et ton sac "+
@@ -1028,6 +1031,7 @@ $("tile-map").addEventListener("click", (event) => {
   if (!cell || !$("tile-map").contains(cell)) return;
   if (cell.dataset.enemyId) chooseTarget(cell.dataset.enemyId);
   inspect(Number(cell.dataset.x),Number(cell.dataset.y));
+  ui099.noteInspection(cell);
 });
 $("renderer-toggle").addEventListener("click", () => {
   renderMode = renderMode === "tiles" ? "ascii" : "tiles";

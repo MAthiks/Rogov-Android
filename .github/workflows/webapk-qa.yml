@@ -79,3 +79,26 @@ jobs:
             rogov-webapk-qa098a-nhal.png
           if-no-files-found: error
           retention-days: 30
+
+      # PR-specific package prevents a debug-signature mismatch from risking
+      # deletion of the existing WebView save. Test original APK above first.
+      - name: Assemble safely installable side-by-side PR test APK
+        if: success() && github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          PR="${{ github.event.pull_request.number }}"
+          gradle --no-daemon -ProgavQaAppSuffix=".pr${PR}" :webapp:clean :webapp:assembleDebug
+          APK="webapp/build/outputs/apk/debug/webapp-debug.apk"
+          SDKROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          "$SDKROOT/build-tools/36.0.0/apksigner" verify --verbose "$APK"
+          "$SDKROOT/build-tools/36.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.rogov.webapk.pr${PR}'"
+          "$SDKROOT/build-tools/36.0.0/aapt" dump badging "$APK" | grep -F "application-label:'ROGOV TEST PR ${PR}'"
+          cp "$APK" "rogov-pr${PR}-side-by-side.apk"
+      - name: Archive side-by-side PR APK (no save deletion required)
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ROGOV-PR-${{ github.event.pull_request.number }}-side-by-side-Android
+          path: rogov-pr*-side-by-side.apk
+          if-no-files-found: error
+          retention-days: 30

@@ -98,6 +98,17 @@ test("GAME-101D: signal rewards quiet salvage or a five-turn Charognard alarm",(
     assert.equal(result.state.run.alarmUntil,expected.alarm);
     assert.equal(result.state.run.rngState,rng);
     assert.equal(result.state.run.encounters[1].choice,choice);
+    assert.ok(validTraps(result.state.run),"Paid alarm or quiet choice must pass trap save validation");
+    const forgedLong=structuredClone(result.state);
+    forgedLong.run.alarmUntil=forgedLong.run.turns+6;
+    assert.equal(validateSave(forgedLong),false,
+      "No signal may forge more than five alert turns");
+    if(choice==="quiet"){
+      const forgedOld=structuredClone(result.state);
+      forgedOld.run.alarmUntil=forgedOld.run.turns+4;
+      assert.equal(validateSave(forgedOld),false,
+        "A quiet signal cannot grant extended Charognard alert");
+    }
     assert.ok(validateSave(result.state),JSON.stringify({
       choice,siteStatus:result.state.run.encounters[1],
       validSites:validRoomSites(result.state.run),

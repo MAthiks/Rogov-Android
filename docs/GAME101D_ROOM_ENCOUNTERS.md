@@ -16,3 +16,6 @@ Une interaction coûte exactement un tour et déclenche une seule phase ennemie.
 
 ## Recette requise
 Contrôler les graines multiples, les chemins de retour, les deux choix de chaque lieu, les coûts, l'alerte, les chargements, le brouillard, l'ASCII, le graphisme, la PWA hors ligne, Chrome Android 13 et la WebView APK. Les tests CI ne remplacent pas l'essai physique sur téléphone.
+
+## Correction de compatibilité des alarmes
+Le validateur historique des pièges limitait `alarmUntil` à `turns + 3`. GAME-101D accepte `turns + 5` **uniquement** si la balise existe, est résolue et porte le choix risqué `alarm` ; tout autre état conserve le plafond de trois tours. Des tests négatifs contrôlent les alertes forgées.

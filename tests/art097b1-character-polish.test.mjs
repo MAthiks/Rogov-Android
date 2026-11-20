@@ -61,8 +61,8 @@ test("ART-097B1: exactly three existing enemy families keep orthogonal visual si
     assert.match(xml,/<\/svg>$/);
     assert.doesNotMatch(xml,/<(?:script|image|filter|animate|foreignObject|text|rect width="24" height="24")\b|(?:xlink:)?href\s*=/i);
     for(const feature of features)
-      assert.ok(xml.includes('data-'+(feature===markers[id][0]||feature===markers[id][1]&&["charognard","guardian","rift_larva"].includes(id)?"feature":"detail")+'="'+feature+'"')||
-        xml.includes('data-detail="'+feature+'"')||xml.includes('data-feature="'+feature+'"'),
+      assert.ok(xml.includes('data-detail="'+feature+'"')||
+        xml.includes('data-feature="'+feature+'"'),
         "Missing signature "+feature+" of "+id);
     assert.equal(TILE_SPRITES[id],ENEMY_SPRITES[id]);
     assert.ok(ENEMY_SPRITES[id].startsWith(uriPrefix));

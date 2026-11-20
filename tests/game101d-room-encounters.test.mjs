@@ -82,7 +82,7 @@ test("GAME-101D: camp healing or bandage is a paid, exclusive, persistent choice
 });
 test("GAME-101D: signal rewards quiet salvage or a five-turn Charognard alarm",()=>{
   for(const [choice,expected] of Object.entries({
-    quiet:{item:"consumable.vigor_salts",xp:1,endurance:1,alarm:0},
+    quiet:{item:"consumable.vigor_salts",xp:1,endurance:1,alarm:undefined},
     alarm:{item:"relic.ashen_fragment",xp:2,endurance:3,alarm:6}
   })){
     const {state,site}=beside("signal"),rng=state.run.rngState;

@@ -209,19 +209,28 @@ Le correctif est fusionné dans `main` le 20 novembre 2026 (commit `299b410`). C
 la campagne générale 5 testeurs × 2 descentes, la note artistique
 globale ni la publication d'un APK signé stable.
 
-**ART-097C2 — matériaux et silhouettes plus lisibles (développé en PR,
-non fusionné)** : sur la branche `art/art097c2-material-silhouette-contrast`,
+**ART-097C2 — matériaux et silhouettes plus lisibles (FUSIONNÉ, PR #58, `340aa21`) :**
 rééquilibrage du contraste intérieur des 6 sols, corniche/parement des
 48 murs, capuche/manteau du PJ dans ses 4 directions et accents d'1px
 sur les 3 adversaires existants. Aucun ajout de cadre de sélection,
 FX, ennemi, collision, mécanisme ou champ de sauvegarde ; cache PWA
-mis à jour. [Contrat et recette ART-097C2](docs/ART097C2_MATERIAL_SILHOUETTE_READABILITY.md).
-Tests sur 54 SVG + 7 sprites, galerie Chromium et Android à confirmer,
-puis comparaison sur téléphone physique **avant fusion**.
+mis à jour. [Contrat et recette ART-097C2](docs/ART097C2_MATERIAL_SILHOUETTE_READABILITY.md)
+et [checkpoint ART-097C2](docs/CHECKPOINT_CHAT_ART097C2.md).
+**CI vérifiée avant fusion le 20 novembre 2026 : 4/4 workflows verts** :
+390/390 tests Node, 63/63 Chromium, Chrome Android 13, WebView Android 13
+(après relance de l'émulateur) et APK historique. Galerie comparative
+`art097c2-material-silhouette-gallery.png` produite dans les captures
+Chromium. Après difficulté à télécharger l'APK de recette séparé, l'utilisateur
+a demandé la fusion directe ; **PR #58 fusionnée dans `main` le
+20 novembre 2026**, commit `340aa218f94d044771ee206673d132384444c146`.
+**Important :** la fusion de code ne met pas automatiquement à jour
+l'application déjà installée ; la validation graphique sur appareil physique
+reste à effectuer, ainsi que la vérification de la distribution Android
+principale.
 
-**Suite WIP=1 :** valider ART-097C2 avec CI, captures et retour Android.
-Conserver le pavé et les tiroirs UI-098B1 ; ne pas ouvrir un autre lot
-avant les contrôles. Godot/PC reportés.
+**Suite WIP=1 :** recette du rendu ART-097C2 sur Android et distribution
+de la version principale à jour (PWA / APK), sans casser les sauvegardes.
+Conserver le pavé et les tiroirs UI-098B1 ; Godot/PC reportés.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

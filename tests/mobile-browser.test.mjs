@@ -4443,6 +4443,13 @@ test("GAME-101E mobile: tactile opening costs END, persists and stays fog-safe",
           !state.run.traps.some(t=>t.x===p.x&&t.y===p.y));
       if(!p)throw Error("GAME-101E no safe contact tile");
       state.run.x=p.x;state.run.y=p.y;state.run.rngState=1;
+      // preloadDeepRun intentionally starts unarmed; transfer one actual
+      // sword from Veyr's stash to satisfy the paid, armed-only combat rule.
+      const sword="weapon.rusty_sword";
+      if((state.meta.stash[sword]||0)<1)throw Error("GAME-101E missing safe sword");
+      state.meta.stash[sword]-=1;
+      state.run.carried[sword]=(state.run.carried[sword]||0)+1;
+      state.run.loadout.mainHand=sword;
       state.run.enemies=[enemy];enemy.tactic="recovering";
       state.run.targetId=enemy.id;
       revealAround(state.run);

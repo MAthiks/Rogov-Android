@@ -3283,3 +3283,63 @@ test("UI-096D mobile: Veyr keeps its real controls above an unchanged safe launc
     }finally{await context.close();}
   }
 });
+
+
+test("UI-097A1 mobile: branded cockpit keeps real HUD, map and touch controls usable", {timeout:95000}, async()=>{
+  for(const viewport of [{width:320,height:640},{width:360,height:780},{width:393,height:704}]){
+    const context=await browser.newContext({
+      viewport,deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:"block",
+      reducedMotion:"reduce"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",e=>errors.push(e.message));
+      await preloadDeepRun(page);
+      const ui=await page.evaluate(()=>{
+        const box=id=>document.getElementById(id).getBoundingClientRect();
+        const header=document.querySelector("#expedition>.section-head");
+        const brand=document.querySelector("#expedition .ui097-brand");
+        const health=box("health-meter"),endurance=box("endurance-meter");
+        return {
+          cssLoaded:[...document.styleSheets].some(s=>s.href?.includes("ui097a.css?v=1")),
+          brand:brand?.textContent.trim(),
+          brandDisplay:brand?getComputedStyle(brand).display:"missing",
+          headerImage:getComputedStyle(header).backgroundImage,
+          header:header.getBoundingClientRect().toJSON(),
+          menu:box("jump-menu").toJSON(),
+          health:health.toJSON(),endurance:endurance.toJSON(),
+          hp:document.getElementById("hp").textContent.trim(),
+          stamina:document.getElementById("endurance-state").textContent.trim(),
+          depth:document.getElementById("floor-depth").textContent.trim(),
+          map:box("tile-map").toJSON(),dock:box("field-controls").toJSON(),
+          clientWidth:document.documentElement.clientWidth,
+          scrollWidth:document.documentElement.scrollWidth,
+          buttons:[...document.querySelectorAll("#expedition-shortcuts button")]
+            .map(b=>b.getBoundingClientRect().height)
+        };
+      });
+      assert.equal(ui.cssLoaded,true,"UI-097A1 CSS loaded");
+      assert.equal(ui.brand,"ROGOV");
+      assert.notEqual(ui.brandDisplay,"none");
+      assert.match(ui.headerImage,/ui097-nhal-frieze\.svg/);
+      assert.ok(ui.menu.height>=44,"The menu must remain a 44px target");
+      assert.ok(ui.health.left<ui.endurance.left&&Math.abs(ui.health.top-ui.endurance.top)<=2,
+        "Both real gauges should share a compact HUD row: "+JSON.stringify(ui));
+      assert.ok(ui.hp.length>0&&ui.stamina.length>0&&ui.depth.length>0,
+        "Existing engine-owned numbers must remain visible");
+      assert.equal(ui.buttons.length,6);
+      assert.ok(ui.buttons.every(h=>h>=44));
+      assert.ok(ui.scrollWidth<=ui.clientWidth+1,"No horizontal overflow");
+      assert.ok(ui.map.bottom<=ui.dock.top+1,
+        "Decorative header must not push the map behind the fixed dock: "+JSON.stringify(ui));
+      await page.locator("#jump-bag").tap();
+      assert.equal(await page.locator("#ui092-sheet").isVisible(),true,
+        "The real bag should open inside the existing sheet");
+      await page.locator("#ui092-sheet-close").tap();
+      assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+      assert.equal((await page.locator("#turns").textContent()).trim(),"0",
+        "Opening the bag must never spend a turn");
+      assert.deepEqual(errors,[]);
+    }finally{await context.close();}
+  }
+});

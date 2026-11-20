@@ -1,0 +1,225 @@
+/* UI-097A1 — Nhal's playable high-fidelity mobile skin.
+ * Original 24px assets and true UI controls remain interactive. No new game
+ * data, clone, animation timer, random state or visibility-related selector. */
+.ui097-brand{display:none}
+@media(max-width:730px){
+  .frame.is-expedition{
+    --ui097-bronze:#a77f4d;
+    --ui097-bronze-light:#dfbd81;
+    --ui097-ivory:#f1e4d0;
+    --ui097-slate:#16222e;
+  }
+  .frame.is-expedition #expedition{
+    background:radial-gradient(ellipse at 48% -8%,#2a3541 0%,#101922 35%,#080e16 85%);
+  }
+  /* The brand artwork is a decorative local SVG, not a replacement map. */
+  .frame.is-expedition #expedition>.section-head{
+    position:relative;display:grid;
+    grid-template-columns:minmax(66px,.8fr) minmax(0,1.35fr) auto;
+    align-items:center;column-gap:5px;
+    min-height:41px;margin:0 1px 4px;padding:4px 7px;
+    border:1px solid #806a4d;border-radius:6px;
+    background:linear-gradient(180deg,#08131d68,#0a131be8),
+      url("./ui097-nhal-frieze.svg") center 40%/cover no-repeat;
+    box-shadow:inset 0 1px 0 #e1c28e38,0 2px 8px #000a;
+  }
+  .frame.is-expedition #expedition>.section-head::after{
+    content:"";pointer-events:none;position:absolute;
+    inset:3px;border:1px solid #c49b612b;border-radius:3px;
+  }
+  .frame.is-expedition .ui097-brand{
+    display:block;min-width:0;white-space:nowrap;
+    font:800 clamp(16px,4.9vw,22px)/1 Georgia,serif;
+    letter-spacing:.015em;color:var(--ui097-ivory);
+    text-shadow:1px 2px 0 #03080e,0 0 8px #aa814044;
+  }
+  .frame.is-expedition #expedition>.section-head .eyebrow{display:none}
+  .frame.is-expedition #expedition>.section-head h2{
+    min-width:0;margin:0;
+    color:#dec8a5;font:700 clamp(11px,3.5vw,15px)/1.13 Georgia,serif;
+    letter-spacing:.005em;text-align:center;
+    text-shadow:0 1px 2px #000;
+  }
+  .frame.is-expedition #jump-menu{
+    position:relative;z-index:1;min-width:62px;min-height:44px;
+    padding:3px 4px;margin:0;border:1px solid #96734c;
+    background:linear-gradient(#2c3036,#171d26);
+    color:var(--ui097-ivory);border-radius:5px;
+    font:700 10px/1.1 system-ui,sans-serif;
+  }
+  /* All four values come from existing engine-owned DOM nodes. */
+  .frame.is-expedition #expedition .run-bar{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:3px;margin:0 0 4px;padding:3px;
+    border:1px solid #645a4b;border-radius:5px;
+    background:linear-gradient(180deg,#19232c,#0d151e);
+    box-shadow:inset 0 1px 0 #b79b7040;
+  }
+  /* Legacy/first-floor runs may hide the floor badge: never reserve a blank cell. */
+  .frame.is-expedition #expedition .run-bar:has(#floor-hud[hidden]){
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .frame.is-expedition #expedition .run-bar>span{
+    display:flex;align-items:center;justify-content:center;
+    min-width:0;min-height:21px;gap:3px;white-space:nowrap;
+    border:1px solid #3e4950;border-radius:3px;
+    background:#151e28;color:#c8c1b5;
+    font:700 clamp(8px,2.55vw,9px)/1.1 ui-monospace,monospace;
+  }
+  .frame.is-expedition #expedition .run-bar>span strong{
+    margin:0;color:#f2e1c3;font-size:clamp(10px,2.8vw,12px);
+  }
+  .frame.is-expedition #expedition .run-bar #bag-count{
+    color:var(--ui097-bronze-light);
+  }
+  /* Two compact, separately labeled gauges. Threats remain text, not color. */
+  .frame.is-expedition .survival-hud{
+    position:relative;
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:auto 8px;column-gap:7px;row-gap:3px;
+    padding:4px 8px 7px;margin:0 0 5px;
+    border:1px solid #675741;border-radius:6px;
+    background:linear-gradient(160deg,#1b2731,#111a23);
+    box-shadow:inset 0 1px 0 #e2bd7f25;
+  }
+  .frame.is-expedition .survival-hud .health-header{
+    grid-column:1;grid-row:1;min-height:24px;
+    display:flex;flex-direction:column;align-items:flex-start;
+    justify-content:start;gap:1px;overflow:hidden;
+    font:700 9px/1.15 ui-monospace,monospace;
+  }
+  .frame.is-expedition .survival-hud .health-header>span{
+    display:block;max-width:100%;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  .frame.is-expedition .survival-hud .endurance-header{
+    grid-column:2;grid-row:1;min-height:24px;
+    display:flex;align-items:flex-start;justify-content:flex-start;
+    margin:0;font:700 10px/1.25 ui-monospace,monospace;
+  }
+  .frame.is-expedition .survival-hud .endurance-header span{
+    display:block;white-space:nowrap;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  .frame.is-expedition #threat-state{
+    display:block;max-width:100%;padding:1px 4px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    border-color:#4a655a;background:#21352f;
+    color:#cfdfd0;font:800 8px/1.2 ui-monospace,monospace;
+  }
+  .frame.is-expedition #health-meter,
+  .frame.is-expedition #endurance-meter{
+    display:block;width:100%;height:8px;min-height:8px;
+    margin:0;border:1px solid #46525b;border-radius:3px;
+    appearance:none;overflow:hidden;background:#090e15;
+  }
+  .frame.is-expedition #health-meter{grid-column:1;grid-row:2}
+  .frame.is-expedition #endurance-meter{grid-column:2;grid-row:2}
+  .frame.is-expedition #health-meter::-webkit-progress-bar,
+  .frame.is-expedition #endurance-meter::-webkit-progress-bar{
+    background:#090e15;border-radius:2px;
+  }
+  .frame.is-expedition #health-meter::-webkit-progress-value{
+    background:linear-gradient(90deg,#8c302e,#d15d4d);border-radius:2px;
+  }
+  .frame.is-expedition #health-meter::-moz-progress-bar{
+    background:#c65146;border-radius:2px;
+  }
+  .frame.is-expedition #endurance-meter::-webkit-progress-value{
+    background:linear-gradient(90deg,#9c6d32,#d6a851);border-radius:2px;
+  }
+  .frame.is-expedition #endurance-meter::-moz-progress-bar{
+    background:#cea04e;border-radius:2px;
+  }
+  .frame.is-expedition .expedition-shortcuts{
+    gap:3px;padding:3px;margin-bottom:4px;
+    border:1px solid #6e614f;border-radius:5px;
+    background:#0e1820f5;box-shadow:0 3px 10px #0009;
+  }
+  .frame.is-expedition .expedition-shortcuts button{
+    min-height:46px;min-width:0;
+    border:1px solid #6f675b;border-radius:5px;
+    background:linear-gradient(#29343e,#17222b);
+    box-shadow:inset 0 1px 0 #f0d49e22,0 1px 2px #000a;
+    color:var(--ui097-ivory);
+  }
+  .frame.is-expedition .expedition-shortcuts button::before{
+    color:#d9b781;text-shadow:0 1px #000;
+  }
+  .frame.is-expedition .expedition-shortcuts button.is-active{
+    background:linear-gradient(#60472e,#2b251f);
+    border-color:#ebbe78;color:#fff0d1;
+    box-shadow:inset 0 1px 0 #ffdc9f77;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap{
+    border:1px solid #867052;border-radius:7px;
+    padding:3px 3px 7px;background:#050b12;
+    box-shadow:inset 0 0 0 2px #242527,0 3px 15px #000b;
+  }
+  .frame.is-expedition .pixel-map{
+    border:2px solid #756a60;border-radius:2px;
+    box-shadow:0 0 0 2px #101922,0 0 0 3px #b58c4f66,0 8px 14px #000c;
+  }
+  .frame.is-expedition .render-controls span{color:#ccb995}
+  .frame.is-expedition .render-controls button{
+    border:1px solid #71644d;background:#1e2930;color:#e9d8b6;
+  }
+  .frame.is-expedition #ui096-threat-banner[data-urgent="true"]{
+    border:1px solid #b45e55;border-left:4px solid #e78669;
+    background:linear-gradient(90deg,#3b2022,#251a20);
+    box-shadow:inset 0 1px 0 #e29b8340;
+  }
+  /* Existing fixed touch controls remain fixed and accessible. */
+  .frame.is-expedition #field-controls{
+    border:1px solid #b18b58;border-bottom:0;
+    border-radius:9px 9px 0 0;
+    background:linear-gradient(160deg,#29333d,#111b25 70%);
+    box-shadow:inset 0 2px 0 #d8b57d36,0 -5px 20px #000c;
+  }
+  .frame.is-expedition .field-controls .dpad button{
+    border-color:#82715b;border-radius:6px;
+    background:linear-gradient(#394550,#222c36);
+    box-shadow:inset 0 1px 0 #f7deaf33,0 2px 3px #0008;
+    color:#f2dfba;
+  }
+  .frame.is-expedition .field-controls .dpad .wait{
+    border-color:#cda462;background:linear-gradient(#59432b,#2b271f);
+    color:#f8e2b9;
+  }
+  .frame.is-expedition .field-quick-actions button{
+    border-color:#86735b;border-radius:6px;
+    background:linear-gradient(#3d444c,#212c35);
+    color:#f1ddba;
+    box-shadow:inset 0 1px 0 #f9d49d35;
+  }
+  .frame.is-expedition .ui092-sheet{
+    border-color:#a98a5e;background:linear-gradient(#25313a,#101922);
+  }
+  .frame.is-expedition #ui092-sheet-close{
+    border-color:#ae8958;background:#44352c;
+  }
+}
+@media(max-width:350px){
+  .frame.is-expedition #expedition>.section-head{
+    grid-template-columns:66px minmax(0,1fr) 62px;gap:3px;padding:4px;
+  }
+  .frame.is-expedition .ui097-brand{font-size:16px}
+  .frame.is-expedition #expedition>.section-head h2{font-size:11px}
+  .frame.is-expedition #expedition .run-bar>span{font-size:7px;gap:2px}
+  .frame.is-expedition #expedition .run-bar>span strong{font-size:9px}
+}
+@media(max-width:730px) and (max-height:760px){
+  .frame.is-expedition #expedition>.section-head{
+    min-height:38px;padding-block:3px;
+  }
+  .frame.is-expedition .survival-hud{
+    padding:3px 7px 5px;margin-bottom:4px;
+  }
+  .frame.is-expedition .expedition-shortcuts{
+    padding:2px;margin-bottom:3px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .frame.is-expedition .expedition-shortcuts button,
+  .frame.is-expedition .field-controls button{animation:none;transition:none}
+}

@@ -84,10 +84,19 @@ inspectées ; sans avertissement, la carte mesure 220 / 335,4 / 284 CSS px,
 respectivement, et ne touche pas le dock (écart minimal 26px). Seuls les
 tests automatisés sont certifiés. [Contrat et recette](docs/UI097A1_COCKPIT_FIDELITY.md).
 
-**Prochain lot UI-097A2 (non engagé) :** hiérarchie entre carte, raccourcis
-et panneaux contextuels sur Android court, sans supprimer les six accès ni
-descendre sous 44 CSS px ; ensuite ART-097B (Sprite C et ennemis) et
-ART-097C (lumière/ambiance). Le GO artistique sur téléphone physique reste ouvert.
+**UI-097A2 — PR à valider (carte prioritaire) :** sur Android,
+les **vrais** six raccourcis et le bandeau d'alerte ennemie imminente
+passent **sous la carte** graphique/ASCII et au-dessus des commandes fixes.
+Les nœuds DOM et listeners sont conservés, et leur emplacement d'origine
+est restauré sur desktop. Module `docs/ui097a2.js` et CSS original
+`docs/ui097a2.css` ; pas de gameplay nouveau, pas de fuite du brouillard,
+pas de changement de sauvegardes ou de contrôles. Tests Playwright sur
+320×640, 360×780, 393×704 et menace visible annoncée, Android 13 et APK
+**requis avant fusion**. [Contrat UI-097A2](docs/UI097A2_MAP_FIRST_NAVIGATION.md).
+Recette physique et 5×2 descentes toujours ouvertes.
+
+**Suite :** ART-097B silhouettes Sprite C et ennemis ; ART-097C
+éclairages/ambiance à coût Android modéré. WIP=1, pas de moteur nouveau.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

@@ -56,7 +56,8 @@ test("UI-097A1: all presentation assets are offline, saves and fog logic untouch
     "tiles.js","terrain-art.js","interaction-art.js"]){
     assert.ok(sw.includes('"./'+path+'"'),"Precache required: "+path);
   }
-  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-ui097a1-nhal-cockpit"/);
+  // Future UI/ART lots rotate the version without dropping the original assets.
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   const tiles=read("../docs/tiles.js");
   assert.match(tiles,/if\(!visible&&!remembered\)[\s\S]*?continue;/);
   const state=beginRun(newGame(),[]).state;

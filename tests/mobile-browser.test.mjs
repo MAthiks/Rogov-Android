@@ -1868,7 +1868,10 @@ test("UI-092A mobile: immersive screen gives map, HUD, navigation and fixed move
       "The visible 11×11 graphic map must not be covered by controls");
     assert.ok(metrics.map.height>=245&&metrics.heroSize>=18,
       "The game map remains useful at actual Android portrait scale");
-    assert.ok(metrics.nav.top>=0&&metrics.nav.bottom<metrics.map.top);
+    assert.ok(metrics.nav.top>=metrics.map.bottom,
+      "UI-097A2 moves the original six actions beneath the live dungeon map");
+    assert.ok(metrics.nav.bottom<=metrics.field.top+1,
+      "Map-footer shortcuts must not be covered by the fixed movement dock");
     assert.ok(metrics.hud.top>=0&&metrics.hud.bottom<=metrics.map.top);
     assert.ok(metrics.scrollWidth<=metrics.width+1,"No horizontal overflow");
     for(const id of ["wait-btn","use-bandage","use-tonic"]){
@@ -2074,8 +2077,8 @@ test("QA-092 mobile: 320/360/393px cockpit, no covered controls, options and con
         "Movement dock should align with bottom at "+width);
       assert.ok(geometry.mapBottom<=geometry.dockTop+1,
         "No player tile is blocked by touch controls at "+width+": "+JSON.stringify(geometry));
-      assert.ok(geometry.navTop>=0&&geometry.navBottom<=geometry.mapTop,
-        "Navigation remains before the map at "+width);
+      assert.ok(geometry.navTop>=geometry.mapBottom&&geometry.navBottom<=geometry.dockTop+1,
+        "Map footer remains below the map and above the dock at "+width+": "+JSON.stringify(geometry));
       assert.ok(geometry.scrollWidth<=geometry.width+1,"No horizontal overflow at "+width);
       await page.locator("#jump-menu").tap();
       assert.equal(await page.locator("#ui092-sheet-body #options-panel").count(),1,
@@ -3342,4 +3345,98 @@ test("UI-097A1 mobile: branded cockpit keeps real HUD, map and touch controls us
       assert.deepEqual(errors,[]);
     }finally{await context.close();}
   }
+});
+
+
+test("UI-097A2 mobile: six real shortcuts follow the map and stay above the fixed dock", {timeout:125000}, async()=>{
+  for(const viewport of [{width:320,height:640},{width:360,height:780},{width:393,height:704}]){
+    const context=await browser.newContext({
+      viewport,deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:"block",
+      reducedMotion:"reduce"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",e=>errors.push(e.message));
+      await preloadDeepRun(page);
+      const geom=await page.evaluate(()=>{
+        const box=id=>document.getElementById(id).getBoundingClientRect().toJSON();
+        return {
+          map:box("tile-map"),nav:box("expedition-shortcuts"),dock:box("field-controls"),
+          warningHidden:document.getElementById("ui096-threat-banner").hidden,
+          children:[...document.querySelector(".dungeon-wrap").children].map(el=>el.id),
+          navParent:document.getElementById("expedition-shortcuts").parentElement?.className,
+          navPosition:getComputedStyle(document.getElementById("expedition-shortcuts")).position,
+          scrollWidth:document.documentElement.scrollWidth,
+          width:document.documentElement.clientWidth,
+          buttons:[...document.querySelectorAll("#expedition-shortcuts button")]
+            .map(el=>({id:el.id,height:el.getBoundingClientRect().height}))
+        };
+      });
+      assert.equal(geom.warningHidden,true);
+      assert.match(geom.navParent,/dungeon-wrap/);
+      assert.equal(geom.navPosition,"relative");
+      assert.ok(geom.children.indexOf("dungeon-map")<geom.children.indexOf("ui096-threat-banner"));
+      assert.ok(geom.children.indexOf("ui096-threat-banner")<geom.children.indexOf("expedition-shortcuts"));
+      assert.ok(geom.nav.top>=geom.map.bottom-1,
+        "UI-097A2 navigation must follow the map: "+JSON.stringify(geom));
+      assert.ok(geom.nav.bottom<=geom.dock.top+1,
+        "All six shortcuts must remain visible above the fixed controls: "+JSON.stringify(geom));
+      assert.equal(geom.buttons.length,6);
+      assert.ok(geom.buttons.every(b=>b.height>=44));
+      assert.ok(geom.scrollWidth<=geom.width+1);
+      const initial=(await page.locator("#turns").textContent()).trim();
+      await page.locator("#jump-bag").tap();
+      assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
+      await page.locator("#ui092-sheet-close").tap();
+      await page.locator("#renderer-toggle").tap();
+      assert.equal(await page.locator("#dungeon-map").isVisible(),true);
+      await page.locator("#jump-map").tap();
+      assert.equal((await page.locator("#turns").textContent()).trim(),initial);
+      assert.deepEqual(errors,[]);
+    }finally{await context.close();}
+  }
+});
+
+test("UI-097A2 browser: urgent visible-only warning stays between map and shortcuts", {timeout:75000}, async()=>{
+  const context=await browser.newContext({
+    viewport:{width:393,height:704},deviceScaleFactor:3,
+    isMobile:true,hasTouch:true,serviceWorkers:"block"
+  });
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js"),fog=await import("./exploration-visibility.js");
+      const hero=game.newGame();hero.meta.descents=1;
+      const state=game.beginRun(hero).state,run=state.run;
+      const guardian=run.enemies.find(e=>e.kind==="guardian");
+      if(!guardian)throw Error("Missing guardian");
+      const adjacent=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:guardian.x+dx,y:guardian.y+dy}))
+        .find(p=>run.map[p.y]?.[p.x]==="." &&
+          !run.enemies.some(e=>e.x===p.x&&e.y===p.y));
+      if(!adjacent)throw Error("No adjacent floor");
+      run.x=adjacent.x;run.y=adjacent.y;guardian.tactic="winding";
+      run.enemies=[guardian];fog.revealAround(run);
+      if(!game.validateSave(state))throw Error("Invalid visual fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#ui096-threat-banner").isVisible(),true);
+    const geom=await page.evaluate(()=>{
+      const box=id=>document.getElementById(id).getBoundingClientRect().toJSON();
+      return {map:box("tile-map"),warning:box("ui096-threat-banner"),
+        nav:box("expedition-shortcuts"),dock:box("field-controls"),
+        urgent:document.getElementById("ui096-threat-banner").dataset.urgent,
+        turns:document.getElementById("turns").textContent};
+    });
+    assert.equal(geom.urgent,"true");
+    assert.ok(geom.map.bottom<=geom.warning.top+1);
+    assert.ok(geom.warning.bottom<=geom.nav.top+1);
+    assert.ok(geom.nav.bottom<=geom.dock.top+1,
+      "Imminent attack alert and six shortcuts should fit above fixed dock: "+JSON.stringify(geom));
+    assert.equal(geom.turns,"0");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
 });

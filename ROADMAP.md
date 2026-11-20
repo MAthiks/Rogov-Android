@@ -96,8 +96,20 @@ et APK réussis en automatisation. Carte entière et six boutons ≥44px
 au-dessus du pavé fixe confirmés sur captures Chromium. [Contrat UI-097A2](docs/UI097A2_MAP_FIRST_NAVIGATION.md).
 Recette physique et 5×2 descentes toujours ouvertes.
 
-**Suite :** ART-097B silhouettes Sprite C et ennemis ; ART-097C
-éclairages/ambiance à coût Android modéré. WIP=1, pas de moteur nouveau.
+**ART-097B1 — Polissage des 7 personnages (PR en préparation) :**
+Sprite C encapuchonné 4 directions : bottes, manteau, attache et harnais
+plus lisibles à 24×24 ; Charognard : plumes abîmées ; Gardien déchu :
+armure fissurée et masse conservée ; Larve : facettes segmentées.
+`docs/hero-art.js` et `docs/enemy-art.js` uniquement pour les assets,
+tests Node/Chromium de la galerie 24px/60px, cache PWA versionné.
+Pas de modification du moteur, des 3 familles d'ennemis, des tours,
+du FOV, des sauvegardes, d'ASCII ou du gameplay. [Contrat](docs/ART097B1_CHARACTER_FIDELITY.md).
+**CI Node/Chromium, Chrome Android 13 et APK + inspection de galerie obligatoires
+avant fusion.** Tests esthétiques physiques et 5×2 joueurs ouverts.
+
+**Suite WIP=1 :** décider ART-097B2 (animations optionnelles)
+puis ART-097C (éclairages légers) après contrôle des performances Android.
+Pas de moteur nouveau ni portage PC actif.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

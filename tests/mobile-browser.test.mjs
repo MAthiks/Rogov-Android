@@ -3462,7 +3462,7 @@ test("ART-097B1 browser: decode seven character sprites and capture native/neare
       ];
       const root=document.createElement("section");
       root.id="art097b1-qa-sheet";
-      root.style.cssText="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px;background:#111d26;color:#e7d4b0;font:12px monospace;width:352px;box-sizing:border-box;";
+      root.style.cssText="position:fixed;z-index:99999;top:8px;left:4px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px;background:#111d26;color:#e7d4b0;font:12px monospace;width:352px;box-sizing:border-box;";
       for(const [label,src] of roster){
         const cell=document.createElement("div");
         cell.style.cssText="display:flex;align-items:center;flex-direction:column;gap:4px;padding:4px;background:#25313d;";

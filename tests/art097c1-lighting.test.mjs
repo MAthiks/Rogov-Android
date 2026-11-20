@@ -66,7 +66,7 @@ test("ART-097C1: real torch SVG is original 24px, not an interactive object",()=
   assert.match(source,/if\(!visible&&!remembered\)[\s\S]*?continue;/);
   assert.match(source,/const ambience=visible\?localLightAt\(map,x,y,visibleAt,artSeed\):null/);
   assert.match(source,/if\(visible&&ambience==="sconce"\)/);
-  assert.match(source,/torch\.setAttribute\("aria-hidden","true"\)/);
+  assert.match(source,/torch\.alt=""/);
   assert.match(source,/const enemy=visible\?enemyAt\(run,x,y\):null/);
   assert.doesNotMatch(source,/spriteId="torch"|spriteId="sconce"/);
 });

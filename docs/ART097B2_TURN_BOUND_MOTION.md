@@ -1,6 +1,6 @@
 # ART-097B2 — Micro-animations liées aux vrais tours
 
-**Date :** 20 novembre 2026. **État :** PR de développement, non fusionnée avant CI.
+**Date :** 20 novembre 2026. **État : fusionné dans `main`**, PR #53, commit `abdf705d595d4d99a5acbdd7d6de979e2ad28d74`. Recette physique toujours ouverte.
 **Base :** ART-097B1 / PR #52, fusion `58e981a`, publication `761a335`.
 **Référence :** maquette UI/ART-097 et [Sprite C](ART_DIRECTION_SPRITE_C_V1.md).
 
@@ -70,3 +70,12 @@ l'ASCII et `SAVE_KEY=rogov-web-v1` / `SCHEMA_VERSION=1` demeurent inchangés.
 Prochaine passe possible : ART-097C (éclairage statique lié à visibilité
 réelle) ou animation de frames supplémentaire seulement si la performance
 et l'ergonomie ont été validées humainement.
+
+
+## Bilan CI
+
+**PR #53, abdf705** : 381/381 tests Node, 58/58 Chromium, Chrome Android 13 en émulateur, compilation et lancement APK sur émulateur réussis. Le test navigateur vérifie un vrai déplacement, l'absence de rejouement après menu gratuit ou rechargement, les trois ennemis visibles au maximum et la préférence de réduction des animations.
+
+Captures Chromium examinées (run 44698633438) : carte 11×11 de largeurs 220 / 335,4 / 284 CSS px en 320×640 / 360×780 / 393×704. Six raccourcis de hauteur minimale 44 CSS px, aucune superposition du dock et pas de défilement horizontal.
+
+**Limite :** les captures statiques ne démontrent pas la fluidité temporelle. Tests physiques sur Android et cinq participants × deux descentes non réalisés par l'assistant. Vérifier séparément la publication de main.

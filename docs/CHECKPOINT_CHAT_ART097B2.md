@@ -1,10 +1,10 @@
 # CHECKPOINT — ROGOV ART-097B2 (20 novembre 2026)
 
 **Repo :** `MAthiks/Rogov-Android`.
-**Dernier lot fusionné :** ART-097B1, PR #52, `58e981a` ;
-publication Web/APK `main 761a335` validée.
-**Travail en cours :** `feature/art097b2-turn-bound-motion`, PR non
-fusionnée tant que les workflows et l'inspection visuelle ne sont pas verts.
+**Dernier lot fusionné : ART-097B2 / PR #53**, commit
+`abdf705d595d4d99a5acbdd7d6de979e2ad28d74`.
+**Précédent :** ART-097B1 / PR #52, `58e981a`.
+**Branche fusionnée :** `feature/art097b2-turn-bound-motion`.
 
 ## Changement
 
@@ -31,3 +31,10 @@ Après CI et inspection Chromium : fusion seulement si vert.
 Ensuite considérer ART-097C éclairage statique, puis QA physique et
 5 testeurs × deux descentes avant score final.
 Référence : [ART-097B2](ART097B2_TURN_BOUND_MOTION.md), [ROADMAP](../ROADMAP.md).
+
+
+## Résultat
+
+Animation activée sur vrai tour selon les tests navigateur, non rejouée après un menu gratuit, une reprise ou un rendu ASCII. Préférence de réduction de mouvement respectée ; trois ennemis visibles maximum animés, aucune case cachée.
+
+**Restent à contrôler :** publication de main, fluidité sur téléphone physique, protocole 5×2. Prochaine priorité : ART-097C, ambiance sans fuite du brouillard.

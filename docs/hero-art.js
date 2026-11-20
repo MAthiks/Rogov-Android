@@ -14,7 +14,10 @@ const boots=
   '<rect x="6" y="20" width="5" height="3" fill="'+P.boot+'"/>'+
   '<rect x="14" y="20" width="5" height="3" fill="'+P.boot+'"/>'+
   '<rect x="7" y="20" width="3" height="1" fill="'+P.leatherDark+'"/>'+
-  '<rect x="15" y="20" width="3" height="1" fill="'+P.leatherDark+'"/>';
+  '<rect x="15" y="20" width="3" height="1" fill="'+P.leatherDark+'"/>'+
+  // Single-pixel wear shared with all four views; no floor halo or background.
+  '<path data-detail="boot-worn-soles" d="M6 22h5M14 22h5" stroke="#748080" stroke-width="1" opacity=".75"/>'+
+  '<path d="M7 20h2M15 20h2" stroke="#b5a08a" stroke-width="1"/>';
 const down=svg(
   '<path d="M6 9h12l3 12-3 2H6l-3-2Z" fill="'+P.outline+'"/>'+
   '<path d="M7 10h10l3 11-3 1H7l-3-1Z" fill="'+P.cape+'"/>'+
@@ -25,6 +28,9 @@ const down=svg(
   '<path d="M8 13l9 7" stroke="'+P.leather+'" stroke-width="2"/>'+
   '<rect x="16" y="17" width="3" height="4" fill="'+P.leatherDark+'"/>'+
   '<path d="M7 12h10l-1 3H8Z" fill="'+P.scarf+'"/>'+
+  '<path data-detail="front-cloak-seams" d="M8 16l-2 4M15 16l3 5M10 17h4" stroke="#a18d89" stroke-width="1" fill="none"/>'+
+  '<rect data-detail="front-brass-clasp" x="12" y="15" width="2" height="2" fill="#c6ad80"/>'+
+  '<path d="M12 16h2" stroke="#33303a" stroke-width="1"/>'+
   '<g data-feature="hood">'+
   '<path d="M6 12V7l3-5h6l3 5v5l-3 2H9Z" fill="'+P.outline+'"/>'+
   '<path d="M7 11V7l3-4h4l3 4v4l-3 2H10Z" fill="'+P.hood+'"/>'+
@@ -42,6 +48,8 @@ const up=svg(
   '<path d="M7 10h10l3 11-3 1H7l-3-1Z" fill="'+P.capeShadow+'"/>'+
   '<path d="M8 13h8l3 7-4 2H9l-4-2Z" fill="'+P.cape+'"/>'+
   '<path d="M10 14v8M14 14v8" stroke="'+P.capeEdge+'" stroke-width="1"/>'+
+  '<path data-detail="rear-cape-stitching" d="M8 16l-2 4M16 16l2 4M11 19h2" stroke="#9b8984" stroke-width="1" fill="none"/>'+
+  '<path data-detail="rear-cross-harness" d="M8 15l8 6M16 15l-8 6" stroke="#705f56" stroke-width="1" fill="none"/>'+
   boots+
   '<rect x="3" y="15" width="4" height="5" fill="'+P.leatherDark+'"/>'+
   '<rect x="4" y="16" width="3" height="3" fill="'+P.leather+'"/>'+
@@ -60,6 +68,7 @@ const leftBody=
   '<path d="M7 9h10l3 12-3 2H6l-3-2Z" fill="'+P.outline+'"/>'+
   '<path d="M8 10h9l2 11-3 1H7l-3-1Z" fill="'+P.cape+'"/>'+
   '<path d="M8 14l-3 7 4 1 2-6M16 12l3 9-4 1-2-5" fill="'+P.capeShadow+'"/>'+
+  '<path data-detail="profile-cloak-hem" d="M4 20l4 1M15 20l3 1M9 15l-2 5" stroke="#a38b86" stroke-width="1" fill="none"/>'+
   boots+
   '<rect x="17" y="14" width="4" height="7" fill="'+P.leatherDark+'"/>'+
   '<rect x="18" y="15" width="2" height="5" fill="'+P.leather+'"/>'+
@@ -73,6 +82,7 @@ const leftBody=
   '<rect x="5" y="10" width="2" height="2" fill="'+P.ivory+'"/>'+
   '<rect x="7" y="10" width="1" height="1" fill="'+P.outline+'"/>'+
   '<path d="M8 5h4M16 7v4" stroke="'+P.hoodRim+'" stroke-width="1"/>'+
+  '<path data-detail="profile-hood-overhang" d="M6 8h4M5 9h2" stroke="#b3a0a0" stroke-width="1" fill="none"/>'+
   '</g>'+
   '<rect x="18" y="17" width="1" height="1" fill="'+P.metal+'"/>';
 const left=svg(leftBody);

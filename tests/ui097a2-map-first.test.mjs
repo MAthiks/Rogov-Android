@@ -44,7 +44,8 @@ test("UI-097A2: preserves desktop restoration, six live handlers and offline cac
     "terrain-art.js","interaction-art.js"]){
     assert.ok(sw.includes('"./'+file+'"'),"Offline PWA asset missing "+file);
   }
-  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-ui097a2-map-first"/);
+  // Later character/art releases rotate the cache without removing the map-first UI.
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   const state=beginRun(newGame(),[]).state,before=JSON.stringify(state);
   assert.equal(validateSave(state),true);
   assert.equal(JSON.stringify(state),before);

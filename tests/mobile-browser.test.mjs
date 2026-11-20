@@ -3440,3 +3440,61 @@ test("UI-097A2 browser: urgent visible-only warning stays between map and shortc
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("ART-097B1 browser: decode seven character sprites and capture native/nearest-neighbor QA sheet", {timeout:65000}, async()=>{
+  const {mkdir}=await import("node:fs/promises");
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const before=await page.evaluate(()=>({
+      save:localStorage.getItem("rogov-web-v1"),
+      turns:document.getElementById("turns").textContent
+    }));
+    const sources=await page.evaluate(async()=>{
+      const {HERO_SPRITES}=await import("./hero-art.js");
+      const {ENEMY_SPRITES}=await import("./enemy-art.js");
+      const roster=[
+        ...["down","up","left","right"].map(x=>["Sprite C "+x,HERO_SPRITES[x]]),
+        ...["charognard","guardian","rift_larva"].map(x=>[x,ENEMY_SPRITES[x]])
+      ];
+      const root=document.createElement("section");
+      root.id="art097b1-qa-sheet";
+      root.style.cssText="position:fixed;z-index:99999;top:8px;left:4px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px;background:#111d26;color:#e7d4b0;font:12px monospace;width:352px;box-sizing:border-box;";
+      for(const [label,src] of roster){
+        const cell=document.createElement("div");
+        cell.style.cssText="display:flex;align-items:center;flex-direction:column;gap:4px;padding:4px;background:#25313d;";
+        const title=document.createElement("span");title.textContent=label;
+        title.style.cssText="font-size:9px;white-space:nowrap;max-width:70px;overflow:hidden;text-overflow:ellipsis;";
+        const big=document.createElement("img");big.src=src;big.alt=label;
+        big.style.cssText="display:block;width:60px;height:60px;image-rendering:pixelated;";
+        const native=document.createElement("img");native.src=src;native.alt="";
+        native.style.cssText="display:block;width:24px;height:24px;image-rendering:pixelated;";
+        cell.append(title,big,native);root.append(cell);
+      }
+      document.body.append(root);
+      await Promise.all([...root.querySelectorAll("img")].map(img=>img.decode()));
+      const dimensions=[...root.querySelectorAll("img")].map(img=>({
+        natural:[img.naturalWidth,img.naturalHeight],
+        rendered:[img.getBoundingClientRect().width,img.getBoundingClientRect().height],
+        dataUri:img.src.startsWith("data:image/svg+xml;charset=UTF-8,")
+      }));
+      return {dimensions,labels:roster.map(x=>x[0])};
+    });
+    assert.equal(sources.labels.length,7);
+    assert.equal(sources.dimensions.length,14);
+    assert.ok(sources.dimensions.every(x=>x.natural[0]===24&&x.natural[1]===24&&x.dataUri));
+    assert.equal(sources.dimensions.filter(x=>x.rendered[0]===24).length,7);
+    await mkdir("qa096-screenshots",{recursive:true});
+    await page.locator("#art097b1-qa-sheet").screenshot({
+      path:"qa096-screenshots/art097b1-seven-character-views.png",animations:"disabled"});
+    const after=await page.evaluate(()=>({
+      save:localStorage.getItem("rogov-web-v1"),
+      turns:document.getElementById("turns").textContent
+    }));
+    assert.deepEqual(after,before,"Visual inspection must never spend turns or write saves");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

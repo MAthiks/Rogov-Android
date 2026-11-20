@@ -11,6 +11,7 @@ import { narrativeObjective, NAR093_LORE } from "./narrative.js";
 import { echoDossier } from "./echo-investigation.js";
 import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
 import {heroFacingFromStep} from "./hero-art.js";
+import {characterMotionForTurn} from "./character-motion.js";
 import { nearbySecretHint } from "./secrets.js";
 import {nearbyTrapHint,trapHintText} from "./traps.js";
 import {ROOM_SITES,nearbyRoomSite} from "./room-events.js";
@@ -41,6 +42,7 @@ const EVENT_LABELS = Object.freeze({
 const VIEW_KEY = "rogov-renderer-v1";
 let renderMode = "tiles";
 let heroFacing = "down"; // Render-only: preserve SCHEMA_VERSION and all old saves.
+let pendingCharacterMotion = null; // Ephemeral; never serialized or used in logic.
 try { renderMode = localStorage.getItem(VIEW_KEY) === "ascii" ? "ascii" : "tiles"; }
 catch { /* Default to graphic display without storage. */ }
 
@@ -777,7 +779,9 @@ function render() {
     $("renderer-toggle").setAttribute("aria-pressed", renderMode === "tiles" ? "true" : "false");
     $("graphic-legend").hidden = renderMode !== "tiles";
     $("ascii-legend").hidden = renderMode !== "ascii";
-    if (renderMode === "tiles") drawTileMap(state, $("tile-map"), heroFacing);
+    if (renderMode === "tiles") drawTileMap(state, $("tile-map"), heroFacing, pendingCharacterMotion);
+    // A browser/UI-only redraw must never replay the previous turn animation.
+    pendingCharacterMotion = null;
     updateDoorAction();
     updateChestAction();
     updateInteractionDock();
@@ -831,6 +835,7 @@ function act(result) {
   state = result.state;
   if(previousRun?.floorDepth!==state.run?.floorDepth)ui092.close();
   heroFacing=heroFacingFromStep(previousRun,state.run,heroFacing);
+  pendingCharacterMotion=characterMotionForTurn(previousRun,state.run);
   // If an enemy dies during the v0.6 collision combat, never leave a stale target.
   if (state.run?.targetId && !state.run.enemies?.some(e=>e.id===state.run.targetId && e.hp>0 &&
       explorationState(state.run,e.x,e.y)==="visible")) {

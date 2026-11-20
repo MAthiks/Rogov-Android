@@ -1,0 +1,69 @@
+/* UI/ART-100 — Mobile final pass: stills only, no gameplay overlay. */
+.pixel-tile[data-knowledge="visible"].ui100-corridor-ns:not(:has(> img))::before,
+.pixel-tile[data-knowledge="visible"].ui100-corridor-ew:not(:has(> img))::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.42;
+}
+.pixel-tile[data-knowledge="visible"].ui100-corridor-ns:not(:has(> img))::before{
+  background:linear-gradient(90deg,transparent 23%,#070f1b88 25%,transparent 30%,transparent 70%,#070f1b88 75%,transparent 77%);
+}
+.pixel-tile[data-knowledge="visible"].ui100-corridor-ew:not(:has(> img))::before{
+  background:linear-gradient(180deg,transparent 23%,#070f1b88 25%,transparent 30%,transparent 70%,#070f1b88 75%,transparent 77%);
+}
+/* Retire the old colored squares; the existing visible threat glyphs stay. */
+.pixel-map .pixel-tile.hostile-tile::before,
+.pixel-map .pixel-tile.hostile-tile.enemy-charge::before,
+.pixel-map .pixel-tile.hostile-tile.intent-imminent::before,
+.pixel-map .pixel-tile.hostile-tile.intent-preparing::before,
+.pixel-map .pixel-tile.hostile-tile.intent-guarding::before{
+  content:none!important;border:0!important;box-shadow:none!important;
+}
+/* Selection is a short ivory tick, not a colored border. */
+.pixel-map .pixel-tile.hostile-tile.selected-target-tile::before{
+  content:""!important;display:block;position:absolute;
+  width:10px;height:2px;top:0;left:calc(50% - 5px);
+  border:0!important;background:#ead2a1;
+  box-shadow:0 1px 0 #0b151f!important;pointer-events:none;
+}
+.pixel-map .pixel-tile.tile-hero>img,
+.pixel-map .pixel-tile.hostile-tile>img{
+  position:relative;z-index:1;image-rendering:pixelated;
+  filter:drop-shadow(0 1px 0 #091116);
+}
+.pixel-map .pixel-tile.hostile-tile .tile-intent-marker{z-index:4}
+@media(max-width:730px){
+  .frame.is-expedition #expedition>.section-head{border-color:#827052;background-color:#111923}
+  .frame.is-expedition #expedition .run-bar{margin-bottom:3px;border-color:#665d4e}
+  .frame.is-expedition #expedition .survival-hud{margin-bottom:4px;border-color:#76674f}
+  .frame.is-expedition #expedition .dungeon-wrap{background:#080e16;border-color:#957d58}
+  .frame.is-expedition .pixel-map{
+    border-color:#8c7c62;
+    box-shadow:0 0 0 2px #0a121a,0 0 0 3px #b596634d,0 8px 14px #000c;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts{
+    border-color:#817153;background:#0d1721;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button{
+    min-height:46px;border-color:#756952;border-radius:4px;
+    background:linear-gradient(#2c3540,#18222c);color:#eee0c8;
+  }
+  .frame.is-expedition #jump-menu{min-height:44px;border-color:#98815d;color:#efe4d2}
+  .frame.is-expedition #expedition .ui092-sheet-head,
+  .frame.is-expedition #expedition .ui092-sheet-body{color:#e7ddcb}
+  .frame.is-expedition #expedition .ui092-sheet-body{line-height:1.45}
+  .frame.is-expedition #field-controls{
+    background:linear-gradient(#2b3640,#131d27 75%);border-color:#a28a62;
+  }
+  .frame.is-expedition .field-controls .dpad button{
+    min-height:44px;border-color:#8e7a5b;
+    background:linear-gradient(#384652,#222d37);
+  }
+  .frame.is-expedition .ui099-feedback{
+    border-color:#54605a;background:#15222b;color:#cfdbcf;
+  }
+}
+@media(max-width:350px){
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+  .pixel-map .pixel-tile>img{transition:none!important;animation:none!important}
+}

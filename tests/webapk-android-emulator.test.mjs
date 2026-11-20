@@ -27,6 +27,10 @@ async function connect(){
       const outstanding=new Map();
       socket.addEventListener("message",event=>{
         const response=JSON.parse(event.data);
+        if(response.method==="Runtime.exceptionThrown"){
+          console.error("APK098A WEBVIEW JS EXCEPTION:",
+            JSON.stringify(response.params?.exceptionDetails).slice(0,650));
+        }
         if(!response.id)return;
         const job=outstanding.get(response.id);
         if(!job)return;
@@ -89,7 +93,25 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     assert.equal(shell.bypass,true);
     await dev.evaluate('document.querySelector("#title-continue").click();true');
     await until(dev,'!document.querySelector("#refuge").hidden',isTrue);
+    const beforeStart=await dev.evaluate(`({
+      disabled:document.querySelector("#start-btn").disabled,
+      visibility:document.querySelector("#start-btn").getBoundingClientRect().height,
+      refugeHidden:document.querySelector("#refuge").hidden,
+      savePresent:!!localStorage.getItem("rogov-web-v1")
+    })`);
+    console.log("APK098A BEFORE START:",JSON.stringify(beforeStart));
     await dev.evaluate('document.querySelector("#start-btn").click();true');
+    await pause(500);
+    const afterStart=await dev.evaluate(`({
+      refugeHidden:document.querySelector("#refuge").hidden,
+      expeditionHidden:document.querySelector("#expedition").hidden,
+      tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
+      warning:document.querySelector("#warning")?.textContent,
+      errorBanner:document.querySelector("#warning")?.hidden,
+      save:localStorage.getItem("rogov-web-v1")?.slice(0,180),
+      lastAction:document.querySelector("#last-action")?.textContent?.slice(0,240)
+    })`);
+    console.log("APK098A AFTER START:",JSON.stringify(afterStart));
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
     const scene=await dev.evaluate(`({
       tiles:document.querySelectorAll("#tile-map .pixel-tile").length,

@@ -2,8 +2,9 @@
 
 **Repo :** `MAthiks/Rogov-Android`.
 **Base :** main `44a4a9f7ebddf551d459d465218e577b55561013`.
-**Dernier merge vérifié :** UI-097A1 / PR #50, `5951506` ;
-373/373 Node, 54/54 Chromium, Chrome Android 13 et APK réussis.
+**Dernier merge vérifié :** UI-097A2 / PR #51, `38323e4`,
+375/375 Node et 56/56 Chromium, Chrome Android 13 et APK réussis.
+**Lot précédent :** UI-097A1 / PR #50, `5951506`.
 
 ## Lot fusionné — UI-097A2, navigation sous la carte
 
@@ -21,8 +22,8 @@ fog/secret, save `rogov-web-v1` schéma 1, PWA offline et APK inchangés.
 
 ## Gates
 
-`test-web`, `android-web`, `build` verts avant fusion et inspection
-des captures 320×640, 360×780, 393×704. Ne pas revendiquer de test
+`test-web`, `android-web`, `build` validés avant fusion ; captures
+Chromium 320×640, 360×780 et 393×704 examinées. Ne pas revendiquer de test
 physique Android sans retour. DA 6/10 et alpha 7,5/10 provisoires,
 5 participants × 2 descentes non réalisés. Puis ART-097B personnages
 et ART-097C éclairages selon priorité.

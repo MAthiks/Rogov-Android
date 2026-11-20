@@ -156,9 +156,22 @@ de tour/sauvegarde. Médiane Chromium CI 0,9 / 0,8 / 0,8 ms,
 Android ni campagne 5 testeurs × 2 descentes n'est constaté.**
 Ne pas rehausser DA 6/10 ou Alpha 7,5/10 sur la seule base de la CI.
 
-**Suite WIP=1 :** récolter captures, rapports et gestes sur téléphone
-réel ; corriger les défauts P0/P1 reproduits, avant de reprendre
-ART-097C2. Godot et portage PC toujours reportés.
+**APK-098A — Correctif de distribution en cours, PR à valider :**
+audit du workflow `android-debug.yml` : son APK reste un ancien prototype
+**Kotlin/ASCII v0.1.3-compat**, malgré l'interface Web/PWA moderne
+UI/ART-097. La CI Android Chrome 13 vérifie la **PWA**, pas l'ancien
+APK. Nouveau module `:webapp` indépendant, package
+`com.rogov.webapk`, WebView HTTPS locale et fichiers `docs/` réellement
+empaquetés, sans changer le moteur ni les sauvegardes Web. Nouveau
+workflow Android 13 avec tests CDP de 121 tuiles, Sprite C, panneaux,
+ASCII, sauvegarde reprise et absence de réseau. Ancien APK et données
+Kotlin non écrasés ; **sauvegardes Chrome et WebView isolées,
+migration non fournie**. [Contrat APK-098A](docs/APK098A_CURRENT_PWA_ANDROID.md).
+**Ne pas déclarer le nouvel APK livré avant CI et inspection de capture.**
+
+**Suite WIP=1 :** fiabiliser le nouvel APK, puis tester réellement
+graphismes, FPS ressentis, commandes et sauvegardes sur téléphone ;
+corriger les P0/P1 reproduits avant ART-097C2. Godot/PC reportés.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

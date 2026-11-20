@@ -1078,7 +1078,11 @@ $("update-btn").addEventListener("click", () => {
   if (registration?.waiting) registration.waiting.postMessage({ type:"SKIP_WAITING" });
   else window.location.reload();
 });
-if ("serviceWorker" in navigator) {
+// The QA Android APK bundles the *same* assets locally. Its virtual HTTPS
+// origin has no external server or PWA update channel; avoid registering a
+// ServiceWorker that could obscure native asset-loader responses on reload.
+if (location.hostname !== "appassets.androidplatform.net" &&
+    "serviceWorker" in navigator) {
   // First installation must not reload the active expedition unexpectedly.
   // A later controller replacement still reloads when the user accepts an update.
   let currentController = navigator.serviceWorker.controller;

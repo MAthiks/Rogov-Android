@@ -138,6 +138,9 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     await dev.evaluate('document.querySelector("#renderer-toggle").click();true');
     await until(dev,'!document.querySelector("#dungeon-map").hidden',isTrue);
     await dev.evaluate('document.querySelector("#renderer-toggle").click();true');
+    // Let WebView's disk-backed DOM Storage finish persisting before a
+    // simulated OS process death. This does not modify gameplay state.
+    await pause(3000);
     dev.close();
 
     // Kill/restart the native application; Web localStorage must persist.
@@ -150,7 +153,23 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     adb("forward","tcp:9223","localabstract:webview_devtools_remote_"+pid);
     dev=await connect();
     await until(dev,'Boolean(document.querySelector("#title-screen") && !document.querySelector("#title-screen").hidden)',isTrue);
+    const beforeResume=await dev.evaluate(`({
+      savePresent:!!localStorage.getItem("rogov-web-v1"),
+      run:JSON.parse(localStorage.getItem("rogov-web-v1")||"null")?.run?.turns,
+      title:document.querySelector("#title-continue")?.textContent,
+      warning:document.querySelector("#warning")?.textContent,
+      saveInfo:document.querySelector("#title-save-info")?.textContent
+    })`);
+    console.log("APK098A AFTER PROCESS RESTART:",JSON.stringify(beforeResume));
     await dev.evaluate('document.querySelector("#title-continue").click();true');
+    await pause(500);
+    const afterResume=await dev.evaluate(`({
+      tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
+      expeditionHidden:document.querySelector("#expedition").hidden,
+      refugeHidden:document.querySelector("#refuge").hidden,
+      run:JSON.parse(localStorage.getItem("rogov-web-v1")||"null")?.run?.turns
+    })`);
+    console.log("APK098A AFTER RESUME:",JSON.stringify(afterResume));
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
     const resumed=await dev.evaluate('JSON.parse(localStorage.getItem("rogov-web-v1"))');
     assert.equal(resumed.run.turns,scene.save.run.turns);

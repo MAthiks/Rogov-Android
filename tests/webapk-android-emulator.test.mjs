@@ -218,8 +218,9 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     adb("shell","svc","wifi","disable");
     adb("shell","svc","data","disable");
     await dev.call("Page.reload",{ignoreCache:true});
-    await until(dev,'document.querySelector("#title-continue")!==null',isTrue);
+    await until(dev,'document.querySelector("#title-save-info")?.textContent.includes("Descente en cours")',isTrue,25000);
     await dev.evaluate('document.querySelector("#title-continue").click();true');
+    await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
     const offline=await dev.evaluate(`({
       count:document.querySelectorAll("#tile-map .pixel-tile").length,

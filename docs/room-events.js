@@ -29,14 +29,18 @@ export const ROOM_SITES=Object.freeze({
   }),
   cache:Object.freeze({
     name:"Cache oubliée",symbol:"k",sprite:"site_cache",
-    description:"Une niche murée à la hâte protège deux objets. Tu ne peux en extraire qu'un avant que la pierre ne s'effrite.",
+    description:"Une niche murée à la hâte conserve plusieurs ressources. Tu ne peux en extraire qu'une avant que la pierre ne s'effrite.",
     options:Object.freeze({
       tonic:Object.freeze({label:"Emporter le tonique · 1 tour",
         item:"consumable.dusk_tonic",xp:1,endurance:0,
         text:"CACHE OUBLIÉE — Un tonique scellé rejoint ton sac."}),
       fragment:Object.freeze({label:"Prélever le fragment · 1 tour",
         item:"relic.ashen_fragment",xp:1,endurance:0,
-        text:"CACHE OUBLIÉE — Un éclat de cendre préservé est retiré de la niche."})
+        text:"CACHE OUBLIÉE — Un éclat de cendre préservé est retiré de la niche."}),
+      // Only new GAME-101B branches can recover this rarer piece of equipment.
+      buckler:Object.freeze({label:"Forcer le sceau · 1 tour, 3 END · équipement rare",
+        item:"shield.worn_buckler",xp:2,endurance:3,
+        text:"CACHE GARDÉE — Tu brises le scellement et saisis une rondache usée."})
     })
   })
 });
@@ -112,6 +116,7 @@ export function validRoomSites(run){
         !["untouched","resolved"].includes(s.status)||
         (s.status==="untouched"?s.choice!==null:
           !Object.hasOwn(ROOM_SITES[s.kind].options,s.choice))||
+        (s.choice==="buckler"&&run.branchPlanVersion!==1)||
         Object.keys(run.loot||{}).includes(key(s))||
         run.doors?.some(d=>key(d)===key(s))||
         run.traps?.some(t=>key(t)===key(s)||key(t.clue)===key(s))||

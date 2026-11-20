@@ -20,6 +20,14 @@
   color:#e1d2b7;font:600 11px/1.4 system-ui,sans-serif;
   overflow-wrap:anywhere;text-align:left;
 }
+/* GAME-101B: read-only fork hint, visible only while choosing entry doors. */
+.game101-branch-hint{
+  max-width:450px;margin:4px auto 2px;padding:5px 8px;
+  font:600 10px/1.4 system-ui,sans-serif;color:#d5c29c;
+  border-left:2px solid #938268;background:#1b2528;
+  overflow-wrap:anywhere;
+}
+.game101-branch-hint[hidden]{display:none!important}
 @media(prefers-reduced-motion:reduce){
   .field-controls .dpad .listen{transition:none;animation:none}
 }

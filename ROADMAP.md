@@ -1,6 +1,10 @@
 # Roadmap ROGOV — état du 20 novembre 2026
 
-## GAME-101A — Écoute tactique de Nhal (développement)
+## GAME-101B — Bifurcations à enjeux (PR en cours)
+
+**Après la fusion de GAME-101A (PR #61)** : les nouvelles descentes profondes offrent deux itinéraires identifiables dès le vestibule, une piste de ravitaillement à l'est (atelier) et une piste risquée au nord (cache gardée). Les traces sont locales, sans radar du brouillard. `branchPlanVersion=1` garantit que les anciennes descentes conservent leurs lieux et leurs récompenses ; le nouveau sceau coûte 1 tour/3 END et promet une rondache et 2 XP. Aucune voie de retour ou extraction obligatoire n'est fermée. [Contrat et recette GAME-101B](docs/GAME101B_BRANCH_CHOICES.md).
+
+## GAME-101A — Écoute tactique de Nhal (fusionné · PR #61)
 
 **Après UI/ART-100 fusionné (PR #60)** : première mécanique de progression d'explorateur depuis le polissage graphique. Une commande volontaire « ÉCOUTER » aide à choisir entre traverser une porte, éviter une galerie incertaine ou prendre le risque de poursuivre. Action : **1 tour / 2 END**, phase ennemie normale, propagation acoustique de portée 8 qui respecte murs et portes fermées, résultat cardinal et qualitatif seulement ; aucun nom ni position d'ennemi caché, aucune révélation gratuite du brouillard, aucun RNG ni changement de sauvegarde. Nouveau bouton dans une case libre du pavé tactile, raccourci L, texte accessible. [Contrat et recette GAME-101A](docs/GAME101A_ACOUSTIC_SCOUTING.md). **CI et recette physique Android à confirmer avant d'étendre à GAME-101B (choix de risque / intérêt des branches).**
 

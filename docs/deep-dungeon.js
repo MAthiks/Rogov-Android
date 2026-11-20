@@ -351,6 +351,8 @@ export function validateDeepLayout(layout,live=false){
   const legacy=layout.doorPlanVersion===undefined;
   const graph=layout.topologyVersion===GRAPH_VERSION;
   if(layout.topologyVersion!==undefined&&!graph)return false;
+  if(layout.branchPlanVersion!==undefined&&
+      (layout.branchPlanVersion!==1||!graph))return false;
   if(graph&&(legacy||layout.geometryVersion!==ROOM_GEOMETRY_VERSION))return false;
   if(!graph&&Array.isArray(rooms)&&
       rooms.some(r=>Object.hasOwn(r||{},"slot")))return false;
@@ -388,6 +390,8 @@ export function validateDeepLayout(layout,live=false){
         rooms.find(r=>r.slot===10)?.role!=="atelier_abandonne"||
         start.x!==entry.cx||start.y!==entry.cy||
         exit.x!==extraction.cx||exit.y!==extraction.cy)return false;
+    if(layout.branchPlanVersion===1&&
+        rooms.find(r=>r.slot===4)?.role!=="cache_scellee")return false;
     if(rooms.filter(r=>r.role==="chambre_echo").length!==1||
         rooms.filter(r=>r.role==="cache_scellee").length!==1)return false;
   }
@@ -538,6 +542,9 @@ export function generateDeepLayout(index){
         continue; // Reject unsafe seeds; never force a mandatory trap.
       }
       if(!validateDeepLayout(layout))continue;
+      // GAME-101B is opt-in per newly generated layout: old saved room
+      // placements and the existing 3-site schema are left intact.
+      layout.branchPlanVersion=1;
       // DEV-087 arrives after loot, enemies, doors, hazards, secrets and traps.
       // An unsafe or unreachable site rejects this seed without touching saves.
       try{

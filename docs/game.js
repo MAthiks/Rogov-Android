@@ -18,6 +18,7 @@ import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./se
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
 import {ROOM_SITES,validRoomSites,roomSiteVisible,roomSiteAppearance} from "./room-events.js";
 import {acousticReading,LISTEN_ENDURANCE_COST} from "./acoustics.js";
+import {branchClue} from "./branch-intel.js";
 import {RECIPES,canCraft} from "./economy.js";
 import {validEchoFindings,discoverEcho} from "./echo-investigation.js";
 import {EQUIPMENT_CATALOG} from "./stats.js";
@@ -163,8 +164,10 @@ export function inspectTile(state, x, y) {
   const tile = tileAt(x,y,state.run);
   if (tile==="+") {
     const door=doorAt(state.run,x,y);
+    const route=branchClue(state.run,x,y);
     return {kind:"door",name:door?.open?"Porte ouverte":"Porte fermée",
-      description:"Porte ordinaire, utilisable dans les deux sens. Sélectionne-la à proximité et confirme Ouvrir / Fermer."};
+      description:(route?route.description+" ":"")+
+        "Porte ordinaire, utilisable dans les deux sens. Sélectionne-la à proximité et confirme Ouvrir / Fermer."};
   }
   if (tile==="#") return { kind:"wall", name:"Mur de pierre", description:"Obstacle infranchissable." };
   if (tile==="^") return { kind:"danger", name:"Faille mortelle", description:"La traverser déclenche le Rappel. Le sac sera perdu." };
@@ -557,6 +560,7 @@ export function beginRun(state, equipment=[], loadoutChoice=null, options={}) {
     turns:0,carried,loadout:chosen,collected:[],enemies:layout.enemies,
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
     ...(layout.lootPlanVersion?{lootPlanVersion:layout.lootPlanVersion}:{}),
+    ...(layout.branchPlanVersion?{branchPlanVersion:layout.branchPlanVersion}:{}),
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       ...(layout.geometryVersion?{geometryVersion:layout.geometryVersion}:{}),
@@ -636,6 +640,7 @@ export function resolveFloorExit(state,choice){
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
     ...(layout.lootPlanVersion?{lootPlanVersion:layout.lootPlanVersion}:{}),
     ...(layout.depthBalanceVersion?{depthBalanceVersion:layout.depthBalanceVersion}:{}),
+    ...(layout.branchPlanVersion?{branchPlanVersion:layout.branchPlanVersion}:{}),
     rooms:layout.rooms,doors:layout.doors,
     doorPlanVersion:layout.doorPlanVersion,
     geometryVersion:layout.geometryVersion,
@@ -765,7 +770,9 @@ export function resolveRoomSite(state,siteId,optionId){
       !roomSiteVisible(run,site))
     return info(state,"Aucun lieu interactif visible et inexploré à portée.",false);
   const option=ROOM_SITES[site.kind]?.options?.[optionId];
-  if(!option)return info(state,"Cette interaction n'existe pas.",false);
+  if(!option||(site.kind==="cache"&&optionId==="buckler"&&
+      run.branchPlanVersion!==1))
+    return info(state,"Cette interaction n'existe pas.",false);
   if(option.endurance>(run.endurance??0))
     return info(state,"Endurance insuffisante : cette action demande "+
       option.endurance+" END.",false);

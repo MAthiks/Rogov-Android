@@ -80,7 +80,7 @@ test("ART-097C1: no animation cost, external asset, save change or touch obstruc
   assert.doesNotMatch(css,/@keyframes|animation:.*infinite|backdrop-filter|filter:blur|url\(https?:|@import|position:fixed/i);
   const html=read("../docs/index.html"),sw=read("../docs/sw.js");
   assert.match(html,/href="\.\/art097c1\.css\?v=1"/);
-  assert.match(sw,/rogov-v0\.7f-art097c1-visible-light/);
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   for(const asset of ["art097c1.css?v=1","nhal-lighting.js","terrain-art.js","tiles.js"]){
     assert.ok(sw.includes('"./'+asset+'"'),"Offline asset missing "+asset);
   }

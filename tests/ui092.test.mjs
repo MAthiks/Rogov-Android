@@ -67,3 +67,28 @@ test("UI-092A: controller included in offline PWA and not coupled to private fog
   const module=read("../docs/ui092.js");
   assert.doesNotMatch(module,/visibleCells|visionKey|enemyAt|run\.enemies|run\.secrets|run\.traps/);
 });
+
+test("UI-098B1: only the mobile drawer geometry and scrolling change",()=>{
+  const css=read("../docs/ui098b1.css");
+  const controller=read("../docs/ui092.js");
+  const html=read("../docs/index.html");
+  const sw=read("../docs/sw.js");
+  assert.match(html,/href="\.\/ui098b1\.css\?v=1"/);
+  assert.match(sw,/"\.\/ui098b1\.css\?v=1"/);
+  assert.match(sw,/rogov-v0\.7f-ui098b1-sheet-clearance/);
+  assert.match(css,/@media \(max-width:730px\)/);
+  assert.match(css,/--ui098b1-sheet-bottom/);
+  assert.match(css,/overflow-y:auto/);
+  assert.match(css,/min-height:0/);
+  assert.match(css,/z-index:78/);
+  assert.match(controller,/window\.innerHeight-dock\.top/);
+  assert.match(controller,/ResizeObserver\(measure\)/);
+  assert.match(controller,/visualViewport\?\.addEventListener\("resize",measure\)/);
+  assert.match(controller,/mount\.scrollTop=0/);
+  assert.doesNotMatch(css,/url\(\s*https?:|\.tile-hero\s*:before|\.pixel-tile/);
+  assert.doesNotMatch(controller,/localStorage|JSON\.stringify|\bmove\(|\battackTarget\(|cloneNode/);
+  const state=beginRun(newGame(),[]).state;
+  assert.equal(SCHEMA_VERSION,1);
+  assert.equal(SAVE_KEY,"rogov-web-v1");
+  assert.equal(validateSave(state),true);
+});

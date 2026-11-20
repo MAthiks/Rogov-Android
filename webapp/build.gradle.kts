@@ -19,6 +19,20 @@ android {
     buildTypes {
         getByName("debug") {
             isDebuggable = true
+            // PR-specific test builds sit beside existing WebView installs.
+            // Debug signing keys can differ between CI runs; do not force users
+            // to uninstall an app containing a saved expedition.
+            val qaSuffix = providers.gradleProperty("rogovQaAppSuffix").orNull
+            if (!qaSuffix.isNullOrEmpty()) {
+                require(Regex("\\.pr[1-9][0-9]*").matches(qaSuffix)) {
+                    "QA package suffix must be .pr followed by a positive PR number"
+                }
+                applicationIdSuffix = qaSuffix
+                versionNameSuffix = "-${qaSuffix.drop(1)}"
+                manifestPlaceholders["rogovAppLabel"] = "ROGOV TEST PR ${qaSuffix.drop(3)}"
+            } else {
+                manifestPlaceholders["rogovAppLabel"] = "ROGOV Web QA"
+            }
         }
     }
 

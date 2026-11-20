@@ -3780,3 +3780,163 @@ test("QA-097 Android acceptance: actual hit centers, fog-safe redraw budget and 
     results
   },null,2)+"\n");
 });
+
+
+// UI-098B1 — physical-device report triggered a drawer/dock occlusion fix.
+// Geometry is verified in real Chromium layouts; never claim hardware QA.
+test("UI-098B1 mobile: empty and full bags scroll above the measured D-pad", {timeout:110000}, async()=>{
+  for(const [width,height] of [[320,640],[360,780],[393,704]]){
+    const context=await browser.newContext({
+      viewport:{width,height},deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:"block"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",e=>errors.push(e.message));
+      await preloadDeepRun(page);
+      const initial=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+      const turns=await page.locator("#turns").textContent();
+      await page.locator("#jump-bag").tap();
+      const empty=page.locator("#bag-items .empty");
+      assert.match(await empty.innerText(),/Ton sac est vide/);
+      await empty.scrollIntoViewIfNeeded();
+      const assertGeometry=async(label)=>{
+        const g=await page.evaluate(()=>{
+          const rect=id=>document.getElementById(id).getBoundingClientRect();
+          const sheet=rect("ui092-sheet"),dock=rect("field-controls");
+          const body=rect("ui092-sheet-body"),close=rect("ui092-sheet-close");
+          const target=document.elementFromPoint(close.left+close.width/2,close.top+close.height/2);
+          const btn=document.getElementById("ui092-sheet-close");
+          return {
+            sheetTop:sheet.top,sheetBottom:sheet.bottom,dockTop:dock.top,
+            bodyTop:body.top,bodyBottom:body.bottom,closeHeight:close.height,
+            closeHit:target===btn||btn.contains(target),
+            width:document.documentElement.scrollWidth,viewport:innerWidth,
+            scrollHeight:document.getElementById("ui092-sheet-body").scrollHeight,
+            clientHeight:document.getElementById("ui092-sheet-body").clientHeight
+          };
+        });
+        assert.ok(g.sheetTop>=-1,label+" drawer is inside the viewport: "+JSON.stringify(g));
+        assert.ok(g.sheetBottom<=g.dockTop-5,label+" drawer may not overlap D-pad: "+JSON.stringify(g));
+        assert.ok(g.bodyTop>=g.sheetTop&&g.bodyBottom<=g.sheetBottom+1,
+          label+" body must remain within fixed sheet: "+JSON.stringify(g));
+        assert.ok(g.closeHeight>=44&&g.closeHit,label+" Fermer remains tappable: "+JSON.stringify(g));
+        assert.ok(g.width<=g.viewport+1,label+" no horizontal overflow");
+        return g;
+      };
+      await assertGeometry(width+"×"+height+" empty");
+      const emptyRect=await page.evaluate(()=>{
+        const r=document.querySelector("#bag-items .empty").getBoundingClientRect();
+        const body=document.getElementById("ui092-sheet-body").getBoundingClientRect();
+        return {top:r.top,bottom:r.bottom,bodyTop:body.top,bodyBottom:body.bottom};
+      });
+      assert.ok(emptyRect.top>=emptyRect.bodyTop-1&&emptyRect.bottom<=emptyRect.bodyBottom+1,
+        "The actual empty-bag message must be readable above the D-pad");
+      await page.locator("#ui092-sheet-close").tap();
+      assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+      assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),initial);
+      assert.equal(await page.locator("#turns").textContent(),turns);
+
+      await page.evaluate(async()=>{
+        const {SAVE_KEY,validateSave}=await import("./game.js");
+        const state=JSON.parse(localStorage.getItem(SAVE_KEY));
+        state.run.carried={
+          "weapon.bone_dagger":1,"weapon.iron_mace":1,
+          "shield.worn_buckler":1,"armor.scavenged_cuirass":1,
+          "consumable.bandage":1,"consumable.vigor_salts":1,
+          "consumable.dusk_tonic":1,"relic.ashen_fragment":1
+        };
+        if(!validateSave(state))throw Error("Invalid 8-item UI-098B1 fixture");
+        localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+      });
+      await page.reload();await page.locator("#title-continue").tap();
+      const fullSave=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+      const fullTurns=await page.locator("#turns").textContent();
+      await page.locator("#jump-bag").tap();
+      assert.equal(await page.locator("#bag-items .item-row").count(),8);
+      const lastAction=page.locator("#bag-items .item-row button").last();
+      await lastAction.scrollIntoViewIfNeeded();
+      const hit=await lastAction.evaluate(btn=>{
+        const r=btn.getBoundingClientRect();
+        const b=document.getElementById("ui092-sheet-body").getBoundingClientRect();
+        const target=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+        return {visible:r.top>=b.top-1&&r.bottom<=b.bottom+1,
+          hit:target===btn||btn.contains(target)};
+      });
+      assert.ok(hit.visible&&hit.hit,
+        width+"×"+height+" the final real inventory action must be reachable: "+JSON.stringify(hit));
+      const full=await assertGeometry(width+"×"+height+" full");
+      assert.ok(full.scrollHeight>full.clientHeight,"Eight real items must scroll in the drawer");
+
+      // Simulate a taller Android safe-area / scaled dock: ResizeObserver must
+      // maintain clearance without reducing the touch targets.
+      await page.locator("#ui092-sheet-close").tap();
+      await page.locator("#field-controls").evaluate(el=>el.style.paddingBottom="44px");
+      await page.locator("#jump-bag").tap();
+      await page.waitForFunction(()=>{
+        const sheet=document.getElementById("ui092-sheet").getBoundingClientRect();
+        const dock=document.getElementById("field-controls").getBoundingClientRect();
+        return sheet.bottom<=dock.top-5;
+      },null,{timeout:5000});
+      await assertGeometry(width+"×"+height+" taller dock");
+      await page.locator("#ui092-sheet-close").tap();
+      assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),fullSave);
+      assert.equal(await page.locator("#turns").textContent(),fullTurns);
+      assert.deepEqual(errors,[]);
+    }finally{await context.close();}
+  }
+});
+
+test("UI-098B1 mobile: Combat actions scroll and Fermer restores the map", {timeout:65000}, async()=>{
+  const context=await browser.newContext({
+    viewport:{width:320,height:640},deviceScaleFactor:3,
+    isMobile:true,hasTouch:true,serviceWorkers:"block"
+  });
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js"),fog=await import("./exploration-visibility.js");
+      const source=game.newGame();source.meta.descents=1;
+      const state=game.beginRun(source).state;
+      const foe=state.run.enemies[0];
+      const beside=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>
+        ({x:foe.x+dx,y:foe.y+dy})).find(p=>state.run.map[p.y]?.[p.x]==="."&&
+        !state.run.enemies.some(e=>e.x===p.x&&e.y===p.y));
+      if(!beside)throw Error("No adjacent floor for combat drawer");
+      state.run.x=beside.x;state.run.y=beside.y;
+      state.run.enemies=[foe];fog.revealAround(state.run);
+      if(!game.validateSave(state))throw Error("Invalid UI-098B1 combat fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    const turns=await page.locator("#turns").textContent();
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#ui092-sheet-body #combat-dock").count(),1);
+    await page.locator("#target-choices button").first().tap();
+    assert.equal(await page.locator("#combat-panel").isVisible(),true);
+    // Target selection intentionally persists targetId without costing a turn;
+    // record the post-selection save to isolate the drawer close action.
+    const save=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+    const retreat=page.locator("#combat-retreat");
+    await retreat.scrollIntoViewIfNeeded();
+    const hit=await retreat.evaluate(el=>{
+      const r=el.getBoundingClientRect(),b=document.getElementById("ui092-sheet-body").getBoundingClientRect();
+      const t=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+      return {visible:r.top>=b.top-1&&r.bottom<=b.bottom+1,hit:t===el||el.contains(t)};
+    });
+    assert.ok(hit.visible&&hit.hit,"Last combat action must be in scrollable body: "+JSON.stringify(hit));
+    const clear=await page.evaluate(()=>{
+      const sheet=document.getElementById("ui092-sheet").getBoundingClientRect();
+      const dock=document.getElementById("field-controls").getBoundingClientRect();
+      return sheet.bottom<=dock.top-5;
+    });
+    assert.equal(clear,true,"Combat drawer must clear the fixed controls");
+    await page.locator("#ui092-sheet-close").tap();
+    assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+    assert.equal(await page.locator("#tile-map").isVisible(),true);
+    assert.equal(await page.locator("#turns").textContent(),turns);
+    assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),save);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

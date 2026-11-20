@@ -175,9 +175,44 @@ le cockpit graphique UI/ART-097 est présent. Artefact
 **APK debug uniquement :** signature de publication stable et essais
 physiques restent à faire ; aucune migration de sauvegarde Chrome.
 
-**Suite WIP=1 :** fiabiliser le nouvel APK, puis tester réellement
-graphismes, FPS ressentis, commandes et sauvegardes sur téléphone ;
-corriger les P0/P1 reproduits avant ART-097C2. Godot/PC reportés.
+**UI-098B1 — ergonomie Android des tiroirs Combat/Sac (validé sur Android, PR #57 prête à fusionner) :**
+retour direct sur le véritable ROGOV Android : interface graphique,
+déplacements fluides, ouverture/fermeture des menus et reprise de
+sauvegarde fonctionnent ; **le pavé fixe occulte le bas des panneaux**.
+Correctif sur `fix/ui098b1-android-sheet-clearance` : écart mesuré
+depuis la vraie bordure supérieure du dock (`ResizeObserver` et viewport),
+tiroir plafonné à l'espace libre, entête Fermer fixe et contenu interne
+défilant. Aucun changement de mécanique, sauvegarde, Sprite C, 11×11
+ou contrôles du dock. Cache PWA actualisé pour PWA et WebView, tests
+Node/Chromium sur 320×640, 360×780, 393×704 ajoutés.
+[Contrat et recette UI-098B1](docs/UI098B1_ANDROID_SHEET_LAYOUT.md)
+et [checkpoint](docs/CHECKPOINT_CHAT_UI098B1.md).
+**Nouveau jalon d'installation sûre pour recette UI-098B1 :** le workflow
+`modern-apk` de PR produit un **second APK `com.rogov.webapk.pr57`**,
+intitulé `ROGOV TEST PR 57`. Cette variante est installable en parallèle
+de la WebView historique et de la PWA sans désinstaller les sauvegardes ;
+elle possède un stockage WebView neuf et séparé, sans migration.
+Le test Android 13 inclut maintenant des assertions de non-recouvrement
+du Sac réel avec capture native, en plus des tests Chromium à trois
+résolutions. [Procédure d'essai sans perte de données](docs/UI098B1_ANDROID_SHEET_LAYOUT.md).
+**CI PR #57 validée le 20 novembre 2026 : quatre workflows verts**
+([Node + Chromium](https://github.com/MAthiks/Rogov-Android/actions/runs/44725604009),
+[Chrome Android 13](https://github.com/MAthiks/Rogov-Android/actions/runs/44725603886),
+[WebView Android 13 et APK séparé](https://github.com/MAthiks/Rogov-Android/actions/runs/44725603861),
+[APK historique](https://github.com/MAthiks/Rogov-Android/actions/runs/44725603935)).
+Le test WebView contrôle précisément la marge au-dessus du pavé, le
+bouton Fermer et le texte du Sac vide, avec capture archivée.
+
+**GO utilisateur sur Android réel le 20 novembre 2026 :** « On est ok »,
+confirmé après la proposition de recette UI-098B1 et de l'APK de test.
+Le correctif peut être fusionné dans `main`. Ce retour ne valide pas
+la campagne générale 5 testeurs × 2 descentes, la note artistique
+globale ni la publication d'un APK signé stable.
+
+**Suite WIP=1 : ART-097C2 — améliorer la lisibilité des sols, murs et
+silhouettes**, conserver Sprite C 24×24, le pavé et les tiroirs validés ;
+pas de nouvelle mécanique, pas de migration de sauvegarde. Godot/PC
+reportés.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

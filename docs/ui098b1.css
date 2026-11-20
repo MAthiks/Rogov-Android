@@ -1,0 +1,35 @@
+/* UI-098B1 — Android contextual sheets never sit behind the fixed D-pad.
+ * This presentation layer uses the existing measured controls (ui092.js).
+ * No changes to game actions, fog, inventory data, turns or saves. */
+@media (max-width:730px) {
+  .frame.is-expedition #expedition .dungeon-wrap > .ui092-sheet {
+    /* The computed distance follows the dock's real top edge, including
+       Android safe-area insets, font scaling and WebView viewport changes. */
+    bottom:var(--ui098b1-sheet-bottom, calc(var(--ui092-dock-height,185px) + 8px));
+    max-height:max(0px, min(70dvh,
+      calc(100dvh - var(--ui098b1-sheet-bottom,193px) - 12px)));
+    z-index:78; /* Dock=75. Never let its buttons obscure the drawer. */
+    overflow:hidden;
+    box-sizing:border-box;
+  }
+  .frame.is-expedition #expedition .ui092-sheet-head {
+    flex:0 0 auto;
+    min-height:54px;
+    text-align:left;
+  }
+  .frame.is-expedition #expedition .ui092-sheet-body {
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    text-align:left;
+    padding:8px 10px 18px;
+  }
+  /* Do not shrink or replace original action buttons. Inner overflow makes
+     the last inventory row and all tactical actions scroll into view. */
+  .frame.is-expedition #expedition .ui092-sheet-body button {
+    touch-action:manipulation;
+  }
+}

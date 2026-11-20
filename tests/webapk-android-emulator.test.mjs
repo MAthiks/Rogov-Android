@@ -134,6 +134,39 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     await dev.evaluate('document.querySelector("#jump-bag").click();true');
     await until(dev,'!document.querySelector("#ui092-sheet").hidden',isTrue);
     assert.equal(await dev.evaluate('document.querySelector("#turns").textContent.trim()'),scene.turn);
+    // UI-098B1: inspect the actual rendered Android WebView rather than
+    // assuming a green Chromium/PWA result proves the APK has no overlap.
+    const drawer=await dev.evaluate(`(()=>{
+      const get=id=>document.getElementById(id);
+      const sheet=get("ui092-sheet"),dock=get("field-controls"),
+        body=get("ui092-sheet-body"),close=get("ui092-sheet-close"),
+        empty=get("bag-items").querySelector(".empty");
+      empty?.scrollIntoView({block:"end",inline:"nearest"});
+      const s=sheet.getBoundingClientRect(),d=dock.getBoundingClientRect(),
+        b=body.getBoundingClientRect(),c=close.getBoundingClientRect(),
+        e=empty?.getBoundingClientRect();
+      const target=document.elementFromPoint(c.left+c.width/2,c.top+c.height/2);
+      return {
+        loaded:[...document.styleSheets].some(x=>x.href?.includes("ui098b1.css")),
+        clearance:d.top-s.bottom,
+        closeHeight:c.height,
+        closeHit:target===close||close.contains(target),
+        bodyOverflow:getComputedStyle(body).overflowY,
+        emptyFullyVisible:Boolean(e&&e.top>=b.top-1&&e.bottom<=b.bottom+1),
+        emptyText:empty?.textContent.trim(),
+        horizontalOverflow:document.documentElement.scrollWidth>innerWidth+1
+      };
+    })()`);
+    assert.equal(drawer.loaded,true,"Actual APK must ship UI-098B1 CSS");
+    assert.ok(drawer.clearance>=5,"Android WebView panel must clear D-pad: "+JSON.stringify(drawer));
+    assert.ok(drawer.closeHeight>=44&&drawer.closeHit,"Close remains touchable: "+JSON.stringify(drawer));
+    assert.equal(drawer.bodyOverflow,"auto");
+    assert.equal(drawer.emptyFullyVisible,true,"Real empty-bag message must not be clipped");
+    assert.match(drawer.emptyText,/Ton sac est vide/);
+    assert.equal(drawer.horizontalOverflow,false);
+    adb("shell","screencap","-p","/sdcard/rogov-webapk-ui098b1-bag.png");
+    execFileSync("adb",["pull","/sdcard/rogov-webapk-ui098b1-bag.png",
+      "rogov-webapk-ui098b1-bag.png"],{stdio:"pipe",timeout:30000});
     await dev.evaluate('document.querySelector("#ui092-sheet-close").click();true');
     await dev.evaluate('document.querySelector("#renderer-toggle").click();true');
     await until(dev,'!document.querySelector("#dungeon-map").hidden',isTrue);

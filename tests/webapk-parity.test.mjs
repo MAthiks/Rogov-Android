@@ -36,3 +36,21 @@ test("APK-098A: web engine untouched except bundled-only service-worker skip",()
   assert.match(app,/drawTileMap/);
   assert.match(app,/setupUi097A2/);
 });
+
+test("UI-098B1: PR test APK installs beside the user's existing saved game",()=>{
+  const gradle=read("../webapp/build.gradle.kts");
+  const manifest=read("../webapp/src/main/AndroidManifest.xml");
+  const workflow=read("../.github/workflows/webapk-qa.yml");
+  const native=read("./webapk-android-emulator.test.mjs");
+  assert.ok(gradle.includes('applicationId = "com.rogov.webapk"'));
+  assert.ok(gradle.includes('providers.gradleProperty("rogovQaAppSuffix")'));
+  assert.ok(gradle.includes('applicationIdSuffix = qaSuffix'));
+  assert.ok(gradle.includes('manifestPlaceholders["rogovAppLabel"]'));
+  assert.ok(manifest.includes('android:label="${rogovAppLabel}"'));
+  assert.ok(workflow.includes('-ProgovQaAppSuffix='));
+  assert.ok(workflow.includes('rogov-pr${PR}-side-by-side.apk'));
+  assert.ok(workflow.includes('ROGOV-PR-'));
+  assert.ok(workflow.includes('rogov-webapk-ui098b1-bag.png'));
+  assert.ok(native.includes('drawer.clearance>=5'));
+  assert.ok(native.includes('drawer.emptyFullyVisible'));
+});

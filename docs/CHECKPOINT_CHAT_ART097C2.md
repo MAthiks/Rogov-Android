@@ -3,8 +3,9 @@
 **Projet :** ROGOV, dungeon crawler PWA / APK Android, `MAthiks/Rogov-Android`.
 **Référence avant chantier :** `main` après UI-098B1 PR #57,
 merge `299b410`, puis deux commits de documentation pour le GO Android.
-**Branche active :** `art/art097c2-material-silhouette-contrast`.
-**Statut :** améliorations graphiques en revue, sans fusion.
+**Branche de développement :** `art/art097c2-material-silhouette-contrast`.
+**Statut :** **FUSIONNÉ dans `main`, PR #58, le 20 novembre 2026, commit `340aa218f94d044771ee206673d132384444c146`**.
+**Décision :** l'utilisateur a autorisé la fusion directe après échec du téléchargement de l'APK de recette. La validation graphique sur téléphone réel reste ouverte.
 
 ## Réalisation
 
@@ -26,8 +27,10 @@ merge `299b410`, puis deux commits de documentation pour le GO Android.
 - `tests/mobile-browser.test.mjs` : galerie de contrôle
   `qa096-screenshots/art097c2-material-silhouette-gallery.png` à
   résolution Android portrait et contrôle absence de sauvegarde modifiée.
-- La CI Web / Chromium / Chrome Android 13 / WebView Android 13 /
-  APK historique doit passer avant une éventuelle fusion.
+- **CI vérifiée avant fusion : 4/4 workflows réussis**. Node **390/390**,
+  Chromium **63/63**, Chrome Android 13, WebView Android 13 et APK historique verts.
+  WebView a réussi après relance d'un émulateur qui avait démarré tardivement.
+  Galerie de comparaison dans l'artefact `qa096-chromium-portraits` du run `44729877795`.
 
 ## Règles du projet à conserver
 
@@ -37,5 +40,7 @@ schéma 1, pavé fixe et tiroirs UI-098B1 valides. Le GDD PC/Godot est
 conservé mais le portage est reporté.
 
 **Ne pas attribuer de GO artistique ni de test sur Android physique**
-sans retour réel. Après CI, fournir à l'utilisateur la PR et la PWA
-de recette ; fusion seulement après validation demandée.
+sans retour réel. Le code est fusionné à la demande de l'utilisateur ;
+la recette graphique réelle, la vérification d'une version APK principale
+avec ce code et la campagne 5 testeurs × 2 descentes restent ouvertes.
+L'APK précédent n'est pas automatiquement mis à jour sur le téléphone par la fusion.

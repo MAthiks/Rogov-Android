@@ -1,6 +1,6 @@
 # UI/ART-099 — Refonte mobile carte dominante + allègement des matériaux
 
-**20 novembre 2026 · gros lot exceptionnel, WIP=1 · branche `feature/ui-art-099-mobile-focus`**
+**20 novembre 2026 · gros lot exceptionnel, WIP=1 · FUSIONNÉ, PR #59, commit `0ceb968` · contrôle physique à réaliser**
 
 ## Décision produit
 
@@ -63,7 +63,7 @@ Matières dans `docs/terrain-art.js`. Cache PWA `docs/sw.js`.
 Seule interface mobile en descente ciblée ; desktop et refuge restent
 fonctionnels sans utiliser la nouvelle mise en page.
 
-## Recette complète avant fusion
+## Recette automatisée validée, recette physique restante
 
 1. `npm run check:web`, `npm run test:web` incluant
    `tests/ui099-focus.test.mjs` et les contrats antérieurs.
@@ -83,5 +83,15 @@ fonctionnels sans utiliser la nouvelle mise en page.
 5. GO esthétique après capture physique ; campagne 5 testeurs ×
    2 descentes ultérieurement. Godot/PC restent reportés.
 
-**Statut au dépôt de la PR :** code en recette, fusion dépend des
-vérifications CI ; ne pas déclarer une validation physique imaginée.
+**Statut final (20 novembre 2026) :** fusion squash PR #59,
+commit `0ceb9688851708bff655031c12765b192bf73d1a`.
+**4/4 workflows CI verts** — 394/394 tests Node, 65/65 Chromium,
+Chrome Android 13, WebView Android 13 (sauvegarde/offline et panneaux)
+et build Kotlin/ASCII. Les tests WebView attendent désormais réellement
+l'initialisation JavaScript lors d'un rechargement.
+
+**Encore ouvert :** un essai esthétique et ergonomique sur vrai Android
+après mise à jour de la PWA ou de l'APK principal ; validation de
+l'absence d'obstruction et de la reprise de sauvegarde sur l'appareil
+de l'utilisateur. Une fusion GitHub seule n'actualise aucun APK installé.
+Ne pas déduire un GO artistique du seul émulateur.

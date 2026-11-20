@@ -37,7 +37,7 @@ const floorPatina=Object.freeze([
 function floorSvg(variant){
   return svg(
     '<rect width="24" height="24" fill="#202d33"/>'+
-    '<path data-material="worn-floor-slabs" d="M1 1h11v7H1ZM15 11h8v8h-8ZM1 12h7v7H1Z" fill="#2e3c42" opacity=".52"/>'+
+    '<path data-material="worn-floor-slabs" d="M1 1h11v7H1ZM15 11h8v8h-8ZM1 12h7v7H1Z" fill="#2e3c42" opacity=".38"/>'+
     '<path d="M2 2h8M16 12h5M2 13h4" stroke="#526068" stroke-width="1" opacity=".45"/>'+
     '<path d="M0 9h12M14 9h10M14 0v9M9 9v15M0 20h9M10 20h14" stroke="#151f25" stroke-width="1"/>'+
     '<path d="M0 10h12M14 10h10M15 0v9M10 10v14M0 21h9M11 21h13" stroke="#37454b" stroke-width="1"/>'+
@@ -47,6 +47,9 @@ function floorSvg(variant){
     // compete with the hero, a visible trap or the extraction portal.
     '<path data-detail="floor-beveled-masonry" d="M2 2h9M2 3v5M16 12h6M16 13v5M2 13h5M2 14v4" stroke="#637179" stroke-width="1" opacity=".32"/>'+
     '<path data-detail="floor-mortar-depth" d="M0 8h12M14 8h10M13 0v10M8 11v13M0 19h9M10 19h14" stroke="#0e181f" stroke-width="1" opacity=".75"/>'+
+    // ART-097C2: rest the center of each slab; concentrate visual contrast
+    // on masonry joints so foes and the hooded hero stand out at 24px.
+    '<path data-detail="art097c2-floor-joint-hierarchy" d="M1 11h7M15 20h7M2 4h3" stroke="#516267" stroke-width="1" opacity=".52"/>'+
     floorDetails[variant]+floorPatina[variant]
   );
 }
@@ -68,7 +71,7 @@ function wallSvg(mask,variant){
   return svg(
     '<rect width="24" height="24" fill="#111b23"/>'+
     '<rect x="1" y="1" width="22" height="10" fill="#4b5c63"/>'+
-    '<path data-material="raised-stone-ledge" d="M1 1h22v3H1ZM2 5h20v2H2Z" fill="#73848a"/>'+
+    '<path data-material="raised-stone-ledge" d="M1 1h22v3H1ZM2 5h20v2H2Z" fill="#7f9192"/>'+
     '<path d="M2 7h20v3H2Z" fill="#394f58"/>'+
     '<rect x="1" y="13" width="10" height="10" fill="'+face+'"/>'+
     '<rect x="13" y="13" width="10" height="10" fill="'+face+'"/>'+
@@ -81,6 +84,10 @@ function wallSvg(mask,variant){
     '<path data-detail="wall-recessed-joints" d="M1 11h22v2H1ZM11 13h2v11h-2Z" fill="#121e26"/>'+
     '<path data-detail="wall-face-bevel" d="M2 14h8M14 14h8M2 15v7M14 15v7" stroke="#6b7d7c" stroke-width="1" opacity=".56"/>'+
     '<path data-detail="wall-age-patina" d="M4 18h2M18 19h3" stroke="#46594e" stroke-width="1"/>'+
+    // ART-097C2: readable front face and cap separation, no imitation of
+    // a door/secret nor any map-dependent texture or new terrain category.
+    '<path data-detail="art097c2-wall-cap-plane" d="M3 4h18M3 6h8M15 6h6" stroke="#aab7ae" stroke-width="1" opacity=".74"/>'+
+    '<path data-detail="art097c2-wall-face-depth" d="M2 12h20M12 14v9M2 22h8M14 22h8" stroke="#0c171e" stroke-width="1" opacity=".9"/>'+
     accents[variant]+rim
   );
 }

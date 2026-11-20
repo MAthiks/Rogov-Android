@@ -415,7 +415,8 @@ function updateDoorAction(){
   const select=$("door-select");
   const nearby=adjacentDoors();
   select.disabled=nearby.length===0;
-  const route=selectedDoor?branchClue(run,selectedDoor.x,selectedDoor.y):null;
+  const route=selectedDoor&&nearby.some(d=>d.x===selectedDoor.x&&d.y===selectedDoor.y)?
+    branchClue(state.run,selectedDoor.x,selectedDoor.y):null;
   select.textContent=route?"Piste : "+route.label:
     nearby.length?"Choisir porte voisine ("+nearby.length+")":"Aucune porte voisine";
   const run=state.run;

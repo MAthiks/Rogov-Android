@@ -1,4 +1,8 @@
-# Roadmap ROGOV — état du 19 novembre 2026
+# Roadmap ROGOV — état du 20 novembre 2026
+
+## GAME-101A — Écoute tactique de Nhal (développement)
+
+**Après UI/ART-100 fusionné (PR #60)** : première mécanique de progression d'explorateur depuis le polissage graphique. Une commande volontaire « ÉCOUTER » aide à choisir entre traverser une porte, éviter une galerie incertaine ou prendre le risque de poursuivre. Action : **1 tour / 2 END**, phase ennemie normale, propagation acoustique de portée 8 qui respecte murs et portes fermées, résultat cardinal et qualitatif seulement ; aucun nom ni position d'ennemi caché, aucune révélation gratuite du brouillard, aucun RNG ni changement de sauvegarde. Nouveau bouton dans une case libre du pavé tactile, raccourci L, texte accessible. [Contrat et recette GAME-101A](docs/GAME101A_ACOUSTIC_SCOUTING.md). **CI et recette physique Android à confirmer avant d'étendre à GAME-101B (choix de risque / intérêt des branches).**
 
 ## GAME-095 — Nouvelle priorité : gameplay roguelike
 

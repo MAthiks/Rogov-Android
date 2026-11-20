@@ -3789,7 +3789,7 @@ test("QA-097 Android acceptance: actual hit centers, fog-safe redraw budget and 
       assert.equal(outcome.enemyLeak,0,"No hostile/intent leak at "+label);
       assert.equal(outcome.saveUnchanged,true,"No writes to saved game at "+label);
       assert.equal(outcome.turnsUnchanged,true,"Rendering spends no turns at "+label);
-      assert.ok(outcome.controls.length===13,"Six shortcuts, five D-pad, two quick items: "+label);
+      assert.ok(outcome.controls.length===14,"Six shortcuts, five movement controls + listening, two quick items: "+label);
       assert.ok(outcome.controls.every(x=>x.w>=44&&x.h>=44),
         "All existing targets remain >=44x44 CSS px at "+label+": "+JSON.stringify(outcome.controls));
       assert.ok(outcome.controls.every(x=>x.inViewport&&x.hit),
@@ -3811,7 +3811,7 @@ test("QA-097 Android acceptance: actual hit centers, fog-safe redraw budget and 
     source:"Automated Chromium touch emulation only; no real Android FPS/gestures",
     measuredAt:"GitHub Actions run",
     hardGates:["121 visible-or-fogged tiles","no hidden enemy/light data",
-      "13 touch centers actually target their controls","all controls >=44x44 CSS px",
+      "14 touch centers actually target their controls","all controls >=44x44 CSS px",
       "no map/navigation/dock overlap","no save or turn mutation"],
     renderTiming:"22 redraws per portrait; diagnostic only, not a physical-device budget",
     results
@@ -4206,4 +4206,52 @@ test("UI/ART-100: three Android portraits retain 121 pixels, six real targets an
       assert.deepEqual(errors,[]);
     }finally{await context.close();}
   }
+});
+
+
+test("GAME-101A mobile: one tactile listening turn, feedback, reload, and low-stamina lock", {timeout:60000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const button=page.locator("#listen-btn");
+    assert.equal(await button.isEnabled(),true);
+    const before=await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      const run=JSON.parse(localStorage.getItem(SAVE_KEY)).run;
+      return {endurance:run.endurance,seen:run.exploration.seen,map:run.map};
+    });
+    const rect=await button.boundingBox();
+    assert.ok(rect.width>=44&&rect.height>=44,"Touch target stays 44px");
+    await button.tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    const reading=page.locator("#game101-listen-result");
+    assert.equal(await reading.isVisible(),true);
+    assert.match(await reading.textContent(),/ÉCOUTE/);
+    const after=await page.evaluate(async()=>{
+      const {SAVE_KEY,validateSave}=await import("./game.js");
+      const saved=JSON.parse(localStorage.getItem(SAVE_KEY));
+      return {valid:validateSave(saved),run:saved.run};
+    });
+    assert.equal(after.valid,true);
+    assert.equal(after.run.endurance,before.endurance-2);
+    assert.deepEqual(after.run.exploration.seen,before.seen);
+    assert.deepEqual(after.run.map,before.map);
+    assert.equal(await page.locator("#tile-map .hostile-tile").count(),0);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.equal(await button.isEnabled(),true);
+    // The legacy save schema accepts a low-stamina run without migration.
+    await page.evaluate(async()=>{
+      const {SAVE_KEY}=await import("./game.js");
+      const saved=JSON.parse(localStorage.getItem(SAVE_KEY));
+      saved.run.endurance=1;
+      localStorage.setItem(SAVE_KEY,JSON.stringify(saved));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await button.isDisabled(),true);
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
 });

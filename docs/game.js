@@ -17,6 +17,7 @@ import {visibleCells,explorationState,visionKey,validExploration,revealAround,ha
 import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
 import {ROOM_SITES,validRoomSites,roomSiteVisible,roomSiteAppearance} from "./room-events.js";
+import {acousticReading,LISTEN_ENDURANCE_COST} from "./acoustics.js";
 import {RECIPES,canCraft} from "./economy.js";
 import {validEchoFindings,discoverEcho} from "./echo-investigation.js";
 import {EQUIPMENT_CATALOG} from "./stats.js";
@@ -1207,6 +1208,23 @@ export function useItem(state,itemId){
   recordEvent(s,"heal",message,run.turns);
   const after=enemyPhase(s);
   return {state:after,message,changed:true};
+}
+
+/** GAME-101A: deliberate acoustic scouting. It gives an approximate signal
+ * before enemies get their normal turn and does not update explored cells.
+ */
+export function listenForThreats(state){
+  if(!state.run||!hasFog(state.run))
+    return info(state,"Écouter est réservé aux galeries profondes de Nhal.",false);
+  if((state.run.endurance??0)<LISTEN_ENDURANCE_COST)
+    return info(state,"Endurance insuffisante : écouter demande 2 END.",false);
+  const s=copy(state),report=acousticReading(s.run);
+  s.run.turns+=1;
+  s.run.endurance-=LISTEN_ENDURANCE_COST;
+  recordEvent(s,"system",report,s.run.turns);
+  const after=enemyPhase(s);
+  // Keep the heard signal readable even when the enemy phase logs combat.
+  return {state:after,message:report,changed:true};
 }
 
 /** Waiting costs one turn; nearby enemies can still move or attack. */

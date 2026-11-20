@@ -84,15 +84,16 @@ inspectées ; sans avertissement, la carte mesure 220 / 335,4 / 284 CSS px,
 respectivement, et ne touche pas le dock (écart minimal 26px). Seuls les
 tests automatisés sont certifiés. [Contrat et recette](docs/UI097A1_COCKPIT_FIDELITY.md).
 
-**UI-097A2 — PR à valider (carte prioritaire) :** sur Android,
+**UI-097A2 — PR #51 fusionnée**, merge `38323e4` : sur Android,
 les **vrais** six raccourcis et le bandeau d'alerte ennemie imminente
 passent **sous la carte** graphique/ASCII et au-dessus des commandes fixes.
 Les nœuds DOM et listeners sont conservés, et leur emplacement d'origine
 est restauré sur desktop. Module `docs/ui097a2.js` et CSS original
 `docs/ui097a2.css` ; pas de gameplay nouveau, pas de fuite du brouillard,
-pas de changement de sauvegardes ou de contrôles. Tests Playwright sur
-320×640, 360×780, 393×704 et menace visible annoncée, Android 13 et APK
-**requis avant fusion**. [Contrat UI-097A2](docs/UI097A2_MAP_FIRST_NAVIGATION.md).
+pas de changement de sauvegardes ou de contrôles. **375/375 tests Node et 56/56 Chromium**, avec mesures sur
+320×640, 360×780 et 393×704, alerte de coup lourd, Chrome Android 13
+et APK réussis en automatisation. Carte entière et six boutons ≥44px
+au-dessus du pavé fixe confirmés sur captures Chromium. [Contrat UI-097A2](docs/UI097A2_MAP_FIRST_NAVIGATION.md).
 Recette physique et 5×2 descentes toujours ouvertes.
 
 **Suite :** ART-097B silhouettes Sprite C et ennemis ; ART-097C

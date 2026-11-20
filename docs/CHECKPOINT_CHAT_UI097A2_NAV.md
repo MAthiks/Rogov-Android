@@ -5,9 +5,10 @@
 **Dernier merge vérifié :** UI-097A1 / PR #50, `5951506` ;
 373/373 Node, 54/54 Chromium, Chrome Android 13 et APK réussis.
 
-## En développement — UI-097A2, sous la carte
+## Lot fusionné — UI-097A2, navigation sous la carte
 
-Branche `feature/ui097a2-map-first-navigation`. Le module de
+PR #51, fusion `38323e45ddbf28006571d89205d1770bfe07ac7a`,
+branche `feature/ui097a2-map-first-navigation`. Le module de
 présentation `docs/ui097a2.js` déplace les **véritables** six raccourcis
 et l'alerte `ui096-threat-banner` après la carte graphique/ASCII.
 Leur place d'origine est restaurée sur desktop et au clavier.
@@ -27,3 +28,12 @@ physique Android sans retour. DA 6/10 et alpha 7,5/10 provisoires,
 et ART-097C éclairages selon priorité.
 
 Voir `docs/UI097A2_MAP_FIRST_NAVIGATION.md` et `ROADMAP.md`.
+
+## Bilan final confirmé
+
+375/375 tests Node, 56/56 Chromium, Chrome Android 13 et APK
+émulés verts. Captures 320×640, 360×780, 393×704 : carte 11×11,
+footer de six raccourcis entièrement au-dessus du pavé fixe ; aucune
+nouvelle mécanique ou incompatibilité de sauvegarde introduite.
+QA sur téléphone physique et tests utilisateurs restent ouverts.
+**Prochaine étape :** ART-097B personnages / puis ART-097C ambiance.

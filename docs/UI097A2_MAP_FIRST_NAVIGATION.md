@@ -1,6 +1,6 @@
 # UI-097A2 — Carte d'abord, navigation tactique dessous
 
-**Date :** 20 novembre 2026. **État :** branche/PR avant validation.
+**Date :** 20 novembre 2026. **État :** fusionnée dans `main` — [PR #51](https://github.com/MAthiks/Rogov-Android/pull/51), merge `38323e45ddbf28006571d89205d1770bfe07ac7a`; QA physique ouverte.
 **Référence visuelle :** maquette dark fantasy mobile ROGOV fournie lors
 de UI/ART-097. **Base :** UI-097A1 / PR #50 fusionnée, main `44a4a9f`.
 
@@ -64,3 +64,18 @@ La méthode retenue est un petit adaptateur **DOM presentation only**.
 Ne fusionner que les validations de ce lot réussies. La reproduction
 pixel-par-pixel de la maquette n'est pas atteignable à 24px/case et
 320px de largeur ; privilégier carte, lisibilité, actions réelles.
+
+## Résultats de production
+
+- **375/375 tests Node** et **56/56 tests Chromium** réussis.
+- **Chrome Android 13 et build/install/lancement APK** réussis sur
+  émulateur GitHub Actions.
+- Captures QA réelles de Chromium en 320×640, 360×780 et 393×704
+  examinées. Largeurs des cartes graphiques : **220 / 335,4 / 284 px**,
+  avec le footer des six raccourcis juste après le donjon ; les
+  raccourcis sont au-dessus du pavé fixe et mesurent ≥44 CSS px.
+- Le test navigateur vérifie la restauration du vrai tiroir Sac,
+  le mode ASCII, l'absence de tour consommé par la navigation et
+  le cas d'une menace imminente avec bannière sous la carte.
+- **Non effectué :** test tactile physique Android et 5 testeurs ×
+  2 descentes. Le style reste moins riche que la maquette haute fidélité.

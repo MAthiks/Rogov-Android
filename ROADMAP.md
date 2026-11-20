@@ -228,26 +228,36 @@ l'application déjà installée ; la validation graphique sur appareil physique
 reste à effectuer, ainsi que la vérification de la distribution Android
 principale.
 
-**UI/ART-099 — gros lot exceptionnel carte dominante + matériaux (EN PR) :**
-après deux captures sur Android physique, le défilement, les trois cartes
-ennemies et le pavé sont confirmés accessibles ; reste une page trop
-longue et des sols très chargés. En un seul chantier, Android portrait
-conserve les six actions sous la carte et le pavé fixe, mais retire
+**UI/ART-099 — gros lot exceptionnel carte dominante + matériaux (FUSIONNÉ, PR #59, `0ceb968`) :**
+après deux captures physiques Android, décision d'alléger la longue page
+et le bruit des sols. En un seul chantier, Android portrait conserve carte,
+HUD, menace actuelle, six accès rapides et pavé fixe, mais retire
 Combat/Sac/Rapport/Journal du flux vertical principal : leurs nœuds
-et handlers réels restent accessibles via les tiroirs existants.
+et handlers réels restent accessibles dans les tiroirs existants.
 Le Menu donne accès à la vraie Fiche, l'objectif, l'inspection,
-le plan exploré et la légende. Bande de statut courte sous la carte ;
-six sols plus sobres, 48 murs mieux structurés, sprites 24px inchangés.
-Pas de gameplay, de piège, de fuite de brouillard, de changement de
-sauvegarde ni d'APK historique.
+le plan exploré et la légende, avec une bande de statut courte sous la
+carte. Six sols plus sobres, 48 murs mieux structurés et 54 SVG 24px
+préservés ; Sprite C capuche 4 faces et tous les identifiants d'action
+restent inchangés. Pas de gameplay, de fuite de brouillard, d'ASCII cassé,
+de changement de sauvegarde ni de migration.
 [Contrat et QA UI/ART-099](docs/UI_ART_099_ANDROID_MAP_FOCUS.md) ·
 [Checkpoint](docs/CHECKPOINT_CHAT_UI_ART_099.md).
-**Recette CI et Android physique requise avant nouvelle note artistique** ;
-le rendu de 097C2 sur vrai appareil n'était pas un GO artistique global.
 
-**Suite WIP=1 :** finaliser l'unique PR UI/ART-099, comparer ses
-captures portrait/Android et préserver le pavé/tous les tiroirs 098B1.
-Ne pas reprendre les mécaniques ni Godot/PC avant stabilisation mobile.
+**CI PR #59, 20 novembre 2026 : 4/4 workflows verts au HEAD `a524304`**
+(394/394 Node, 65/65 Chromium tactile, Chrome Android 13, WebView Android
+13 offline et reprise, build APK historique). La recette WebView attend
+désormais le vrai chargement du JS et la visibilité du tiroir avant de
+mesurer les gestes, après une course au chargement reproduite sur émulateur.
+Fusion squash dans `main` à la demande d'un gros lot unique, commit
+`0ceb9688851708bff655031c12765b192bf73d1a`. Les captures de
+la version précédente ont motivé le chantier, mais **aucun essai physique
+de UI/ART-099 n'a encore été réalisé** ; l'APK déjà installé ne se met
+pas automatiquement à jour avec une fusion GitHub.
+
+**Suite WIP=1 :** recette physique Android du lot UI/ART-099, vérification
+du déploiement PWA et plan de distribution de l'APK principal, en
+conservant les sauvegardes et les tiroirs 098B1. Godot/PC reportés.
+Aucune note artistique rehaussée sans retour de joueur.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

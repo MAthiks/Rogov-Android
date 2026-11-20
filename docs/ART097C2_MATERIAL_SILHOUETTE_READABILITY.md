@@ -1,6 +1,6 @@
 # ART-097C2 — Lisibilité des matériaux de Nhal et silhouettes Sprite C
 
-**20 novembre 2026 · lot graphique uniquement · branche `art/art097c2-material-silhouette-contrast`**
+**20 novembre 2026 · lot graphique uniquement · FUSIONNÉ dans `main` via PR #58 (`340aa21`) · recette physique encore ouverte**
 
 ## Pourquoi
 
@@ -51,7 +51,7 @@ validés et les commandes ne changent pas.
   combat, règle de loot ou modification de l'ASCII.
 - APK historique de compatibilité et portage Godot/PC hors périmètre.
 
-## Recette avant fusion
+## Recette automatisée accomplie et contrôle physique restant
 
 1. `node --check docs/terrain-art.js` et les deux modules personnages ;
    `npm run test:web` doit inclure `tests/art097c2-material-contrast.test.mjs`
@@ -68,10 +68,14 @@ validés et les commandes ne changent pas.
    les trois ennemis, une Arche/Faille ; aucun panneau recouvert,
    aucun ralentissement sensible, aucune révélation à travers le
    brouillard ; sauvegarde et PWA offline à vérifier.
-5. Comparer captures et retours humains, puis seulement autoriser une
-   fusion. La campagne 5 testeurs × 2 descentes et le GO artistique
-   global restent ouverts.
+5. Comparer captures et retours humains, sans confondre la fusion déjà
+   demandée avec un GO esthétique physique. La campagne 5 testeurs × 2
+   descentes et le GO artistique global restent ouverts.
 
-**Statut au dépôt initial :** en développement sur branche de PR,
-tests et recette Android à obtenir ; aucune validation physique
-ne doit être déduite de la réussite d'un émulateur.
+**Statut final :** PR #58 fusionnée à la demande de l'utilisateur le 20 novembre
+2026, commit `340aa218f94d044771ee206673d132384444c146`.
+**CI :** 390/390 tests Node, 63/63 Chromium, quatre workflows réussis
+(test-web, android-web, modern-apk après relance, build).
+**Toujours ouvert :** jugement esthétique et recette sur téléphone Android,
+distribution d'une version principale actualisée. Une fusion de code seule
+ne remplace pas automatiquement l'APK déjà installé.

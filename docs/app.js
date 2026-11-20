@@ -1,6 +1,7 @@
 import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, swapChestReward, chestSwapChoices, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, shoveTarget, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
+import { setupUi097A2 } from "./ui097a2.js";
 import { syncUi096Threat } from "./ui096.js";
 import { setupUi096C } from "./ui096c.js";
 import {MAX_FLOOR_DEPTH,floorChoiceAvailable,canDescendFurther} from "./floors.js";
@@ -924,6 +925,8 @@ for (const button of document.querySelectorAll("[data-direction]")) {
 // bottom sheet on mobile and the existing scroll navigation on desktop.
 const ui092=setupUi092({get:$,isRun:()=>Boolean(state.run),
   isAscii:()=>renderMode==="ascii"});
+// Reuse original nav/banner DOM nodes; layout-only, no extra gameplay calls.
+const ui097a2=setupUi097A2({get:$});
 const ui096c=setupUi096C({get:$,isRun:()=>Boolean(state.run)});
 $("floor-extract").addEventListener("click",()=>act(resolveFloorExit(state,"extract")));
 $("floor-descend").addEventListener("click",()=>{

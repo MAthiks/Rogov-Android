@@ -1,7 +1,7 @@
 // UI/ART-099 — compact mobile exploration without duplicating game DOM.
 // The original action handlers and their nodes remain the only interactive
 // controls; Fiche, inspection, legend and minimap move under the real Menu.
-// No gameplay import, localStorage, RNG, enemy inspection or timer.
+// No gameplay import, persisted state writes, RNG, enemy inspection or timer.
 export const UI099_INFO_IDS=Object.freeze([
   "actor-stats-sheet","route-hint","inspect-panel",
   "exploration-map-panel","map-legend-details"

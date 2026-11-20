@@ -1868,7 +1868,10 @@ test("UI-092A mobile: immersive screen gives map, HUD, navigation and fixed move
       "The visible 11×11 graphic map must not be covered by controls");
     assert.ok(metrics.map.height>=245&&metrics.heroSize>=18,
       "The game map remains useful at actual Android portrait scale");
-    assert.ok(metrics.nav.top>=0&&metrics.nav.bottom<metrics.map.top);
+    assert.ok(metrics.nav.top>=metrics.map.bottom,
+      "UI-097A2 moves the original six actions beneath the live dungeon map");
+    assert.ok(metrics.nav.bottom<=metrics.field.top+1,
+      "Map-footer shortcuts must not be covered by the fixed movement dock");
     assert.ok(metrics.hud.top>=0&&metrics.hud.bottom<=metrics.map.top);
     assert.ok(metrics.scrollWidth<=metrics.width+1,"No horizontal overflow");
     for(const id of ["wait-btn","use-bandage","use-tonic"]){
@@ -2074,8 +2077,8 @@ test("QA-092 mobile: 320/360/393px cockpit, no covered controls, options and con
         "Movement dock should align with bottom at "+width);
       assert.ok(geometry.mapBottom<=geometry.dockTop+1,
         "No player tile is blocked by touch controls at "+width+": "+JSON.stringify(geometry));
-      assert.ok(geometry.navTop>=0&&geometry.navBottom<=geometry.mapTop,
-        "Navigation remains before the map at "+width);
+      assert.ok(geometry.navTop>=geometry.mapBottom&&geometry.navBottom<=geometry.dockTop+1,
+        "Map footer remains below the map and above the dock at "+width+": "+JSON.stringify(geometry));
       assert.ok(geometry.scrollWidth<=geometry.width+1,"No horizontal overflow at "+width);
       await page.locator("#jump-menu").tap();
       assert.equal(await page.locator("#ui092-sheet-body #options-panel").count(),1,

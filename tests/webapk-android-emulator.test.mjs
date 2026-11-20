@@ -66,6 +66,11 @@ test("APK-098A Android 13: current Sprite C / 11x11 game, real panels, persisten
     adb("shell","am","force-stop","com.rogov.webapk");
     adb("shell","am","start","-W","-n","com.rogov.webapk/.MainActivity");
     await wait(2500);
+    // The WebView DevTools socket is PID-specific; the process has changed.
+    const freshPid=adb("shell","pidof","com.rogov.webapk");
+    assert.match(freshPid,/^\\d+$/);
+    adb("forward","--remove","tcp:9223");
+    adb("forward","tcp:9223","localabstract:webview_devtools_remote_"+freshPid);
     ({client,page}=await connectWebView());
     await page.locator("#title-screen").waitFor({state:"visible"});
     await page.locator("#title-continue").click();

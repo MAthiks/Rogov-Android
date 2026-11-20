@@ -53,7 +53,7 @@ const VISUAL_CUES=Object.freeze({
   guardian_prepare:"preparing",rift_charge:"preparing",
   charognard_prepare:"preparing",guardian_guard:"guarding"
 });
-export function drawTileMap(state,host,heroFacing="down") {
+export function drawTileMap(state,host,heroFacing="down",motion=null) {
   host.replaceChildren();
   if(!state.run)return;
   const run=state.run;
@@ -95,6 +95,7 @@ export function drawTileMap(state,host,heroFacing="down") {
       spriteId=facing==="down"?"hero":"hero_"+facing;
       cell.dataset.facing=facing;
       cell.classList.add("tile-hero"); // Sprite seul, sans contour de sélection.
+      if(motion?.step&&visible)cell.classList.add("art097b2-step");
     }
     else {
       const enemy=visible?enemyAt(run,x,y):null;
@@ -103,6 +104,8 @@ export function drawTileMap(state,host,heroFacing="down") {
         cell.dataset.entity="enemy";
         cell.dataset.enemyId=enemy.id;
         cell.classList.add("hostile-tile");
+        // Only VISIBLE enemy sprites react on an action turn; badges stay still.
+        if(motion?.foeTurn)cell.classList.add("art097b2-foe-turn");
         if(enemy.kind==="charognard"&&enemy.tactic==="winding")
           cell.classList.add("enemy-charge");
         // Only inspect the intention of a VISIBLE foe; never query hidden actors

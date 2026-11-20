@@ -3789,7 +3789,7 @@ test("QA-097 Android acceptance: actual hit centers, fog-safe redraw budget and 
       assert.equal(outcome.enemyLeak,0,"No hostile/intent leak at "+label);
       assert.equal(outcome.saveUnchanged,true,"No writes to saved game at "+label);
       assert.equal(outcome.turnsUnchanged,true,"Rendering spends no turns at "+label);
-      assert.ok(outcome.controls.length===13,"Six shortcuts, five D-pad, two quick items: "+label);
+      assert.ok(outcome.controls.length===14,"Six shortcuts, five movement controls + listening, two quick items: "+label);
       assert.ok(outcome.controls.every(x=>x.w>=44&&x.h>=44),
         "All existing targets remain >=44x44 CSS px at "+label+": "+JSON.stringify(outcome.controls));
       assert.ok(outcome.controls.every(x=>x.inViewport&&x.hit),
@@ -3811,7 +3811,7 @@ test("QA-097 Android acceptance: actual hit centers, fog-safe redraw budget and 
     source:"Automated Chromium touch emulation only; no real Android FPS/gestures",
     measuredAt:"GitHub Actions run",
     hardGates:["121 visible-or-fogged tiles","no hidden enemy/light data",
-      "13 touch centers actually target their controls","all controls >=44x44 CSS px",
+      "14 touch centers actually target their controls","all controls >=44x44 CSS px",
       "no map/navigation/dock overlap","no save or turn mutation"],
     renderTiming:"22 redraws per portrait; diagnostic only, not a physical-device budget",
     results

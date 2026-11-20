@@ -650,6 +650,9 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
       if(!foe)break;
       const d=Math.abs(now.run.x-foe.x)+Math.abs(now.run.y-foe.y);
       if(d===1){
+        // UI-099: combat targets and actions live only in the real drawer.
+        if(await page.locator("#ui092-sheet").isHidden())
+          await page.locator("#jump-combat").tap();
         if(now.run.targetId!==foe.id){
           await page.locator("#target-choices button")
             .filter({hasText:"Charognard"}).first().tap();
@@ -664,6 +667,8 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
           assert.equal(after.run.turns,before+1);
           attacks++;
         }
+        if(await page.locator("#ui092-sheet").isVisible())
+          await page.locator("#jump-map").tap();
       }else{
         const route=await plan(foe,true);
         assert.ok(route?.length>=2,"Mobile player can approach the live target");
@@ -1141,8 +1146,11 @@ test("DEV-090A cockpit remains functional in ASCII and after reload", {timeout:6
     assert.equal(await page.locator("#dungeon-map").isVisible(),true);
     await page.locator("#jump-map").tap();
     assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.locator("#jump-menu").tap();
+    assert.equal(await page.locator("#ui099-extras").isVisible(),true);
     await page.locator("#map-legend-details summary").tap();
     assert.equal(await page.locator("#ascii-legend").isVisible(),true);
+    await page.locator("#ui092-sheet-close").tap();
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#field-controls").isVisible(),true);
     assert.equal(await page.locator("#dungeon-map").isVisible(),true);
@@ -1201,19 +1209,22 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
     await page.reload();
     await page.locator("#title-continue").tap();
     const dock=page.locator("#combat-dock");
-    assert.equal(await dock.isVisible(),true,"visible enemy reveals the dock");
+    assert.equal(await dock.isHidden(),true,"UI-099 stores visible threats in Combat, not in long page");
     assert.equal(await page.locator("#target-choices button").count(),1);
+    await page.locator("#jump-combat").tap();
+    assert.equal(await dock.isVisible(),true,"real Combat drawer reveals the original dock");
     const placement=await page.evaluate(()=>{
       const field=document.getElementById("field-controls").getBoundingClientRect();
       const dock=document.getElementById("combat-dock").getBoundingClientRect();
       const map=document.getElementById("tile-map").getBoundingClientRect();
-      return {dockAfterMap:dock.top>=map.bottom-1,
+      return {drawerAboveDock:dock.bottom<=field.top-5,
+        mapAboveDock:map.bottom<=field.top+1,
         fixedAtBottom:Math.abs(field.bottom-window.innerHeight)<=2,
         width:document.documentElement.clientWidth,
         overflow:document.documentElement.scrollWidth};
     });
-    assert.ok(placement.dockAfterMap&&placement.fixedAtBottom,
-      "UI-092A: tactical dock remains in DOM and movement stays anchored");
+    assert.ok(placement.drawerAboveDock&&placement.mapAboveDock&&placement.fixedAtBottom,
+      "UI-099: tactical drawer stays clear of the fixed movement dock");
     assert.ok(placement.overflow<=placement.width+1);
     assert.equal(await page.locator("#combat-panel").isHidden(),true,
       "combat actions require explicit target choice");
@@ -1242,7 +1253,7 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
     await page.locator("#combat-analysis summary").tap();
     assert.equal(await page.locator("#combat-target-profile").isVisible(),true);
     assert.equal(await page.locator("#turns").textContent(),"0");
-    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
     assert.equal(await page.locator("#turns").textContent(),"0");
     await page.locator("#combat-dodge").tap();
     assert.equal(await page.locator("#turns").textContent(),"1",
@@ -1958,7 +1969,7 @@ test("UI-092A mobile: combat sheet keeps targeting and active tactical defenses 
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
     });
     await page.reload();await page.locator("#title-continue").tap();
-    assert.equal(await page.locator("#combat-dock").isVisible(),true);
+    assert.equal(await page.locator("#combat-dock").isHidden(),true);
     const mapCount=await page.locator("#tile-map .pixel-tile").count();
     await page.locator("#jump-combat").tap();
     assert.equal(await page.locator("#ui092-sheet-body #combat-dock").count(),1);
@@ -2997,8 +3008,8 @@ test("UI-096C mobile: refuge navigation, secured stash, real shared character an
       await page.locator("#start-btn").tap();
       assert.equal(await page.locator("#expedition").isVisible(),true);
       assert.equal(await page.locator("#game-shell").evaluate(e=>e.classList.contains("is-refuge")),false);
-      assert.equal(await page.locator("#expedition #actor-stats-sheet").count(),1,
-        "Original character panel must return to the dungeon");
+      assert.equal(await page.locator("#options-panel #actor-stats-sheet").count(),1,
+        "UI-099 keeps the original character panel within the mobile Menu");
       assert.equal(await page.locator("#refuge-character-slot #actor-stats-sheet").count(),0);
       assert.equal(await page.locator("#actor-stats-sheet .actor-stat-chip").count(),6);
       const restored=await page.evaluate(async()=>{

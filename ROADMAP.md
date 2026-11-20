@@ -187,6 +187,16 @@ ou contrôles du dock. Cache PWA actualisé pour PWA et WebView, tests
 Node/Chromium sur 320×640, 360×780, 393×704 ajoutés.
 [Contrat et recette UI-098B1](docs/UI098B1_ANDROID_SHEET_LAYOUT.md)
 et [checkpoint](docs/CHECKPOINT_CHAT_UI098B1.md).
+**Nouveau jalon d'installation sûre pour recette UI-098B1 :** le workflow
+`modern-apk` de PR produit un **second APK `com.rogov.webapk.pr57`**,
+intitulé `ROGOV TEST PR 57`. Cette variante est installable en parallèle
+de la WebView historique et de la PWA sans désinstaller les sauvegardes ;
+elle possède un stockage WebView neuf et séparé, sans migration.
+Le test Android 13 inclut maintenant des assertions de non-recouvrement
+du Sac réel avec capture native, en plus des tests Chromium à trois
+résolutions. [Procédure d'essai sans perte de données](docs/UI098B1_ANDROID_SHEET_LAYOUT.md).
+Le GO physique reste à obtenir sur cet APK de recette.
+
 **CI PR et confirmation physique du correctif à venir ; pas de fusion
 avant validation.** Poursuivre ensuite ART-097C2 et la lisibilité des
 sols, murs et silhouettes, sans nouveau gameplay.

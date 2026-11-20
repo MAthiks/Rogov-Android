@@ -4421,3 +4421,49 @@ test("GAME-101D mobile: optional camp choices heal on touch and survive reload",
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("GAME-101E mobile: tactile opening costs END, persists and stays fog-safe", {timeout:60000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const setup=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const {revealAround}=await import("./exploration-visibility.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const enemy=state.run.enemies.find(e=>e.kind==="charognard");
+      if(!enemy)throw Error("GAME-101E missing Charognard");
+      const p=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:enemy.x+dx,y:enemy.y+dy}))
+        .find(p=>state.run.map[p.y]?.[p.x]==="."&&
+          !state.run.traps.some(t=>t.x===p.x&&t.y===p.y));
+      if(!p)throw Error("GAME-101E no safe contact tile");
+      state.run.x=p.x;state.run.y=p.y;state.run.rngState=1;
+      state.run.enemies=[enemy];enemy.tactic="recovering";
+      state.run.targetId=enemy.id;
+      revealAround(state.run);
+      if(!game.validateSave(state))throw Error("GAME-101E invalid mobile fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {endurance:state.run.endurance};
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    const action=page.locator("#combat-opening");
+    assert.equal(await action.isEnabled(),true);
+    assert.match(await page.locator("#combat-opening-hint").textContent(),/Récupération du Charognard/);
+    await action.tap();
+    const outcome=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(state),turns:state.run.turns,
+        endurance:state.run.endurance,combatOpeningVersion:state.run.combatOpeningVersion};
+    });
+    assert.equal(outcome.valid,true);
+    assert.equal(outcome.turns,1);
+    assert.equal(outcome.endurance,setup.endurance-3);
+    assert.equal(outcome.combatOpeningVersion,1);
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

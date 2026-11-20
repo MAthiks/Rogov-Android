@@ -138,7 +138,7 @@ validés en automatisation.** Capture de scène fog-safe torche/Arche/Faille
 et portraits Nhal examinés ; aucune lumière sur case inconnue ou
 mémorisée, aucun halo de personnage, interfaces tactiles préservées.
 
-**QA-097 — Lot d'acceptation Android en cours (branche `qa/qa097-android-acceptance`) :**
+**QA-097 — PR #55 fusionnée**, commit `903ec15` (branche `qa/qa097-android-acceptance`) :
 gel des mécaniques et des effets supplémentaires ; tests Playwright
 tactiles sur 320×640 / 360×780 / 393×704 (13 centres réellement
 touchables et ≥44×44 px, carte et navigation sans recouvrement,
@@ -146,8 +146,13 @@ brouillard/intentions/lumières sans fuite), 22 rendus de carte mesurés
 par format en diagnostic Chromium, sauvegarde et tours inchangés.
 [Recette QA-097](docs/QA097_ANDROID_ACCEPTANCE.md) et
 [fiche terrain 5×2](docs/QA097_FIELD_REPORT_TEMPLATE.md).
-Les tests Web, Chrome Android 13 et APK doivent passer avant
-fusion du lot de tests. **NO-GO artistique tant qu'aucun test physique
+**385/385 tests Node, 60/60 Chromium, Chrome Android 13 et build APK
+émulés verts**. Les 13 cibles réellement touchables sur 3 formats
+(largeur minimale 47 CSS px, hauteur minimale 44), 44 cases masquées
+sans lumière ni hostile divulgué par format ; 22 rendus sans changement
+de tour/sauvegarde. Médiane Chromium CI 0,9 / 0,8 / 0,8 ms,
+**pas un FPS Android réel**. Captures QA-097 et JSON enregistrés dans
+[l'artefact du workflow](https://github.com/MAthiks/Rogov-Android/actions/runs/44706385938). **NO-GO artistique tant qu'aucun test physique
 Android ni campagne 5 testeurs × 2 descentes n'est constaté.**
 Ne pas rehausser DA 6/10 ou Alpha 7,5/10 sur la seule base de la CI.
 

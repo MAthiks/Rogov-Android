@@ -1,6 +1,6 @@
 # QA-097 — Recette d'acceptation Android de ROGOV
 
-**Date :** 20 novembre 2026. **Statut :** QA technique en cours ; **NO-GO artistique** tant que la recette physique et les essais utilisateurs ne sont pas terminés.  
+**Date :** 20 novembre 2026. **Statut : lot QA-097 fusionné via PR #55, `903ec158a97d7b3a3d5dfd413e32cb4d79c6af1f` ; GO technique automatisé, NO-GO artistique** en attente des essais Android physiques et utilisateurs.  
 **Base vérifiée :** `main 87c8fdacfad7113713936b3210f4fb467854dec3`, ART-097C1 (PR #54), code PWA et APK HTML/CSS/JS.  
 **Référence :** maquette UI/ART-097 (dark fantasy), [QA-096](QA096_ANDROID_VISUAL_RECIPE.md), [checkpoint ART-097C1](CHECKPOINT_CHAT_ART097C1.md).
 
@@ -116,3 +116,31 @@ n'est présumée dans cette page.
 **Étape après validation technique :** analyser les preuves de terrain,
 corriger uniquement les défauts reproduits (un lot UI/ART par priorité),
 sans recréer le gameplay ni ajouter de mécaniques.
+
+## Résultats confirmés du lot QA-097 — PR #55
+
+**CI avant fusion :** 385/385 tests Node, 60/60 Chromium,
+workflow `android-web` Chrome Android 13 émulé réussi et workflow
+`build` APK compilation/installation/lancement réussi.
+
+| Portrait Chromium (DPR 3) | Carte (CSS px) | 13 centres touchables | Minimum cible largeur × hauteur | Cases masquées | Fuite brouillard | Médiane / p95 redraw (ms) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 320×640 | 220 | 13/13 | 47×44 | 44 | 0 | 0,9 / 1,6 |
+| 360×780 | 335,4 | 13/13 | 52,5×44 | 44 | 0 | 0,8 / 1,6 |
+| 393×704 | 284 | 13/13 | 57,3×44 | 44 | 0 | 0,8 / 1,5 |
+
+**Source des mesures :** `qa097-report.json` de
+[l'artefact `qa096-chromium-portraits`, run #44706385938](https://github.com/MAthiks/Rogov-Android/actions/runs/44706385938).
+Ces mesures ne sont ni la fréquence d'images réelle ni la latence d'un
+téléphone physique. 22 reconstructions DOM sans aucune mutation de
+sauvegarde ou de tour, 121 cases, une silhouette PJ, aucun ennemi
+ou éclairage sur les cases cachées. Les captures des 3 formats ont été
+inspectées ; navigation visible sous la carte et au-dessus du dock.
+**Observation non bloquante à contrôler sur vrai téléphone :**
+la carte reste plus petite sur écran 320×640 qu'en 360×780 ; le
+contraste du décor et la compréhension des pictogrammes exigent un
+retour humain.
+
+**Décision :** QA automatique technique passée ; **NO-GO artistique
+toujours ouvert**. Ne pas augmenter DA 6/10 / Alpha 7,5/10 sans
+5 utilisateurs × deux descentes et recette physique conforme.

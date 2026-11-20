@@ -175,7 +175,7 @@ le cockpit graphique UI/ART-097 est présent. Artefact
 **APK debug uniquement :** signature de publication stable et essais
 physiques restent à faire ; aucune migration de sauvegarde Chrome.
 
-**UI-098B1 — ergonomie Android des tiroirs Combat/Sac (validé sur Android, PR #57 prête à fusionner) :**
+**UI-098B1 — ergonomie Android des tiroirs Combat/Sac (FUSIONNÉ, PR #57, `299b410`) :**
 retour direct sur le véritable ROGOV Android : interface graphique,
 déplacements fluides, ouverture/fermeture des menus et reprise de
 sauvegarde fonctionnent ; **le pavé fixe occulte le bas des panneaux**.
@@ -205,7 +205,7 @@ bouton Fermer et le texte du Sac vide, avec capture archivée.
 
 **GO utilisateur sur Android réel le 20 novembre 2026 :** « On est ok »,
 confirmé après la proposition de recette UI-098B1 et de l'APK de test.
-Le correctif peut être fusionné dans `main`. Ce retour ne valide pas
+Le correctif est fusionné dans `main` le 20 novembre 2026 (commit `299b410`). Ce retour ne valide pas
 la campagne générale 5 testeurs × 2 descentes, la note artistique
 globale ni la publication d'un APK signé stable.
 

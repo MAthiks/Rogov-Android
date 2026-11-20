@@ -29,6 +29,7 @@ const down=svg(
   '<rect x="16" y="17" width="3" height="4" fill="'+P.leatherDark+'"/>'+
   '<path d="M7 12h10l-1 3H8Z" fill="'+P.scarf+'"/>'+
   '<path data-detail="front-cloak-seams" d="M8 16l-2 4M15 16l3 5M10 17h4" stroke="#a18d89" stroke-width="1" fill="none"/>'+
+  '<path data-detail="art097c2-cloak-volume" d="M6 18v3M18 18v3" stroke="#8d7978" stroke-width="1" fill="none"/>'+
   '<rect data-detail="front-brass-clasp" x="12" y="15" width="2" height="2" fill="#c6ad80"/>'+
   '<path d="M12 16h2" stroke="#33303a" stroke-width="1"/>'+
   '<g data-feature="hood">'+
@@ -40,6 +41,7 @@ const down=svg(
   '<rect x="10" y="10" width="1" height="1" fill="'+P.outline+'"/>'+
   '<rect x="13" y="10" width="1" height="1" fill="'+P.outline+'"/>'+
   '<path d="M7 8V6l3-3M17 8V6l-3-3" stroke="'+P.hoodRim+'" stroke-width="1" fill="none"/>'+
+  '<path data-detail="art097c2-hood-reading-edge" d="M9 4h6M7 8v2M17 8v2" stroke="#a18e91" stroke-width="1" fill="none"/>'+
   '</g>'+
   '<rect x="17" y="17" width="1" height="1" fill="'+P.metal+'"/>'
 );
@@ -49,6 +51,7 @@ const up=svg(
   '<path d="M8 13h8l3 7-4 2H9l-4-2Z" fill="'+P.cape+'"/>'+
   '<path d="M10 14v8M14 14v8" stroke="'+P.capeEdge+'" stroke-width="1"/>'+
   '<path data-detail="rear-cape-stitching" d="M8 16l-2 4M16 16l2 4M11 19h2" stroke="#9b8984" stroke-width="1" fill="none"/>'+
+  '<path data-detail="art097c2-cloak-volume" d="M6 18v3M18 18v3" stroke="#8d7978" stroke-width="1" fill="none"/>'+
   '<path data-detail="rear-cross-harness" d="M8 15l8 6M16 15l-8 6" stroke="#705f56" stroke-width="1" fill="none"/>'+
   boots+
   '<rect x="3" y="15" width="4" height="5" fill="'+P.leatherDark+'"/>'+
@@ -61,6 +64,7 @@ const up=svg(
   '<path d="M10 4h4l2 4v4l-3 2h-2l-3-2V8Z" fill="'+P.hoodShade+'"/>'+
   '<path d="M10 4h4M8 7v4M16 7v4" stroke="'+P.hoodRim+'" stroke-width="1"/>'+
   '<path d="M12 7v6" stroke="'+P.capeEdge+'" stroke-width="1"/>'+
+  '<path data-detail="art097c2-hood-reading-edge" d="M10 4h4M8 8v3M16 8v3" stroke="#a18e91" stroke-width="1" fill="none"/>'+
   '</g>'+
   '<rect x="17" y="17" width="1" height="1" fill="'+P.metal+'"/>'
 );
@@ -69,6 +73,7 @@ const leftBody=
   '<path d="M8 10h9l2 11-3 1H7l-3-1Z" fill="'+P.cape+'"/>'+
   '<path d="M8 14l-3 7 4 1 2-6M16 12l3 9-4 1-2-5" fill="'+P.capeShadow+'"/>'+
   '<path data-detail="profile-cloak-hem" d="M4 20l4 1M15 20l3 1M9 15l-2 5" stroke="#a38b86" stroke-width="1" fill="none"/>'+
+  '<path data-detail="art097c2-cloak-volume" d="M5 17v3M18 18v3" stroke="#8d7978" stroke-width="1" fill="none"/>'+
   boots+
   '<rect x="17" y="14" width="4" height="7" fill="'+P.leatherDark+'"/>'+
   '<rect x="18" y="15" width="2" height="5" fill="'+P.leather+'"/>'+
@@ -83,6 +88,7 @@ const leftBody=
   '<rect x="7" y="10" width="1" height="1" fill="'+P.outline+'"/>'+
   '<path d="M8 5h4M16 7v4" stroke="'+P.hoodRim+'" stroke-width="1"/>'+
   '<path data-detail="profile-hood-overhang" d="M6 8h4M5 9h2" stroke="#b3a0a0" stroke-width="1" fill="none"/>'+
+  '<path data-detail="art097c2-hood-reading-edge" d="M9 4h4M7 7v2M15 7v2" stroke="#a18e91" stroke-width="1" fill="none"/>'+
   '</g>'+
   '<rect x="18" y="17" width="1" height="1" fill="'+P.metal+'"/>';
 const left=svg(leftBody);

@@ -75,7 +75,8 @@ test("UI-098B1: only the mobile drawer geometry and scrolling change",()=>{
   const sw=read("../docs/sw.js");
   assert.match(html,/href="\.\/ui098b1\.css\?v=1"/);
   assert.match(sw,/"\.\/ui098b1\.css\?v=1"/);
-  assert.match(sw,/rogov-v0\.7f-ui098b1-sheet-clearance/);
+  // Cache rotates on subsequent art/UI lots; the mobile fix must remain cached.
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   assert.match(css,/@media \(max-width:730px\)/);
   assert.match(css,/--ui098b1-sheet-bottom/);
   assert.match(css,/overflow-y:auto/);

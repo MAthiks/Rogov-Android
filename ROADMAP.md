@@ -209,10 +209,19 @@ Le correctif est fusionné dans `main` le 20 novembre 2026 (commit `299b410`). C
 la campagne générale 5 testeurs × 2 descentes, la note artistique
 globale ni la publication d'un APK signé stable.
 
-**Suite WIP=1 : ART-097C2 — améliorer la lisibilité des sols, murs et
-silhouettes**, conserver Sprite C 24×24, le pavé et les tiroirs validés ;
-pas de nouvelle mécanique, pas de migration de sauvegarde. Godot/PC
-reportés.
+**ART-097C2 — matériaux et silhouettes plus lisibles (développé en PR,
+non fusionné)** : sur la branche `art/art097c2-material-silhouette-contrast`,
+rééquilibrage du contraste intérieur des 6 sols, corniche/parement des
+48 murs, capuche/manteau du PJ dans ses 4 directions et accents d'1px
+sur les 3 adversaires existants. Aucun ajout de cadre de sélection,
+FX, ennemi, collision, mécanisme ou champ de sauvegarde ; cache PWA
+mis à jour. [Contrat et recette ART-097C2](docs/ART097C2_MATERIAL_SILHOUETTE_READABILITY.md).
+Tests sur 54 SVG + 7 sprites, galerie Chromium et Android à confirmer,
+puis comparaison sur téléphone physique **avant fusion**.
+
+**Suite WIP=1 :** valider ART-097C2 avec CI, captures et retour Android.
+Conserver le pavé et les tiroirs UI-098B1 ; ne pas ouvrir un autre lot
+avant les contrôles. Godot/PC reportés.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

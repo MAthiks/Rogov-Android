@@ -3940,3 +3940,72 @@ test("UI-098B1 mobile: Combat actions scroll and Fermer restores the map", {time
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("ART-097C2 mobile: inspect 54-material family and seven Sprite C portraits without touching a run", {timeout:45000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const before=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+    const turns=await page.locator("#turns").textContent();
+    const evidence=await page.evaluate(async()=>{
+      const {HERO_SPRITES}=await import("./hero-art.js");
+      const {ENEMY_SPRITES}=await import("./enemy-art.js");
+      const {TERRAIN_SPRITES}=await import("./terrain-art.js");
+      const hero=Object.entries(HERO_SPRITES).map(([name,src])=>["Égaré "+name,src]);
+      const foes=Object.entries(ENEMY_SPRITES).map(([name,src])=>[name,src]);
+      const floors=TERRAIN_SPRITES.floor.map((src,i)=>["Sol "+(i+1),src]);
+      const walls=[0,1,2].map(i=>["Mur "+(i+1),TERRAIN_SPRITES.wall[5][i]]);
+      const group=document.createElement("section");group.id="art097c2-qa-gallery";
+      group.style.cssText="position:fixed;inset:0;z-index:1000;overflow:auto;background:#0b151a;color:#e2e0ce;padding:12px;box-sizing:border-box;font:12px/1.3 system-ui,sans-serif";
+      const title=document.createElement("h2");title.textContent="ART-097C2 / NHAL — Galerie de contrôle";
+      title.style.cssText="font:700 16px system-ui;margin:4px 0 12px";
+      group.append(title);
+      const addSection=(caption,entries)=>{
+        const heading=document.createElement("h3");heading.textContent=caption;
+        heading.style.cssText="font:700 12px system-ui;margin:10px 0 5px;color:#bed4c6";group.append(heading);
+        const grid=document.createElement("div");
+        grid.style.cssText="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px";
+        for(const [name,src] of entries){
+          const slot=document.createElement("div");
+          slot.style.cssText="display:grid;justify-items:center;gap:3px;min-width:0;background:#1a2930;padding:5px 2px;border:1px solid #415059";
+          const img=document.createElement("img");img.src=src;img.alt="";
+          img.style.cssText="display:block;width:48px;height:48px;image-rendering:pixelated";
+          const label=document.createElement("span");label.textContent=name;
+          label.style.cssText="font:10px/1.1 system-ui;text-align:center;color:#bdc8bd";
+          slot.append(img,label);grid.append(slot);
+        }
+        group.append(grid);
+      };
+      addSection("PERSONNAGES — 4 directions et 3 adversaires",hero.concat(foes));
+      addSection("MATIÈRES — 6 dalles et 3 parements",floors.concat(walls));
+      document.body.append(group);
+      await Promise.all([...group.querySelectorAll("img")].map(img=>img.decode()));
+      return {
+        images:group.querySelectorAll("img").length,
+        size24:[...group.querySelectorAll("img")].every(img=>img.naturalWidth===24&&img.naturalHeight===24),
+        noHorizontalOverflow:group.scrollWidth<=innerWidth+1,
+        fogSafe:[...document.querySelectorAll("#tile-map .pixel-tile[data-knowledge=unknown]")].every(
+          cell=>!cell.querySelector("img")&&!cell.style.backgroundImage),
+        mapCells:document.querySelectorAll("#tile-map .pixel-tile").length
+      };
+    });
+    assert.equal(evidence.images,16);
+    assert.equal(evidence.size24,true);
+    assert.equal(evidence.noHorizontalOverflow,true);
+    assert.equal(evidence.fogSafe,true);
+    assert.equal(evidence.mapCells,121);
+    const {mkdir}=await import("node:fs/promises");
+    await mkdir("qa096-screenshots",{recursive:true});
+    await page.locator("#art097c2-qa-gallery").screenshot({
+      path:"qa096-screenshots/art097c2-material-silhouette-gallery.png",
+      animations:"disabled"
+    });
+    await page.locator("#art097c2-qa-gallery").evaluate(el=>el.remove());
+    assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),before);
+    assert.equal(await page.locator("#turns").textContent(),turns);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

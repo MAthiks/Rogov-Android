@@ -120,9 +120,25 @@ et mécaniques sont intacts. **381/381 tests Node et 58/58 Chromium**, Chrome An
 **automatisés validés** ; captures Nhal 320×640, 360×780, 393×704
 inspectées, dimensions de carte et cibles tactiles stables. [Contrat ART-097B2](docs/ART097B2_TURN_BOUND_MOTION.md).
 
-**Suite WIP=1 :** ART-097C pour une ambiance lumineuse à budget Android
-contrôlé, puis revue tactile/esthétique sur appareil réel avant animation
-complexe. Godot/portage PC toujours reportés.
+**ART-097C1 — Éclairages visibles de Nhal (en développement, PR à valider) :**
+nouveau sconce mural purement décoratif SVG 24×24, uniquement sur un mur
+visible adjacent à un sol visible, placé par hash de terrain déterministe,
+sans objet de jeu ni gain de vision. Accent lumineux statique **ambre**
+autour des appliques, **turquoise** autour des vrais `E` (Arches),
+**cramoisi** autour des vraies `^` (Failles) : seulement sur cases
+**actuellement visibles** et voisines cardinales visibles, jamais dans
+le brouillard, sur un souvenir ou à travers un mur. Pas de filtre global,
+de shader, de boucle d'animation, d'effet sur PJ/ennemis/ciblages.
+`docs/nhal-lighting.js`, `docs/art097c1.css`, `docs/tiles.js`,
+cache PWA versionné et tests Node/Chromium avec fixture réel 11×11.
+Aucun changement de gameplay, sauvegarde, ASCII ou moteur.
+[Contrat et recette ART-097C1](docs/ART097C1_VISIBLE_LIGHTING.md).
+**Node/Chromium, Chrome Android 13 et APK + inspection des captures
+obligatoires avant fusion.**
+
+**Suite WIP=1 :** QA-097 : contrôler les performances, le toucher et
+l'atmosphère sur Android physique avant tout effet plus coûteux.
+Godot et PC toujours reportés.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

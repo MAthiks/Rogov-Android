@@ -1335,8 +1335,8 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
         Math.round(b.getBoundingClientRect().top))).size,
         minHeight:Math.min(...buttons.map(b=>b.getBoundingClientRect().height))};
     });
-    assert.equal(actionLayout.count,6);
-    assert.equal(actionLayout.rows,2,"six actions use two rows on 360px Android");
+    assert.equal(actionLayout.count,7);
+    assert.equal(actionLayout.rows,3,"seven deliberate actions use a legible three-row grid on 360px Android");
     assert.ok(actionLayout.minHeight>=44,"action targets support touch");
     await page.locator("#combat-analysis summary").tap();
     assert.equal(await page.locator("#combat-target-profile").isVisible(),true);
@@ -4432,8 +4432,11 @@ test("GAME-101E mobile: tactile opening costs END, persists and stays fog-safe",
       const game=await import("./game.js");
       const {revealAround}=await import("./exploration-visibility.js");
       const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
-      const enemy=state.run.enemies.find(e=>e.kind==="charognard");
-      if(!enemy)throw Error("GAME-101E missing Charognard");
+      // preloadDeepRun deliberately removes every foe; reconstruct exactly
+      // the seeded deep encounter to test a real enemy without synthetic tiles.
+      const {generateDeepLayout}=await import("./deep-dungeon.js");
+      const enemy=generateDeepLayout(state.meta.descents).enemies.find(e=>e.kind==="charognard");
+      if(!enemy)throw Error("GAME-101E missing seeded Charognard");
       const p=[[1,0],[-1,0],[0,1],[0,-1]]
         .map(([dx,dy])=>({x:enemy.x+dx,y:enemy.y+dy}))
         .find(p=>state.run.map[p.y]?.[p.x]==="."&&

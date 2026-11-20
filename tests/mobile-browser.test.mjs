@@ -3660,3 +3660,123 @@ test("ART-097C1 browser: real visible wall torches, Arche and Faille glow withou
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("QA-097 Android acceptance: actual hit centers, fog-safe redraw budget and captures", {timeout:170000}, async()=>{
+  // A browser benchmark is NOT an Android hardware FPS measurement.
+  // Keep this report informational; turn time / real touch latency require device QA.
+  const {mkdir,writeFile}=await import("node:fs/promises");
+  const folder="qa096-screenshots";
+  await mkdir(folder,{recursive:true});
+  const results=[];
+  for(const viewport of [{width:320,height:640},{width:360,height:780},{width:393,height:704}]){
+    const context=await browser.newContext({
+      viewport,deviceScaleFactor:3,isMobile:true,hasTouch:true,
+      serviceWorkers:"block",reducedMotion:"reduce"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",e=>errors.push(e.message));
+      await preloadDeepRun(page);
+      const outcome=await page.evaluate(async()=>{
+        const {SAVE_KEY,validateSave}=await import("./game.js");
+        const {drawTileMap}=await import("./tiles.js");
+        const saved=localStorage.getItem(SAVE_KEY);
+        const state=JSON.parse(saved);
+        if(!validateSave(state))throw Error("QA-097 run invalid");
+        const turns=document.getElementById("turns").textContent.trim();
+        const map=document.getElementById("tile-map");
+        const dock=document.getElementById("field-controls").getBoundingClientRect();
+        const nav=document.getElementById("expedition-shortcuts").getBoundingClientRect();
+        const mapRect=map.getBoundingClientRect();
+        const controls=[
+          ...document.querySelectorAll("#expedition-shortcuts button"),
+          ...document.querySelectorAll("#field-controls .dpad button"),
+          ...document.querySelectorAll("#field-controls .field-quick-actions button")
+        ].filter(el=>getComputedStyle(el).display!=="none");
+        const centers=controls.map(el=>{
+          const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+          const target=document.elementFromPoint(x,y);
+          return {
+            id:el.id||el.dataset.direction||el.textContent.trim(),
+            w:r.width,h:r.height,
+            center:[Math.round(x),Math.round(y)],
+            inViewport:x>=0&&x<innerWidth&&y>=0&&y<innerHeight,
+            hit:target===el||el.contains(target),
+            blocker:target?.id||target?.className||null
+          };
+        });
+        const times=[];
+        // One live draw per iteration, same saved state and presentation; no
+        // movement, AI advance, RNG action, save mutation, or forced animation.
+        for(let i=0;i<22;i++){
+          const start=performance.now();
+          drawTileMap(state,map,"down",null);
+          times.push(performance.now()-start);
+        }
+        times.sort((a,b)=>a-b);
+        const tileCells=[...map.querySelectorAll(".pixel-tile")];
+        const nonVisible=tileCells.filter(el=>el.dataset.knowledge!=="visible");
+        const lightLeak=nonVisible.filter(el=>
+          [...el.classList].some(k=>k.startsWith("art097c-"))||
+          el.querySelector(".art097c-wall-sconce")).length;
+        const enemyLeak=nonVisible.filter(el=>
+          el.dataset.enemyId||el.classList.contains("hostile-tile")||
+          el.querySelector(".tile-intent-marker")).length;
+        const hero=[...map.querySelectorAll(".tile-hero")];
+        const portrait={
+          size:[innerWidth,innerHeight],
+          mapWidth:mapRect.width,mapBottom:mapRect.bottom,
+          navTop:nav.top,navBottom:nav.bottom,dockTop:dock.top,
+          scrollWidth:document.documentElement.scrollWidth,
+          clientWidth:document.documentElement.clientWidth
+        };
+        return {
+          viewport:portrait,controls:centers,
+          renderMs:{
+            samples:times.length,median:times[Math.floor(times.length/2)],
+            p95:times[Math.ceil(times.length*.95)-1],
+            max:times[times.length-1]
+          },
+          tiles:tileCells.length,heroCount:hero.length,
+          nonVisible:nonVisible.length,lightLeak,enemyLeak,
+          saveUnchanged:localStorage.getItem(SAVE_KEY)===saved,
+          turnsUnchanged:document.getElementById("turns").textContent.trim()===turns
+        };
+      });
+      const label=viewport.width+"x"+viewport.height;
+      assert.equal(outcome.tiles,121,"11x11 tiles at "+label);
+      assert.equal(outcome.heroCount,1,"One Sprite C at "+label);
+      assert.ok(outcome.nonVisible>0,"QA-097 requires active fog at "+label);
+      assert.equal(outcome.lightLeak,0,"No lighting on unseen cells at "+label);
+      assert.equal(outcome.enemyLeak,0,"No hostile/intent leak at "+label);
+      assert.equal(outcome.saveUnchanged,true,"No writes to saved game at "+label);
+      assert.equal(outcome.turnsUnchanged,true,"Rendering spends no turns at "+label);
+      assert.ok(outcome.controls.length===13,"Six shortcuts, five D-pad, two quick items: "+label);
+      assert.ok(outcome.controls.every(x=>x.w>=44&&x.h>=44),
+        "All existing targets remain >=44x44 CSS px at "+label+": "+JSON.stringify(outcome.controls));
+      assert.ok(outcome.controls.every(x=>x.inViewport&&x.hit),
+        "Controls must be genuinely hit-testable without overlays at "+label+": "+JSON.stringify(outcome.controls));
+      assert.ok(outcome.viewport.mapBottom<=outcome.viewport.navTop+1,
+        "Map must precede navigation at "+label);
+      assert.ok(outcome.viewport.navBottom<=outcome.viewport.dockTop+1,
+        "Navigation must stay above fixed D-pad at "+label);
+      assert.ok(outcome.viewport.scrollWidth<=outcome.viewport.clientWidth+1);
+      assert.deepEqual(errors,[]);
+      await page.screenshot({
+        path:folder+"/qa097-nhal-"+label+".png",animations:"disabled"
+      });
+      results.push({label,...outcome});
+    }finally{await context.close();}
+  }
+  await writeFile(folder+"/qa097-report.json",JSON.stringify({
+    title:"ROGOV QA-097 — Chromium portrait acceptance",
+    source:"Automated Chromium touch emulation only; no real Android FPS/gestures",
+    measuredAt:"GitHub Actions run",
+    hardGates:["121 visible-or-fogged tiles","no hidden enemy/light data",
+      "13 touch centers actually target their controls","all controls >=44x44 CSS px",
+      "no map/navigation/dock overlap","no save or turn mutation"],
+    renderTiming:"22 redraws per portrait; diagnostic only, not a physical-device budget",
+    results
+  },null,2)+"\n");
+});

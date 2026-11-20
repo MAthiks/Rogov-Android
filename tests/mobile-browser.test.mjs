@@ -1215,7 +1215,7 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
     assert.equal(await dock.isVisible(),true,"real Combat drawer reveals the original dock");
     const placement=await page.evaluate(()=>{
       const field=document.getElementById("field-controls").getBoundingClientRect();
-      const dock=document.getElementById("combat-dock").getBoundingClientRect();
+      const dock=document.getElementById("ui092-sheet").getBoundingClientRect();
       const map=document.getElementById("tile-map").getBoundingClientRect();
       return {drawerAboveDock:dock.bottom<=field.top-5,
         mapAboveDock:map.bottom<=field.top+1,

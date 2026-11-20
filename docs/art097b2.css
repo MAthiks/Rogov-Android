@@ -1,0 +1,46 @@
+/* ART-097B2 — 24px turn-bound silhouette micro-animations.
+ * Applied ONLY to sprites on a new, real turn. Cell, HP, focus, overlays,
+ * selection borders and intent badges never move; no timers or glow.
+ * No animation on unknown / remembered cells, legend, Veyr or ASCII.
+ */
+@media (prefers-reduced-motion: no-preference){
+  @keyframes art097b2-step{
+    0%{transform:translateY(1px)}
+    50%{transform:translateY(-1px)}
+    100%{transform:translateY(0)}
+  }
+  @keyframes art097b2-scavenge{
+    0%{transform:translateX(-1px)}
+    50%{transform:translateX(1px)}
+    100%{transform:translateX(0)}
+  }
+  @keyframes art097b2-sentinel{
+    0%{transform:translateY(0)}
+    50%{transform:translateY(1px)}
+    100%{transform:translateY(0)}
+  }
+  @keyframes art097b2-larva{
+    0%{transform:translateX(0)}
+    50%{transform:translateX(-1px)}
+    100%{transform:translateX(0)}
+  }
+  .pixel-tile[data-knowledge="visible"].tile-hero.art097b2-step img{
+    animation:art097b2-step 180ms steps(2,end) 1 both;
+  }
+  .pixel-tile[data-knowledge="visible"].tile-charognard.art097b2-foe-turn img{
+    animation:art097b2-scavenge 170ms steps(2,end) 1 both;
+  }
+  .pixel-tile[data-knowledge="visible"].tile-guardian.art097b2-foe-turn img{
+    animation:art097b2-sentinel 200ms steps(2,end) 1 both;
+  }
+  .pixel-tile[data-knowledge="visible"].tile-rift_larva.art097b2-foe-turn img{
+    animation:art097b2-larva 180ms steps(2,end) 1 both;
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .pixel-tile.art097b2-step img,
+  .pixel-tile.art097b2-foe-turn img{
+    animation:none!important;
+    transform:none!important;
+  }
+}

@@ -9,11 +9,11 @@ import {ROOM_SITES,roomSiteAppearance} from "../docs/room-events.js";
 
 const decode=uri=>decodeURIComponent(uri.slice("data:image/svg+xml;charset=UTF-8,".length));
 
-test("ART-091C: 15 original standalone, offline 24px SVG sprites map to existing keys",()=>{
-  assert.equal(INTERACTIVE_IDS.length,15);
-  assert.equal(new Set(INTERACTIVE_IDS).size,15);
-  assert.equal(new Set(Object.values(INTERACTIVE_SVGS)).size,15);
-  assert.equal(new Set(Object.values(INTERACTIVE_SPRITES)).size,15);
+test("ART-091C / GAME-101D: 17 original standalone, offline 24px SVG sprites map to existing keys",()=>{
+  assert.equal(INTERACTIVE_IDS.length,17);
+  assert.equal(new Set(INTERACTIVE_IDS).size,17);
+  assert.equal(new Set(Object.values(INTERACTIVE_SVGS)).size,17);
+  assert.equal(new Set(Object.values(INTERACTIVE_SPRITES)).size,17);
   for(const id of INTERACTIVE_IDS){
     const xml=INTERACTIVE_SVGS[id],uri=INTERACTIVE_SPRITES[id];
     assert.match(xml,/viewBox="0 0 24 24" width="24" height="24"/);

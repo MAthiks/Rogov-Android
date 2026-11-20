@@ -75,10 +75,11 @@ export function setupUi092({get,isRun,isAscii}){
     mount.append(node);
     activeNode=node;activeId=id;title.textContent=LABELS[id];
     sheet.hidden=false;
+    measure(); // Reconcile the actual fixed dock edge before exposing content.
     const button=get(id);
     button?.setAttribute("aria-expanded","true");
     button?.classList.add("is-active");
-    sheet.scrollTop=0;
+    mount.scrollTop=0;
   }
   for(const id of ["jump-map",...Object.keys(PANEL_IDS)]){
     get(id)?.addEventListener("click",()=>open(id));
@@ -95,10 +96,18 @@ export function setupUi092({get,isRun,isAscii}){
   // measured pixels so the drawer never covers a healing/movement button.
   function measure(){
     if(!isRun()||!mobile())return;
-    const h=Math.ceil(controls.getBoundingClientRect().height);
-    if(h>0)get("game-shell").style.setProperty("--ui092-dock-height",h+"px");
+    const dock=controls.getBoundingClientRect();
+    const h=Math.ceil(dock.height);
+    if(h<=0)return;
+    const shell=get("game-shell");
+    shell.style.setProperty("--ui092-dock-height",h+"px");
+    // Height alone is insufficient when Android changes its visual viewport:
+    // measure the dock's true top edge and reserve an 8px separation.
+    const clearance=Math.max(h,Math.ceil(window.innerHeight-dock.top))+8;
+    shell.style.setProperty("--ui098b1-sheet-bottom",clearance+"px");
   }
   if("ResizeObserver" in window)new ResizeObserver(measure).observe(controls);
+  window.visualViewport?.addEventListener("resize",measure);
   window.addEventListener("resize",()=>{
     if(!mobile())restore();
     measure();

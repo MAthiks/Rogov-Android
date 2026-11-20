@@ -1,6 +1,6 @@
 # ART-097C1 — Premières lumières locales de Nhal
 
-**Date :** 20 novembre 2026. **État :** PR de développement ; pas de fusion avant validation.
+**Date :** 20 novembre 2026. **État : fusionné dans `main`**, PR #54, commit `1dca3fd774726f72b83dac1d1af4cf349c454e8f`. Recette Android physique ouverte.
 **Base :** ART-097B2 / PR #53 fusionnée, commit `abdf705`, checkpoint `3fc1150`.
 **Référence :** maquette dark fantasy UI/ART-097.
 
@@ -78,3 +78,12 @@ case inconnue.
 
 **Étape suivante :** ART-097C2 uniquement si nécessaire, éclairage
 plus nuancé selon retour de test, toujours sans mécanique.
+
+
+## Bilan CI / livraison — PR #54
+
+- **385/385 tests Node**, **59/59 tests Chromium**, Chrome Android 13 sur émulateur et compilation/installation/lancement APK réussis.
+- Une incompatibilité du simulateur de DOM historique a été corrigée sans modifier le moteur : le SVG décoratif utilise l'attribut `alt` vide, sans appel accessibilité superflu.
+- Capture de scène de contrôle `art097c1-visible-lighting.png` et captures Nhal 320×640 / 360×780 / 393×704 consultées depuis l'artefact `qa096-chromium-portraits`, run `44702300635`. Scène 11×11 contenant une torche, une Arche et une Faille ; brouillard effectivement actif ; aucune case cachée ou mémorisée n'est éclairée.
+- Aucun nouveau mode de lumière mécanique, pas de tour dépensé, pas de sauvegarde écrite ; couleurs locales uniquement.
+- **Non validé humainement :** contraste sur téléphone physique, autonomie, fluidité Android réel, tests de 5 participants × 2 descentes. Le workflow de publication du dernier `main` doit être vérifié séparément.

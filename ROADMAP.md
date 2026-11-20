@@ -120,7 +120,7 @@ et mécaniques sont intacts. **381/381 tests Node et 58/58 Chromium**, Chrome An
 **automatisés validés** ; captures Nhal 320×640, 360×780, 393×704
 inspectées, dimensions de carte et cibles tactiles stables. [Contrat ART-097B2](docs/ART097B2_TURN_BOUND_MOTION.md).
 
-**ART-097C1 — Éclairages visibles de Nhal (en développement, PR à valider) :**
+**ART-097C1 — PR #54 fusionnée**, commit `1dca3fd` :
 nouveau sconce mural purement décoratif SVG 24×24, uniquement sur un mur
 visible adjacent à un sol visible, placé par hash de terrain déterministe,
 sans objet de jeu ni gain de vision. Accent lumineux statique **ambre**
@@ -133,8 +133,10 @@ de shader, de boucle d'animation, d'effet sur PJ/ennemis/ciblages.
 cache PWA versionné et tests Node/Chromium avec fixture réel 11×11.
 Aucun changement de gameplay, sauvegarde, ASCII ou moteur.
 [Contrat et recette ART-097C1](docs/ART097C1_VISIBLE_LIGHTING.md).
-**Node/Chromium, Chrome Android 13 et APK + inspection des captures
-obligatoires avant fusion.**
+**385/385 tests Node, 59/59 Chromium, Chrome Android 13 et APK
+validés en automatisation.** Capture de scène fog-safe torche/Arche/Faille
+et portraits Nhal examinés ; aucune lumière sur case inconnue ou
+mémorisée, aucun halo de personnage, interfaces tactiles préservées.
 
 **Suite WIP=1 :** QA-097 : contrôler les performances, le toucher et
 l'atmosphère sur Android physique avant tout effet plus coûteux.

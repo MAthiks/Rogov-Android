@@ -2,11 +2,10 @@
 
 **Date :** 20 novembre 2026.
 **Dépôt :** `MAthiks/Rogov-Android`.
-**Dernier merge confirmé :** ART-097B2 / PR #53, `abdf705`, suivi
-`3fc1150` et workflows de publication Web/APK réussis.
-**Branche active :** `feature/art097c1-visible-lighting`.
-**Statut :** lot en PR, ne pas annoncer fusion ni tests réalisés avant
-confirmation GitHub.
+**Dernier merge confirmé : ART-097C1 / PR #54**, commit `1dca3fd774726f72b83dac1d1af4cf349c454e8f`.
+**Précédent :** ART-097B2 / PR #53, `abdf705`, suivi `3fc1150`.
+**Branche fusionnée :** `feature/art097c1-visible-lighting`.
+**CI de PR :** 385/385 Node, 59/59 Chromium, Chrome Android 13 et APK automatisés verts.
 
 ## Travail réel sur les sources
 
@@ -34,9 +33,24 @@ Godot/PC reportés.
 
 ## Validations et suite
 
-Trois workflows `test-web`, `android-web`, `build` et
-inspection des captures exigés avant fusion.
+**Gates automatiques validés :** `test-web`, `android-web`, `build` verts et
+inspection des captures Chromium 320×640, 360×780, 393×704 et de la scène
+fog-safe torche/Arche/Faille réalisée.
 **Pas de test physique Android revendiqué** et campagne 5×2 ouverte.
 Après validation du lot : QA-097, recette esthétique et fluidité
 sur Android réel, avant d'empiler de nouveaux effets.
 Références : [ART-097C1](ART097C1_VISIBLE_LIGHTING.md), [ROADMAP](../ROADMAP.md).
+
+
+## Résultat et reprise
+
+Le lot ART-097C1 est fusionné. La scène d'éclairage confirme la
+séparation des torches ambre, de l'Arche turquoise et de la Faille
+cramoisie et le brouillard effectif. Aucun effet sur les cases non
+visibles et aucune mécanique nouvelle. Le test sur téléphone physique
+et 5 participants × 2 descentes restent ouverts.
+
+**Prochaine étape recommandée : QA-097 — validation esthétique et
+fluidité sur Android réel** avant de nouveaux effets visuels coûteux.
+Le déploiement GitHub Pages et le workflow APK de `main` sont à
+vérifier indépendamment de la CI de PR.

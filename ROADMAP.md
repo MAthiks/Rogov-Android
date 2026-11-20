@@ -1,6 +1,10 @@
 # Roadmap ROGOV — état du 20 novembre 2026
 
-## GAME-101B — Bifurcations à enjeux (PR en cours)
+## GAME-101C — Cartographie tactique du repli (PR en validation)
+
+**Après GAME-101B fusionné (PR #62, `ae877402`) :** l'atelier de la voie est propose un choix exclusif supplémentaire sur les **nouvelles descentes** : relever un croquis du trajet vers l'Arche (1 tour, 2 END, +1 XP) plutôt qu'emporter un bandage ou un Fragment de cendre. Le croquis fait apparaître uniquement une sélection limitée de cases de **sol** sur le chemin de retour, comme des zones mémorisées et **jamais visibles en direct** ; il ne montre ni ennemis, ni coffres, ni pièges, ni portes encore inconnues. Le tour expose à la phase ennemie, l'action ne consomme aucun tirage de combat, et les anciennes sauvegardes restent inchangées grâce à `scoutingPlanVersion=1`. [Contrat et recette](docs/GAME101C_CARTOGRAPHIE_TACTIQUE.md).
+
+## GAME-101B — Bifurcations à enjeux (fusionné · PR #62)
 
 **Après la fusion de GAME-101A (PR #61)** : les nouvelles descentes profondes offrent deux itinéraires identifiables dès le vestibule, une piste de ravitaillement à l'est (atelier) et une piste risquée au nord (cache gardée). Les traces sont locales, sans radar du brouillard. `branchPlanVersion=1` garantit que les anciennes descentes conservent leurs lieux et leurs récompenses ; le nouveau sceau coûte 1 tour/3 END et promet une rondache et 2 XP. Aucune voie de retour ou extraction obligatoire n'est fermée. [Contrat et recette GAME-101B](docs/GAME101B_BRANCH_CHOICES.md).
 

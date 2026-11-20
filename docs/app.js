@@ -448,8 +448,10 @@ function updateRoomSiteActions(){
   $("room-site-title").textContent=event.name;
   $("room-site-description").textContent=event.description;
   for(const [choice,rule] of Object.entries(event.options)){
-    if(site.kind==="cache"&&choice==="buckler"&&
-        state.run.branchPlanVersion!==1)continue;
+    if((site.kind==="cache"&&choice==="buckler"&&
+        state.run.branchPlanVersion!==1)||
+       (site.kind==="atelier"&&choice==="cartographie"&&
+        state.run.scoutingPlanVersion!==1))continue;
     const button=document.createElement("button");
     button.type="button";
     button.className="secondary room-site-choice";

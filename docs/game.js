@@ -19,6 +19,7 @@ import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} fr
 import {ROOM_SITES,validRoomSites,roomSiteVisible,roomSiteAppearance} from "./room-events.js";
 import {acousticReading,LISTEN_ENDURANCE_COST} from "./acoustics.js";
 import {branchClue} from "./branch-intel.js";
+import {surveyRetreatSketch} from "./route-survey.js";
 import {RECIPES,canCraft} from "./economy.js";
 import {validEchoFindings,discoverEcho} from "./echo-investigation.js";
 import {EQUIPMENT_CATALOG} from "./stats.js";
@@ -467,6 +468,9 @@ export function validateSave(s) {
         r.floorDepth>MAX_FLOOR_DEPTH||r.lootPlanVersion!==1))
       return false;
     if(r.exploration!==undefined && !validExploration(r))return false;
+    if(r.scoutingPlanVersion!==undefined&&
+       (r.scoutingPlanVersion!==1||r.branchPlanVersion!==1||
+        !r.exploration||!Array.isArray(r.sites)))return false;
     if(!validSecrets(r)||!validTraps(r)||!validRoomSites(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
     if (!r.carried || !Array.isArray(r.collected) || !Number.isSafeInteger(r.turns)) return false;
@@ -561,6 +565,7 @@ export function beginRun(state, equipment=[], loadoutChoice=null, options={}) {
     map:layout.map,loot:layout.loot,layoutId:layout.layoutId,
     ...(layout.lootPlanVersion?{lootPlanVersion:layout.lootPlanVersion}:{}),
     ...(layout.branchPlanVersion?{branchPlanVersion:layout.branchPlanVersion}:{}),
+    ...(layout.scoutingPlanVersion?{scoutingPlanVersion:layout.scoutingPlanVersion}:{}),
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       ...(layout.geometryVersion?{geometryVersion:layout.geometryVersion}:{}),
@@ -641,6 +646,7 @@ export function resolveFloorExit(state,choice){
     ...(layout.lootPlanVersion?{lootPlanVersion:layout.lootPlanVersion}:{}),
     ...(layout.depthBalanceVersion?{depthBalanceVersion:layout.depthBalanceVersion}:{}),
     ...(layout.branchPlanVersion?{branchPlanVersion:layout.branchPlanVersion}:{}),
+    ...(layout.scoutingPlanVersion?{scoutingPlanVersion:layout.scoutingPlanVersion}:{}),
     rooms:layout.rooms,doors:layout.doors,
     doorPlanVersion:layout.doorPlanVersion,
     geometryVersion:layout.geometryVersion,
@@ -771,7 +777,9 @@ export function resolveRoomSite(state,siteId,optionId){
     return info(state,"Aucun lieu interactif visible et inexploré à portée.",false);
   const option=ROOM_SITES[site.kind]?.options?.[optionId];
   if(!option||(site.kind==="cache"&&optionId==="buckler"&&
-      run.branchPlanVersion!==1))
+      run.branchPlanVersion!==1)||
+      (site.kind==="atelier"&&optionId==="cartographie"&&
+      run.scoutingPlanVersion!==1))
     return info(state,"Cette interaction n'existe pas.",false);
   if(option.endurance>(run.endurance??0))
     return info(state,"Endurance insuffisante : cette action demande "+
@@ -786,8 +794,10 @@ export function resolveRoomSite(state,siteId,optionId){
   if(option.item)s.run.carried[option.item]=(s.run.carried[option.item]||0)+1;
   const finding=site.kind==="echo"?discoverEcho(s.meta):null;
   gainXp(s,option.xp);
+  const sketched=optionId==="cartographie"?surveyRetreatSketch(s.run):null;
   const message=option.text+(option.item?" +1 "+ITEMS[option.item].name+".":"")+
-    " +"+option.xp+" XP."+(finding?" INDICE CONSERVÉ — "+finding.title+".":"");
+    " +"+option.xp+" XP."+(sketched!==null?" "+sketched+" cases de sol consignées.":"")+
+    (finding?" INDICE CONSERVÉ — "+finding.title+".":"");
   recordEvent(s,"loot",message,s.run.turns);
   revealAround(s.run);
   const after=enemyPhase(s);

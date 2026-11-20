@@ -353,6 +353,10 @@ export function validateDeepLayout(layout,live=false){
   if(layout.topologyVersion!==undefined&&!graph)return false;
   if(layout.branchPlanVersion!==undefined&&
       (layout.branchPlanVersion!==1||!graph))return false;
+  // GAME-101C: old saved dungeons keep their exact site actions and fog.
+  if(layout.scoutingPlanVersion!==undefined&&
+      (layout.scoutingPlanVersion!==1||layout.branchPlanVersion!==1||
+       !Array.isArray(layout.sites)))return false;
   if(graph&&(legacy||layout.geometryVersion!==ROOM_GEOMETRY_VERSION))return false;
   if(!graph&&Array.isArray(rooms)&&
       rooms.some(r=>Object.hasOwn(r||{},"slot")))return false;
@@ -553,6 +557,8 @@ export function generateDeepLayout(index){
         if(error?.message!=="No safe DEV-087 room site")throw error;
         continue;
       }
+      // Cartographic choice is available on new floors, never old saves.
+      layout.scoutingPlanVersion=1;
       if(!validateDeepLayout(layout))continue;
       // Reward is selected independently of dungeon geometry and combat RNG.
       // Preserve the entry bandage and valuable Fragment. Only the third,

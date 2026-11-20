@@ -59,6 +59,7 @@ test("GAME-101B: clues only describe actually visible doors, not fog content",()
   }
   assert.equal(branchClue(run,0,0),null);
   const old=structuredClone(s);delete old.run.branchPlanVersion;
+  delete old.run.scoutingPlanVersion; // GAME-101C is absent from historical runs.
   assert.ok(validateSave(old));
   assert.equal(branchOverview(old.run),null);
   assert.equal(branchClue(old.run,doors[0].x,doors[0].y),null);
@@ -97,6 +98,7 @@ test("GAME-101B: guarded reward is exclusive, consumes 1 turn / 3 END",()=>{
   const noStamina=structuredClone(s);noStamina.run.endurance=2;
   assert.equal(resolveRoomSite(noStamina,cache.id,"buckler").changed,false);
   const old=structuredClone(s);delete old.run.branchPlanVersion;
+  delete old.run.scoutingPlanVersion; // GAME-101C is absent from historical runs.
   assert.ok(validateSave(old));
   assert.equal(resolveRoomSite(old,cache.id,"buckler").changed,false);
   const forged=structuredClone(result.state);delete forged.run.branchPlanVersion;

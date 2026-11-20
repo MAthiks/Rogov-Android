@@ -896,7 +896,7 @@ test("DEV-087 mobile: hidden exploration rooms become visible and choices persis
     await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#room-site-panel").isVisible(),true);
     assert.match(await page.locator("#room-site-title").textContent(),/Atelier abandonné/);
-    assert.equal(await page.locator("#room-site-options button").count(),2);
+    assert.equal(await page.locator("#room-site-options button").count(),3);
     await page.locator('[data-room-choice="fragment"]').tap();
     const after=await page.evaluate(async()=>{
       const game=await import("./game.js");
@@ -4325,6 +4325,54 @@ test("GAME-101A mobile: one tactile listening turn, feedback, reload, and low-st
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await button.isDisabled(),true);
     assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("GAME-101C mobile: three workshop choices, paid retreat sketch and persistence", {timeout:60000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    const before=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const {revealAround}=await import("./exploration-visibility.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const site=state.run.sites.find(s=>s.kind==="atelier");
+      const at=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:site.x+dx,y:site.y+dy}))
+        .find(p=>state.run.map[p.y]?.[p.x]==="."&&
+          !state.run.traps.some(t=>t.x===p.x&&t.y===p.y));
+      if(!at)throw Error("Atelier unreachable");
+      state.run.x=at.x;state.run.y=at.y;state.run.enemies=[];
+      revealAround(state.run);
+      if(!game.validateSave(state))throw Error("GAME-101C invalid workshop");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+      return {endurance:state.run.endurance,seen:state.run.exploration.seen.length};
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#jump-action").isEnabled(),true);
+    await page.locator("#jump-action").tap();
+    assert.equal(await page.locator("#room-site-options button").count(),3);
+    const sketch=page.locator('[data-room-choice="cartographie"]');
+    assert.equal(await sketch.isEnabled(),true);
+    await sketch.tap();
+    const after=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const saved=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(saved),endurance:saved.run.endurance,
+        turns:saved.run.turns,seen:saved.run.exploration.seen.length,
+        choice:saved.run.sites.find(s=>s.kind==="atelier").choice};
+    });
+    assert.equal(after.valid,true);
+    assert.equal(after.choice,"cartographie");
+    assert.equal(after.endurance,before.endurance-2);
+    assert.equal(after.turns,1);
+    assert.ok(after.seen>before.seen,"Cartographic memory persists in stored save");
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.equal(await page.locator("#room-site-options button").count(),0);
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });

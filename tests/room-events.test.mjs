@@ -124,6 +124,7 @@ test("DEV-087: full bag, insufficient stamina and remote choices are rejected fr
 
 test("DEV-087: legacy saves never gain room sites; tampered choices cannot enter game",()=>{
   const old=at(2);delete old.run.sites;
+  delete old.run.scoutingPlanVersion; // Simulated pre-GAME-101C legacy run.
   assert.ok(validateSave(old),"older active deep save remains valid");
   assert.equal(nearbyRoomSite(old.run),null);
   assert.ok(validateSave(normalizeJournal(JSON.parse(JSON.stringify(old)))));

@@ -370,3 +370,11 @@ Le [GDD exploration v0.9](docs/GDD_EXPLORATION_NHAL_V0.9.md) est la référence 
 ## Voie Android native — historique séparé
 
 Le prototype Kotlin/APK de compatibilité reste disponible dans `app/`, mais il n'est **pas** le canal de diffusion prioritaire. Les anciennes étapes Kotlin/ASCII → génération procédurale → classes → boss → graphismes ont été replanifiées et ne représentent plus une séquence de livraison active.
+
+## UI/ART-100 — Final Graphic Polish (PR en attente de QA)
+
+**Branche** `feature/ui-art-100-final-graphic-polish` ; PR unique, **pas de fusion avant contrôle technique et retour Android réel**. Baseline UI/ART-099 PR #59, fusion `0ceb968`. Sans changement du moteur `game.js`, des tours/combats, du RNG, des règles de FOV, du schéma `rogov-web-v1`, d'ASCII ou de l'APK Kotlin historique.
+
+**Code développé** : 54 SVG 24×24 existants, relief des six sols et des 48 murs, couloirs matérialisés seulement si les quatre voisins sont visibles, Sprite C à capuche 4 directions, Charognard/Gardien/Larve sans cadres colorés, retouches des coffres, portes, pièges révélés, Arches/Faille. `ui100.css` chargé après `ui099.css` harmonise sans réduire les 44px tactiles, déplac​​er le pavé ou masquer les vrais tiroirs. Cache PWA renouvelé pour navigateur hors-ligne et WebView. [Contrat et recette](docs/UI_ART_100_FINAL_GRAPHIC_POLISH.md) · [Checkpoint](docs/CHECKPOINT_CHAT_UI_ART_100.md).
+
+**Validation avant fusion** : contrôles Node, Chromium 320×640 / 360×780 / 393×704, Chrome Android 13, véritable WebView APK Android 13, ancien APK Kotlin. Statuts CI à vérifier à la PR ; **aucune preuve esthétique sur appareil réel encore**. QA joueurs 5×2 toujours ouverte. Après GO graphique, priorité gameplay/exploration.

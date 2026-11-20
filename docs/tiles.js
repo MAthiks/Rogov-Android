@@ -4,7 +4,7 @@ import { MAP, ENEMY_TYPES, enemyAt, cameraBounds } from "./game.js";
 import { hasFog,visibleCells,visionKey } from "./exploration-visibility.js";
 import {trapAppearance} from "./traps.js";
 import {roomSiteAppearance} from "./room-events.js";
-import {TERRAIN_SVGS,terrainSpriteAt} from "./terrain-art.js";
+import {TERRAIN_SVGS,terrainSpriteAt,knownCorridorAxis} from "./terrain-art.js";
 import {HERO_SVGS} from "./hero-art.js";
 import {currentEnemyIntent} from "./combat.js";
 import {ENEMY_SVGS} from "./enemy-art.js";
@@ -97,6 +97,8 @@ export function drawTileMap(state,host,heroFacing="down",motion=null) {
     // queried by localLightAt must itself pass visibleAt before reading map.
     const ambience=visible?localLightAt(map,x,y,visibleAt,artSeed):null;
     if(ambience)cell.classList.add("art097c-"+ambience);
+    const corridorAxis=visible?knownCorridorAxis(map,x,y,visibleAt):null;
+    if(corridorAxis)cell.classList.add("ui100-corridor-"+corridorAxis);
     cell.style.backgroundImage="url('"+terrainSpriteAt(map,x,y,knows,artSeed)+"')";
     let spriteId=null;
     if(x===run.x&&y===run.y){

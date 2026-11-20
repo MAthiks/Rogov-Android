@@ -4176,3 +4176,34 @@ test("UI-099 mobile: a visible hostile opens Combat only on request and can be d
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+test("UI/ART-100: three Android portraits retain 121 pixels, six real targets and no overflow", {timeout:90000}, async()=>{
+  for(const viewport of [{width:320,height:640},{width:360,height:780},{width:393,height:704}]){
+    const context=await browser.newContext({
+      viewport,deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:"block"
+    });
+    try{
+      const page=await context.newPage();
+      const errors=[];
+      page.on("pageerror",error=>errors.push(error.message));
+      await preloadDeepRun(page);
+      assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
+      assert.equal(await page.locator('link[href="./ui100.css?v=1"]').count(),1);
+      const m=await page.evaluate(()=>{
+        const rect=document.querySelector("#tile-map").getBoundingClientRect();
+        return {left:rect.left,right:rect.right,width:rect.width,
+          controls:[...document.querySelectorAll("#expedition-shortcuts button")]
+            .map(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})),
+          documentWidth:document.documentElement.scrollWidth,
+          viewportWidth:document.documentElement.clientWidth,
+          sheetHidden:document.querySelector("#ui092-sheet").hidden};
+      });
+      assert.ok(m.width>0&&m.left>=-1&&m.right<=viewport.width+1,JSON.stringify({viewport,m}));
+      assert.ok(m.documentWidth<=m.viewportWidth+1,JSON.stringify({viewport,m}));
+      assert.equal(m.controls.length,6);
+      assert.ok(m.controls.every(c=>c.w>=44&&c.h>=44),JSON.stringify({viewport,m}));
+      assert.ok(m.sheetHidden);
+      assert.deepEqual(errors,[]);
+    }finally{await context.close();}
+  }
+});

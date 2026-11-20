@@ -17,6 +17,7 @@ import { nearbySecretHint } from "./secrets.js";
 import {nearbyTrapHint,trapHintText} from "./traps.js";
 import {ROOM_SITES,nearbyRoomSite} from "./room-events.js";
 import {LISTEN_ENDURANCE_COST} from "./acoustics.js";
+import {branchOverview,branchClue} from "./branch-intel.js";
 import {expeditionReport} from "./expedition-report.js";
 import { hasFog,explorationState,visibleCells,minimapText } from "./exploration-visibility.js";
 import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
@@ -414,8 +415,9 @@ function updateDoorAction(){
   const select=$("door-select");
   const nearby=adjacentDoors();
   select.disabled=nearby.length===0;
-  select.textContent=nearby.length?
-    "Choisir porte voisine ("+nearby.length+")":"Aucune porte voisine";
+  const route=selectedDoor?branchClue(run,selectedDoor.x,selectedDoor.y):null;
+  select.textContent=route?"Piste : "+route.label:
+    nearby.length?"Choisir porte voisine ("+nearby.length+")":"Aucune porte voisine";
   const run=state.run;
   const door=selectedDoor&&run?.doors?.find(d=>d.x===selectedDoor.x&&d.y===selectedDoor.y);
   const adjacent=door&&Math.abs(run.x-door.x)+Math.abs(run.y-door.y)===1;
@@ -445,6 +447,8 @@ function updateRoomSiteActions(){
   $("room-site-title").textContent=event.name;
   $("room-site-description").textContent=event.description;
   for(const [choice,rule] of Object.entries(event.options)){
+    if(site.kind==="cache"&&choice==="buckler"&&
+        state.run.branchPlanVersion!==1)continue;
     const button=document.createElement("button");
     button.type="button";
     button.className="secondary room-site-choice";
@@ -725,6 +729,9 @@ function renderFloorChoice(run){
 function render() {
   const run = state.run;
   $("game101-listen-result").hidden=true;
+  const fork=branchOverview(run);
+  $("game101-branch-hint").hidden=!fork;
+  $("game101-branch-hint").textContent=fork||"";
   $("listen-btn").disabled=!run||!hasFog(run)||(run.endurance??0)<LISTEN_ENDURANCE_COST;
   $("game-shell").classList.toggle("is-expedition", Boolean(run));
   $("mode-status").textContent = run ? "DESCENTE" : "REFUGE";

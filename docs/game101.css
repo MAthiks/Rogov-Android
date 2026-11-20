@@ -1,0 +1,25 @@
+/* GAME-101A — Acoustic scouting occupies an unused 44px dpad cell.
+ * No added fixed dock height; keyboard L and accessible text are equivalent. */
+.field-controls .dpad .listen{
+  grid-column:3;grid-row:1;min-width:44px;min-height:44px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  gap:2px;font:800 17px/1 system-ui,sans-serif;
+  background:linear-gradient(#303c40,#1b272d);color:#e9d9b8;
+  border-color:#84765e;
+}
+.field-controls .dpad .listen small{
+  font:800 9px/1 ui-monospace,monospace;letter-spacing:.01em;
+}
+.field-controls .dpad .listen:disabled{opacity:.48}
+.frame.is-expedition .field-controls .dpad .listen{
+  background:linear-gradient(#3d4145,#22292f);border-color:#998568;
+}
+.game101-listen-result{
+  max-width:450px;min-width:0;margin:6px auto 3px;padding:7px 10px;
+  border:1px solid #82725b;border-radius:5px;background:#18242a;
+  color:#e1d2b7;font:600 11px/1.4 system-ui,sans-serif;
+  overflow-wrap:anywhere;text-align:left;
+}
+@media(prefers-reduced-motion:reduce){
+  .field-controls .dpad .listen{transition:none;animation:none}
+}

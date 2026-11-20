@@ -1,4 +1,4 @@
-import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, swapChestReward, chestSwapChoices, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, shoveTarget, retreat, useItem, waitTurn, mapViewportText, inventoryCount } from "./game.js";
+import { SAVE_KEY, ITEMS, MAX_HP, newGame, validateSave, normalizeJournal, inspectTile, beginRun, resolveFloorExit, craftAtRefuge, equipItem, unequipItem, discardItem, move, toggleDoor, openChest, swapChestReward, chestSwapChoices, searchSecret, searchTrap, disarmTrap, resolveRoomSite, attackTarget, defend, shoveTarget, retreat, useItem, waitTurn, listenForThreats, mapViewportText, inventoryCount } from "./game.js";
 import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
 import { setupUi097A2 } from "./ui097a2.js";
@@ -16,6 +16,7 @@ import {characterMotionForTurn} from "./character-motion.js";
 import { nearbySecretHint } from "./secrets.js";
 import {nearbyTrapHint,trapHintText} from "./traps.js";
 import {ROOM_SITES,nearbyRoomSite} from "./room-events.js";
+import {LISTEN_ENDURANCE_COST} from "./acoustics.js";
 import {expeditionReport} from "./expedition-report.js";
 import { hasFog,explorationState,visibleCells,minimapText } from "./exploration-visibility.js";
 import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
@@ -723,6 +724,8 @@ function renderFloorChoice(run){
 }
 function render() {
   const run = state.run;
+  $("game101-listen-result").hidden=true;
+  $("listen-btn").disabled=!run||!hasFog(run)||(run.endurance??0)<LISTEN_ENDURANCE_COST;
   $("game-shell").classList.toggle("is-expedition", Boolean(run));
   $("mode-status").textContent = run ? "DESCENTE" : "REFUGE";
   $("hero-name").textContent = state.meta.hero.title;
@@ -759,6 +762,7 @@ function render() {
     $("use-bandage").textContent = "Bandage +4 PV (" + (run.carried["consumable.bandage"] || 0) + ")";
     $("use-tonic").textContent = "Tonique +6 PV (" + (run.carried["consumable.dusk_tonic"] || 0) + ")";
     $("turns").textContent = String(run.turns);
+    $("listen-btn").disabled = !hasFog(run) || (run.endurance??0)<LISTEN_ENDURANCE_COST;
     $("bag-count").textContent = inventoryCount(state) + " / 8";
     updateBagStatus();
     updateExpeditionReport();
@@ -943,7 +947,17 @@ $("floor-descend").addEventListener("click",()=>{
       "permettra l'extraction."))
     act(resolveFloorExit(state,"descend"));
 });
+function performListen(){
+  const outcome=listenForThreats(state);
+  act(outcome);
+  if(outcome.changed&&state.run){
+    const feedback=$("game101-listen-result");
+    feedback.textContent=outcome.message;
+    feedback.hidden=false;
+  }
+}
 $("wait-btn").addEventListener("click", () => act(waitTurn(state)));
+$("listen-btn").addEventListener("click",performListen);
 $("use-bandage").addEventListener("click", () => act(useItem(state, "consumable.bandage")));
 $("use-tonic").addEventListener("click", () => act(useItem(state, "consumable.dusk_tonic")));
 $("target-clear").addEventListener("click", unselectTarget);
@@ -1011,10 +1025,11 @@ window.addEventListener("keydown", (event) => {
     }
     return;
   }
-  const action = { " ":"wait", "1":"bandage", "2":"tonic", "f":"attack", "e":"dodge", "p":"parry", "b":"block", "r":"retreat", "g":"shove" }[event.key.toLowerCase()];
+  const action = { " ":"wait", "1":"bandage", "2":"tonic", "f":"attack", "e":"dodge", "p":"parry", "b":"block", "r":"retreat", "g":"shove", "l":"listen" }[event.key.toLowerCase()];
   if (action && target?.tagName !== "BUTTON") {
     event.preventDefault();
     if (action === "wait") act(waitTurn(state));
+    if (action === "listen") performListen();
     if (action === "bandage") act(useItem(state, "consumable.bandage"));
     if (action === "tonic") act(useItem(state, "consumable.dusk_tonic"));
     if (action === "attack") act(attackTarget(state));

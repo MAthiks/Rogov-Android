@@ -3911,11 +3911,13 @@ test("UI-098B1 mobile: Combat actions scroll and Fermer restores the map", {time
     });
     await page.reload();await page.locator("#title-continue").tap();
     const turns=await page.locator("#turns").textContent();
-    const save=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
     await page.locator("#jump-combat").tap();
     assert.equal(await page.locator("#ui092-sheet-body #combat-dock").count(),1);
     await page.locator("#target-choices button").first().tap();
     assert.equal(await page.locator("#combat-panel").isVisible(),true);
+    // Target selection intentionally persists targetId without costing a turn;
+    // record the post-selection save to isolate the drawer close action.
+    const save=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
     const retreat=page.locator("#combat-retreat");
     await retreat.scrollIntoViewIfNeeded();
     const hit=await retreat.evaluate(el=>{

@@ -6,8 +6,8 @@
 supplémentaire sur `main` à cet instant.
 **Dernière PR fusionnée au départ :** APK-098A, PR #56.
 **Branche de correction :** `fix/ui098b1-android-sheet-clearance`.
-**Statut :** contrôles CI 4/4 verts, **GO Android utilisateur reçu le 20 novembre 2026** ; PR #57 autorisée à la fusion.
-La présente fiche est le checkpoint pré-fusion ; son statut final est suivi dans la PR #57.
+**Statut final : FUSIONNÉ dans `main` le 20 novembre 2026**, PR #57, commit de fusion squashed `299b410400ab2c0c3c8d624363f4ab40a3321b64`.
+**GO Android utilisateur obtenu** (« On est ok »), CI vérifiée sur le dernier commit comportant les changements de code (4/4 workflows verts) ; des vérifications CI peuvent également se poursuivre après la fusion.
 
 ## Résultat du QA physique fourni par l'utilisateur
 
@@ -62,13 +62,13 @@ La capture `rogov-webapk-ui098b1-bag.png` est archivée.
 - [WebView Android 13 + APK parallèle](https://github.com/MAthiks/Rogov-Android/actions/runs/44725603861) : réussi.
 - [APK de compatibilité](https://github.com/MAthiks/Rogov-Android/actions/runs/44725603935) : réussi.
 
-## Bilan de validation et décision de fusion
+## Bilan de validation et fusion réalisée
 
 **GO CI :** les quatre workflows ont réussi ; les éléments WebView et
 APK installable en parallèle ont été archivés. **GO utilisateur Android :**
 confirmation « On est ok » reçue après les instructions de recette.
-**Décision :** intégrer UI-098B1 à `main` via la PR #57 en conservant
-le package d'essai isolé et le contrat de sauvegarde existant.
+**Réalisation :** UI-098B1 intégré à `main` via la PR #57 (`299b410`),
+en conservant le package d'essai isolé et le contrat de sauvegarde existant.
 
 **Reste ouvert après fusion :** revue esthétique et mesures de confort
 élargies, essai des 5 testeurs × 2 descentes, signature APK de

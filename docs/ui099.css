@@ -1,0 +1,94 @@
+/* UI/ART-099 — Android map-first focus, matching existing bronze/slate shell.
+ * Only the secondary IN-FLOW cards disappear. Their original DOM nodes
+ * remain accessible via the existing bottom sheets (Combat, Sac, Journal,
+ * Report) or via Menu (Fiche, legend, minimap, inspection, objective).
+ * No change to hitboxes, fog, map dimensions or fixed movement dock. */
+.ui099-feedback{display:none}
+@media(max-width:730px){
+  /* Keep the live map, its threat warning, six actual shortcuts, extraction
+     decision and fixed survival controls as the expedition's only primary UI. */
+  .frame.is-expedition #expedition .dungeon-wrap > #combat-dock,
+  .frame.is-expedition #expedition .dungeon-wrap > #bag-panel,
+  .frame.is-expedition #expedition > #expedition-report,
+  .frame.is-expedition #expedition > #actor-stats-sheet,
+  .frame.is-expedition #expedition > #route-hint,
+  .frame.is-expedition #expedition > #inspect-panel,
+  .frame.is-expedition #expedition > .notice.danger-text{
+    display:none!important;
+  }
+  /* The journal is reachable through the original Journal shortcut and is
+     moved out of #action-panel while its real sheet is open. */
+  .frame.is-expedition #action-panel,
+  .frame.is-expedition > footer{display:none!important}
+
+  .frame.is-expedition #expedition .dungeon-wrap > .ui099-feedback{
+    display:flex;align-items:center;gap:7px;
+    min-width:0;min-height:30px;
+    margin:3px 2px 0;padding:4px 7px;
+    border:1px solid #414f4e;border-radius:4px;
+    background:#14202a;color:#becfc4;text-align:left;
+    font:600 10px/1.2 system-ui,sans-serif;
+  }
+  .frame.is-expedition .ui099-feedback span{
+    min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .frame.is-expedition .ui099-feedback #ui099-status{flex:2}
+  .frame.is-expedition .ui099-feedback #ui099-inspect{
+    flex:1;text-align:right;color:#dfc18b;
+  }
+  /* Knowledge is now under the actual, already scrollable Options sheet.
+     No duplicate actor stats, legend, known-map, inspection or objective. */
+  .frame.is-expedition #ui099-extras{
+    display:block;margin:4px 0 12px;padding:5px 0 2px;
+    border-bottom:1px solid #506259;
+  }
+  .frame.is-expedition #ui099-extras[hidden]{display:none!important}
+  .frame.is-expedition #ui099-extras > h3{
+    margin:4px 0 7px;font-size:13px;color:#edd8b5;
+  }
+  .frame.is-expedition #ui099-info-slot{
+    display:grid;gap:9px;min-width:0;
+  }
+  .frame.is-expedition #ui099-info-slot > *{
+    display:block;min-width:0;max-width:100%;
+    margin:0;box-sizing:border-box;
+  }
+  .frame.is-expedition #ui099-info-slot > #actor-stats-sheet,
+  .frame.is-expedition #ui099-info-slot > #exploration-map-panel,
+  .frame.is-expedition #ui099-info-slot > #map-legend-details{
+    padding:7px;border:1px solid #53645e;border-radius:8px;
+    background:#17272a;
+  }
+  .frame.is-expedition #ui099-info-slot > #exploration-map-panel[hidden]{
+    display:none!important;
+  }
+  .frame.is-expedition #ui099-info-slot > #route-hint{
+    color:#d7ddcc;border-left:3px solid #d6af73;
+    padding:9px 11px;background:#203333;
+    font:12px/1.5 system-ui,sans-serif;
+  }
+  .frame.is-expedition #ui099-info-slot > #inspect-panel{
+    padding:8px 10px;border:1px solid #53645e;
+    border-radius:8px;background:#15232b;
+  }
+  .frame.is-expedition #ui099-info-slot summary{
+    min-height:44px;display:flex;align-items:center;
+    padding:4px 8px;touch-action:manipulation;
+  }
+  /* Preserve the true portrait layout and remain legible at 320 px. */
+  .frame.is-expedition #expedition .ui092-sheet-body #ui099-extras{
+    width:100%;
+  }
+  .frame.is-expedition #expedition .ui092-sheet-body .panel-aside{
+    overflow-x:hidden;
+  }
+  .frame.is-expedition #expedition .ui092-sheet-body #ui099-info-slot pre{
+    max-width:100%;overflow-x:auto;
+  }
+}
+@media(max-width:350px){
+  .frame.is-expedition .ui099-feedback{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+  .frame.is-expedition .ui099-feedback{animation:none;transition:none}
+}

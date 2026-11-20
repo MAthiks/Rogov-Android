@@ -106,7 +106,8 @@ test("ART-097C2: art remains fog-safe, deterministic and does not consume turns 
 
 test("ART-097C2: offline PWA and APK bundle existing graphic assets; no runtime visual overhead",()=>{
   const sw=read("../docs/sw.js"),html=read("../docs/index.html");
-  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-art097c2-[a-z0-9-]+"/);
+  // Subsequent UI/ART builds rotate offline cache names; atlas stays cached.
+  assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-[a-z0-9-]+"/);
   for(const asset of ["./terrain-art.js","./hero-art.js","./enemy-art.js","./tiles.js"])
     assert.ok(sw.includes('"'+asset+'"'),"Missing offline asset "+asset);
   assert.match(html,/src="\.\/app\.js\?v=0\.7f"/);

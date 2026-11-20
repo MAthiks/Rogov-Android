@@ -228,9 +228,26 @@ l'application déjà installée ; la validation graphique sur appareil physique
 reste à effectuer, ainsi que la vérification de la distribution Android
 principale.
 
-**Suite WIP=1 :** recette du rendu ART-097C2 sur Android et distribution
-de la version principale à jour (PWA / APK), sans casser les sauvegardes.
-Conserver le pavé et les tiroirs UI-098B1 ; Godot/PC reportés.
+**UI/ART-099 — gros lot exceptionnel carte dominante + matériaux (EN PR) :**
+après deux captures sur Android physique, le défilement, les trois cartes
+ennemies et le pavé sont confirmés accessibles ; reste une page trop
+longue et des sols très chargés. En un seul chantier, Android portrait
+conserve les six actions sous la carte et le pavé fixe, mais retire
+Combat/Sac/Rapport/Journal du flux vertical principal : leurs nœuds
+et handlers réels restent accessibles via les tiroirs existants.
+Le Menu donne accès à la vraie Fiche, l'objectif, l'inspection,
+le plan exploré et la légende. Bande de statut courte sous la carte ;
+six sols plus sobres, 48 murs mieux structurés, sprites 24px inchangés.
+Pas de gameplay, de piège, de fuite de brouillard, de changement de
+sauvegarde ni d'APK historique.
+[Contrat et QA UI/ART-099](docs/UI_ART_099_ANDROID_MAP_FOCUS.md) ·
+[Checkpoint](docs/CHECKPOINT_CHAT_UI_ART_099.md).
+**Recette CI et Android physique requise avant nouvelle note artistique** ;
+le rendu de 097C2 sur vrai appareil n'était pas un GO artistique global.
+
+**Suite WIP=1 :** finaliser l'unique PR UI/ART-099, comparer ses
+captures portrait/Android et préserver le pavé/tous les tiroirs 098B1.
+Ne pas reprendre les mécaniques ni Godot/PC avant stabilisation mobile.
 
 **Gate humaine :** captures et gestes Android réel, brouillard/ASCII/offline et test de 5 participants × 2 descentes requis avant d'augmenter la note artistique provisoire de 6/10 ou l'Alpha de 7,5/10.
 

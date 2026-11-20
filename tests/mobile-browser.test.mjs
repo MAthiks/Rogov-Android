@@ -245,7 +245,11 @@ test("DEV-081 mobile: fog hides unseen enemies from DOM, target panel, ASCII and
     assert.equal(await page.locator("#combat-panel").isHidden(),true);
     assert.equal(await page.locator("#threat-forecast").isHidden(),true);
     assert.match(await page.locator("#threat-state").textContent(),/AUCUNE MENACE VISIBLE/);
-    assert.equal(await page.locator("#exploration-map-panel").isHidden(),false);
+    assert.equal(await page.locator("#exploration-map-panel").evaluate(el=>el.hidden),false,
+      "Fog-safe known map is available in the original Menu node");
+    await page.locator("#jump-menu").tap();
+    assert.equal(await page.locator("#ui099-info-slot #exploration-map-panel").isVisible(),true);
+    await page.locator("#ui092-sheet-close").tap();
     const mini=await page.locator("#exploration-mini-map").textContent();
     assert.equal(mini.split("\n").length,32);
     assert.equal(mini.split("\n")[point.y][point.x]," ");
@@ -650,6 +654,9 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
       if(!foe)break;
       const d=Math.abs(now.run.x-foe.x)+Math.abs(now.run.y-foe.y);
       if(d===1){
+        // UI-099: combat targets and actions live only in the real drawer.
+        if(await page.locator("#ui092-sheet").isHidden())
+          await page.locator("#jump-combat").tap();
         if(now.run.targetId!==foe.id){
           await page.locator("#target-choices button")
             .filter({hasText:"Charognard"}).first().tap();
@@ -664,6 +671,8 @@ test("QA-084 mobile: active AI charognard fight, public loot, extraction and rel
           assert.equal(after.run.turns,before+1);
           attacks++;
         }
+        if(await page.locator("#ui092-sheet").isVisible())
+          await page.locator("#ui092-sheet-close").tap();
       }else{
         const route=await plan(foe,true);
         assert.ok(route?.length>=2,"Mobile player can approach the live target");
@@ -912,9 +921,13 @@ test("DEV-088 mobile: report is fog-safe, costs no turn and persists after reloa
     const page=await context.newPage(),errors=[];
     page.on("pageerror",e=>errors.push(e.message));
     await preloadDeepRun(page);
-    assert.equal(await page.locator("#expedition-report").isVisible(),true);
+    assert.equal(await page.locator("#expedition-report").isHidden(),true,
+      "Report is intentionally not repeated below the map");
     const before=await page.locator("#turns").textContent();
-    await page.locator("#expedition-report summary").tap();
+    await page.locator("#jump-report").tap();
+    assert.equal(await page.locator("#ui092-sheet-body #expedition-report").count(),1);
+    assert.equal(await page.locator("#expedition-report").isVisible(),true);
+    assert.equal(await page.locator("#expedition-report").evaluate(el=>el.open),true);
     assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
     assert.equal(await page.locator("#report-carried").textContent(),"0 objet");
     assert.equal(await page.locator("#report-fragments").textContent(),"0");
@@ -928,8 +941,9 @@ test("DEV-088 mobile: report is fog-safe, costs no turn and persists after reloa
     assert.ok(bounds.outer<=bounds.inner+1,"Mobile report must not overflow viewport");
     await page.reload();
     await page.locator("#title-continue").tap();
-    assert.equal(await page.locator("#expedition-report").isVisible(),true);
-    await page.locator("#expedition-report summary").tap();
+    assert.equal(await page.locator("#expedition-report").isHidden(),true);
+    await page.locator("#jump-report").tap();
+    assert.equal(await page.locator("#expedition-report").evaluate(el=>el.open),true);
     assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
     assert.equal(await page.locator("#turns").textContent(),before);
     assert.deepEqual(errors,[]);
@@ -1060,13 +1074,14 @@ test("DEV-089C mobile: eight-room network and expedition UI survive reload", {ti
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
     assert.ok(await page.locator("#tile-map .tile-unknown").count()>0);
-    assert.equal(await page.locator("#expedition-report").isVisible(),true);
+    assert.equal(await page.locator("#expedition-report").isHidden(),true);
     const geometry=await page.evaluate(()=>({
       scroll:document.documentElement.scrollWidth,
       viewport:document.documentElement.clientWidth}));
     assert.ok(geometry.scroll<=geometry.viewport+1,
       "Variable networks must not overflow mobile portrait");
-    await page.locator("#expedition-report summary").tap();
+    await page.locator("#jump-report").tap();
+    assert.equal(await page.locator("#expedition-report").evaluate(el=>el.open),true);
     assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
     assert.equal(await page.locator("#turns").textContent(),"0");
     await page.reload();await page.locator("#title-continue").tap();
@@ -1120,8 +1135,13 @@ test("DEV-090A mobile cockpit: map touches controls, shortcuts cost no turns and
     const before=await page.locator("#turns").textContent();
     await page.locator("#jump-report").tap();
     assert.equal(await page.locator("#expedition-report").evaluate(n=>n.open),true);
+    await page.locator("#ui092-sheet-close").tap();
     await page.locator("#jump-bag").tap();
+    await page.locator("#ui092-sheet-close").tap();
+    // When there are no enemies Combat is unavailable and remains free.
     await page.locator("#jump-combat").tap();
+    if(await page.locator("#ui092-sheet").isVisible())
+      await page.locator("#ui092-sheet-close").tap();
     await page.locator("#jump-map").tap();
     assert.equal(await page.locator("#turns").textContent(),before,
       "navigation never consumes a turn");
@@ -1141,8 +1161,11 @@ test("DEV-090A cockpit remains functional in ASCII and after reload", {timeout:6
     assert.equal(await page.locator("#dungeon-map").isVisible(),true);
     await page.locator("#jump-map").tap();
     assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.locator("#jump-menu").tap();
+    assert.equal(await page.locator("#ui099-extras").isVisible(),true);
     await page.locator("#map-legend-details summary").tap();
     assert.equal(await page.locator("#ascii-legend").isVisible(),true);
+    await page.locator("#ui092-sheet-close").tap();
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#field-controls").isVisible(),true);
     assert.equal(await page.locator("#dungeon-map").isVisible(),true);
@@ -1201,19 +1224,22 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
     await page.reload();
     await page.locator("#title-continue").tap();
     const dock=page.locator("#combat-dock");
-    assert.equal(await dock.isVisible(),true,"visible enemy reveals the dock");
+    assert.equal(await dock.isHidden(),true,"UI-099 stores visible threats in Combat, not in long page");
     assert.equal(await page.locator("#target-choices button").count(),1);
+    await page.locator("#jump-combat").tap();
+    assert.equal(await dock.isVisible(),true,"real Combat drawer reveals the original dock");
     const placement=await page.evaluate(()=>{
       const field=document.getElementById("field-controls").getBoundingClientRect();
-      const dock=document.getElementById("combat-dock").getBoundingClientRect();
+      const dock=document.getElementById("ui092-sheet").getBoundingClientRect();
       const map=document.getElementById("tile-map").getBoundingClientRect();
-      return {dockAfterMap:dock.top>=map.bottom-1,
+      return {drawerAboveDock:dock.bottom<=field.top-5,
+        mapAboveDock:map.bottom<=field.top+1,
         fixedAtBottom:Math.abs(field.bottom-window.innerHeight)<=2,
         width:document.documentElement.clientWidth,
         overflow:document.documentElement.scrollWidth};
     });
-    assert.ok(placement.dockAfterMap&&placement.fixedAtBottom,
-      "UI-092A: tactical dock remains in DOM and movement stays anchored");
+    assert.ok(placement.drawerAboveDock&&placement.mapAboveDock&&placement.fixedAtBottom,
+      "UI-099: tactical drawer stays clear of the fixed movement dock");
     assert.ok(placement.overflow<=placement.width+1);
     assert.equal(await page.locator("#combat-panel").isHidden(),true,
       "combat actions require explicit target choice");
@@ -1242,7 +1268,7 @@ test("DEV-090B mobile: compact visible-enemy combat, detail drawer and real tact
     await page.locator("#combat-analysis summary").tap();
     assert.equal(await page.locator("#combat-target-profile").isVisible(),true);
     assert.equal(await page.locator("#turns").textContent(),"0");
-    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
     assert.equal(await page.locator("#turns").textContent(),"0");
     await page.locator("#combat-dodge").tap();
     assert.equal(await page.locator("#turns").textContent(),"1",
@@ -1910,13 +1936,16 @@ test("UI-092A mobile: contextual sheets reuse real doors, bag, journal and repor
     assert.equal(await page.locator("#turns").textContent(),before);
     await page.locator("#door-action").tap();
     assert.equal(await page.locator("#turns").textContent(),String(Number(before)+1));
+    await page.locator("#ui092-sheet-close").tap();
     await page.locator("#jump-bag").tap();
     assert.equal(await mount.locator("#bag-panel").count(),1);
     assert.equal(await mount.locator("#interaction-dock").count(),0);
     assert.equal(await page.locator("#bag-panel").evaluate(e=>e.open),true);
+    await page.locator("#ui092-sheet-close").tap();
     await page.locator("#jump-report").tap();
     assert.equal(await mount.locator("#expedition-report").count(),1);
     assert.equal(await page.locator("#expedition-report").evaluate(e=>e.open),true);
+    await page.locator("#ui092-sheet-close").tap();
     await page.locator("#jump-journal").tap();
     assert.equal(await mount.locator("#history-details").count(),1);
     await page.locator("#ui092-sheet-close").tap();
@@ -1958,7 +1987,7 @@ test("UI-092A mobile: combat sheet keeps targeting and active tactical defenses 
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
     });
     await page.reload();await page.locator("#title-continue").tap();
-    assert.equal(await page.locator("#combat-dock").isVisible(),true);
+    assert.equal(await page.locator("#combat-dock").isHidden(),true);
     const mapCount=await page.locator("#tile-map .pixel-tile").count();
     await page.locator("#jump-combat").tap();
     assert.equal(await page.locator("#ui092-sheet-body #combat-dock").count(),1);
@@ -1968,7 +1997,7 @@ test("UI-092A mobile: combat sheet keeps targeting and active tactical defenses 
     await page.locator("#combat-dodge").tap();
     assert.equal(await page.locator("#turns").textContent(),"1");
     assert.equal(await page.locator("#tile-map .pixel-tile").count(),mapCount);
-    await page.locator("#jump-map").tap();
+    await page.locator("#ui092-sheet-close").tap();
     assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
     assert.equal(await page.locator("#combat-dock").count(),1);
     const restored=await page.evaluate(async()=>{
@@ -2013,7 +2042,7 @@ test("QA-092 Android portrait: a real player journey from Veyr earns loot, extra
         await page.locator("#jump-bag").tap();
         assert.equal(await page.locator("#ui092-sheet-body #bag-panel").count(),1);
         assert.match(await page.locator("#bag-items").textContent(),/Fragment de cendre/);
-        await page.locator("#jump-map").tap();
+        await page.locator("#ui092-sheet-close").tap();
         assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
       }
     }
@@ -2046,7 +2075,7 @@ test("QA-092 Android portrait: a real player journey from Veyr earns loot, extra
     assert.equal(await page.locator("#ui092-sheet-body #expedition-report").count(),1);
     assert.match(await page.locator("#report-route").textContent(),/Arche non repérée/);
     const previous=await page.locator("#turns").textContent();
-    await page.locator("#jump-map").tap();
+    await page.locator("#ui092-sheet-close").tap();
     assert.equal(await page.locator("#turns").textContent(),previous);
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#turns").textContent(),"0");
@@ -2542,9 +2571,14 @@ test("GAME-095C1 Android portrait: visible charge warning, reload and sidestep",
     await page.locator("#wait-btn").tap();
     assert.equal(await page.locator("#turns").textContent(),"1");
     assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),1);
+    // A real imminent charge must appear in the persistent map warning;
+    // the detailed forecast lives in Combat rather than below the map.
+    assert.equal(await page.locator("#ui096-threat-banner").isVisible(),true);
+    await page.locator("#jump-combat").tap();
     assert.equal(await page.locator("#threat-forecast").isVisible(),true);
     assert.match(await page.locator("#threat-forecast").textContent(),
       /Charge imminente/);
+    await page.locator("#ui092-sheet-close").tap();
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),1);
     const during=await page.evaluate(async()=>{
@@ -2558,7 +2592,10 @@ test("GAME-095C1 Android portrait: visible charge warning, reload and sidestep",
     await page.locator('[data-direction="up"]').tap();
     assert.equal(await page.locator("#turns").textContent(),"2");
     assert.equal(await page.locator(".hostile-tile.enemy-charge").count(),0);
+    await page.locator("#jump-combat").tap();
     assert.equal(await page.locator("#threat-forecast").isHidden(),true);
+    if(await page.locator("#ui092-sheet").isVisible())
+      await page.locator("#ui092-sheet-close").tap();
     const escaped=await page.evaluate(async()=>{
       const {SAVE_KEY,validateSave}=await import("./game.js");
       const s=JSON.parse(localStorage.getItem(SAVE_KEY));
@@ -2782,9 +2819,9 @@ test("UI-096B mobile: visible enemies show pressure, unseen ones cannot leak via
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(run));
     });
     await page.reload();await page.locator("#title-continue").tap();
-    const forecastVisible=await page.locator("#threat-forecast").isVisible();
-    assert.equal(await page.locator("#ui096-threat-banner").isVisible(),forecastVisible,
-      "Threat banner is reserved for an actual imminent forecast, never a duplicated hostile count");
+    const imminent=await page.locator("#threat-forecast").evaluate(el=>!el.hidden);
+    assert.equal(await page.locator("#ui096-threat-banner").isVisible(),imminent,
+      "Threat banner follows existing engine forecast, even when Combat drawer is closed");
     assert.match(await page.locator("#threat-state").textContent(),/HOSTILE/);
     const turns=await page.locator("#turns").textContent();
     await page.locator("#jump-combat").tap();
@@ -2997,8 +3034,8 @@ test("UI-096C mobile: refuge navigation, secured stash, real shared character an
       await page.locator("#start-btn").tap();
       assert.equal(await page.locator("#expedition").isVisible(),true);
       assert.equal(await page.locator("#game-shell").evaluate(e=>e.classList.contains("is-refuge")),false);
-      assert.equal(await page.locator("#expedition #actor-stats-sheet").count(),1,
-        "Original character panel must return to the dungeon");
+      assert.equal(await page.locator("#options-panel #actor-stats-sheet").count(),1,
+        "UI-099 keeps the original character panel within the mobile Menu");
       assert.equal(await page.locator("#refuge-character-slot #actor-stats-sheet").count(),0);
       assert.equal(await page.locator("#actor-stats-sheet .actor-stat-chip").count(),6);
       const restored=await page.evaluate(async()=>{
@@ -4006,6 +4043,136 @@ test("ART-097C2 mobile: inspect 54-material family and seven Sprite C portraits 
     await page.locator("#art097c2-qa-gallery").evaluate(el=>el.remove());
     assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),before);
     assert.equal(await page.locator("#turns").textContent(),turns);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+
+// UI/ART-099 — the large bundled Android-only improvement.
+// Screen captures deliberately use normal Chromium emulated touch, not a real
+// device. No synthetic sprites replace the running map.
+test("UI-099 mobile: map first, no duplicate long document, original Menu knowledge and real drawers", {timeout:160000},async()=>{
+  const {mkdir}=await import("node:fs/promises");
+  await mkdir("qa096-screenshots",{recursive:true});
+  for(const [width,height] of [[320,640],[360,780],[393,704]]){
+    const context=await browser.newContext({
+      viewport:{width,height},deviceScaleFactor:3,isMobile:true,hasTouch:true,
+      serviceWorkers:"block",reducedMotion:"reduce"
+    });
+    try{
+      const page=await context.newPage(),errors=[];
+      page.on("pageerror",e=>errors.push(e.message));
+      await preloadDeepRun(page);
+      const before=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+      const turns=await page.locator("#turns").textContent();
+      const state=await page.evaluate(()=>{
+        const box=id=>document.getElementById(id).getBoundingClientRect();
+        const map=box("tile-map"),nav=box("expedition-shortcuts"),dock=box("field-controls");
+        const display=id=>getComputedStyle(document.getElementById(id)).display;
+        return {
+          mapBottom:map.bottom,navTop:nav.top,navBottom:nav.bottom,
+          dockTop:dock.top,dockBottom:dock.bottom,vh:innerHeight,
+          width:document.documentElement.scrollWidth,vw:document.documentElement.clientWidth,
+          tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
+          hero:document.querySelectorAll("#tile-map .tile-hero").length,
+          bagDisplay:display("bag-panel"),
+          actionPanelDisplay:display("action-panel"),
+          statusDisplay:display("ui099-feedback"),
+          actorInMenu:document.querySelectorAll("#options-panel #actor-stats-sheet").length,
+          infoOriginalCount:document.querySelectorAll("#ui099-info-slot > *").length
+        };
+      });
+      assert.equal(state.tiles,121);assert.equal(state.hero,1);
+      assert.equal(state.bagDisplay,"none","No duplicate bag below map");
+      assert.equal(state.actionPanelDisplay,"none","No long journal below map");
+      assert.notEqual(state.statusDisplay,"none","Public action feedback survives compacting");
+      assert.equal(state.actorInMenu,1);
+      assert.equal(state.infoOriginalCount,5);
+      assert.ok(state.mapBottom<=state.navTop+1,JSON.stringify(state));
+      assert.ok(state.navBottom<=state.dockTop+1,JSON.stringify(state));
+      assert.ok(Math.abs(state.dockBottom-state.vh)<=2);
+      assert.ok(state.width<=state.vw+1,"No sideways page scrolling");
+
+      await page.locator("#jump-menu").tap();
+      assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
+      assert.equal(await page.locator("#ui099-extras").isVisible(),true);
+      assert.equal(await page.locator("#ui099-info-slot #actor-stats-sheet").count(),1);
+      assert.equal(await page.locator("#ui099-info-slot #route-hint").count(),1);
+      assert.equal(await page.locator("#ui099-info-slot #inspect-panel").count(),1);
+      assert.equal(await page.locator("#ui099-info-slot #exploration-map-panel").count(),1);
+      await page.locator("#actor-stats-sheet summary").tap();
+      assert.equal(await page.locator("#actor-stat-values").isVisible(),true);
+      await page.locator("#map-legend-details summary").tap();
+      assert.equal(await page.locator("#graphic-legend").isVisible(),true);
+      const edges=await page.evaluate(()=>{
+        const sheet=document.getElementById("ui092-sheet").getBoundingClientRect();
+        const dock=document.getElementById("field-controls").getBoundingClientRect();
+        return {sheetBottom:sheet.bottom,dockTop:dock.top};
+      });
+      assert.ok(edges.sheetBottom<=edges.dockTop-5,JSON.stringify(edges));
+      await page.locator("#ui092-sheet-close").tap();
+      assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+
+      await page.locator("#jump-bag").tap();
+      assert.equal(await page.locator("#ui092-sheet-body #bag-panel").count(),1);
+      assert.equal(await page.locator("#bag-panel").isVisible(),true);
+      await page.locator("#ui092-sheet-close").tap();
+
+      const tile=page.locator("#tile-map .pixel-tile[data-knowledge=visible]").filter({
+        hasNot:page.locator("img")
+      }).first();
+      // Some visible floors have a torch/sprite; at minimum an exposed cell
+      // must be inspected without spending a turn.
+      await page.locator("#tile-map .pixel-tile[data-knowledge=visible]").first().tap();
+      const inspectText=await page.locator("#ui099-inspect").textContent();
+      assert.ok(inspectText.trim().length>0);
+      assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),before);
+      assert.equal(await page.locator("#turns").textContent(),turns);
+      await page.screenshot({
+        path:"qa096-screenshots/ui099-map-first-"+width+"x"+height+".png",
+        animations:"disabled"
+      });
+      assert.deepEqual(errors,[]);
+    }finally{await context.close();}
+  }
+});
+
+test("UI-099 mobile: a visible hostile opens Combat only on request and can be defended against", {timeout:70000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js"),fog=await import("./exploration-visibility.js");
+      const hero=game.newGame();hero.meta.descents=1;
+      const state=game.beginRun(hero).state,run=state.run,foe=run.enemies[0];
+      const adjacent=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>
+        ({x:foe.x+dx,y:foe.y+dy})).find(p=>run.map[p.y]?.[p.x]==="." &&
+          !run.enemies.some(e=>e.x===p.x&&e.y===p.y));
+      if(!adjacent)throw Error("No adjacent visible combat fixture");
+      run.x=adjacent.x;run.y=adjacent.y;run.enemies=[foe];
+      fog.revealAround(run);
+      if(!game.validateSave(state))throw Error("UI-099 invalid fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    const before=await page.locator("#turns").textContent();
+    assert.equal(await page.locator("#combat-dock").evaluate(el=>el.hidden),false);
+    assert.equal(await page.locator("#combat-dock").isHidden(),true,
+      "The real combat dock no longer elongates the map-first page");
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#ui092-sheet-body #combat-dock").count(),1);
+    assert.equal(await page.locator("#combat-dock").isVisible(),true);
+    await page.locator("#target-choices button").first().tap();
+    assert.equal(await page.locator("#combat-panel").isVisible(),true);
+    assert.equal(await page.locator("#turns").textContent(),before,
+      "Target selection is still free");
+    await page.locator("#combat-dodge").tap();
+    assert.equal(Number(await page.locator("#turns").textContent()),Number(before)+1);
+    await page.locator("#ui092-sheet-close").tap();
+    assert.equal(await page.locator("#combat-dock").isHidden(),true);
+    assert.equal(await page.locator("#tile-map").isVisible(),true);
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });

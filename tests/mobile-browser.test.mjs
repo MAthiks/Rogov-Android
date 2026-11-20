@@ -1656,7 +1656,7 @@ test("ART-091B mobile: Sprite C enemies do not leak through unexplored Nhal fog"
 });
 
 
-test("ART-091C mobile: all 15 interactive assets decode at 24px with no overflow", {timeout:60000}, async()=>{
+test("ART-091C + GAME-101D mobile: all 17 interactive assets decode at 24px with no overflow", {timeout:60000}, async()=>{
   const context=await mobileContext();
   try{
     const page=await context.newPage(),errors=[];
@@ -1677,7 +1677,7 @@ test("ART-091C mobile: all 15 interactive assets decode at 24px with no overflow
         viewport:document.documentElement.clientWidth,
         cells:document.querySelectorAll("#tile-map .pixel-tile").length};
     });
-    assert.equal(sample.dimensions.length,15);
+    assert.equal(sample.dimensions.length,17);
     for(const image of sample.dimensions)
       assert.deepEqual([image.w,image.h,image.mapped],[24,24,true],image.id);
     assert.equal(sample.cells,121);
@@ -4372,6 +4372,51 @@ test("GAME-101C mobile: three workshop choices, paid retreat sketch and persiste
     assert.ok(after.seen>before.seen,"Cartographic memory persists in stored save");
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#turns").textContent(),"1");
+    assert.equal(await page.locator("#room-site-options button").count(),0);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("GAME-101D mobile: optional camp choices heal on touch and survive reload", {timeout:60000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await preloadDeepRun(page);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const {revealAround}=await import("./exploration-visibility.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const site=state.run.encounters.find(s=>s.kind==="camp");
+      const next=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:site.x+dx,y:site.y+dy}))
+        .find(p=>state.run.map[p.y]?.[p.x]==="."&&
+          !state.run.traps.some(t=>t.x===p.x&&t.y===p.y));
+      if(!next)throw Error("Camp unreachable");
+      state.run.x=next.x;state.run.y=next.y;
+      state.run.hp=8;state.run.enemies=[];
+      revealAround(state.run);
+      if(!game.validateSave(state))throw Error("GAME-101D invalid camp fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#jump-action").isEnabled(),true);
+    await page.locator("#jump-action").tap();
+    assert.match(await page.locator("#room-site-title").textContent(),/Camp de fortune/);
+    assert.equal(await page.locator("#room-site-options button").count(),2);
+    assert.equal(await page.locator('[data-room-choice="treat"]').isEnabled(),true);
+    await page.locator('[data-room-choice="treat"]').tap();
+    const saved=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const s=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      return {valid:game.validateSave(s),hp:s.run.hp,turns:s.run.turns,
+        choice:s.run.encounters.find(x=>x.kind==="camp").choice};
+    });
+    assert.equal(saved.valid,true);
+    assert.equal(saved.hp,11);
+    assert.equal(saved.turns,1);
+    assert.equal(saved.choice,"treat");
+    await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#room-site-options button").count(),0);
     assert.deepEqual(errors,[]);
   }finally{await context.close();}

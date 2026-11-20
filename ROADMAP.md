@@ -1,6 +1,10 @@
 # Roadmap ROGOV — état du 20 novembre 2026
 
-## GAME-101C — Cartographie tactique du repli (PR en validation)
+## GAME-101D — Rencontres de salle et risque/récompense (PR en validation)
+
+**Après GAME-101C fusionné (PR #63, `060fbb2`) :** deux nouveaux sites facultatifs sont placés dans chaque **nouvelle descente profonde**. Un **camp de fortune**, dans une chambre libre qui varie selon la graine, offre un soin de +3 PV (1 tour/2 END, uniquement si blessé) **ou** un bandage. Une **balise de garde** dans les ruines occupées offre des sels de vigueur discrets (1 tour/1 END) **ou** un Fragment de cendre à récupérer au prix de 1 tour/3 END et de **5 tours d'alerte pour les Charognards**. Les choix sont exclusifs, persistants et activent la phase ennemie habituelle. Deux sprites originaux 24×24, affichage ASCII, minimap, rapport de terrain, cache PWA et APK Android. Le `run.encounterPlanVersion=1` est seulement ajouté aux nouvelles cartes ; les trois lieux existants et les sauvegardes historiques sont conservés. Pas de nouvelle espèce ou RNG de combat. [Contrat et QA GAME-101D](docs/GAME101D_ROOM_ENCOUNTERS.md).
+
+## GAME-101C — Cartographie tactique du repli (fusionné · PR #63)
 
 **Après GAME-101B fusionné (PR #62, `ae877402`) :** l'atelier de la voie est propose un choix exclusif supplémentaire sur les **nouvelles descentes** : relever un croquis du trajet vers l'Arche (1 tour, 2 END, +1 XP) plutôt qu'emporter un bandage ou un Fragment de cendre. Le croquis fait apparaître uniquement une sélection limitée de cases de **sol** sur le chemin de retour, comme des zones mémorisées et **jamais visibles en direct** ; il ne montre ni ennemis, ni coffres, ni pièges, ni portes encore inconnues. Le tour expose à la phase ennemie, l'action ne consomme aucun tirage de combat, et les anciennes sauvegardes restent inchangées grâce à `scoutingPlanVersion=1`. [Contrat et recette](docs/GAME101C_CARTOGRAPHIE_TACTIQUE.md).
 

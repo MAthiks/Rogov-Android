@@ -59,7 +59,7 @@ test("DEV-088: fully explored map has an indicative route and only public opport
     "At least one observed route exists to extraction");
   assert.ok(report.knownRoute.closedDoors>=0);
   assert.equal(report.knownChests,3);
-  assert.equal(report.knownSites,3);
+  assert.equal(report.knownSites,5);
   assert.equal(report.carried,0);
   assert.ok(report.secured>=1);
   assert.equal(JSON.stringify(state),before);
@@ -72,7 +72,7 @@ test("DEV-088: fully explored map has an indicative route and only public opport
   assert.ok(validateSave(marked));
   const changed=expeditionReport(marked);
   assert.equal(changed.knownChests,2);
-  assert.equal(changed.knownSites,2);
+  assert.equal(changed.knownSites,4);
   assert.ok(changed.knownRoute);
 });
 

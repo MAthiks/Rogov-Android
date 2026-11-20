@@ -82,6 +82,7 @@ test("GAME-101C: sketch is exclusive, costs one exposed turn and persists under 
 test("GAME-101C: legacy saved descents and invalid interactions fail without a turn",()=>{
   const {state,site}=workshop(2);
   const missing=structuredClone(state);delete missing.run.scoutingPlanVersion;
+  delete missing.run.encounterPlanVersion;delete missing.run.encounters; // Historical run.
   assert.ok(validateSave(missing));
   assert.equal(resolveRoomSite(missing,site.id,"cartographie").changed,false);
   const exhausted=structuredClone(state);exhausted.run.endurance=1;

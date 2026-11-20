@@ -17,6 +17,7 @@ import {visibleCells,explorationState,visionKey,validExploration,revealAround,ha
 import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
 import {ROOM_SITES,validRoomSites,roomSiteVisible,roomSiteAppearance} from "./room-events.js";
+import {validRoomEncounters} from "./room-encounters.js";
 import {acousticReading,LISTEN_ENDURANCE_COST} from "./acoustics.js";
 import {branchClue} from "./branch-intel.js";
 import {surveyRetreatSketch} from "./route-survey.js";
@@ -471,7 +472,8 @@ export function validateSave(s) {
     if(r.scoutingPlanVersion!==undefined&&
        (r.scoutingPlanVersion!==1||r.branchPlanVersion!==1||
         !r.exploration||!Array.isArray(r.sites)))return false;
-    if(!validSecrets(r)||!validTraps(r)||!validRoomSites(r))return false;
+    if(!validSecrets(r)||!validTraps(r)||!validRoomSites(r)||
+       !validRoomEncounters(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
     if (!r.carried || !Array.isArray(r.collected) || !Number.isSafeInteger(r.turns)) return false;
     if (!Number.isInteger(r.hp) || r.hp < 1 || r.hp > MAX_HP) return false;
@@ -566,6 +568,7 @@ export function beginRun(state, equipment=[], loadoutChoice=null, options={}) {
     ...(layout.lootPlanVersion?{lootPlanVersion:layout.lootPlanVersion}:{}),
     ...(layout.branchPlanVersion?{branchPlanVersion:layout.branchPlanVersion}:{}),
     ...(layout.scoutingPlanVersion?{scoutingPlanVersion:layout.scoutingPlanVersion}:{}),
+    ...(layout.encounterPlanVersion?{encounterPlanVersion:layout.encounterPlanVersion}:{}),
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       ...(layout.geometryVersion?{geometryVersion:layout.geometryVersion}:{}),
@@ -574,7 +577,8 @@ export function beginRun(state, equipment=[], loadoutChoice=null, options={}) {
       start:layout.start,exit:layout.exit,exploration:{seen:[]},
       ...(layout.secrets?{secrets:layout.secrets}:{}),
       ...(layout.traps?{traps:layout.traps}:{}),
-      ...(layout.sites?{sites:layout.sites}:{})}:{}) },s.meta);
+      ...(layout.sites?{sites:layout.sites}:{}),
+      ...(layout.encounters?{encounters:layout.encounters}:{})}:{}) },s.meta);
   if(options.multiFloor===true&&s.meta.descents>=2){
     s.run.floorDepth=1;
     s.meta.bestDepth=Math.max(s.meta.bestDepth||0,1);
@@ -647,6 +651,7 @@ export function resolveFloorExit(state,choice){
     ...(layout.depthBalanceVersion?{depthBalanceVersion:layout.depthBalanceVersion}:{}),
     ...(layout.branchPlanVersion?{branchPlanVersion:layout.branchPlanVersion}:{}),
     ...(layout.scoutingPlanVersion?{scoutingPlanVersion:layout.scoutingPlanVersion}:{}),
+    ...(layout.encounterPlanVersion?{encounterPlanVersion:layout.encounterPlanVersion}:{}),
     rooms:layout.rooms,doors:layout.doors,
     doorPlanVersion:layout.doorPlanVersion,
     geometryVersion:layout.geometryVersion,
@@ -656,6 +661,7 @@ export function resolveFloorExit(state,choice){
     ...(layout.secrets?{secrets:layout.secrets}:{}),
     ...(layout.traps?{traps:layout.traps}:{}),
     ...(layout.sites?{sites:layout.sites}:{}),
+    ...(layout.encounters?{encounters:layout.encounters}:{}),
     floorDepth:nextDepth
   },s.meta);
   s.meta.bestDepth=Math.max(s.meta.bestDepth||0,nextDepth);
@@ -771,7 +777,8 @@ export function move(state, direction, context="move") {
  * It never rolls combat RNG, modifies architecture, or grants duplicate loot.
  */
 export function resolveRoomSite(state,siteId,optionId){
-  const run=state.run,site=run?.sites?.find(s=>s.id===siteId);
+  const run=state.run,site=[...(run?.sites||[]),...(run?.encounters||[])]
+    .find(s=>s.id===siteId);
   if(!site||site.status!=="untouched"||distance(run,site)>1||
       !roomSiteVisible(run,site))
     return info(state,"Aucun lieu interactif visible et inexploré à portée.",false);
@@ -786,19 +793,26 @@ export function resolveRoomSite(state,siteId,optionId){
       option.endurance+" END.",false);
   if(option.item&&quantity(run.carried)>=INVENTORY_LIMIT)
     return info(state,"Sac plein : reviens avec une place pour emporter ce butin.",false);
-  const s=copy(state),target=s.run.sites.find(v=>v.id===siteId);
+  if(option.requiresDamage&&run.hp>=MAX_HP)
+    return info(state,"Tes blessures ne demandent aucun soin : choisis une ressource.",false);
+  const s=copy(state),target=[...(s.run.sites||[]),...(s.run.encounters||[])]
+    .find(v=>v.id===siteId);
   target.status="resolved";target.choice=optionId;
   s.run.turns+=1;
   if(option.endurance)s.run.endurance-=option.endurance;
   else regenEndurance(s,1);
   if(option.item)s.run.carried[option.item]=(s.run.carried[option.item]||0)+1;
+  if(option.heal)s.run.hp=Math.min(MAX_HP,s.run.hp+option.heal);
+  // Existing Charognard alert behavior: no new monster or combat RNG roll.
+  if(option.alarmTurns)s.run.alarmUntil=Math.max(s.run.alarmUntil||0,
+    s.run.turns+option.alarmTurns);
   const finding=site.kind==="echo"?discoverEcho(s.meta):null;
   gainXp(s,option.xp);
   const sketched=optionId==="cartographie"?surveyRetreatSketch(s.run):null;
   const message=option.text+(option.item?" +1 "+ITEMS[option.item].name+".":"")+
     " +"+option.xp+" XP."+(sketched!==null?" "+sketched+" cases de sol consignées.":"")+
     (finding?" INDICE CONSERVÉ — "+finding.title+".":"");
-  recordEvent(s,"loot",message,s.run.turns);
+  recordEvent(s,option.alarmTurns?"danger":"loot",message,s.run.turns);
   revealAround(s.run);
   const after=enemyPhase(s);
   return {state:after,message:after.journal[0]?.text||message,changed:true};

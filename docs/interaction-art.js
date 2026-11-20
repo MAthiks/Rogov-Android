@@ -192,6 +192,24 @@ const site_cache=svg(
   '<rect x="11" y="14" width="2" height="2" fill="'+ivory+'"/>'+
   '</g>'
 );
+const site_camp=svg(
+  '<g data-feature="torn-camp">'+
+  '<path d="M2 20L8 7h8l6 13Z" fill="#4c574f" stroke="#8b8d77" stroke-width="1"/>'+
+  '<path d="M8 7l4 13 4-13" fill="#28383b" stroke="#a99c81" stroke-width="1"/>'+
+  '<path d="M10 20v-7h5v7" fill="#141c21"/>'+
+  '<rect x="3" y="18" width="5" height="4" fill="#7b4b3a" stroke="#b89669" stroke-width="1"/>'+
+  '<path d="M4 20h3M5 19v2" stroke="#ead8b5" stroke-width="1"/>'+
+  '</g>'
+);
+const site_signal=svg(
+  '<g data-feature="watch-bell">'+
+  '<path d="M4 22V4l5-2v20M19 22V4l-5-2v20" fill="#3a4a4b" stroke="#8c8a70" stroke-width="1"/>'+
+  '<path d="M6 5h12M6 20h12" stroke="#a18c6f" stroke-width="2"/>'+
+  '<path d="M10 8h4l3 7H7Z" fill="#bb9364" stroke="#e0c393" stroke-width="1"/>'+
+  '<circle cx="12" cy="16" r="2" fill="#5b3929"/>'+
+  '<path d="M12 4v4" stroke="#ddd0a2" stroke-width="1"/>'+
+  '</g>'
+);
 const site_resolved=svg(
   '<g data-feature="explored-site">'+
   '<rect x="2" y="3" width="20" height="19" fill="#263938" stroke="#7e9688" stroke-width="1"/>'+
@@ -203,12 +221,12 @@ export const INTERACTIVE_IDS=Object.freeze([
   "door_open","door_closed","loot","chest_open",
   "trap_clue","trap_revealed","trap_disabled","trap_triggered",
   "exit","hazard","secret_open",
-  "site_atelier","site_echo","site_cache","site_resolved"
+  "site_atelier","site_echo","site_cache","site_camp","site_signal","site_resolved"
 ]);
 export const INTERACTIVE_SVGS=Object.freeze({
   door_open,door_closed,loot,chest_open,
   trap_clue,trap_revealed,trap_disabled,trap_triggered,
-  exit,hazard,secret_open,site_atelier,site_echo,site_cache,site_resolved
+  exit,hazard,secret_open,site_atelier,site_echo,site_cache,site_camp,site_signal,site_resolved
 });
 export const INTERACTIVE_SPRITES=Object.freeze(Object.fromEntries(
   INTERACTIVE_IDS.map(id=>[id,URI+encodeURIComponent(INTERACTIVE_SVGS[id])])

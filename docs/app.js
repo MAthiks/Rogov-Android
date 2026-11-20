@@ -458,7 +458,8 @@ function updateRoomSiteActions(){
     button.dataset.roomChoice=choice;
     button.textContent=rule.label;
     button.disabled=(rule.item&&inventoryCount(state)>=8)||
-      (state.run.endurance??0)<rule.endurance;
+      (state.run.endurance??0)<rule.endurance||
+      (rule.requiresDamage&&state.run.hp>=MAX_HP);
     button.addEventListener("click",()=>act(resolveRoomSite(state,site.id,choice)));
     options.append(button);
   }

@@ -156,9 +156,16 @@ export function validTraps(run){
          (run.enemies||[]).some(e=>key(e)===key(trap)))||
        Object.keys(run.loot||{}).includes(key(trap)))return false;
   }
+  // GAME-101D: a risk/reward signal can legitimately set a five-turn alarm.
+  // Historical trap wires, shove noise and legacy saves retain the three-turn
+  // limit. Never accept a forged longer alarm without the paid, resolved choice.
+  const signalAlert=run.encounterPlanVersion===1&&
+    run.encounters?.some(site=>site.kind==="signal"&&
+      site.status==="resolved"&&site.choice==="alarm");
+  const alarmLimit=signalAlert?5:3;
   if(run.alarmUntil!==undefined&&
     (!Number.isSafeInteger(run.alarmUntil)||run.alarmUntil<0||
-     run.alarmUntil>run.turns+3))return false;
+     run.alarmUntil>run.turns+alarmLimit))return false;
   return true;
 }
 export const trapAt=(run,x,y)=>run?.traps?.find(t=>t.x===x&&t.y===y)||null;

@@ -34,7 +34,8 @@ export function retreatSketchCells(run){
     trail.push({x,y});
   }
   trail.reverse();
-  const sites=new Set(run.sites.map(s=>key(s.x,s.y)));
+  const sites=new Set([...(run.sites||[]),...(run.encounters||[])]
+    .map(s=>key(s.x,s.y)));
   // Do not reveal chests, doors, exit, site markers or any hidden hazard
   // annotation: the discovered drawing contains exclusively plain floor.
   return trail.filter(p=>floorAt(run,p.x,p.y)==="."&&

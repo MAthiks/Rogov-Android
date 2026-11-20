@@ -31,6 +31,30 @@ export const ROOM_SITES=Object.freeze({
         text:"CHAMBRE DE L'ÉCHO — L'écho répond avant que tu ne parles. La sensation te laisse épuisé, mais plus lucide."})
     })
   }),
+  camp:Object.freeze({
+    name:"Camp de fortune",symbol:"b",sprite:"site_camp",
+    description:"Des couvertures et une boîte de secours abandonnées. Tu peux soigner tes plaies ou récupérer une ressource, mais pas les deux.",
+    options:Object.freeze({
+      treat:Object.freeze({label:"Panser les blessures +3 PV · 1 tour, 2 END",
+        item:null,heal:3,requiresDamage:true,xp:1,endurance:2,
+        text:"CAMP DE FORTUNE — Tes blessures sont pansées sous les décombres."}),
+      gather:Object.freeze({label:"Récupérer un bandage · 1 tour",
+        item:"consumable.bandage",xp:1,endurance:0,
+        text:"CAMP DE FORTUNE — Un bandage préservé rejoint le sac."})
+    })
+  }),
+  signal:Object.freeze({
+    name:"Balise de garde",symbol:"g",sprite:"site_signal",
+    description:"Une cloche d’alerte rouillée est fixée à la pierre. La démonter discrètement ou forcer son boîtier : celui-ci risque d'attirer les Charognards.",
+    options:Object.freeze({
+      quiet:Object.freeze({label:"Démonter discrètement · 1 tour, 1 END",
+        item:"consumable.vigor_salts",xp:1,endurance:1,
+        text:"BALISE — Tu récupères des sels de vigueur sans faire sonner le mécanisme."}),
+      alarm:Object.freeze({label:"Forcer le boîtier · 1 tour, 3 END · alerte 5 tours",
+        item:"relic.ashen_fragment",xp:2,endurance:3,alarmTurns:5,
+        text:"BALISE — Un Fragment de cendre tombe et l'alarme résonne. Les Charognards repèrent plus loin pendant cinq tours."})
+    })
+  }),
   cache:Object.freeze({
     name:"Cache oubliée",symbol:"k",sprite:"site_cache",
     description:"Une niche murée à la hâte conserve plusieurs ressources. Tu ne peux en extraire qu'une avant que la pierre ne s'effrite.",
@@ -130,15 +154,17 @@ export function validRoomSites(run){
     return true;
   });
 }
-export const roomSiteAt=(run,x,y)=>run?.sites?.find(s=>s.x===x&&s.y===y)||null;
+export const roomSiteAt=(run,x,y)=>[...(run?.sites||[]),...(run?.encounters||[])]
+  .find(s=>s.x===x&&s.y===y)||null;
 export function roomSiteVisible(run,site){
   return Boolean(run?.exploration&&site&&
     visibleCells(run).has(visionKey(run,site.x,site.y)));
 }
 export function nearbyRoomSite(run){
-  if(!run?.sites)return null;
-  return run.sites.find(s=>s.status==="untouched"&&
-    distance(run,s)<=1&&roomSiteVisible(run,s))||null;
+  if(!run?.sites&&!run?.encounters)return null;
+  return [...(run.sites||[]),...(run.encounters||[])]
+    .find(s=>s.status==="untouched"&&
+      distance(run,s)<=1&&roomSiteVisible(run,s))||null;
 }
 export function roomSiteAppearance(run,x,y){
   const s=roomSiteAt(run,x,y);

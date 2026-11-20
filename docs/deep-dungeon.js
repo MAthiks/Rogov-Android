@@ -5,6 +5,7 @@ import {planDeepChestLoot,EQUIPMENT_LOOT_POOL,CONSUMABLE_LOOT_POOL} from "./loot
 import {placeOptionalSecret} from "./secrets.js";
 import {placeOptionalTraps,validTraps} from "./traps.js";
 import {specialRoomPlan,placeRoomSites,validRoomSites} from "./room-events.js";
+import {placeRoomEncounters,validRoomEncounters} from "./room-encounters.js";
 import {GRAPH_VERSION,CORE_SLOTS,topologyEdges,planDeepTopology} from "./deep-topology.js";
 
 export const DEEP_WIDTH=44;
@@ -357,6 +358,8 @@ export function validateDeepLayout(layout,live=false){
   if(layout.scoutingPlanVersion!==undefined&&
       (layout.scoutingPlanVersion!==1||layout.branchPlanVersion!==1||
        !Array.isArray(layout.sites)))return false;
+  if(layout.encounterPlanVersion!==undefined&&
+      (layout.encounterPlanVersion!==1||layout.scoutingPlanVersion!==1))return false;
   if(graph&&(legacy||layout.geometryVersion!==ROOM_GEOMETRY_VERSION))return false;
   if(!graph&&Array.isArray(rooms)&&
       rooms.some(r=>Object.hasOwn(r||{},"slot")))return false;
@@ -496,7 +499,7 @@ export function validateDeepLayout(layout,live=false){
       ch==="^"&&distance({x,y},start)>=2&&distance({x,y},start)<=4)))return false;
   }
   if(!deepTwoReturnWays(map,start,exit))return false;
-  if(!validRoomSites(layout))return false;
+  if(!validRoomSites(layout)||!validRoomEncounters(layout))return false;
   if(layout.traps!==undefined){
     if(!validTraps(layout))return false;
     const trapped=new Set(layout.traps.map(key));
@@ -559,6 +562,16 @@ export function generateDeepLayout(index){
       }
       // Cartographic choice is available on new floors, never old saves.
       layout.scoutingPlanVersion=1;
+      if(!validateDeepLayout(layout))continue;
+      // GAME-101D: two extra optional decision sites on new deep floors.
+      // The original three room sites and the map architecture stay intact.
+      layout.encounterPlanVersion=1;
+      try{
+        layout.encounters=placeRoomEncounters(layout,index,deepRoute,deepTwoReturnWays);
+      }catch(error){
+        if(error?.message!=="No safe GAME-101D room encounter")throw error;
+        continue;
+      }
       if(!validateDeepLayout(layout))continue;
       // Reward is selected independently of dungeon geometry and combat RNG.
       // Preserve the entry bandage and valuable Fragment. Only the third,

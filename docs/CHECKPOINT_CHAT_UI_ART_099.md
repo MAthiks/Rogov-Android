@@ -56,15 +56,24 @@ bouton Fermer réellement mesurable. Un re-démarrage d'application
 unique ne s'applique qu'à l'absence spécifique de cible CDP ;
 tout échec fonctionnel reste bloquant.
 
-**Validation sur téléphone Samsung pour UI/ART-099 : encore ouverte.**
-Les deux captures antérieures prouvaient la longueur de l'ancien écran,
-pas le rendu de ce nouveau lot. Le GO technique est validé, la note
-artistique et les 5 testeurs × 2 descentes ne le sont pas.
+**QA-099 — retour utilisateur sur Android réel, le 20 novembre 2026 : favorable.**
+Après la fusion, une nouvelle capture montre le cockpit UI/ART-099
+dans Nhal : carte prioritaire, six raccourcis, bande de statut et pavé
+de déplacement fixe. Après la demande de vérifier Menu, Sac, fermeture
+des panneaux et reprise du déplacement, le joueur répond
+« Tout s3mble correct ». Il ne signale aucun dysfonctionnement.
+
+**Périmètre précis :** contrôle visuel sur capture et appréciation
+globale positive de l'utilisateur. Aucun relevé détaillé geste par geste
+ni mesure de FPS ; ni preuve complète d'un cycle hors ligne / sauvegarde
+sur cet appareil. Les 5 testeurs × 2 descentes, la validation artistique
+globale et la recette étendue restent ouverts. Le GO technique CI est acquis.
 
 ## Suite
 
 Une seule PR #59, fusionnée (squash). Pas de nouvelle mécanique ni
-portage Godot/PC. Prochaine étape WIP=1 : vérifier la distribution
-GitHub Pages, puis faire un nouvel essai réel de la carte, des 6
-raccourcis, des tiroirs, du Menu et des sauvegardes. Un APK déjà
-installé ne reçoit pas cette mise à jour par simple fusion.
+portage Godot/PC. Prochaine étape WIP=1 : consolider cette
+recette physique initiale, contrôler la distribution PWA et les
+sauvegardes/hors ligne sur appareil, puis préparer une petite campagne
+joueurs plutôt qu'une nouvelle refonte. Un APK déjà installé ne reçoit
+pas cette mise à jour par simple fusion.

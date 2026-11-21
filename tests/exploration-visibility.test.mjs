@@ -61,6 +61,7 @@ test("DEV-081: legacy active deep runs remain fully readable, without retroactiv
   delete old.run.scoutingPlanVersion; // An actual pre-DEV-081 legacy run predates GAME-101C.
   delete old.run.encounterPlanVersion;delete old.run.encounters; // And GAME-101D.
   delete old.run.combatOpeningVersion; // GAME-101E not present in simulated older saves.
+  delete old.run.pursuitPlanVersion; // GAME-101F is absent from historical runs.
   assert.ok(validateSave(old));
   assert.equal(hasFog(old.run),false);
   assert.equal(explorationState(old.run,0,0),"visible");

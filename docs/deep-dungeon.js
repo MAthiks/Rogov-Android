@@ -362,6 +362,8 @@ export function validateDeepLayout(layout,live=false){
       (layout.encounterPlanVersion!==1||layout.scoutingPlanVersion!==1))return false;
   if(layout.combatOpeningVersion!==undefined&&
       (layout.combatOpeningVersion!==1||layout.encounterPlanVersion!==1))return false;
+  if(layout.pursuitPlanVersion!==undefined&&
+      (layout.pursuitPlanVersion!==1||layout.combatOpeningVersion!==1))return false;
   if(graph&&(legacy||layout.geometryVersion!==ROOM_GEOMETRY_VERSION))return false;
   if(!graph&&Array.isArray(rooms)&&
       rooms.some(r=>Object.hasOwn(r||{},"slot")))return false;
@@ -577,6 +579,8 @@ export function generateDeepLayout(index){
       if(!validateDeepLayout(layout))continue;
       // GAME-101E is opt-in per newly generated deep floor.
       layout.combatOpeningVersion=1;
+      // GAME-101F: only freshly generated deep floors enable chamber detours.
+      layout.pursuitPlanVersion=1;
       // Reward is selected independently of dungeon geometry and combat RNG.
       // Preserve the entry bandage and valuable Fragment. Only the third,
       // previously tonic-only chest changes. Reward IDs are stored once.

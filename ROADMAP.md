@@ -1,4 +1,8 @@
-## QA-101E — Fiabilisation de la reprise WebView après fermeture de l'application (en validation)
+## GAME-101F — Poursuite tactique et contournement des obstacles (PR en validation)
+
+Nouvelles descentes profondes uniquement : les Charognards en traque à 2–3 cases (4 cases lors d'une alerte) savent emprunter **un pas déterministe** vers le joueur dans leur propre salle, même si un pilier coupe l'axe direct. Ils ne franchissent **ni seuil de porte, ni piège, ni ennemi, ni lieu interactif**, ne modifient pas les dégâts, le RNG, les statistiques ou le nombre d'ennemis. Une charge annoncée et sa récupération restent prioritaires. Le prévisionnel affiché uniquement pour les ennemis visibles indique qu'un Charognard cherche un détour, sans révéler la géométrie cachée. `pursuitPlanVersion=1` est enregistré uniquement dans les nouveaux étages ; les parties existantes gardent leur IA. [Contrat et recette](docs/GAME101F_CHAMBER_PURSUIT.md). Les quatre CI et la QA humaine Android sont des portes de validation distinctes.
+
+## QA-101E — Fiabilisation de la reprise WebView après fermeture de l'application (fusionné · PR #66, 4/4 CI)
 
 GAME-101E est **fusionné** via PR #65, `f581082` ; les quatre CI de la PR étaient vertes. Sur `main`, le test d'APK WebView a néanmoins expiré au moment d'un `Runtime.evaluate` qui déclenchait *synchroniquement* le rendu de la partie restaurée ; la sauvegarde était bien présente et la page prête. Correction de la recette : programmer les clics de scénario sur l'événement suivant et allonger de façon bornée la surveillance CDP (10 s) en cas de composition lente ; vérifier effectivement l'ouverture, les 121 tuiles, la sauvegarde, le mode hors ligne et les captures. **Aucun changement du moteur ou de la sauvegarde.** [Diagnostic et limites](docs/QA101E_WEBVIEW_RESTART.md).
 

@@ -236,6 +236,7 @@ test("GAME-095B2: old B1 level-2 saves never regenerate enemies or rewards",()=>
   delete existing.run.encounterPlanVersion;
   delete existing.run.encounters;
   delete existing.run.combatOpeningVersion;
+  delete existing.run.pursuitPlanVersion;
   existing.meta.bestDepth=2;
   assert.equal(existing.run.depthBalanceVersion,undefined);
   assert.ok(validateSave(existing));

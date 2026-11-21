@@ -145,6 +145,7 @@ test("GAME-101D: refusal and tampered new site data never spend free turns",()=>
   const legacy=structuredClone(state);
   delete legacy.run.encounterPlanVersion;delete legacy.run.encounters;
   delete legacy.run.combatOpeningVersion;
+  delete legacy.run.pursuitPlanVersion; // GAME-101F is absent from historical runs.
   assert.ok(validateSave(legacy));
   assert.equal(resolveRoomSite(legacy,site.id,"quiet").changed,false);
   assert.equal(SAVE_KEY,"rogov-web-v1");

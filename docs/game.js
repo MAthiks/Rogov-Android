@@ -14,6 +14,7 @@ import {DEPTH_BALANCE_VERSION,balanceDepthLayout} from "./depth-balance.js";
 import {SHOVE_ENDURANCE_COST,SLAB_SHOVE_DAMAGE,shoveOpportunity}
   from "./terrain-tactics.js";
 import {COMBAT_OPENING_VERSION,OPENING_STRIKE_ENDURANCE_COST,openingOpportunity} from "./opening-strike.js";
+import {CHAMBER_PURSUIT_VERSION,chamberPursuitStep} from "./chamber-pursuit.js";
 import {visibleCells,explorationState,visionKey,validExploration,revealAround,hasFog} from "./exploration-visibility.js";
 import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
@@ -367,6 +368,17 @@ function enemyPhase(s) {
         continue;
       }
     }
+    // GAME-101F: an opt-in deep Charognard can navigate safely around
+    // chamber obstacles. Windup, lunge and recovery still take priority.
+    const pursuit=chamberPursuitStep(run,enemy);
+    if(pursuit){
+      enemy.x=pursuit.x;enemy.y=pursuit.y;
+      if(explorationState(run,enemy.x,enemy.y)==="visible")
+        recordEvent(s,"danger",type.name+
+          (pursuit.detour?" change d'axe pour te contourner.":" approche."),
+          run.turns);
+      continue;
+    }
     if (d===1) {
       s=receiveEnemyAttack(s,enemy,type,type.damage,"melee");
       if(!s.run) return s;
@@ -476,6 +488,9 @@ export function validateSave(s) {
     if(r.combatOpeningVersion!==undefined&&
        (r.combatOpeningVersion!==COMBAT_OPENING_VERSION||
         r.encounterPlanVersion!==1))return false;
+    if(r.pursuitPlanVersion!==undefined&&
+       (r.pursuitPlanVersion!==CHAMBER_PURSUIT_VERSION||
+        r.combatOpeningVersion!==COMBAT_OPENING_VERSION))return false;
     if(!validSecrets(r)||!validTraps(r)||!validRoomSites(r)||
        !validRoomEncounters(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
@@ -574,6 +589,7 @@ export function beginRun(state, equipment=[], loadoutChoice=null, options={}) {
     ...(layout.scoutingPlanVersion?{scoutingPlanVersion:layout.scoutingPlanVersion}:{}),
     ...(layout.encounterPlanVersion?{encounterPlanVersion:layout.encounterPlanVersion}:{}),
     ...(layout.combatOpeningVersion?{combatOpeningVersion:layout.combatOpeningVersion}:{}),
+    ...(layout.pursuitPlanVersion?{pursuitPlanVersion:layout.pursuitPlanVersion}:{}),
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       ...(layout.geometryVersion?{geometryVersion:layout.geometryVersion}:{}),
@@ -658,6 +674,7 @@ export function resolveFloorExit(state,choice){
     ...(layout.scoutingPlanVersion?{scoutingPlanVersion:layout.scoutingPlanVersion}:{}),
     ...(layout.encounterPlanVersion?{encounterPlanVersion:layout.encounterPlanVersion}:{}),
     ...(layout.combatOpeningVersion?{combatOpeningVersion:layout.combatOpeningVersion}:{}),
+    ...(layout.pursuitPlanVersion?{pursuitPlanVersion:layout.pursuitPlanVersion}:{}),
     rooms:layout.rooms,doors:layout.doors,
     doorPlanVersion:layout.doorPlanVersion,
     geometryVersion:layout.geometryVersion,

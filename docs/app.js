@@ -5,6 +5,7 @@ import { setupUi097A2 } from "./ui097a2.js";
 import { setupUi099 } from "./ui099.js";
 import { syncUi096Threat } from "./ui096.js";
 import { setupUi096C } from "./ui096c.js";
+import {refugeDashboard} from "./refuge-dashboard.js";
 import {MAX_FLOOR_DEPTH,floorChoiceAvailable,canDescendFurther} from "./floors.js";
 import {depthIntel} from "./depth-balance.js";
 import {SHOVE_ENDURANCE_COST,shoveOpportunity} from "./terrain-tactics.js";
@@ -213,8 +214,24 @@ function preparationCounts(){
 function updatePreparationControls(){
   if(state.run)return;
   const carried=preparationCounts();
-  const total=Object.values(carried).reduce((a,b)=>a+b,0);
-  const valid=total<=8;
+  const dashboard=refugeDashboard(state.meta.stash,carried,{
+    bestDepth:state.meta.bestDepth,maxDepth:MAX_FLOOR_DEPTH,fragmentId:RESOURCE_ID
+  });
+  const total=dashboard.packedUnits;
+  const valid=dashboard.canDepart;
+  // UI-102: counters use existing save state and ephemeral selection only.
+  $("veyr-stash-total").textContent=String(dashboard.securedUnits);
+  $("veyr-fragment-total").textContent=String(dashboard.fragments);
+  $("veyr-depth-total").textContent=dashboard.depthLabel;
+  $("veyr-nav-prep").textContent=total+" / 8 unités";
+  $("veyr-nav-forge").textContent=dashboard.fragments+" Fragment"+
+    (dashboard.fragments>1?"s":"");
+  $("veyr-nav-echoes").textContent=$("echo-refuge-count").textContent+" indices";
+  $("veyr-nav-character").textContent="Niveau "+state.meta.hero.level;
+  $("veyr-start-state").textContent=valid?
+    (total?total+" / 8 unités préparées":"Départ sans équipement"):
+    "Sac trop rempli · "+total+" / 8";
+  $("refuge-clear-preparation").disabled=total===0;
   const summary=$("prep-summary");
   summary.textContent="Préparation : "+total+" / 8 places"+
     (valid?"":" — sac trop rempli");
@@ -934,6 +951,12 @@ $("back-to-title").addEventListener("click", returnToTitle);
 for(const button of document.querySelectorAll("[data-recipe]")){
   button.addEventListener("click",()=>act(craftAtRefuge(state,button.dataset.recipe)));
 }
+$("refuge-clear-preparation").addEventListener("click",()=>{
+  if(state.run)return;
+  resetPreparation(); // Only clears ephemeral selection; never the secured stash.
+  renderInventory($("stash-items"),state.meta.stash,true);
+  updatePreparationControls();
+});
 for(const select of document.querySelectorAll("[data-prep-slot]")){
   select.addEventListener("change",()=>{
     preparedLoadout[select.dataset.prepSlot]=select.value||null;

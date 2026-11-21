@@ -65,7 +65,7 @@ test("GAME-101G: salvage is one turn, bandage once, +1 XP, no automatic combat",
   assert.equal(result.changed,true);
   assert.equal(JSON.stringify(s),before);
   assert.equal(result.state.run.turns,1);
-  assert.equal(result.state.run.endurance,s.run.endurance+1);
+  assert.equal(result.state.run.endurance,Math.min(s.run.endurance+1,s.run.enduranceMax));
   assert.equal(result.state.run.carried["consumable.bandage"],1);
   assert.equal(result.state.meta.hero.xp,s.meta.hero.xp+1);
   assert.equal(result.state.run.reliquary.choice,"salvage");

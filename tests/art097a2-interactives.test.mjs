@@ -19,9 +19,9 @@ test("ART-097A2: six interactive sprites gain unique high-contrast carvings",()=
     exit:["arch-carved-stones","arch-rune-crown","arch-luminous-threshold"],
     hazard:["rift-branch-fractures","rift-ember-flecks"]
   };
-  assert.equal(INTERACTIVE_IDS.length,17);
-  assert.equal(new Set(INTERACTIVE_IDS).size,17);
-  assert.equal(new Set(Object.values(INTERACTIVE_SVGS)).size,17);
+  assert.equal(INTERACTIVE_IDS.length,18);
+  assert.equal(new Set(INTERACTIVE_IDS).size,18);
+  assert.equal(new Set(Object.values(INTERACTIVE_SVGS)).size,18);
   for(const [key,features] of Object.entries(checks)){
     const svg=INTERACTIVE_SVGS[key];
     for(const marker of features)assert.ok(detail(svg,marker),key+" missing "+marker);

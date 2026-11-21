@@ -40,10 +40,10 @@ test("UI/ART-100: corridor cues use only immediate VISIBLE neighbors",()=>{
   assert.equal(knownCorridorAxis(changed,2,1,partial),null);
   assert.equal(knownCorridorAxis(floor,2,1,()=>false),null);
 });
-test("UI/ART-100: four hooded Sprite C views, three foes, seventeen interaction IDs",()=>{
+test("UI/ART-100: four hooded Sprite C views, three foes, eighteen interaction IDs",()=>{
   assert.deepEqual(HERO_FACINGS,["down","up","left","right"]);
   assert.deepEqual(ENEMY_ART_IDS,["charognard","guardian","rift_larva"]);
-  assert.equal(INTERACTIVE_IDS.length,17);
+  assert.equal(INTERACTIVE_IDS.length,18);
   for(const facing of HERO_FACINGS){
     const xml=HERO_SVGS[facing];
     assert.ok(xml.includes('data-feature="hood"'));

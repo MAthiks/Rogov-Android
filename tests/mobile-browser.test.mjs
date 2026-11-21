@@ -4615,3 +4615,79 @@ test("ART-103C mobile: eleven-item visual atlas, true equipped slots, touch draw
     assert.deepEqual(errors,[],"Inventory art must never throw on portrait Android");
   }finally{await context.close();}
 });
+
+test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics and no save mutation", {timeout:70000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    await page.goto(origin);
+    await page.locator("#title-new").tap();
+    assert.equal(await page.locator("#refuge").isVisible(),true);
+    const original=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+    await page.locator('[data-refuge-go="character"]').tap();
+    assert.equal(await page.locator("#actor-stats-sheet").evaluate(n=>n.open),true);
+    assert.equal(await page.locator("#actor103d-name").textContent(),"L'Égaré");
+    assert.equal(await page.locator("#actor103d-level").textContent(),"Niv. 1");
+    assert.equal(await page.locator("#actor103d-location").textContent(),"Veyr · refuge");
+    assert.equal(await page.locator("#actor103d-health").textContent(),"Hors expédition");
+    assert.equal(await page.locator("#actor103d-xp-meter").evaluate(n=>n.value),0);
+    assert.equal(await page.locator("#actor103d-derived-grid .actor103d-derived-tile").count(),6);
+    assert.equal(await page.locator("#actor-stat-values .actor-stat-chip").count(),6);
+    await page.waitForFunction(()=>{
+      const img=document.getElementById("actor103d-portrait");
+      return img.complete&&img.naturalWidth===96&&img.naturalHeight===112;
+    },null,{timeout:8000});
+    await mkdir("qa096-screenshots",{recursive:true});
+    for(const [width,height] of [[320,640],[360,780],[393,704]]){
+      await page.setViewportSize({width,height});
+      const geo=await page.evaluate(()=>{
+        const img=document.getElementById("actor103d-portrait").getBoundingClientRect();
+        const sheet=document.getElementById("actor-stats-sheet").getBoundingClientRect();
+        const grid=[...document.querySelectorAll("#actor103d-derived-grid .actor103d-derived-tile")]
+          .map(n=>n.getBoundingClientRect());
+        return {
+          viewport:document.documentElement.clientWidth,
+          scroll:document.documentElement.scrollWidth,
+          portraitWidth:img.width,portraitHeight:img.height,
+          sheetLeft:sheet.left,sheetRight:sheet.right,
+          widths:grid.map(n=>n.width),
+          summaryHeight:document.querySelector("#actor-stats-sheet summary").getBoundingClientRect().height
+        };
+      });
+      assert.ok(geo.scroll<=geo.viewport+1,"No horizontal overflow: "+JSON.stringify(geo));
+      assert.ok(geo.sheetLeft>=-1&&geo.sheetRight<=geo.viewport+1,
+        "Shared character dossier fits Android: "+JSON.stringify(geo));
+      assert.ok(geo.portraitWidth>=70&&geo.portraitWidth<=100,
+        "Portrait is large but never clips the sheet: "+JSON.stringify(geo));
+      assert.ok(geo.widths.every(w=>w>=80),
+        "Calculated combat stats remain readable: "+JSON.stringify(geo));
+      assert.ok(geo.summaryHeight>=44,"Opening sheet remains a touch target");
+      await page.screenshot({path:"qa096-screenshots/art103d-character-"+width+".png"});
+      assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),original,
+        "Browsing portrait or changing Android viewport must never save a turn");
+    }
+    await page.locator("#start-btn").tap();
+    assert.equal(await page.locator("#expedition").isVisible(),true);
+    const actual=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const stats=await import("./stats.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const profile=stats.heroDerivedStats(state);
+      return {valid:game.validateSave(state),hp:state.run.hp,endurance:state.run.endurance,
+        level:state.meta.hero.level,armor:profile.armor};
+    });
+    assert.equal(actual.valid,true);
+    assert.equal(await page.locator("#actor103d-location").textContent(),"Nhal · expédition");
+    assert.equal(await page.locator("#actor103d-health").textContent(),actual.hp+" / 16 PV");
+    assert.match(await page.locator("#actor103d-endurance").textContent(),new RegExp("^"+actual.endurance+" / [0-9]+ END$"));
+    assert.equal(await page.locator('#actor103d-derived-grid [data-metric="armor"] strong').textContent(),
+      String(actual.armor));
+    assert.equal(await page.locator("#actor103d-level").textContent(),"Niv. "+actual.level);
+    const current=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+    await page.reload();await page.locator("#title-continue").tap();
+    assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),current);
+    assert.equal(await page.locator("#actor103d-health").textContent(),actual.hp+" / 16 PV");
+    assert.deepEqual(errors,[],"No runtime errors in either shared character location");
+  }finally{await context.close();}
+});

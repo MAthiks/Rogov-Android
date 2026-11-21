@@ -285,6 +285,11 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     execFileSync("adb",["pull","/sdcard/rogov-webapk-qa098a-nhal.png","rogov-webapk-qa098a-nhal.png"],{stdio:"pipe",timeout:30000});
   }finally{
     dev?.close();
-    adb("shell","svc","wifi","enable");
+    // A vanished Android emulator must not replace the first CDP/gameplay
+    // assertion with a secondary adb cleanup error. The actual functional
+    // checks above remain hard failures; this only restores host Wi-Fi.
+    try{adb("shell","svc","wifi","enable");}
+    catch(error){console.warn("APK098A cleanup: emulator unavailable; "+
+      "preserving the original test result:",String(error.message).slice(0,200));}
   }
 });

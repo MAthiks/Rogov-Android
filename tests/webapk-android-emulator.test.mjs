@@ -145,11 +145,11 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     const tutorial=await dev.evaluate(`({
       tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
       hero:document.querySelectorAll("#tile-map .tile-hero img").length,
-      run:JSON.parse(localStorage.getItem("rogov-web-v1"))?.run
+      hasRun:Boolean(JSON.parse(localStorage.getItem("rogov-web-v1"))?.run)
     })`);
     assert.equal(tutorial.tiles,135);
     assert.equal(tutorial.hero,1);
-    assert.ok(tutorial.run);
+    assert.equal(tutorial.hasRun,true);
 
     // Produce the fixture with the SAME real, shared game engine in Node.
     // Generating the full 44x32 deep dungeon *inside* a Debug WebView CDP
@@ -174,18 +174,24 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
-    const scene=await dev.evaluate(`({
-      tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
-      hero:document.querySelectorAll("#tile-map .tile-hero img").length,
-      shortcuts:document.querySelectorAll("#expedition-shortcuts button").length,
-      turn:document.querySelector("#turns").textContent.trim(),
-      save:JSON.parse(localStorage.getItem("rogov-web-v1"))
-    })`);
+    // Return a compact snapshot. Passing the complete deep map and inventory
+    // through CDP returnByValue needlessly blocks constrained Android emulators.
+    const scene=await dev.evaluate(`(()=>{
+      const s=JSON.parse(localStorage.getItem("rogov-web-v1")||"null");
+      return {
+        tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
+        hero:document.querySelectorAll("#tile-map .tile-hero img").length,
+        shortcuts:document.querySelectorAll("#expedition-shortcuts button").length,
+        turn:document.querySelector("#turns").textContent.trim(),
+        schemaVersion:s?.schemaVersion,hasRun:Boolean(s?.run),
+        runTurns:s?.run?.turns,descents:s?.meta?.descents
+      };
+    })()`);
     assert.equal(scene.tiles,121);
     assert.equal(scene.hero,1);
     assert.equal(scene.shortcuts,6);
-    assert.equal(scene.save.schemaVersion,1);
-    assert.ok(scene.save.run);
+    assert.equal(scene.schemaVersion,1);
+    assert.equal(scene.hasRun,true);
     await queueClick(dev,"#jump-bag");
     await until(dev,'!document.querySelector("#ui092-sheet").hidden',isTrue);
     // The sheet may be flagged open before Android's first composited frame;
@@ -266,9 +272,15 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     })`);
     console.log("APK098A AFTER RESUME:",JSON.stringify(afterResume));
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
-    const resumed=await dev.evaluate('JSON.parse(localStorage.getItem("rogov-web-v1"))');
-    assert.equal(resumed.run.turns,scene.save.run.turns);
-    assert.equal(resumed.meta.descents,scene.save.meta.descents);
+    const resumed=await dev.evaluate(`(()=>{
+      const s=JSON.parse(localStorage.getItem("rogov-web-v1")||"null");
+      return {hasRun:Boolean(s?.run),turns:s?.run?.turns,
+        descents:s?.meta?.descents,schema:s?.schemaVersion};
+    })()`);
+    assert.equal(resumed.hasRun,true);
+    assert.equal(resumed.schema,1);
+    assert.equal(resumed.turns,scene.runTurns);
+    assert.equal(resumed.descents,scene.descents);
 
     // No remote connection: local appassets works with Wi-Fi and data off.
     adb("shell","svc","wifi","disable");
@@ -278,14 +290,21 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
-    const offline=await dev.evaluate(`({
-      count:document.querySelectorAll("#tile-map .pixel-tile").length,
-      hero:document.querySelectorAll("#tile-map .tile-hero").length,
-      state:JSON.parse(localStorage.getItem("rogov-web-v1"))
-    })`);
+    const offline=await dev.evaluate(`(()=>{
+      const s=JSON.parse(localStorage.getItem("rogov-web-v1")||"null");
+      return {
+        count:document.querySelectorAll("#tile-map .pixel-tile").length,
+        hero:document.querySelectorAll("#tile-map .tile-hero").length,
+        hasRun:Boolean(s?.run),turns:s?.run?.turns,
+        descents:s?.meta?.descents,schema:s?.schemaVersion
+      };
+    })()`);
     assert.equal(offline.count,121);
     assert.equal(offline.hero,1);
-    assert.equal(offline.state.run.turns,resumed.run.turns);
+    assert.equal(offline.hasRun,true);
+    assert.equal(offline.schema,1);
+    assert.equal(offline.descents,resumed.descents);
+    assert.equal(offline.turns,resumed.turns);
     // Android-native screenshot confirms what an installed user would see.
     adb("shell","screencap","-p","/sdcard/rogov-webapk-qa098a-nhal.png");
     execFileSync("adb",["pull","/sdcard/rogov-webapk-qa098a-nhal.png","rogov-webapk-qa098a-nhal.png"],{stdio:"pipe",timeout:30000});

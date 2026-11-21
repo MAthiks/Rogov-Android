@@ -1,6 +1,6 @@
 ## QA-101E — Fiabilisation de la reprise WebView après fermeture de l'application (en validation)
 
-GAME-101E est **fusionné** via PR #65, `f581082` ; les quatre CI de la PR étaient vertes. Sur `main`, le test d'APK WebView a néanmoins expiré au moment d'un `Runtime.evaluate` qui déclenchait *synchroniquement* le rendu de la partie restaurée ; la sauvegarde était bien présente et la page prête. Correction de la recette : déclencher le clic au prochain événement du navigateur, puis vérifier effectivement l'ouverture, les 121 tuiles, la sauvegarde, le mode hors ligne et les captures. **Aucun changement du moteur ou de la sauvegarde.** [Diagnostic et limites](docs/QA101E_WEBVIEW_RESTART.md).
+GAME-101E est **fusionné** via PR #65, `f581082` ; les quatre CI de la PR étaient vertes. Sur `main`, le test d'APK WebView a néanmoins expiré au moment d'un `Runtime.evaluate` qui déclenchait *synchroniquement* le rendu de la partie restaurée ; la sauvegarde était bien présente et la page prête. Correction de la recette : programmer les clics de scénario sur l'événement suivant et allonger de façon bornée la surveillance CDP (10 s) en cas de composition lente ; vérifier effectivement l'ouverture, les 121 tuiles, la sauvegarde, le mode hors ligne et les captures. **Aucun changement du moteur ou de la sauvegarde.** [Diagnostic et limites](docs/QA101E_WEBVIEW_RESTART.md).
 
 ## GAME-101E — Frappe de brèche, fenêtres de combat et positionnement (fusionné · PR #65)
 

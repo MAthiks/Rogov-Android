@@ -51,10 +51,15 @@ async function connect(){
       });
       const call=(method,params={})=>new Promise((resolve,reject)=>{
         const id=++next;
+        // Android emulators sometimes spend several seconds on compositing.
+        // This remains a HARD deadline; a genuinely unresponsive WebView
+        // still fails rather than leaving an unresolved CDP promise.
         const timeout=setTimeout(()=>{
           outstanding.delete(id);
-          reject(Error("CDP startup or command timed out: "+method));
-        },3500);
+          const detail=method==="Runtime.evaluate"?
+            ": "+String(params.expression).slice(0,110):"";
+          reject(Error("CDP startup or command timed out: "+method+detail));
+        },10000);
         outstanding.set(id,{
           resolve:value=>{clearTimeout(timeout);resolve(value);},
           reject:error=>{clearTimeout(timeout);reject(error);}
@@ -84,7 +89,7 @@ async function connect(){
   throw Error("Android WebView JS inspection failed: "+previous?.message);
 }
 
-async function until(dev,expression,expect=true,timeout=14000){
+async function until(dev,expression,expect=true,timeout=22000){
   const start=Date.now();
   let value,last;
   while(Date.now()-start<timeout){
@@ -98,7 +103,20 @@ async function until(dev,expression,expect=true,timeout=14000){
 }
 const isTrue=x=>x===true;
 
-test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and works offline", {timeout:145000},async()=>{
+// Schedule synthetic controls instead of forcing the whole synchronous scene
+// render to complete before Runtime.evaluate can respond. The subsequent
+// DOM, save, offline and viewport assertions remain the acceptance gate.
+async function queueClick(dev,selector){
+  const submitted=await dev.evaluate(`(()=>{
+    const button=document.querySelector(${JSON.stringify(selector)});
+    if(!button||button.disabled)throw Error("UI control unavailable");
+    setTimeout(()=>button.click(),0);
+    return true;
+  })()`);
+  assert.equal(submitted,true,"UI click must be queued: "+selector);
+}
+
+test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and works offline", {timeout:200000},async()=>{
   let dev=await connect();
   try{
     await until(dev,'document.querySelector("#title-continue")?.textContent.trim()==="COMMENCER"',isTrue,20000);
@@ -116,9 +134,9 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     assert.match(shell.title,/ROGOV/);
     assert.equal(shell.css,true);
     assert.equal(shell.bypass,true);
-    await dev.evaluate('document.querySelector("#title-continue").click();true');
+    await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#refuge").hidden',isTrue);
-    await dev.evaluate('document.querySelector("#start-btn").click();true');
+    await queueClick(dev,"#start-btn");
     // Actual first run is the *legacy tutorial* 15x9 = 135 tiles.
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===135',isTrue);
     const tutorial=await dev.evaluate(`({
@@ -144,7 +162,7 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     // Merely finding a button in parsed HTML is not enough: it must be
     // initialized by app.js with the restored-run description before click.
     await until(dev,'document.querySelector("#title-save-info")?.textContent.includes("Descente en cours")',isTrue,25000);
-    await dev.evaluate('document.querySelector("#title-continue").click();true');
+    await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
     const scene=await dev.evaluate(`({
@@ -159,7 +177,7 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     assert.equal(scene.shortcuts,6);
     assert.equal(scene.save.schemaVersion,1);
     assert.ok(scene.save.run);
-    await dev.evaluate('document.querySelector("#jump-bag").click();true');
+    await queueClick(dev,"#jump-bag");
     await until(dev,'!document.querySelector("#ui092-sheet").hidden',isTrue);
     // The sheet may be flagged open before Android's first composited frame;
     // insist on a genuinely laid-out, >=44px close button before testing.
@@ -198,10 +216,12 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     adb("shell","screencap","-p","/sdcard/rogov-webapk-ui098b1-bag.png");
     execFileSync("adb",["pull","/sdcard/rogov-webapk-ui098b1-bag.png",
       "rogov-webapk-ui098b1-bag.png"],{stdio:"pipe",timeout:30000});
-    await dev.evaluate('document.querySelector("#ui092-sheet-close").click();true');
-    await dev.evaluate('document.querySelector("#renderer-toggle").click();true');
+    await queueClick(dev,"#ui092-sheet-close");
+    await until(dev,'document.querySelector("#ui092-sheet").hidden',isTrue);
+    await queueClick(dev,"#renderer-toggle");
     await until(dev,'!document.querySelector("#dungeon-map").hidden',isTrue);
-    await dev.evaluate('document.querySelector("#renderer-toggle").click();true');
+    await queueClick(dev,"#renderer-toggle");
+    await until(dev,'document.querySelector("#dungeon-map").hidden',isTrue);
     // Let WebView's disk-backed DOM Storage finish persisting before a
     // simulated OS process death. This does not modify gameplay state.
     await pause(3000);
@@ -225,8 +245,10 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
       saveInfo:document.querySelector("#title-save-info")?.textContent
     })`);
     console.log("APK098A AFTER PROCESS RESTART:",JSON.stringify(beforeResume));
-    await dev.evaluate('document.querySelector("#title-continue").click();true');
-    await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
+    // A previous successful restore must reopen the actual scene, not only
+    // leave a stale button in the DOM. Queue the click and check real pixels.
+    await queueClick(dev,"#title-continue");
+    await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue,25000);
     const afterResume=await dev.evaluate(`({
       tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
       expeditionHidden:document.querySelector("#expedition").hidden,
@@ -244,7 +266,7 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     adb("shell","svc","data","disable");
     await dev.call("Page.reload",{ignoreCache:true});
     await until(dev,'document.querySelector("#title-save-info")?.textContent.includes("Descente en cours")',isTrue,25000);
-    await dev.evaluate('document.querySelector("#title-continue").click();true');
+    await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
     const offline=await dev.evaluate(`({

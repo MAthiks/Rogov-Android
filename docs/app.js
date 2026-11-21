@@ -14,6 +14,7 @@ import { narrativeObjective, NAR093_LORE } from "./narrative.js";
 import { echoDossier } from "./echo-investigation.js";
 import { VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
 import {ITEM_SPRITES_103C as ITEM_SPRITES,ITEM_MATERIAL_103C} from "./item-art103c.js";
+import {characterPresentation} from "./character-art103d.js";
 import {heroFacingFromStep} from "./hero-art.js";
 import {characterMotionForTurn} from "./character-motion.js";
 import { nearbySecretHint } from "./secrets.js";
@@ -680,6 +681,31 @@ function renderActorStats() {
   const classId=state.meta.hero.classId;
   $("actor-class-label").textContent="Archétype : "+
     (classId && ARCHETYPES[classId] ? ARCHETYPES[classId] : "non choisi (système de classes à venir)");
+  // ART-103D draws only what the engine already knows: real level, XP,
+  // six derived combat values and current-run vitals. Never save UI state.
+  const visual=characterPresentation(state,profile);
+  if(!visual)return;
+  $("actor103d-name").textContent=visual.name;
+  $("actor103d-level").textContent="Niv. "+visual.level;
+  $("actor103d-location").textContent=visual.location;
+  $("actor103d-xp-label").textContent=visual.xpCaption;
+  $("actor103d-xp-meter").max=visual.xpGoal;
+  $("actor103d-xp-meter").value=visual.xpProgress;
+  $("actor103d-health").textContent=visual.health;
+  $("actor103d-endurance").textContent=visual.endurance;
+  const grid=$("actor103d-derived-grid");
+  grid.replaceChildren();
+  for(const metric of visual.metrics){
+    const tile=document.createElement("div");
+    tile.className="actor103d-derived-tile";
+    tile.dataset.metric=metric.key;
+    const label=document.createElement("small");
+    label.textContent=metric.label;
+    const amount=document.createElement("strong");
+    amount.textContent=metric.value;
+    tile.append(label,amount);
+    grid.append(tile);
+  }
 }
 function renderCombatPreview() {
   const snapshot=combatSnapshot(state);

@@ -1,0 +1,149 @@
+/* ART-103B — physical-looking decorations derived from ROGOV UI-096 v3.
+   These images are LOCAL, ORIGINAL and decorative; gameplay tiles and input
+   geometry remain owned by their existing view components. */
+:root{
+  --art103b-iron:#26313b;
+  --art103b-brass:#bd9867;
+  --art103b-hot:#e6b774;
+}
+/* Reusable nine-slice engraving stays within the current border box. */
+.frame.is-refuge #refuge .veyr-hero,
+.frame.is-refuge #refuge .refuge-preparation,
+.frame.is-refuge #refuge #veyr-forge,
+.frame.is-refuge #refuge #echo-dossier-refuge,
+.frame #actor-stats-sheet,
+.frame.is-expedition #expedition #ui092-sheet{
+  border-style:solid;
+  border-image-source:url("./art103b-iron-frame.svg");
+  border-image-slice:18;
+  border-image-width:7px;
+  border-image-repeat:stretch;
+}
+/* 01 — Nhal: a ruined skyline ONLY in the header, never in the dungeon
+   floor itself or in the fog-of-war renderer. */
+.frame.is-expedition #expedition>.section-head{
+  background-color:#0b1722;
+  background-image:
+    linear-gradient(90deg,#071018e8 0%,#0a1722c8 43%,#0a17225a 100%),
+    url("./art103b-nhal-ruins.svg");
+  background-position:center,center 37%;
+  background-size:cover,cover;
+  box-shadow:inset 0 1px #dec49a45,0 3px 9px #0008;
+}
+.frame.is-expedition #expedition>.section-head h2,
+.frame.is-expedition #expedition>.section-head .ui097-brand{
+  color:#f5e7cf;
+  text-shadow:0 2px 3px #000,0 0 8px #000e;
+}
+.frame.is-expedition #expedition .dungeon-wrap{
+  box-shadow:inset 0 1px #8f7b5840,0 0 0 2px #0c151d,0 6px 22px #0007;
+}
+.frame.is-expedition #expedition .pixel-map{
+  border-color:#ac9270;
+  box-shadow:0 0 0 2px #101c25,0 0 0 3px #b28e5c77,0 9px 24px #000b;
+}
+/* ART-097C visibility tagging is the acceptance gate: no ambient halos for
+   remembered or unexplored cells, and NO additional entity or target marks. */
+.frame.is-expedition .pixel-tile[data-knowledge="visible"].art097c-sconce:not(.tile-hero):not(.hostile-tile){
+  box-shadow:inset 0 0 7px 2px #e69a466f;
+}
+.frame.is-expedition .pixel-tile[data-knowledge="visible"].art097c-arch:not(.tile-hero):not(.hostile-tile){
+  box-shadow:inset 0 0 8px 2px #58cab57a;
+}
+.frame.is-expedition .pixel-tile[data-knowledge="visible"].art097c-rift:not(.tile-hero):not(.hostile-tile){
+  box-shadow:inset 0 0 7px 2px #cf695b77;
+}
+.frame.is-expedition #expedition .survival-hud{
+  border-color:#917656;
+  box-shadow:inset 0 1px #f1c68b3b,0 3px 9px #0007;
+}
+/* 02 — Veyr: warm windows and a stone street appear under the ACTUAL
+   refuge text, with the same contrast mask as UI-102. */
+.frame.is-refuge #refuge .veyr-hero>.refuge-banner{
+  background-color:#14232d;
+  background-image:url("./art103b-veyr-panorama.svg");
+  background-position:center 53%;
+  background-size:cover;
+  background-repeat:no-repeat;
+  image-rendering:pixelated;
+}
+.frame.is-refuge #refuge .veyr-hero::after{
+  background:
+    linear-gradient(90deg,#07131df2 0%,#0a1821d9 41%,#0b182656 77%,#0b18261e 100%),
+    linear-gradient(0deg,#09131dd1 0%,transparent 66%);
+}
+.frame.is-refuge #refuge .veyr-hero-content{
+  position:relative;
+  z-index:2;
+}
+.frame.is-refuge #refuge .veyr-hero::before{
+  content:"";
+  pointer-events:none;
+  position:absolute;
+  inset:3px;
+  z-index:1;
+  border:1px solid #c19c6873;
+  border-radius:3px;
+  box-shadow:inset 0 0 0 1px #09131d70;
+}
+.frame.is-refuge #refuge .veyr-hero-kicker{color:#fad299}
+.frame.is-refuge #refuge .veyr-hero-lead{
+  color:#fff0d5;
+  text-shadow:0 2px 5px #000,0 0 11px #06101be0;
+}
+.frame.is-refuge #refuge .veyr-hero-note{
+  color:#e0e7db;
+  text-shadow:0 2px 3px #000c;
+}
+/* Amber warmth applies to an already functional forge, not to a fictional
+   inn or trading NPC from the reference painting. */
+.frame.is-refuge #refuge #veyr-forge{
+  background:
+    radial-gradient(ellipse at 88% 12%,#96603657,transparent 47%),
+    linear-gradient(125deg,#352e28,#1c2931 75%);
+  box-shadow:inset 0 1px #e8c1913d,0 5px 16px #0007;
+}
+.frame.is-refuge #refuge #veyr-forge .forge-heading{
+  border-color:#ad8558;
+}
+.frame.is-refuge #refuge .forge-recipe{
+  background:linear-gradient(155deg,#34383b,#19242c);
+  border-color:#897255;
+}
+.frame.is-refuge #refuge .veyr-overview-stat{
+  background:linear-gradient(145deg,#384044,#1e2b33);
+  box-shadow:inset 0 1px #e7c39131,inset 3px 0 #bd97623a;
+}
+/* 03 — bag and 04 — character use the same iron trim as the refuge;
+   no additional equipment slots or stat values are manufactured. */
+.frame.is-expedition #expedition #ui092-sheet{
+  box-shadow:inset 0 1px #efc79148,0 -10px 28px #000d;
+}
+.frame.is-expedition #bag-panel .bag-equipped,
+.frame #actor-stats-sheet .actor-stat-chip{
+  border-color:#928064;
+  box-shadow:inset 0 1px #f0d6a230,0 2px 5px #0006;
+}
+.frame #actor-stats-sheet summary{
+  text-shadow:0 1px #000c;
+}
+.frame #actor-stats-sheet .actor-derived-values{
+  color:#e3decf;
+}
+/* Compact Android rules intentionally NEVER assign top/bottom/position or
+   dimensions to the map, dock, sheet or any tap target. */
+@media(max-width:350px){
+  .frame.is-refuge #refuge .veyr-hero,
+  .frame.is-refuge #refuge .refuge-preparation,
+  .frame.is-refuge #refuge #veyr-forge,
+  .frame.is-refuge #refuge #echo-dossier-refuge,
+  .frame #actor-stats-sheet,
+  .frame.is-expedition #expedition #ui092-sheet{
+    border-image-width:5px;
+  }
+  .frame.is-refuge #refuge .veyr-hero>.refuge-banner{background-position:55% center}
+}
+@media(prefers-reduced-motion:reduce){
+  .frame.is-refuge #refuge .veyr-hero,
+  .frame.is-expedition #expedition>.section-head{animation:none;transition:none}
+}

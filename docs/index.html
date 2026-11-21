@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="./ui103a.css?v=1">
   <link rel="stylesheet" href="./art103b.css?v=1">
   <link rel="stylesheet" href="./art103c.css?v=1">
+  <link rel="stylesheet" href="./art103d.css?v=1">
   <!-- Critical responsive shell: renders correctly even if Chrome serves an older PWA stylesheet. -->
   <style id="title-critical-style">
     html,body{max-width:100%;overflow-x:hidden}
@@ -379,9 +380,31 @@
 
         <details class="actor-stats-sheet" id="actor-stats-sheet">
           <summary><span>Fiche de l'Égaré</span><small>FOR · AGI · CON · PER · VOL · INT</small></summary>
+          <div class="actor103d-identity">
+            <div class="actor103d-portrait-frame">
+              <img id="actor103d-portrait" src="./art103d-sprite-c-portrait.svg" width="96" height="112" alt="Portrait pixel art de l'Égaré, capuche relevée" draggable="false" decoding="async">
+            </div>
+            <div class="actor103d-overview">
+              <div class="actor103d-name-row">
+                <strong id="actor103d-name">L'Égaré</strong>
+                <span id="actor103d-level">Niv. 1</span>
+              </div>
+              <p id="actor103d-location" class="actor103d-location">Veyr · refuge</p>
+              <label for="actor103d-xp-meter" id="actor103d-xp-label" class="actor103d-xp-label">0 / 5 XP vers niveau 2</label>
+              <progress id="actor103d-xp-meter" value="0" max="5">0 / 5</progress>
+              <div class="actor103d-vitals">
+                <div><small>SANTÉ</small><strong id="actor103d-health">Hors expédition</strong></div>
+                <div><small>ENDURANCE</small><strong id="actor103d-endurance">Hors expédition</strong></div>
+              </div>
+            </div>
+          </div>
+          <h3 class="actor103d-subhead">CARACTÉRISTIQUES</h3>
           <p class="actor-stats-caption">Caractéristiques actives : elles modifient précision, critiques, dégâts et défenses (équilibrage provisoire).</p>
           <div id="actor-stat-values" class="actor-stat-values" aria-label="Caractéristiques du personnage"></div>
+          <h3 class="actor103d-subhead">APTITUDES DE COMBAT</h3>
+          <div id="actor103d-derived-grid" class="actor103d-derived-grid" aria-label="Aptitudes calculées"></div>
           <div id="actor-derived-values" class="actor-derived-values"></div>
+          <p class="actor103d-mental-note">État mental : système non simulé dans cette version.</p>
           <p id="actor-class-label" class="actor-class-label"></p>
         </details>
         <p id="route-hint" class="route-hint" aria-live="polite">Nhal change entre les descentes. Observe les issues et choisis ton risque.</p>

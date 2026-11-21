@@ -1,0 +1,291 @@
+/* ART-103D — L'Égaré. A dark iron character dossier inspired by UI-096 v3.
+   A single real sheet is relocated by UI-096C between Veyr and Nhal.
+   Presentation only: no new actor, stat, sanity mechanism or save fields. */
+.frame #actor-stats-sheet{
+  --art103d-gold:#e3bb80;
+  --art103d-ivory:#f5e9d5;
+  --art103d-muted:#c8c3b5;
+  color:var(--art103d-ivory);
+  background:
+    radial-gradient(ellipse at 90% 3%,#34455099,transparent 52%),
+    linear-gradient(165deg,#25313b,#101a24 85%);
+}
+.frame #actor-stats-sheet>summary{
+  font-family:Georgia,"Times New Roman",serif;
+  letter-spacing:.02em;
+  color:#f5e7cf;
+  border-bottom-color:#8d7351;
+}
+.frame #actor-stats-sheet[open]>summary{
+  background:linear-gradient(100deg,#49382b65,#202b32);
+  box-shadow:inset 0 -1px #c39e684c;
+}
+.frame #actor-stats-sheet .actor103d-identity{
+  display:grid;
+  grid-template-columns:100px minmax(0,1fr);
+  align-items:start;
+  gap:12px;
+  padding:13px 12px 8px;
+  min-width:0;
+}
+.frame #actor-stats-sheet .actor103d-portrait-frame{
+  position:relative;
+  width:100px;
+  height:118px;
+  padding:2px;
+  background:#0c1821;
+  border:2px solid #ac8a5a;
+  border-radius:5px;
+  box-shadow:inset 0 0 0 1px #e1c48d40,0 4px 10px #0008;
+  overflow:hidden;
+}
+.frame #actor-stats-sheet .actor103d-portrait-frame::before{
+  position:absolute;
+  content:"";
+  inset:4px;
+  z-index:1;
+  pointer-events:none;
+  border:1px solid #e2c39543;
+}
+.frame #actor-stats-sheet #actor103d-portrait{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  image-rendering:pixelated;
+  background:#0b1620;
+}
+.frame #actor-stats-sheet .actor103d-overview{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  gap:6px;
+}
+.frame #actor-stats-sheet .actor103d-name-row{
+  display:flex;
+  gap:6px;
+  align-items:baseline;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  min-width:0;
+  padding-bottom:6px;
+  border-bottom:1px solid #a4875a;
+}
+.frame #actor-stats-sheet #actor103d-name{
+  color:#fff0d7;
+  font:700 18px/1.15 Georgia,"Times New Roman",serif;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.frame #actor-stats-sheet #actor103d-level{
+  color:#ecc994;
+  white-space:nowrap;
+  font:800 11px/1.3 ui-monospace,monospace;
+  font-variant-numeric:tabular-nums;
+}
+.frame #actor-stats-sheet .actor103d-location{
+  color:#c3cdd0;
+  font:700 10px/1.35 ui-monospace,monospace;
+  margin:0;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.frame #actor-stats-sheet .actor103d-xp-label{
+  color:#f2ddbc;
+  font:700 10px/1.35 ui-monospace,monospace;
+  margin-top:2px;
+}
+.frame #actor-stats-sheet #actor103d-xp-meter{
+  display:block;
+  width:100%;
+  height:10px;
+  margin:0;
+  border:1px solid #8f775a;
+  border-radius:3px;
+  background:#0e1822;
+  accent-color:#d7aa65;
+}
+.frame #actor-stats-sheet #actor103d-xp-meter::-webkit-progress-bar{
+  background:#0e1822;
+}
+.frame #actor-stats-sheet #actor103d-xp-meter::-webkit-progress-value{
+  background:linear-gradient(90deg,#b58247,#ebc689);
+}
+.frame #actor-stats-sheet #actor103d-xp-meter::-moz-progress-bar{
+  background:#dab575;
+}
+.frame #actor-stats-sheet .actor103d-vitals{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:5px;
+  min-width:0;
+  margin-top:2px;
+}
+.frame #actor-stats-sheet .actor103d-vitals>div{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+  gap:2px;
+  padding:5px 6px;
+  background:linear-gradient(155deg,#354049,#1b2933);
+  border:1px solid #796b56;
+  border-radius:4px;
+  box-shadow:inset 0 1px #f5d29b24;
+}
+.frame #actor-stats-sheet .actor103d-vitals small{
+  color:#c9c7bd;
+  font:800 9px/1.25 ui-monospace,monospace;
+}
+.frame #actor-stats-sheet .actor103d-vitals strong{
+  color:#f4e6cf;
+  font:750 10px/1.3 ui-monospace,monospace;
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+.frame #actor-stats-sheet .actor103d-subhead{
+  margin:8px 12px 9px;
+  padding:0 0 6px;
+  border-bottom:1px solid #786850;
+  font:800 11px/1.3 Georgia,"Times New Roman",serif;
+  letter-spacing:.1em;
+  color:#eed0a2;
+}
+.frame #actor-stats-sheet .actor-stats-caption{
+  margin:0 12px 10px;
+  color:#d0d3c7;
+}
+.frame #actor-stats-sheet .actor-stat-values{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:5px;
+  margin:0 12px;
+}
+.frame #actor-stats-sheet .actor-stat-chip{
+  padding:8px 3px;
+  min-height:57px;
+  border-color:#87755c;
+  background:linear-gradient(160deg,#39434c,#202e37);
+}
+.frame #actor-stats-sheet .actor-stat-chip small{
+  color:#d2c6b2;
+  letter-spacing:.04em;
+}
+.frame #actor-stats-sheet .actor-stat-chip strong{
+  color:#f6d5a1;
+  font-size:18px;
+  font-variant-numeric:tabular-nums;
+}
+.frame #actor-stats-sheet .actor103d-derived-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  margin:0 12px 8px;
+}
+.frame #actor-stats-sheet .actor103d-derived-tile{
+  display:flex;
+  flex-direction:column;
+  align-items:start;
+  justify-content:center;
+  gap:4px;
+  min-height:53px;
+  padding:7px 9px;
+  min-width:0;
+  border:1px solid #756c59;
+  border-radius:4px;
+  background:linear-gradient(140deg,#2f3a43,#1a2833);
+  box-shadow:inset 0 1px #e9c3931b;
+}
+.frame #actor-stats-sheet .actor103d-derived-tile small{
+  color:#d8c4a3;
+  font:800 10px/1.2 ui-monospace,monospace;
+  letter-spacing:.02em;
+}
+.frame #actor-stats-sheet .actor103d-derived-tile strong{
+  color:#f6ead5;
+  font:850 16px/1.2 ui-monospace,monospace;
+  font-variant-numeric:tabular-nums;
+}
+.frame #actor-stats-sheet .actor-derived-values{
+  margin:12px 12px 8px;
+  padding:9px;
+  border-left:2px solid #957752;
+  background:#15232c;
+  color:#cfd5d2;
+  line-height:1.55;
+}
+.frame #actor-stats-sheet .actor-class-label{
+  margin:10px 12px;
+  color:#e7d8ba;
+}
+.frame #actor-stats-sheet .actor103d-mental-note{
+  margin:8px 12px;
+  padding:7px 9px;
+  background:#1b2932;
+  border:1px dashed #5c6768;
+  border-radius:4px;
+  color:#c0c8c6;
+  font:600 10px/1.4 system-ui,sans-serif;
+}
+/* Preserve visible UI-096C shared sheet in refuge and the existing drawer
+   scroll on Nhal. No positioning or size changes to map or controls. */
+@media(max-width:730px){
+  .frame #actor-stats-sheet .actor-stat-values{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+  }
+  .frame #actor-stats-sheet .actor103d-derived-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+@media(max-width:390px){
+  .frame #actor-stats-sheet .actor103d-identity{
+    grid-template-columns:90px minmax(0,1fr);
+    gap:9px;
+    padding:10px 9px 8px;
+  }
+  .frame #actor-stats-sheet .actor103d-portrait-frame{
+    width:90px;
+    height:108px;
+  }
+  .frame #actor-stats-sheet #actor103d-name{font-size:16px}
+  .frame #actor-stats-sheet .actor103d-derived-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .frame #actor-stats-sheet .actor103d-derived-tile{
+    min-height:49px;
+  }
+}
+@media(max-width:350px){
+  .frame #actor-stats-sheet .actor103d-identity{
+    grid-template-columns:80px minmax(0,1fr);
+    gap:7px;
+    padding:9px 8px 7px;
+  }
+  .frame #actor-stats-sheet .actor103d-portrait-frame{
+    width:80px;
+    height:98px;
+  }
+  .frame #actor-stats-sheet #actor103d-name{font-size:15px}
+  .frame #actor-stats-sheet .actor103d-vitals{
+    grid-template-columns:1fr;
+    gap:3px;
+  }
+  .frame #actor-stats-sheet .actor103d-vitals>div{
+    padding:4px 6px;
+  }
+  .frame #actor-stats-sheet .actor103d-vitals strong{
+    font-size:9px;
+  }
+  .frame #actor-stats-sheet .actor-stat-values{
+    gap:4px;
+    margin:0 9px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .frame #actor-stats-sheet .actor103d-portrait-frame,
+  .frame #actor-stats-sheet .actor103d-derived-tile{
+    animation:none;
+    transition:none;
+  }
+}

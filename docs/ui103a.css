@@ -1,0 +1,345 @@
+/* UI-103A — ROGOV screen art direction.
+   Screenshot vocabulary: old iron, dark stone, warm brass and a cold void.
+   Pure presentation. No changes to visibility, fog, hitboxes, game rules,
+   save schema, navigation or mobile panel positioning. */
+:root{
+  --da103-void:#080e15;
+  --da103-abyss:#0d1721;
+  --da103-iron:#1b2832;
+  --da103-stone:#36414b;
+  --da103-brass:#bd965f;
+  --da103-gold:#e2bd83;
+  --da103-ivory:#f1e7d4;
+  --da103-muted:#c1c7c2;
+  --da103-seam:#66584a;
+  --da103-danger:#d9857a;
+  --da103-arc:#6dd0c0;
+}
+
+/* Consistent frame language: the artwork is inside the screen, not on the
+   tappable map. Thin bevels avoid the ornate multi-pixel borders of the concept. */
+.frame #expedition,
+.frame #refuge{
+  color:var(--da103-ivory);
+}
+.frame.is-expedition #expedition,
+.frame.is-refuge #refuge{
+  border-color:#766550;
+  box-shadow:inset 0 0 0 1px #d6b78020,inset 0 1px #f8deb51b,0 12px 38px #0009;
+}
+.frame.is-expedition #expedition>.section-head h2,
+.frame.is-refuge #refuge-title,
+.frame.is-refuge #forge-title{
+  font-family:Georgia,"Times New Roman",serif;
+  color:var(--da103-ivory);
+  text-shadow:0 2px 2px #000d;
+}
+.frame.is-expedition #expedition>.section-head,
+.frame.is-refuge #refuge>.section-head{
+  border-color:#957752;
+}
+.frame #refuge button:focus-visible,
+.frame #expedition button:focus-visible,
+.frame #expedition summary:focus-visible,
+.frame #refuge summary:focus-visible{
+  outline:2px solid #ffe0ab;
+  outline-offset:2px;
+}
+
+/* 01 — NHAL: black stone framing around the *unchanged* rendered 11x11 scene. */
+.frame.is-expedition #expedition{
+  background:
+    radial-gradient(ellipse at 52% 4%,#293440 0%,transparent 50%),
+    linear-gradient(180deg,#101b25,#0a1119 84%);
+}
+.frame.is-expedition #expedition .run-bar>span{
+  border-color:#735f49;
+  background:linear-gradient(180deg,#2a343c,#151f28);
+  color:#e4d9c6;
+  box-shadow:inset 0 1px #d8b88828;
+}
+.frame.is-expedition #expedition .run-bar strong{
+  color:#f6e4c7;
+  font-variant-numeric:tabular-nums;
+}
+.frame.is-expedition .survival-hud{
+  border-color:#79634c;
+  background:linear-gradient(125deg,#283038,#151e28);
+  box-shadow:inset 0 1px #e0b87a2c,0 3px 8px #0007;
+}
+.frame.is-expedition #expedition .expedition-shortcuts button{
+  color:#eedfca;
+  border-color:#73614d;
+  background:linear-gradient(180deg,#34404a,#1b2730);
+  box-shadow:inset 0 1px #dac09321;
+}
+.frame.is-expedition #expedition .expedition-shortcuts button.is-active,
+.frame.is-expedition #expedition .expedition-shortcuts button[aria-pressed="true"]{
+  border-color:#dab47a;
+  color:#fff0d2;
+  background:#51402e;
+  box-shadow:inset 0 -2px #deb77b;
+}
+.frame.is-expedition #expedition .dungeon-wrap{
+  border-color:#66594c;
+}
+.frame.is-expedition #expedition .pixel-map{
+  /* Border outside the map — no obscured pixels, no color overlay or fog leak. */
+  border-color:#aa906c;
+  box-shadow:0 0 0 2px #0b1219,0 0 0 3px #73573f,0 8px 24px #000b;
+}
+.frame.is-expedition #expedition .ui099-feedback{
+  border-color:#686057;
+  color:#f1e4d4;
+  background:linear-gradient(110deg,#26303b,#151f28);
+}
+.frame.is-expedition #ui096-threat-banner[data-urgent="true"]{
+  background:#342328;
+  border-color:#ac6f65;
+  color:#ffe3d7;
+}
+.frame.is-expedition #field-controls{
+  border-color:#a08157;
+  background:linear-gradient(155deg,#29343f,#111b25 76%);
+  box-shadow:inset 0 2px #e2ba7e30,0 -7px 22px #000a;
+}
+.frame.is-expedition #field-controls .dpad button,
+.frame.is-expedition #field-controls .field-quick-actions button{
+  color:#f5e5cb;
+  background-color:#26323d;
+  border-color:#8b7358;
+}
+.frame.is-expedition #field-controls .dpad button:active,
+.frame.is-expedition #field-controls .field-quick-actions button:active{
+  background-color:#4a4238;
+}
+.frame.is-expedition #expedition #ui092-sheet{
+  border-color:#b69469;
+  background:linear-gradient(165deg,#28333e,#0d1720);
+  box-shadow:inset 0 2px #edc78c24,0 -10px 28px #000d;
+}
+.frame.is-expedition #expedition .ui092-sheet-head{
+  border-bottom-color:#75644f;
+}
+.frame.is-expedition #expedition .ui092-sheet-head strong{
+  color:#f5e3c4;
+  letter-spacing:.1em;
+}
+
+/* 02 — VEYR: the banner remains the hero, framed like a lived-in refuge.
+   No fake merchant, inn/rest, NPC action or extra currency appears. */
+.frame.is-refuge #refuge{
+  background:linear-gradient(165deg,#263039 0%,#162129 48%,#0b151d 100%);
+}
+.frame.is-refuge #refuge .veyr-hero{
+  border:2px solid #b49365;
+  border-radius:6px;
+  box-shadow:inset 0 0 0 1px #e3c08b48,0 8px 22px #000b;
+}
+.frame.is-refuge #refuge .veyr-hero::after{
+  background:
+    linear-gradient(90deg,#0c141df5 0%,#0d1822d7 40%,#09131b35 100%),
+    linear-gradient(0deg,#0a131bdb,transparent 68%);
+}
+.frame.is-refuge #refuge .veyr-hero-kicker{
+  color:#f6c98a;
+}
+.frame.is-refuge #refuge .veyr-overview-stat{
+  border-color:#7e6e55;
+  border-radius:5px;
+  background:linear-gradient(145deg,#2d3539,#19252e);
+}
+.frame.is-refuge #refuge .veyr-overview-stat>strong{
+  color:#f1cb91;
+}
+.frame.is-refuge #refuge .refuge-quick-nav button{
+  border:1px solid #8d7656;
+  border-radius:5px;
+  background:linear-gradient(110deg,#354048,#1d2933);
+  box-shadow:inset 0 1px #d9c39a27,0 2px 4px #0006;
+}
+.frame.is-refuge #refuge .refuge-quick-nav button[aria-pressed="true"]{
+  border-color:#f0c48c;
+  background:#4a3d2f;
+  box-shadow:inset 3px 0 #e4bb7e;
+}
+.frame.is-refuge #refuge .veyr-nav-icon{
+  border-color:#a88a61;
+  border-radius:4px;
+  background:#332b25;
+}
+.frame.is-refuge #refuge .refuge-preparation,
+.frame.is-refuge #refuge #veyr-forge,
+.frame.is-refuge #refuge #echo-dossier-refuge{
+  border-color:#7a674e;
+  border-radius:6px;
+  box-shadow:inset 0 1px #e9c7911b;
+}
+.frame.is-refuge #refuge #mission-refuge{
+  border-color:#b08a5c;
+  border-left-color:#ebba76;
+  background:linear-gradient(125deg,#3a3028,#242c32);
+}
+.frame.is-refuge #refuge #start-btn{
+  /* Preserve solid fallback background-color for contrast/QA on Android. */
+  background-color:#d9b17b;
+  border-color:#f0ce9a;
+  border-radius:6px;
+  box-shadow:inset 0 1px #fff0cd66,0 7px 23px #000b;
+}
+
+/* 03 — SAC: old-iron slots & high-contrast equipment, never additional
+   inventory categories or fake slot actions from the painted concept. */
+.frame.is-expedition #bag-panel,
+.frame.is-expedition #ui092-sheet-body #bag-panel{
+  border-color:#897255;
+  border-radius:6px;
+  background:linear-gradient(155deg,#26313d,#101b26);
+}
+.frame.is-expedition #bag-panel summary{
+  color:#f4e4ca;
+  border-color:#8d7253;
+}
+.frame.is-expedition #bag-panel .bag-content{
+  color:#ece3d4;
+}
+.frame.is-expedition #bag-panel .bag-equipped{
+  border-color:#807059;
+  background:#17232d;
+}
+.frame.is-expedition #bag-panel .item-row,
+.frame.is-refuge #stash-items .item-row{
+  border:1px solid #756d5c;
+  border-radius:5px;
+  background:linear-gradient(160deg,#303c45,#1b2833);
+  box-shadow:inset 0 1px #e0c29814;
+}
+.frame.is-expedition #bag-panel .item-row .item-icon,
+.frame.is-refuge #stash-items .item-icon{
+  color:#f0ca89;
+}
+.frame.is-expedition #bag-panel .item-row .item-label strong,
+.frame.is-refuge #stash-items .item-label strong{
+  color:#f3e6d3;
+}
+.frame.is-refuge #stash-items .item-row:has(input:checked){
+  border-color:#edc287;
+  background:#3e3a32;
+  box-shadow:inset 3px 0 #edc287;
+}
+.frame.is-expedition #bag-panel .bag-risk{
+  color:#eed0b9;
+}
+
+/* 04 — PERSONNAGE: sheet of carved slate; actual statistics only. */
+.frame #actor-stats-sheet{
+  border:1px solid #8d7655;
+  border-radius:6px;
+  background:
+    radial-gradient(ellipse at 88% 0%,#33404b 0%,transparent 55%),
+    linear-gradient(175deg,#26313b,#121e28);
+  box-shadow:inset 0 1px #e5c0902b,0 4px 14px #0006;
+}
+.frame #actor-stats-sheet summary{
+  color:#f3e2c8;
+  font:700 13px/1.3 Georgia,serif;
+  min-height:48px;
+}
+.frame #actor-stats-sheet summary small{
+  color:#d4c0a2;
+  font:700 10px/1.25 ui-monospace,monospace;
+}
+.frame #actor-stats-sheet[open] summary{border-bottom-color:#897258}
+.frame #actor-stats-sheet .actor-stat-values{
+  gap:5px;
+}
+.frame #actor-stats-sheet .actor-stat-chip{
+  min-height:54px;
+  border:1px solid #77705e;
+  border-radius:4px;
+  background:linear-gradient(160deg,#33414a,#1e2c36);
+  box-shadow:inset 0 1px #ebc99425;
+}
+.frame #actor-stats-sheet .actor-stat-chip strong{
+  color:#f2d4a1;
+  font-variant-numeric:tabular-nums;
+}
+.frame #actor-stats-sheet .actor-stat-chip small{
+  color:#e7dfd2;
+}
+.frame #actor-stats-sheet .actor-stats-caption,
+.frame #actor-stats-sheet .actor-derived-values{
+  color:#dce1d8;
+}
+
+/* Unified title: dark blue rather than jade, with a weathered red sigil.
+   Essential controls remain legible and their dimensions are unchanged. */
+#title-screen.title-screen{
+  background:radial-gradient(ellipse at 50% 24%,#253a43 0%,#0b1620 52%,#060c13 100%);
+}
+#title-screen .title-shell{
+  border-color:#8c7354;
+  border-radius:10px;
+  background:linear-gradient(165deg,#15232d,#09141c);
+  box-shadow:inset 0 0 0 1px #d7b17e1d,0 18px 55px #000a;
+}
+#title-screen .title-brand h1{
+  color:#f0e1c7;
+  text-shadow:0 2px #000,0 0 15px #a7784a30;
+}
+#title-screen .title-sigil{
+  color:#d07c75;
+  text-shadow:0 0 8px #8b3e40b3;
+}
+#title-screen .title-scene{
+  border-color:#a38762;
+  border-radius:6px;
+}
+#title-screen .title-primary{
+  color:#1b252c;
+  background:#e3bd84;
+  border-color:#f3d7a8;
+}
+#title-screen .title-secondary{
+  color:#f3e3c9;
+  background:#273440;
+  border-color:#9b805e;
+}
+#title-screen .title-tagline{color:#f4e7d4}
+#title-screen .title-top,
+#title-screen .title-save-info,
+#title-screen .title-footer{color:#c6ccbf}
+
+/* Android acceptance: these rules decorate but cannot resize the map,
+   move fixed dock/sheets, or create any touch-blocking pseudo elements. */
+@media(max-width:730px){
+  .frame.is-expedition #expedition .dungeon-wrap{
+    min-width:0;
+  }
+  .frame.is-expedition #expedition .pixel-map{
+    max-width:100%;
+  }
+  .frame.is-refuge #refuge .refuge-quick-nav button{
+    min-height:61px;
+  }
+  .frame.is-refuge #refuge .veyr-overview-stat{
+    min-width:0;
+  }
+}
+@media(max-width:350px){
+  .frame.is-expedition #expedition .run-bar>span{
+    padding-inline:3px;
+  }
+  .frame #actor-stats-sheet .actor-stat-chip{
+    min-width:0;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #title-screen .title-primary,
+  #title-screen .title-secondary,
+  .frame #refuge button,
+  .frame #expedition button{
+    transition:none;
+    animation:none;
+  }
+}

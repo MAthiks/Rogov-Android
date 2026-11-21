@@ -11,7 +11,8 @@ test("ART-103B: Nhal, Veyr and riveted borders are local, portable SVG assets",(
     assert.match(svg,/<svg\s/,"SVG has a root: "+name);
     assert.match(svg,/viewBox=/,"Art has scalable geometry: "+name);
     assert.match(svg,/shape-rendering="crispEdges"/,"Crisp pixel-art edges: "+name);
-    assert.doesNotMatch(svg,/<script\b|<foreignObject\b|https?:\/\/|onload\s*=/i,
+    const safeSvg=svg.replace('xmlns="http://www.w3.org/2000/svg"',"");
+    assert.doesNotMatch(safeSvg,/<script\b|<foreignObject\b|https?:\/\/|onload\s*=/i,
       "Decorative art is self-contained and inert: "+name);
     assert.ok(svg.length>850&&svg.length<75000,"APK asset stays lightweight: "+name);
     assert.ok(sw.includes('"./'+name+'"'),"PWA cache must ship "+name);

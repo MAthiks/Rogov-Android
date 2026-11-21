@@ -4559,7 +4559,7 @@ test("ART-103C mobile: eleven-item visual atlas, true equipped slots, touch draw
       next.state.run.enemies=[]; // UI inspection must not advance AI.
       if(!game.validateSave(next.state))throw Error("Invalid inventory test save");
       localStorage.setItem(game.SAVE_KEY,JSON.stringify(next.state));
-      return {schema:next.state.schemaVersion,count:game.inventoryCount(next.state.run.carried)};
+      return {schema:next.state.schemaVersion,count:game.inventoryCount(next.state)};
     });
     assert.equal(setup.schema,1);
     assert.equal(setup.count,3);

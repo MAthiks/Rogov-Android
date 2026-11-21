@@ -96,7 +96,10 @@ test("GAME-101F: actual Nhal pillar changes an enemy turn without changing RNG o
   assert.equal(result.state.run.rngState,before.run.rngState);
   assert.ok(validateSave(result.state));
   assert.ok(validateSave(normalizeJournal(JSON.parse(JSON.stringify(result.state)))));
-  const old=structuredClone(before);delete old.run.pursuitPlanVersion;
+  const old=structuredClone(before);
+  delete old.run.pursuitPlanVersion;
+  delete old.run.reliquaryPlanVersion;
+  delete old.run.reliquary;
   assert.ok(validateSave(old));
   assert.equal(chamberPursuitStep(old.run,old.run.enemies[0]),null);
   const oldTurn=waitTurn(old);

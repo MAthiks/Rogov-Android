@@ -57,6 +57,8 @@ test("GAME-101E: opt-in marker and 20 deep seeds keep existing routes and saves"
   const legacy=structuredClone(active);
   delete legacy.run.combatOpeningVersion;
   delete legacy.run.pursuitPlanVersion;
+  delete legacy.run.reliquaryPlanVersion;
+  delete legacy.run.reliquary;
   assert.ok(validateSave(legacy));
   const wrong=structuredClone(active);wrong.run.combatOpeningVersion=2;
   assert.equal(validateSave(wrong),false);
@@ -160,7 +162,8 @@ test("GAME-101E: invalid window, unequipped weapon and low stamina spend no turn
   const s=beside();
   const cases=[
     (()=>{const q=structuredClone(s);delete q.run.combatOpeningVersion;
-      delete q.run.pursuitPlanVersion;return q;})(),
+      delete q.run.pursuitPlanVersion;
+      delete q.run.reliquaryPlanVersion;delete q.run.reliquary;return q;})(),
     (()=>{const q=structuredClone(s);q.run.enemies[0].tactic="stalking";return q;})(),
     (()=>{const q=structuredClone(s);q.run.endurance=2;return q;})(),
     (()=>{const q=structuredClone(s);q.run.loadout.mainHand=null;return q;})(),

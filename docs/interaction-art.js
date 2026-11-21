@@ -210,6 +210,15 @@ const site_signal=svg(
   '<path d="M12 4v4" stroke="#ddd0a2" stroke-width="1"/>'+
   '</g>'
 );
+const site_reliquary=svg(
+  '<g data-feature="sealed-reliquary">'+
+  '<path d="M4 21V10l8-6 8 6v11Z" fill="#35494a" stroke="#9ea79a" stroke-width="1"/>'+
+  '<path d="M6 11h12v8H6Z" fill="#1b2c30" stroke="#b4a280" stroke-width="1"/>'+
+  '<rect x="10" y="10" width="4" height="7" fill="#d5b77b"/>'+
+  '<path d="M12 6v5M8 14h8M6 21h12" stroke="#94cec2" stroke-width="1"/>'+
+  '<path d="M9 3h6M10 19h4" stroke="#e6d2a4" stroke-width="2"/>'+
+  '</g>'
+);
 const site_resolved=svg(
   '<g data-feature="explored-site">'+
   '<rect x="2" y="3" width="20" height="19" fill="#263938" stroke="#7e9688" stroke-width="1"/>'+
@@ -221,12 +230,12 @@ export const INTERACTIVE_IDS=Object.freeze([
   "door_open","door_closed","loot","chest_open",
   "trap_clue","trap_revealed","trap_disabled","trap_triggered",
   "exit","hazard","secret_open",
-  "site_atelier","site_echo","site_cache","site_camp","site_signal","site_resolved"
+  "site_atelier","site_echo","site_cache","site_camp","site_signal","site_reliquary","site_resolved"
 ]);
 export const INTERACTIVE_SVGS=Object.freeze({
   door_open,door_closed,loot,chest_open,
   trap_clue,trap_revealed,trap_disabled,trap_triggered,
-  exit,hazard,secret_open,site_atelier,site_echo,site_cache,site_camp,site_signal,site_resolved
+  exit,hazard,secret_open,site_atelier,site_echo,site_cache,site_camp,site_signal,site_reliquary,site_resolved
 });
 export const INTERACTIVE_SPRITES=Object.freeze(Object.fromEntries(
   INTERACTIVE_IDS.map(id=>[id,URI+encodeURIComponent(INTERACTIVE_SVGS[id])])

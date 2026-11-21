@@ -85,6 +85,7 @@ test("GAME-101C: legacy saved descents and invalid interactions fail without a t
   delete missing.run.encounterPlanVersion;delete missing.run.encounters; // Historical run.
   delete missing.run.combatOpeningVersion; // GAME-101E not present in simulated older saves.
   delete missing.run.pursuitPlanVersion; // GAME-101F is absent from historical runs.
+  delete missing.run.reliquaryPlanVersion;delete missing.run.reliquary;
   assert.ok(validateSave(missing));
   assert.equal(resolveRoomSite(missing,site.id,"cartographie").changed,false);
   const exhausted=structuredClone(state);exhausted.run.endurance=1;

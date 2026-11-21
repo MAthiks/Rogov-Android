@@ -165,6 +165,7 @@ test("DEV-085: legacy deep save with 34 doors remains loadable, without regenera
   delete old.run.encounterPlanVersion;delete old.run.encounters; // GAME-101D new floors only.
   delete old.run.combatOpeningVersion; // GAME-101E not present in simulated older saves.
   delete old.run.pursuitPlanVersion; // GAME-101F is absent from historical runs.
+  delete old.run.reliquaryPlanVersion;delete old.run.reliquary; // Pre-GAME-101G.
   delete old.run.lootPlanVersion; // Pre-GAME-095A3 legacy chest IDs.
   delete old.run.secrets;delete old.run.traps;
   delete old.run.sites; // DEV-087: legacy 34-door runs predate special sites.

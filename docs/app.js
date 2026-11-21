@@ -17,6 +17,7 @@ import {characterMotionForTurn} from "./character-motion.js";
 import { nearbySecretHint } from "./secrets.js";
 import {nearbyTrapHint,trapHintText} from "./traps.js";
 import {ROOM_SITES,nearbyRoomSite} from "./room-events.js";
+import {reliquaryWardenAlive} from "./reliquary.js";
 import {LISTEN_ENDURANCE_COST} from "./acoustics.js";
 import {branchOverview,branchClue} from "./branch-intel.js";
 import {expeditionReport} from "./expedition-report.js";
@@ -460,7 +461,8 @@ function updateRoomSiteActions(){
     button.textContent=rule.label;
     button.disabled=(rule.item&&inventoryCount(state)>=8)||
       (state.run.endurance??0)<rule.endurance||
-      (rule.requiresDamage&&state.run.hp>=MAX_HP);
+      (rule.requiresDamage&&state.run.hp>=MAX_HP)||
+      (rule.requiresWardenDefeated&&reliquaryWardenAlive(state.run));
     button.addEventListener("click",()=>act(resolveRoomSite(state,site.id,choice)));
     options.append(button);
   }

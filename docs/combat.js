@@ -2,6 +2,7 @@
 // Future combat actions will use this contract, while v0.6 remains playable.
 import { MAP, ENEMY_TYPES, enemyAt } from "./game.js";
 import {guardianIntent,charognardIntent} from "./enemy-ai.js";
+import {chamberPursuitStep} from "./chamber-pursuit.js";
 
 export const RANGES = Object.freeze({ CONTACT: "CONTACT", PROCHE: "PROCHE", LOIN: "LOIN" });
 export const COMBAT_ACTIONS = Object.freeze(["attack", "dodge", "parry", "block", "shove", "retreat"]);
@@ -61,6 +62,10 @@ export function currentEnemyIntent(run, enemy, map = MAP) {
   if(enemy.kind==="charognard"){
     const tactical=charognardIntent(enemy,run);
     if(tactical)return intent(tactical.kind,tactical.label);
+    const pursuit=chamberPursuitStep(run,enemy);
+    if(pursuit)return intent("approach",pursuit.detour?
+      "Le Charognard cherche un détour dans cette salle":
+      "Le Charognard se rapproche dans cette salle");
   }
   if (d === 1) return intent("melee", "Attaque de contact imminente");
   if (enemy.kind === "charognard" && d <= ENEMY_TYPES.charognard.aggro) {

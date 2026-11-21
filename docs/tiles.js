@@ -38,8 +38,9 @@ const site_echo=INTERACTIVE_SVGS.site_echo;
 const site_cache=INTERACTIVE_SVGS.site_cache;
 const site_camp=INTERACTIVE_SVGS.site_camp;
 const site_signal=INTERACTIVE_SVGS.site_signal;
+const site_reliquary=INTERACTIVE_SVGS.site_reliquary;
 const site_resolved=INTERACTIVE_SVGS.site_resolved;
-const SPRITE_SVGS={ floor, wall, hero, hero_up, hero_left, hero_right, loot, hazard, exit, door_open, door_closed, secret_open, chest_open, charognard, guardian, rift_larva, trap_clue, trap_revealed, trap_disabled, trap_triggered, site_atelier, site_echo, site_cache, site_camp, site_signal, site_resolved };
+const SPRITE_SVGS={ floor, wall, hero, hero_up, hero_left, hero_right, loot, hazard, exit, door_open, door_closed, secret_open, chest_open, charognard, guardian, rift_larva, trap_clue, trap_revealed, trap_disabled, trap_triggered, site_atelier, site_echo, site_cache, site_camp, site_signal, site_reliquary, site_resolved };
 export const TILE_SPRITES=Object.freeze(Object.fromEntries(
   Object.entries(SPRITE_SVGS).map(([id,source])=>[id,"data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(source)])
 ));
@@ -47,7 +48,7 @@ export const LEGEND_ITEMS=Object.freeze([
   ["hero","Joueur"],["charognard","Charognard"],["guardian","Gardien déchu"],["rift_larva","Larve de faille"],
   ["loot","Coffre / butin"],["chest_open","Coffre ouvert"],["hazard","Faille mortelle"],["exit","Extraction"],["secret_open","Secret découvert"],
   ["trap_clue","Sol suspect"],["trap_revealed","Piège identifié"],["trap_disabled","Piège désamorcé"],
-  ["site_atelier","Atelier"],["site_echo","Chambre de l’Écho"],["site_cache","Cache oubliée"],["site_camp","Camp de fortune"],["site_signal","Balise de garde"],["site_resolved","Lieu exploré"]
+  ["site_atelier","Atelier"],["site_echo","Chambre de l’Écho"],["site_cache","Cache oubliée"],["site_camp","Camp de fortune"],["site_signal","Balise de garde"],["site_reliquary","Reliquaire"],["site_resolved","Lieu exploré"]
 ]);
 // UI-only cue taxonomy: the combat engine alone decides what happens next.
 const VISUAL_CUES=Object.freeze({

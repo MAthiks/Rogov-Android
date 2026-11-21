@@ -55,6 +55,18 @@ export const ROOM_SITES=Object.freeze({
         text:"BALISE — Un Fragment de cendre tombe et l'alarme résonne. Les Charognards repèrent plus loin pendant cinq tours."})
     })
   }),
+  reliquary:Object.freeze({
+    name:"Reliquaire sous tension",symbol:"r",sprite:"site_reliquary",
+    description:"Un coffret de cendre est tenu par un sceau instable. Prélever les fournitures sans toucher au sceau, ou le rompre après avoir écarté la présence qui l'anime.",
+    options:Object.freeze({
+      salvage:Object.freeze({label:"Récupérer les fournitures · 1 tour",
+        item:"consumable.bandage",xp:1,endurance:0,
+        text:"RELIQUAIRE — Tu repars avec un nécessaire de soin, sans déranger le sceau."}),
+      unseal:Object.freeze({label:"Rompre le sceau · 1 tour, 2 END · Fragment",
+        item:"relic.ashen_fragment",xp:2,endurance:2,requiresWardenDefeated:true,
+        text:"RELIQUAIRE — Le sceau affaibli cède ; un Fragment de cendre est libéré."})
+    })
+  }),
   cache:Object.freeze({
     name:"Cache oubliée",symbol:"k",sprite:"site_cache",
     description:"Une niche murée à la hâte conserve plusieurs ressources. Tu ne peux en extraire qu'une avant que la pierre ne s'effrite.",
@@ -154,15 +166,17 @@ export function validRoomSites(run){
     return true;
   });
 }
-export const roomSiteAt=(run,x,y)=>[...(run?.sites||[]),...(run?.encounters||[])]
+export const roomSiteAt=(run,x,y)=>[...(run?.sites||[]),...(run?.encounters||[]),
+  ...(run?.reliquary?[run.reliquary]:[])]
   .find(s=>s.x===x&&s.y===y)||null;
 export function roomSiteVisible(run,site){
   return Boolean(run?.exploration&&site&&
     visibleCells(run).has(visionKey(run,site.x,site.y)));
 }
 export function nearbyRoomSite(run){
-  if(!run?.sites&&!run?.encounters)return null;
-  return [...(run.sites||[]),...(run.encounters||[])]
+  if(!run?.sites&&!run?.encounters&&!run?.reliquary)return null;
+  return [...(run.sites||[]),...(run.encounters||[]),
+    ...(run.reliquary?[run.reliquary]:[])]
     .find(s=>s.status==="untouched"&&
       distance(run,s)<=1&&roomSiteVisible(run,s))||null;
 }

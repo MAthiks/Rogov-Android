@@ -146,6 +146,8 @@ test("GAME-101D: refusal and tampered new site data never spend free turns",()=>
   delete legacy.run.encounterPlanVersion;delete legacy.run.encounters;
   delete legacy.run.combatOpeningVersion;
   delete legacy.run.pursuitPlanVersion; // GAME-101F is absent from historical runs.
+  delete legacy.run.reliquaryPlanVersion;
+  delete legacy.run.reliquary;
   assert.ok(validateSave(legacy));
   assert.equal(resolveRoomSite(legacy,site.id,"quiet").changed,false);
   assert.equal(SAVE_KEY,"rogov-web-v1");
@@ -166,7 +168,7 @@ test("GAME-101D: hidden markers stay hidden; ASCII and minimap reveal local site
   const all=structuredClone(state);
   all.run.exploration.seen=Array.from(
     {length:all.run.map.length*all.run.map[0].length},(_,i)=>i);
-  assert.equal(expeditionReport(all).knownSites,5);
+  assert.equal(expeditionReport(all).knownSites,6);
   assert.equal(validRoomEncounters(all.run),true);
 });
 test("GAME-101D: artwork, UI, cache and old interactions remain wired",()=>{

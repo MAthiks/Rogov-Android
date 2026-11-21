@@ -15,6 +15,7 @@ import {SHOVE_ENDURANCE_COST,SLAB_SHOVE_DAMAGE,shoveOpportunity}
   from "./terrain-tactics.js";
 import {COMBAT_OPENING_VERSION,OPENING_STRIKE_ENDURANCE_COST,openingOpportunity} from "./opening-strike.js";
 import {CHAMBER_PURSUIT_VERSION,chamberPursuitStep} from "./chamber-pursuit.js";
+import {RELIQUARY_PLAN_VERSION,validReliquary,reliquaryWardenAlive} from "./reliquary.js";
 import {visibleCells,explorationState,visionKey,validExploration,revealAround,hasFog} from "./exploration-visibility.js";
 import {SECRET_REWARD,validSecrets,nearbySecretHint,revealedSecretAt} from "./secrets.js";
 import {validTraps,trapAt,trapVisible,trapAppearance,TRAP_KINDS,trapHintText} from "./traps.js";
@@ -491,8 +492,11 @@ export function validateSave(s) {
     if(r.pursuitPlanVersion!==undefined&&
        (r.pursuitPlanVersion!==CHAMBER_PURSUIT_VERSION||
         r.combatOpeningVersion!==COMBAT_OPENING_VERSION))return false;
+    if(r.reliquaryPlanVersion!==undefined&&
+       (r.reliquaryPlanVersion!==RELIQUARY_PLAN_VERSION||
+        r.pursuitPlanVersion!==CHAMBER_PURSUIT_VERSION))return false;
     if(!validSecrets(r)||!validTraps(r)||!validRoomSites(r)||
-       !validRoomEncounters(r))return false;
+       !validRoomEncounters(r)||!validReliquary(r))return false;
     if (tileAt(r.x,r.y,r) === "#") return false;
     if (!r.carried || !Array.isArray(r.collected) || !Number.isSafeInteger(r.turns)) return false;
     if (!Number.isInteger(r.hp) || r.hp < 1 || r.hp > MAX_HP) return false;
@@ -590,6 +594,8 @@ export function beginRun(state, equipment=[], loadoutChoice=null, options={}) {
     ...(layout.encounterPlanVersion?{encounterPlanVersion:layout.encounterPlanVersion}:{}),
     ...(layout.combatOpeningVersion?{combatOpeningVersion:layout.combatOpeningVersion}:{}),
     ...(layout.pursuitPlanVersion?{pursuitPlanVersion:layout.pursuitPlanVersion}:{}),
+    ...(layout.reliquaryPlanVersion?{reliquaryPlanVersion:layout.reliquaryPlanVersion,
+      reliquary:layout.reliquary}:{}),
     ...(layout.rooms?{rooms:layout.rooms,doors:layout.doors,
       ...(layout.doorPlanVersion?{doorPlanVersion:layout.doorPlanVersion}:{}),
       ...(layout.geometryVersion?{geometryVersion:layout.geometryVersion}:{}),
@@ -675,6 +681,8 @@ export function resolveFloorExit(state,choice){
     ...(layout.encounterPlanVersion?{encounterPlanVersion:layout.encounterPlanVersion}:{}),
     ...(layout.combatOpeningVersion?{combatOpeningVersion:layout.combatOpeningVersion}:{}),
     ...(layout.pursuitPlanVersion?{pursuitPlanVersion:layout.pursuitPlanVersion}:{}),
+    ...(layout.reliquaryPlanVersion?{reliquaryPlanVersion:layout.reliquaryPlanVersion,
+      reliquary:layout.reliquary}:{}),
     rooms:layout.rooms,doors:layout.doors,
     doorPlanVersion:layout.doorPlanVersion,
     geometryVersion:layout.geometryVersion,
@@ -800,7 +808,8 @@ export function move(state, direction, context="move") {
  * It never rolls combat RNG, modifies architecture, or grants duplicate loot.
  */
 export function resolveRoomSite(state,siteId,optionId){
-  const run=state.run,site=[...(run?.sites||[]),...(run?.encounters||[])]
+  const run=state.run,site=[...(run?.sites||[]),...(run?.encounters||[]),
+    ...(run?.reliquary?[run.reliquary]:[])]
     .find(s=>s.id===siteId);
   if(!site||site.status!=="untouched"||distance(run,site)>1||
       !roomSiteVisible(run,site))
@@ -811,6 +820,8 @@ export function resolveRoomSite(state,siteId,optionId){
       (site.kind==="atelier"&&optionId==="cartographie"&&
       run.scoutingPlanVersion!==1))
     return info(state,"Cette interaction n'existe pas.",false);
+  if(option.requiresWardenDefeated&&reliquaryWardenAlive(run))
+    return info(state,"Le sceau résiste : la présence qui le maintient doit être vaincue.",false);
   if(option.endurance>(run.endurance??0))
     return info(state,"Endurance insuffisante : cette action demande "+
       option.endurance+" END.",false);
@@ -818,7 +829,8 @@ export function resolveRoomSite(state,siteId,optionId){
     return info(state,"Sac plein : reviens avec une place pour emporter ce butin.",false);
   if(option.requiresDamage&&run.hp>=MAX_HP)
     return info(state,"Tes blessures ne demandent aucun soin : choisis une ressource.",false);
-  const s=copy(state),target=[...(s.run.sites||[]),...(s.run.encounters||[])]
+  const s=copy(state),target=[...(s.run.sites||[]),...(s.run.encounters||[]),
+    ...(s.run.reliquary?[s.run.reliquary]:[])]
     .find(v=>v.id===siteId);
   target.status="resolved";target.choice=optionId;
   s.run.turns+=1;

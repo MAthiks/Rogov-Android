@@ -12,7 +12,9 @@ import {SHOVE_ENDURANCE_COST,shoveOpportunity} from "./terrain-tactics.js";
 import {OPENING_STRIKE_ENDURANCE_COST,openingOpportunity} from "./opening-strike.js";
 import { narrativeObjective, NAR093_LORE } from "./narrative.js";
 import { echoDossier } from "./echo-investigation.js";
-import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
+import { VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
+import {ITEM_SPRITES_103C as ITEM_SPRITES,ITEM_MATERIAL_103C} from "./item-art103c.js";
+import {characterPresentation} from "./character-art103d.js";
 import {heroFacingFromStep} from "./hero-art.js";
 import {characterMotionForTurn} from "./character-motion.js";
 import { nearbySecretHint } from "./secrets.js";
@@ -84,6 +86,10 @@ function persist() {
 function infoItem(id, count, checkable=false) {
   const row = document.createElement(checkable?"label":"div");
   row.className = "item-row";
+  // ART-103C: meaningful material and equipped styling read only real IDs.
+  row.dataset.itemId=id;
+  row.dataset.itemMaterial=ITEM_MATERIAL_103C[id]||"unknown";
+  row.dataset.equipped=state.run&&Object.values(state.run.loadout||{}).includes(id)?"true":"false";
   let qtyInput=null;
   if (checkable) {
     const box = document.createElement("input");
@@ -277,8 +283,30 @@ function renderBagEquipped(){
     ["mainHand","ARME"],["offHand","SECONDAIRE"],["body","ARMURE"],["relic","RELIQUE"]
   ]){
     const line=document.createElement("span");
+    line.className="art103c-slot";
+    line.dataset.slot=slot;
     const item=state.run.loadout?.[slot];
-    line.textContent=title+" : "+(EQUIPMENT_CATALOG[item]?.name||"Aucun");
+    line.dataset.equipped=item?"true":"false";
+    const icon=document.createElement("span");
+    icon.className="art103c-slot-icon";
+    if(item&&ITEM_SPRITES[item]){
+      const image=document.createElement("img");
+      image.src=ITEM_SPRITES[item];image.alt="";
+      image.width=32;image.height=32;image.draggable=false;image.decoding="async";
+      image.addEventListener("error",()=>{icon.textContent=ITEMS[item]?.symbol||"—";},{once:true});
+      icon.append(image);
+    } else {
+      icon.textContent="—";
+      icon.setAttribute("aria-hidden","true");
+    }
+    const caption=document.createElement("span");
+    caption.className="art103c-slot-caption";
+    const heading=document.createElement("small");
+    heading.textContent=title;
+    const value=document.createElement("strong");
+    value.textContent=EQUIPMENT_CATALOG[item]?.name||"Aucun";
+    caption.append(heading,value);
+    line.append(icon,caption);
     panel.append(line);
   }
 }
@@ -653,6 +681,31 @@ function renderActorStats() {
   const classId=state.meta.hero.classId;
   $("actor-class-label").textContent="Archétype : "+
     (classId && ARCHETYPES[classId] ? ARCHETYPES[classId] : "non choisi (système de classes à venir)");
+  // ART-103D draws only what the engine already knows: real level, XP,
+  // six derived combat values and current-run vitals. Never save UI state.
+  const visual=characterPresentation(state,profile);
+  if(!visual)return;
+  $("actor103d-name").textContent=visual.name;
+  $("actor103d-level").textContent="Niv. "+visual.level;
+  $("actor103d-location").textContent=visual.location;
+  $("actor103d-xp-label").textContent=visual.xpCaption;
+  $("actor103d-xp-meter").max=visual.xpGoal;
+  $("actor103d-xp-meter").value=visual.xpProgress;
+  $("actor103d-health").textContent=visual.health;
+  $("actor103d-endurance").textContent=visual.endurance;
+  const grid=$("actor103d-derived-grid");
+  grid.replaceChildren();
+  for(const metric of visual.metrics){
+    const tile=document.createElement("div");
+    tile.className="actor103d-derived-tile";
+    tile.dataset.metric=metric.key;
+    const label=document.createElement("small");
+    label.textContent=metric.label;
+    const amount=document.createElement("strong");
+    amount.textContent=metric.value;
+    tile.append(label,amount);
+    grid.append(tile);
+  }
 }
 function renderCombatPreview() {
   const snapshot=combatSnapshot(state);

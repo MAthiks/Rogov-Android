@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 112" width="96" height="112" shape-rendering="crispEdges" aria-hidden="true">
+<!-- ART-103D: Original portrait translation of Sprite C's hood-up palette.
+     Decorative character art; never a stat, selectable item or gameplay clue. -->
+<defs>
+  <linearGradient id="night" x1="0" x2="1" y1="0" y2="1">
+    <stop offset="0" stop-color="#0b1721"/>
+    <stop offset=".55" stop-color="#1a2830"/>
+    <stop offset="1" stop-color="#121820"/>
+  </linearGradient>
+  <linearGradient id="cloak" x1="0" x2="1" y1="0" y2="1">
+    <stop offset="0" stop-color="#69565d"/>
+    <stop offset=".5" stop-color="#443943"/>
+    <stop offset="1" stop-color="#292c36"/>
+  </linearGradient>
+  <linearGradient id="hood" x1="0" x2="1" y1="0" y2="1">
+    <stop offset="0" stop-color="#79636c"/>
+    <stop offset=".48" stop-color="#463945"/>
+    <stop offset="1" stop-color="#292732"/>
+  </linearGradient>
+  <radialGradient id="torch">
+    <stop offset="0" stop-color="#efad60" stop-opacity=".26"/>
+    <stop offset="1" stop-color="#ae7047" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+<rect width="96" height="112" fill="url(#night)"/>
+<!-- Ruined masonry sets the scene behind the body, not a new map element. -->
+<path d="M0 27h19V13h10V0h39v11h10v14h18v87H0Z" fill="#19232c"/>
+<path d="M0 35h15V21h11V7h18V0h9v8h17v15h12v18h14" fill="none" stroke="#35424b" stroke-width="3"/>
+<path d="M6 10h16M65 15h19M2 49h16M74 43h18M9 68h14M68 68h19" stroke="#455157" stroke-width="2" opacity=".68"/>
+<circle cx="80" cy="33" r="28" fill="url(#torch)"/>
+<path d="M82 28h4v10h-4ZM79 34h10v3H79Z" fill="#8b6547"/>
+<path d="M83 27h2v9h-2Z" fill="#f1be76"/>
+<rect x="84" y="27" width="1" height="4" fill="#fff0ae"/>
+<path d="M0 110h96" stroke="#a58a64" stroke-width="3"/>
+<!-- Hood/cloak silhouette: compact, narrow face, raised hood. -->
+<path d="M13 111V81l8-15 11-8-5-12 3-18 12-14h17l13 14 3 20-7 14 12 9 7 17v23Z" fill="#151b25"/>
+<path d="M18 111V83l8-12 14-10 21 2 13 11 7 16v21Z" fill="url(#cloak)"/>
+<path d="M16 95l7-14 11-10 8 4-9 36H17ZM79 95l-9-16-11-9-7 6 12 35h17Z" fill="#302d39"/>
+<path d="M20 90l6-10 6-5-9 36H19ZM75 91l-7-13-7-4 10 37h8Z" fill="#837079" opacity=".55"/>
+<path d="M31 76l-3 35H22l5-25ZM65 76l9 35h-6l-8-29Z" fill="#211f29"/>
+<!-- Cloak rim and stitching are shared visually with Sprite C. -->
+<path d="M23 84l9-12M68 71l8 16M25 101l-3 9M73 99l3 11" stroke="#95817d" stroke-width="2" fill="none"/>
+<path d="M30 91l-3 18M65 89l5 19" stroke="#615763" stroke-width="2" fill="none"/>
+<!-- The hood is recognizable even at low Android resolution. -->
+<path d="M26 48l2-19 13-17 11-6 13 10 8 18-1 20-9 15-14 3-15-8Z" fill="#151a24"/>
+<path d="M30 49l3-18 11-15 9-4 10 8 6 16-2 17-7 13-11 2-13-8Z" fill="url(#hood)"/>
+<path d="M31 48l5-18 10-12-5 19-5 25Z" fill="#6e5964"/>
+<path d="M66 29l3 8-3 21-8 8 6-25Z" fill="#292832"/>
+<path d="M37 37l8-13 13 1 6 14-5 16H41Z" fill="#29252f"/>
+<!-- Face framed by darkness: dark-eyed, expression reserved. -->
+<path d="M39 40l5-7h12l5 8-2 19-10 6-9-7Z" fill="#b5a48f"/>
+<path d="M42 46l3-8h10l4 9-2 12-8 5-7-6Z" fill="#c7b79c"/>
+<path d="M42 40l2-5h12l3 6-3 2H44Z" fill="#ead7b8" opacity=".66"/>
+<path d="M41 43l6-2v4h-6ZM52 41h7v4h-7Z" fill="#252730"/>
+<rect x="44" y="45" width="2" height="2" fill="#1c222a"/>
+<rect x="54" y="45" width="2" height="2" fill="#1c222a"/>
+<path d="M49 46l-1 8 3 1" fill="none" stroke="#8d7668" stroke-width="2"/>
+<path d="M45 58h10l-4 3h-3Z" fill="#604d49"/>
+<path d="M41 59l8 7 10-8-4 9-7 4-9-7Z" fill="#413943"/>
+<path d="M39 38l6-11 15 1 5 11-6-5-15 1Z" fill="#3d3544"/>
+<path d="M30 51l6-21 9-13M68 50l-3-20-9-14" stroke="#927b86" stroke-width="2" fill="none"/>
+<path d="M33 49l7-16M63 34l4 17" stroke="#aa9796" stroke-width="1"/>
+<!-- Scarf, leather straps, clasp: nothing that implies equipped gear. -->
+<path d="M36 66l11 8 12-8 6 7-17 13-19-13Z" fill="#816f68"/>
+<path d="M37 71l12 9 12-9" stroke="#baa28b" stroke-width="2" fill="none"/>
+<path d="M33 81l28 25" stroke="#554237" stroke-width="8"/>
+<path d="M32 80l29 25" stroke="#988169" stroke-width="2"/>
+<path d="M48 88h9v11h-9Z" fill="#342f32" stroke="#c5a67a" stroke-width="2"/>
+<path d="M50 90h5v7h-5Z" fill="#72573d"/>
+<path d="M38 97l-4 14H22l4-23Z" fill="#4f4545"/>
+<path d="M59 99l5 12h16l-5-23Z" fill="#3a343d"/>
+<path d="M18 111h63" stroke="#a28865" stroke-width="2"/>
+</svg>

@@ -11,7 +11,7 @@ const ROOT="https://appassets.androidplatform.net/assets/";
 
 async function connect(){
   let previous;
-  for(let tries=0;tries<30;tries++){
+  for(let tries=0;tries<45;tries++){
     let socket;
     try{
       const resp=await fetch("http://127.0.0.1:9223/json/list");
@@ -62,7 +62,7 @@ async function connect(){
           const detail=method==="Runtime.evaluate"?
             ": "+String(params.expression).slice(0,110):"";
           reject(Error("CDP startup or command timed out: "+method+detail));
-        },10000);
+        },15000);
         outstanding.set(id,{
           resolve:value=>{clearTimeout(timeout);resolve(value);},
           reject:error=>{clearTimeout(timeout);reject(error);}
@@ -92,7 +92,7 @@ async function connect(){
   throw Error("Android WebView JS inspection failed: "+previous?.message);
 }
 
-async function until(dev,expression,expect=true,timeout=22000){
+async function until(dev,expression,expect=true,timeout=30000){
   const start=Date.now();
   let value,last;
   while(Date.now()-start<timeout){

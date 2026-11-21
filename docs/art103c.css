@@ -1,0 +1,261 @@
+/* ART-103C — Material-driven inventory for ACTUAL ROGOV items and slots.
+   Complements the iron frame of ART-103B. Artwork never changes item
+   counts, equip permissions, turns, save schema, or touch handlers. */
+.frame.is-expedition #bag-panel,
+.frame.is-refuge #refuge .refuge-preparation{
+  --art103c-slot-edge:#8b775a;
+  --art103c-slot-ivory:#f7e6c9;
+  --art103c-slot-muted:#c8c3b7;
+}
+
+/* A real two-column 4-slot loadout. Existing slots are read from state.run;
+   nothing is draggable, clickable, or implied to be equipable for free. */
+.frame.is-expedition #bag-equipped{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  padding:9px;
+  margin:9px 0 11px;
+  border:1px solid #987c57;
+  border-radius:5px;
+  background:linear-gradient(135deg,#1c2a34,#0e1923);
+  box-shadow:inset 0 1px #ecc48d29;
+}
+.frame.is-expedition #bag-equipped .art103c-slot{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  min-height:59px;
+  padding:7px;
+  border:1px solid #786a58;
+  border-radius:5px;
+  background:linear-gradient(150deg,#303a42,#1c2933);
+  box-shadow:inset 0 1px #e2bd882c,0 2px 4px #0006;
+}
+.frame.is-expedition #bag-equipped .art103c-slot[data-equipped="true"]{
+  border-color:#d7ac6d;
+  background:linear-gradient(135deg,#40392f,#222d35);
+  box-shadow:inset 3px 0 #e4bb7c,inset 0 1px #ffdeb041;
+}
+.frame.is-expedition #bag-equipped .art103c-slot-icon{
+  display:grid;
+  place-items:center;
+  flex:0 0 36px;
+  width:36px;
+  height:36px;
+  color:#849298;
+  font:800 20px/1 ui-monospace,monospace;
+  border:1px solid #515962;
+  border-radius:4px;
+  background:#121e27;
+  box-shadow:inset 1px 1px 4px #0008;
+}
+.frame.is-expedition #bag-equipped .art103c-slot[data-equipped="true"] .art103c-slot-icon{
+  border-color:#b59464;
+  background:#2e2c2a;
+}
+.frame.is-expedition #bag-equipped .art103c-slot-icon img{
+  width:32px;
+  height:32px;
+  display:block;
+  object-fit:contain;
+  image-rendering:pixelated;
+}
+.frame.is-expedition #bag-equipped .art103c-slot-caption{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  min-width:0;
+  flex:1;
+}
+.frame.is-expedition #bag-equipped .art103c-slot-caption small{
+  color:#d3c3a8;
+  font:800 9px/1.2 ui-monospace,monospace;
+  letter-spacing:.06em;
+}
+.frame.is-expedition #bag-equipped .art103c-slot-caption strong{
+  color:#f4e5cf;
+  font:700 11px/1.25 system-ui,sans-serif;
+  overflow-wrap:anywhere;
+}
+.frame.is-expedition #bag-equipped .art103c-slot[data-equipped="false"] .art103c-slot-caption strong{
+  color:#a9b6b9;
+}
+
+/* Bigger item silhouettes while retaining the original label, count,
+   quantity select and actual Equip / Use / Drop buttons. */
+.frame.is-expedition #bag-items .item-row,
+.frame.is-refuge #stash-items .item-row{
+  min-height:63px;
+  gap:8px;
+  padding:8px 9px;
+  border:1px solid #84745a;
+  border-radius:5px;
+  background:linear-gradient(150deg,#303b42,#1b2832);
+}
+.frame.is-expedition #bag-items .item-row[data-equipped="true"]{
+  border-color:#dfb677;
+  box-shadow:inset 3px 0 #e5bc7b,inset 0 1px #fff2d32c;
+  background:linear-gradient(125deg,#3b3a33,#202d35);
+}
+.frame.is-expedition #bag-items .item-icon,
+.frame.is-refuge #stash-items .item-icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 40px;
+  width:40px;
+  height:40px;
+  border:1px solid #9b805f;
+  border-radius:4px;
+  background:linear-gradient(145deg,#27313a,#0f1b26);
+  box-shadow:inset 0 0 0 1px #e0bf8130,inset 1px 2px 5px #000a;
+  color:#f1d4a4;
+}
+.frame.is-expedition #bag-items .item-icon img,
+.frame.is-refuge #stash-items .item-icon img{
+  display:block;
+  width:35px;
+  height:35px;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  image-rendering:pixelated;
+}
+.frame.is-expedition #bag-items .item-label,
+.frame.is-refuge #stash-items .item-label{
+  min-width:0;
+  flex:1;
+}
+.frame.is-expedition #bag-items .item-label strong,
+.frame.is-refuge #stash-items .item-label strong{
+  color:#f4e8d5;
+  font-size:12px;
+  line-height:1.3;
+}
+.frame.is-expedition #bag-items .item-label small,
+.frame.is-refuge #stash-items .item-label small{
+  color:#c8c9bd;
+  font-size:10px;
+  line-height:1.25;
+}
+.frame.is-expedition #bag-items .item-row .count,
+.frame.is-refuge #stash-items .item-row .count{
+  flex:0 0 auto;
+  min-width:27px;
+  padding:4px 6px;
+  border-radius:4px;
+  border:1px solid #796d56;
+  color:#f3d3a0;
+  background:#141f29;
+  text-align:center;
+  font:800 12px/1.4 ui-monospace,monospace;
+  font-variant-numeric:tabular-nums;
+}
+.frame.is-expedition #bag-items .item-row[data-item-material="relic"] .item-icon,
+.frame.is-refuge #stash-items .item-row[data-item-material="relic"] .item-icon{
+  border-color:#97a89e;
+  background:linear-gradient(145deg,#273934,#17242a);
+}
+.frame.is-expedition #bag-items .item-row[data-item-material="consumable"] .item-icon,
+.frame.is-refuge #stash-items .item-row[data-item-material="consumable"] .item-icon{
+  border-color:#887d68;
+  background:linear-gradient(145deg,#34322d,#19252d);
+}
+.frame.is-expedition #bag-items .bag-category{
+  border-bottom:1px solid #877255;
+  margin:11px 0 5px;
+  color:#e4cca2;
+  font:800 10px/1.3 ui-monospace,monospace;
+  letter-spacing:.08em;
+}
+.frame.is-expedition #bag-panel .bag-item-actions{
+  flex-basis:100%;
+  gap:7px;
+}
+.frame.is-expedition #bag-panel .bag-item-action{
+  min-height:44px;
+  background:#283744;
+  border:1px solid #857058;
+  border-radius:5px;
+  color:#f0dcc0;
+}
+.frame.is-expedition #bag-panel .bag-item-action:focus-visible,
+.frame.is-refuge #stash-items input:focus-visible,
+.frame.is-refuge #stash-items select:focus-visible{
+  outline:2px solid #f6d59b;
+  outline-offset:2px;
+}
+/* Actual equipment preparation remains a native select and keeps its
+   keyboard/touch behavior, without fictional dress-up shortcuts. */
+.frame.is-refuge #prep-loadout{
+  border:1px solid #9c7d55;
+  background:linear-gradient(145deg,#30333a,#18242d);
+  box-shadow:inset 0 1px #e9c8972c;
+}
+.frame.is-refuge #prep-loadout .prep-slot-grid label{
+  color:#eddec6;
+}
+.frame.is-refuge #prep-loadout select,
+.frame.is-refuge #stash-items .prep-quantity{
+  min-height:44px;
+  color:#f7e8d2;
+  border:1px solid #a48861;
+  border-radius:5px;
+  background:#202e38;
+}
+@media(max-width:370px){
+  .frame.is-expedition #bag-equipped{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:5px;
+    padding:6px;
+  }
+  .frame.is-expedition #bag-equipped .art103c-slot{
+    min-height:57px;
+    gap:5px;
+    padding:5px;
+  }
+  .frame.is-expedition #bag-equipped .art103c-slot-icon{
+    width:31px;
+    height:31px;
+    flex-basis:31px;
+  }
+  .frame.is-expedition #bag-equipped .art103c-slot-icon img{
+    width:28px;
+    height:28px;
+  }
+  .frame.is-expedition #bag-equipped .art103c-slot-caption strong{
+    font-size:10px;
+  }
+}
+@media(max-width:350px){
+  .frame.is-expedition #bag-items .item-row,
+  .frame.is-refuge #stash-items .item-row{
+    gap:5px;
+    padding:7px 6px;
+  }
+  .frame.is-expedition #bag-items .item-icon,
+  .frame.is-refuge #stash-items .item-icon{
+    width:34px;
+    height:34px;
+    flex-basis:34px;
+  }
+  .frame.is-expedition #bag-items .item-icon img,
+  .frame.is-refuge #stash-items .item-icon img{
+    width:31px;
+    height:31px;
+  }
+  .frame.is-refuge #stash-items .item-row .count{
+    padding:4px;
+    min-width:22px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .frame.is-expedition #bag-items .item-row,
+  .frame.is-refuge #stash-items .item-row,
+  .frame.is-expedition #bag-equipped .art103c-slot{
+    animation:none;
+    transition:none;
+  }
+}

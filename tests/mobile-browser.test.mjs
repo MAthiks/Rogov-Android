@@ -1656,7 +1656,7 @@ test("ART-091B mobile: Sprite C enemies do not leak through unexplored Nhal fog"
 });
 
 
-test("ART-091C + GAME-101D mobile: all 17 interactive assets decode at 24px with no overflow", {timeout:60000}, async()=>{
+test("ART-091C + GAME-101D mobile: all 18 interactive assets decode at 24px with no overflow", {timeout:60000}, async()=>{
   const context=await mobileContext();
   try{
     const page=await context.newPage(),errors=[];
@@ -1677,7 +1677,7 @@ test("ART-091C + GAME-101D mobile: all 17 interactive assets decode at 24px with
         viewport:document.documentElement.clientWidth,
         cells:document.querySelectorAll("#tile-map .pixel-tile").length};
     });
-    assert.equal(sample.dimensions.length,17);
+    assert.equal(sample.dimensions.length,18);
     for(const image of sample.dimensions)
       assert.deepEqual([image.w,image.h,image.mapped],[24,24,true],image.id);
     assert.equal(sample.cells,121);

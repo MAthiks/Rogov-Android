@@ -16,8 +16,11 @@ async function connect(){
     try{
       const resp=await fetch("http://127.0.0.1:9223/json/list");
       if(!resp.ok)throw Error("CDP HTTP "+resp.status);
-      const target=(await resp.json()).find(t=>t.url?.startsWith(ROOT)&&t.webSocketDebuggerUrl);
-      if(!target)throw Error("ROGOV's real WebView target not yet available");
+      const discovered=await resp.json();
+      const target=discovered.find(t=>t.url?.startsWith(ROOT)&&t.webSocketDebuggerUrl);
+      if(!target)throw Error("ROGOV's real WebView target not yet available; listed targets="+
+        JSON.stringify(discovered.map(t=>({type:t.type,url:t.url,
+          hasSocket:Boolean(t.webSocketDebuggerUrl)})).slice(0,6)));
       socket=new WebSocket(target.webSocketDebuggerUrl);
       await new Promise((resolve,reject)=>{
         const timeout=setTimeout(()=>reject(Error("WebSocket timed out")),3500);

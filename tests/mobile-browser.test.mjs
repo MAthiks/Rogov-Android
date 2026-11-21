@@ -4675,11 +4675,11 @@ test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics a
       const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
       const profile=stats.heroDerivedStats(state);
       return {valid:game.validateSave(state),hp:state.run.hp,endurance:state.run.endurance,
-        level:state.meta.hero.level,armor:profile.armor};
+        level:state.meta.hero.level,armor:profile.armor,maxHp:game.MAX_HP};
     });
     assert.equal(actual.valid,true);
     assert.equal(await page.locator("#actor103d-location").textContent(),"Nhal · expédition");
-    assert.equal(await page.locator("#actor103d-health").textContent(),actual.hp+" / 16 PV");
+    assert.equal(await page.locator("#actor103d-health").textContent(),actual.hp+" / "+actual.maxHp+" PV");
     assert.match(await page.locator("#actor103d-endurance").textContent(),new RegExp("^"+actual.endurance+" / [0-9]+ END$"));
     assert.equal(await page.locator('#actor103d-derived-grid [data-metric="armor"] strong').textContent(),
       String(actual.armor));
@@ -4687,7 +4687,7 @@ test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics a
     const current=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
     await page.reload();await page.locator("#title-continue").tap();
     assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),current);
-    assert.equal(await page.locator("#actor103d-health").textContent(),actual.hp+" / 16 PV");
+    assert.equal(await page.locator("#actor103d-health").textContent(),actual.hp+" / "+actual.maxHp+" PV");
     assert.deepEqual(errors,[],"No runtime errors in either shared character location");
   }finally{await context.close();}
 });

@@ -12,7 +12,8 @@ import {SHOVE_ENDURANCE_COST,shoveOpportunity} from "./terrain-tactics.js";
 import {OPENING_STRIKE_ENDURANCE_COST,openingOpportunity} from "./opening-strike.js";
 import { narrativeObjective, NAR093_LORE } from "./narrative.js";
 import { echoDossier } from "./echo-investigation.js";
-import { ITEM_SPRITES, VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
+import { VEYR_NPC_IDS, VEYR_NPC_CONCEPTS, VEYR_NPC_SPRITES } from "./veyr-art.js";
+import {ITEM_SPRITES_103C as ITEM_SPRITES,ITEM_MATERIAL_103C} from "./item-art103c.js";
 import {heroFacingFromStep} from "./hero-art.js";
 import {characterMotionForTurn} from "./character-motion.js";
 import { nearbySecretHint } from "./secrets.js";
@@ -84,6 +85,10 @@ function persist() {
 function infoItem(id, count, checkable=false) {
   const row = document.createElement(checkable?"label":"div");
   row.className = "item-row";
+  // ART-103C: meaningful material and equipped styling read only real IDs.
+  row.dataset.itemId=id;
+  row.dataset.itemMaterial=ITEM_MATERIAL_103C[id]||"unknown";
+  row.dataset.equipped=state.run&&Object.values(state.run.loadout||{}).includes(id)?"true":"false";
   let qtyInput=null;
   if (checkable) {
     const box = document.createElement("input");
@@ -277,8 +282,30 @@ function renderBagEquipped(){
     ["mainHand","ARME"],["offHand","SECONDAIRE"],["body","ARMURE"],["relic","RELIQUE"]
   ]){
     const line=document.createElement("span");
+    line.className="art103c-slot";
+    line.dataset.slot=slot;
     const item=state.run.loadout?.[slot];
-    line.textContent=title+" : "+(EQUIPMENT_CATALOG[item]?.name||"Aucun");
+    line.dataset.equipped=item?"true":"false";
+    const icon=document.createElement("span");
+    icon.className="art103c-slot-icon";
+    if(item&&ITEM_SPRITES[item]){
+      const image=document.createElement("img");
+      image.src=ITEM_SPRITES[item];image.alt="";
+      image.width=32;image.height=32;image.draggable=false;image.decoding="async";
+      image.addEventListener("error",()=>{icon.textContent=ITEMS[item]?.symbol||"—";},{once:true});
+      icon.append(image);
+    } else {
+      icon.textContent="—";
+      icon.setAttribute("aria-hidden","true");
+    }
+    const caption=document.createElement("span");
+    caption.className="art103c-slot-caption";
+    const heading=document.createElement("small");
+    heading.textContent=title;
+    const value=document.createElement("strong");
+    value.textContent=EQUIPMENT_CATALOG[item]?.name||"Aucun";
+    caption.append(heading,value);
+    line.append(icon,caption);
     panel.append(line);
   }
 }

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" shape-rendering="crispEdges" aria-hidden="true">
+<!-- Nine-slice edge texture: transparent middle, 18px slices. -->
+<path d="M1 18V1H18M78 1H95V18M95 78V95H78M18 95H1V78" fill="none" stroke="#bd9867" stroke-width="3"/>
+<path d="M7 18V7H18M78 7H89V18M89 78V89H78M18 89H7V78" fill="none" stroke="#50443c" stroke-width="3"/>
+<path d="M1 20V76M95 20V76M20 1H76M20 95H76" stroke="#775f4a" stroke-width="3"/>
+<path d="M5 23V73M91 23V73M23 5H73M23 91H73" stroke="#2b343b" stroke-width="2"/>
+<path d="M20 1h56M20 95h56M1 20v56M95 20v56" stroke="#cba579" stroke-width="1" opacity=".66"/>
+<path d="M1 12 12 1l8 8-11 11ZM95 12 84 1l-8 8 11 11ZM1 84l11 11 8-8-11-11ZM95 84 84 95l-8-8 11-11Z" fill="#554236"/>
+<path d="M3 12 12 3l5 5-9 9ZM93 12 84 3l-5 5 9 9ZM3 84l9 9 5-5-9-9ZM93 84l-9 9-5-5 9-9Z" fill="#a7865e"/>
+<path d="M9 9h6v6H9ZM81 9h6v6h-6ZM9 81h6v6H9ZM81 81h6v6h-6Z" fill="#e6bf82"/>
+<path d="M11 11h2v2h-2ZM83 11h2v2h-2ZM11 83h2v2h-2ZM83 83h2v2h-2Z" fill="#35302b"/>
+<path d="M45 1h6v4h-6ZM45 91h6v4h-6ZM1 45h4v6H1ZM91 45h4v6h-4Z" fill="#98774e"/>
+<path d="m48 4 5 4-5 4-5-4ZM48 84l5 4-5 4-5-4ZM4 48l4-5 4 5-4 5ZM84 48l4-5 4 5-4 5Z" fill="#e0b978"/>
+</svg>

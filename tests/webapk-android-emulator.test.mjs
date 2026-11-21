@@ -11,13 +11,16 @@ const ROOT="https://appassets.androidplatform.net/assets/";
 
 async function connect(){
   let previous;
-  for(let tries=0;tries<30;tries++){
+  for(let tries=0;tries<45;tries++){
     let socket;
     try{
       const resp=await fetch("http://127.0.0.1:9223/json/list");
       if(!resp.ok)throw Error("CDP HTTP "+resp.status);
-      const target=(await resp.json()).find(t=>t.url?.startsWith(ROOT)&&t.webSocketDebuggerUrl);
-      if(!target)throw Error("ROGOV's real WebView target not yet available");
+      const discovered=await resp.json();
+      const target=discovered.find(t=>t.url?.startsWith(ROOT)&&t.webSocketDebuggerUrl);
+      if(!target)throw Error("ROGOV's real WebView target not yet available; listed targets="+
+        JSON.stringify(discovered.map(t=>({type:t.type,url:t.url,
+          hasSocket:Boolean(t.webSocketDebuggerUrl)})).slice(0,6)));
       socket=new WebSocket(target.webSocketDebuggerUrl);
       await new Promise((resolve,reject)=>{
         const timeout=setTimeout(()=>reject(Error("WebSocket timed out")),3500);
@@ -59,7 +62,7 @@ async function connect(){
           const detail=method==="Runtime.evaluate"?
             ": "+String(params.expression).slice(0,110):"";
           reject(Error("CDP startup or command timed out: "+method+detail));
-        },10000);
+        },15000);
         outstanding.set(id,{
           resolve:value=>{clearTimeout(timeout);resolve(value);},
           reject:error=>{clearTimeout(timeout);reject(error);}
@@ -89,7 +92,7 @@ async function connect(){
   throw Error("Android WebView JS inspection failed: "+previous?.message);
 }
 
-async function until(dev,expression,expect=true,timeout=22000){
+async function until(dev,expression,expect=true,timeout=30000){
   const start=Date.now();
   let value,last;
   while(Date.now()-start<timeout){
@@ -142,22 +145,28 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     const tutorial=await dev.evaluate(`({
       tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
       hero:document.querySelectorAll("#tile-map .tile-hero img").length,
-      run:JSON.parse(localStorage.getItem("rogov-web-v1"))?.run
+      hasRun:Boolean(JSON.parse(localStorage.getItem("rogov-web-v1"))?.run)
     })`);
     assert.equal(tutorial.tiles,135);
     assert.equal(tutorial.hero,1);
-    assert.ok(tutorial.run);
+    assert.equal(tutorial.hasRun,true);
 
-    // Next, test the actual 11x11 procedural Nhal camera independently.
-    await dev.evaluate(`(async()=>{
-      const game=await import("./game.js");
-      const newHero=game.newGame();
-      newHero.meta.descents=1;
-      const deep=game.beginRun(newHero).state;
-      if(!game.validateSave(deep))throw Error("Invalid deep expedition fixture");
-      localStorage.setItem(game.SAVE_KEY,JSON.stringify(deep));
-      return true;
+    // Produce the fixture with the SAME real, shared game engine in Node.
+    // Generating the full 44x32 deep dungeon *inside* a Debug WebView CDP
+    // Runtime.evaluate can stall compositing >10s and kill the Android emulator.
+    // Keep all WebView validation real: its restored save must still be parsed,
+    // validated, rendered, interacted with, resumed and loaded offline.
+    const game=await import("../docs/game.js");
+    const newHero=game.newGame();
+    newHero.meta.descents=1;
+    const deep=game.beginRun(newHero).state;
+    assert.equal(game.validateSave(deep),true,"Shared engine fixture must validate");
+    const stored=JSON.stringify(deep);
+    const mapRows=await dev.evaluate(`(()=>{
+      localStorage.setItem("rogov-web-v1",${JSON.stringify(stored)});
+      return JSON.parse(localStorage.getItem("rogov-web-v1"))?.run?.map?.length;
     })()`);
+    assert.equal(mapRows,deep.run.map.length,"Real Android WebView must persist the fixture");
     await dev.call("Page.reload",{ignoreCache:true});
     // Merely finding a button in parsed HTML is not enough: it must be
     // initialized by app.js with the restored-run description before click.
@@ -165,18 +174,24 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
-    const scene=await dev.evaluate(`({
-      tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
-      hero:document.querySelectorAll("#tile-map .tile-hero img").length,
-      shortcuts:document.querySelectorAll("#expedition-shortcuts button").length,
-      turn:document.querySelector("#turns").textContent.trim(),
-      save:JSON.parse(localStorage.getItem("rogov-web-v1"))
-    })`);
+    // Return a compact snapshot. Passing the complete deep map and inventory
+    // through CDP returnByValue needlessly blocks constrained Android emulators.
+    const scene=await dev.evaluate(`(()=>{
+      const s=JSON.parse(localStorage.getItem("rogov-web-v1")||"null");
+      return {
+        tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
+        hero:document.querySelectorAll("#tile-map .tile-hero img").length,
+        shortcuts:document.querySelectorAll("#expedition-shortcuts button").length,
+        turn:document.querySelector("#turns").textContent.trim(),
+        schemaVersion:s?.schemaVersion,hasRun:Boolean(s?.run),
+        runTurns:s?.run?.turns,descents:s?.meta?.descents
+      };
+    })()`);
     assert.equal(scene.tiles,121);
     assert.equal(scene.hero,1);
     assert.equal(scene.shortcuts,6);
-    assert.equal(scene.save.schemaVersion,1);
-    assert.ok(scene.save.run);
+    assert.equal(scene.schemaVersion,1);
+    assert.equal(scene.hasRun,true);
     await queueClick(dev,"#jump-bag");
     await until(dev,'!document.querySelector("#ui092-sheet").hidden',isTrue);
     // The sheet may be flagged open before Android's first composited frame;
@@ -257,9 +272,15 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     })`);
     console.log("APK098A AFTER RESUME:",JSON.stringify(afterResume));
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
-    const resumed=await dev.evaluate('JSON.parse(localStorage.getItem("rogov-web-v1"))');
-    assert.equal(resumed.run.turns,scene.save.run.turns);
-    assert.equal(resumed.meta.descents,scene.save.meta.descents);
+    const resumed=await dev.evaluate(`(()=>{
+      const s=JSON.parse(localStorage.getItem("rogov-web-v1")||"null");
+      return {hasRun:Boolean(s?.run),turns:s?.run?.turns,
+        descents:s?.meta?.descents,schema:s?.schemaVersion};
+    })()`);
+    assert.equal(resumed.hasRun,true);
+    assert.equal(resumed.schema,1);
+    assert.equal(resumed.turns,scene.runTurns);
+    assert.equal(resumed.descents,scene.descents);
 
     // No remote connection: local appassets works with Wi-Fi and data off.
     adb("shell","svc","wifi","disable");
@@ -269,19 +290,31 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
-    const offline=await dev.evaluate(`({
-      count:document.querySelectorAll("#tile-map .pixel-tile").length,
-      hero:document.querySelectorAll("#tile-map .tile-hero").length,
-      state:JSON.parse(localStorage.getItem("rogov-web-v1"))
-    })`);
+    const offline=await dev.evaluate(`(()=>{
+      const s=JSON.parse(localStorage.getItem("rogov-web-v1")||"null");
+      return {
+        count:document.querySelectorAll("#tile-map .pixel-tile").length,
+        hero:document.querySelectorAll("#tile-map .tile-hero").length,
+        hasRun:Boolean(s?.run),turns:s?.run?.turns,
+        descents:s?.meta?.descents,schema:s?.schemaVersion
+      };
+    })()`);
     assert.equal(offline.count,121);
     assert.equal(offline.hero,1);
-    assert.equal(offline.state.run.turns,resumed.run.turns);
+    assert.equal(offline.hasRun,true);
+    assert.equal(offline.schema,1);
+    assert.equal(offline.descents,resumed.descents);
+    assert.equal(offline.turns,resumed.turns);
     // Android-native screenshot confirms what an installed user would see.
     adb("shell","screencap","-p","/sdcard/rogov-webapk-qa098a-nhal.png");
     execFileSync("adb",["pull","/sdcard/rogov-webapk-qa098a-nhal.png","rogov-webapk-qa098a-nhal.png"],{stdio:"pipe",timeout:30000});
   }finally{
     dev?.close();
-    adb("shell","svc","wifi","enable");
+    // A vanished Android emulator must not replace the first CDP/gameplay
+    // assertion with a secondary adb cleanup error. The actual functional
+    // checks above remain hard failures; this only restores host Wi-Fi.
+    try{adb("shell","svc","wifi","enable");}
+    catch(error){console.warn("APK098A cleanup: emulator unavailable; "+
+      "preserving the original test result:",String(error.message).slice(0,200));}
   }
 });

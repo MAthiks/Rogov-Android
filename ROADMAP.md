@@ -1,6 +1,6 @@
-## GAME-101F — Poursuite tactique et contournement des obstacles (PR en validation)
+## GAME-101F — Poursuite tactique et contournement des obstacles (fusionné · PR #67, 4/4 CI)
 
-Nouvelles descentes profondes uniquement : les Charognards en traque à 2–3 cases (4 cases lors d'une alerte) savent emprunter **un pas déterministe** vers le joueur dans leur propre salle, même si un pilier coupe l'axe direct. Ils ne franchissent **ni seuil de porte, ni piège, ni ennemi, ni lieu interactif**, ne modifient pas les dégâts, le RNG, les statistiques ou le nombre d'ennemis. Une charge annoncée et sa récupération restent prioritaires. Le prévisionnel affiché uniquement pour les ennemis visibles indique qu'un Charognard cherche un détour, sans révéler la géométrie cachée. `pursuitPlanVersion=1` est enregistré uniquement dans les nouveaux étages ; les parties existantes gardent leur IA. [Contrat et recette](docs/GAME101F_CHAMBER_PURSUIT.md). Les quatre CI et la QA humaine Android sont des portes de validation distinctes.
+Nouvelles descentes profondes uniquement : les Charognards en traque à 2–3 cases (4 cases lors d'une alerte) savent emprunter **un pas déterministe** vers le joueur dans leur propre salle, même si un pilier coupe l'axe direct. Ils ne franchissent **ni seuil de porte, ni piège, ni ennemi, ni lieu interactif**, ne modifient pas les dégâts, le RNG, les statistiques ou le nombre d'ennemis. Une charge annoncée et sa récupération restent prioritaires. Le prévisionnel affiché uniquement pour les ennemis visibles indique qu'un Charognard cherche un détour, sans révéler la géométrie cachée. `pursuitPlanVersion=1` est enregistré uniquement dans les nouveaux étages ; les parties existantes gardent leur IA. [Contrat et recette](docs/GAME101F_CHAMBER_PURSUIT.md). **Contrôle de fusion : tests Web/Chromium, Chrome Android 13, APK classique et WebView moderne tous réussis (4/4, commit `892b992`, fusion `7b8cd72`).** La QA sur téléphone physique et les tests humains restent à faire.
 
 ## QA-101E — Fiabilisation de la reprise WebView après fermeture de l'application (fusionné · PR #66, 4/4 CI)
 
@@ -12,7 +12,7 @@ Nouvelle action facultative : une frappe plus coûteuse (**3 END, 1 tour**) mais
 
 # Roadmap ROGOV — état du 20 novembre 2026
 
-## GAME-101D — Rencontres de salle et risque/récompense (PR en validation)
+## GAME-101D — Rencontres de salle et risque/récompense (fusionné · PR #64)
 
 **Après GAME-101C fusionné (PR #63, `060fbb2`) :** deux nouveaux sites facultatifs sont placés dans chaque **nouvelle descente profonde**. Un **camp de fortune**, dans une chambre libre qui varie selon la graine, offre un soin de +3 PV (1 tour/2 END, uniquement si blessé) **ou** un bandage. Une **balise de garde** dans les ruines occupées offre des sels de vigueur discrets (1 tour/1 END) **ou** un Fragment de cendre à récupérer au prix de 1 tour/3 END et de **5 tours d'alerte pour les Charognards**. Les choix sont exclusifs, persistants et activent la phase ennemie habituelle. Deux sprites originaux 24×24, affichage ASCII, minimap, rapport de terrain, cache PWA et APK Android. Le `run.encounterPlanVersion=1` est seulement ajouté aux nouvelles cartes ; les trois lieux existants et les sauvegardes historiques sont conservés. Pas de nouvelle espèce ou RNG de combat. [Contrat et QA GAME-101D](docs/GAME101D_ROOM_ENCOUNTERS.md).
 

@@ -3084,7 +3084,7 @@ test("UI-096C mobile: refuge navigation, secured stash, real shared character an
           launch:launch.toJSON(),banner:banner.toJSON(),
           viewportH:window.innerHeight,
           tapSizes:[...document.querySelectorAll("#refuge-quick-nav button")].map(b=>b.getBoundingClientRect().height),
-          imageLoaded:getComputedStyle(document.querySelector(".refuge-banner")).backgroundImage.includes("veyr-refuge-banner.svg")};
+          imageLoaded:/(?:veyr-refuge-banner|art103b-veyr-panorama)\.svg/.test(getComputedStyle(document.querySelector(".refuge-banner")).backgroundImage)};
       });
       assert.ok(metrics.full<=metrics.vw+1,"Refuge cannot scroll sideways: "+JSON.stringify(viewport));
       assert.ok(metrics.tapSizes.every(height=>height>=44),"Refuge buttons need >=44 CSS px");
@@ -3434,7 +3434,7 @@ test("UI-097A1 mobile: branded cockpit keeps real HUD, map and touch controls us
       assert.equal(ui.cssLoaded,true,"UI-097A1 CSS loaded");
       assert.equal(ui.brand,"ROGOV");
       assert.notEqual(ui.brandDisplay,"none");
-      assert.match(ui.headerImage,/ui097-nhal-frieze\.svg/);
+      assert.match(ui.headerImage,/(?:ui097-nhal-frieze|art103b-nhal-ruins)\.svg/);
       assert.ok(ui.menu.height>=44,"The menu must remain a 44px target");
       assert.ok(ui.health.left<ui.endurance.left&&Math.abs(ui.health.top-ui.endurance.top)<=2,
         "Both real gauges should share a compact HUD row: "+JSON.stringify(ui));

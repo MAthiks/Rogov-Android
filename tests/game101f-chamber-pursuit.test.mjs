@@ -52,7 +52,7 @@ test("GAME-101F: planner contours a pillar, deterministically, one cell at a tim
   assert.equal(currentEnemyIntent(run,enemy)?.kind,"approach");
   assert.match(currentEnemyIntent(run,enemy)?.label,/détour/);
   // A paid alarm increases detection range, not route length or safety.
-  run.x=6;run.y=2;
+  run.x=7;run.y=2;
   assert.equal(chamberPursuitStep(run,enemy),null);
   run.alarmUntil=5;
   assert.ok(chamberPursuitStep(run,enemy));

@@ -4,7 +4,7 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, mkdir } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
@@ -4539,5 +4539,79 @@ test("UI-102 mobile: Veyr dashboard, real navigation, selection reset and depart
     assert.equal(await page.locator("#expedition").isVisible(),true);
     assert.equal((await saved()).run!==null,true,"Original departure handler stays live");
     assert.deepEqual(errors,[],"No new JavaScript failures on Android-sized viewports");
+  }finally{await context.close();}
+});
+
+test("ART-103C mobile: eleven-item visual atlas, true equipped slots, touch drawer and safe save", {timeout:65000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    await page.goto(origin);
+    const setup=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const fresh=game.newGame();
+      fresh.meta.descents=1;
+      const next=game.beginRun(fresh,
+        {"weapon.rusty_sword":1,"consumable.bandage":2},
+        null,{multiFloor:true});
+      if(!next.changed)throw Error(next.message);
+      next.state.run.enemies=[]; // UI inspection must not advance AI.
+      if(!game.validateSave(next.state))throw Error("Invalid inventory test save");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(next.state));
+      return {schema:next.state.schemaVersion,count:game.inventoryCount(next.state.run.carried)};
+    });
+    assert.equal(setup.schema,1);
+    assert.equal(setup.count,3);
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    const saved=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    await mkdir("qa096-screenshots",{recursive:true});
+
+    for(const [width,height] of [[320,640],[360,780],[393,704]]){
+      await page.setViewportSize({width,height});
+      await page.locator("#jump-bag").tap();
+      assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
+      assert.equal(await page.locator("#bag-panel").isVisible(),true);
+      assert.equal(await page.locator('#bag-equipped .art103c-slot').count(),4);
+      assert.equal(await page.locator('#bag-equipped .art103c-slot[data-equipped="true"]').count(),1);
+      assert.equal(await page.locator('#bag-items .item-row').count(),2);
+      assert.equal(await page.locator('#bag-items .item-row[data-item-id="weapon.rusty_sword"][data-equipped="true"]').count(),1);
+      assert.equal(await page.locator('#bag-items .item-row[data-item-id="consumable.bandage"]').count(),1);
+      const icons=page.locator('#bag-items .item-icon img, #bag-equipped .art103c-slot-icon img');
+      assert.equal(await icons.count(),3);
+      await page.waitForFunction(()=>[...document.querySelectorAll(
+        '#bag-items .item-icon img, #bag-equipped .art103c-slot-icon img'
+      )].every(img=>img.complete&&img.naturalWidth>0),null,{timeout:7500});
+      const geo=await page.evaluate(()=>{
+        const rect=id=>document.getElementById(id).getBoundingClientRect();
+        const sheet=rect("ui092-sheet"),dock=rect("field-controls"),
+          close=rect("ui092-sheet-close");
+        const slots=[...document.querySelectorAll("#bag-equipped .art103c-slot")]
+          .map(el=>el.getBoundingClientRect());
+        const artwork=[...document.querySelectorAll("#bag-items .item-icon img")]
+          .map(x=>x.getBoundingClientRect());
+        return {screen:innerWidth,document:document.documentElement.scrollWidth,
+          sheetBottom:sheet.bottom,dockTop:dock.top,closeHeight:close.height,
+          slotWidths:slots.map(r=>r.width),iconWidths:artwork.map(r=>r.width),
+          columns:getComputedStyle(document.getElementById("bag-equipped")).gridTemplateColumns};
+      });
+      assert.ok(geo.document<=geo.screen+1,"No horizontal overflow: "+JSON.stringify(geo));
+      assert.ok(geo.sheetBottom<=geo.dockTop+2,"Bag drawer clears fixed controls: "+JSON.stringify(geo));
+      assert.ok(geo.closeHeight>=44,"Close remains a large touch target: "+JSON.stringify(geo));
+      assert.ok(geo.slotWidths.every(n=>n>=90),"Actual equipment names remain readable: "+JSON.stringify(geo));
+      assert.ok(geo.iconWidths.every(n=>n>=28),"All pictograms visible: "+JSON.stringify(geo));
+      await page.screenshot({path:"qa096-screenshots/art103c-bag-"+width+".png"});
+      await page.locator("#ui092-sheet-close").tap();
+      assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+      assert.equal(await page.locator("#turns").textContent(),"0");
+      assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),saved,
+        "Pure visual browsing cannot change the user's existing game");
+    }
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#bag-count").textContent(),"3 / 8");
+    assert.deepEqual(errors,[],"Inventory art must never throw on portrait Android");
   }finally{await context.close();}
 });

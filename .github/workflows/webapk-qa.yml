@@ -63,8 +63,9 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_3a
-          ram-size: 3072M
-          heap-size: 512M
+          cores: 4
+          ram-size: 4096M
+          heap-size: 768M
           emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: bash tools/smoke-webapk.sh

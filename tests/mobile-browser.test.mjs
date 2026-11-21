@@ -4481,3 +4481,63 @@ test("GAME-101E mobile: tactile opening costs END, persists and stays fog-safe",
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("UI-102 mobile: Veyr dashboard, real navigation, selection reset and departure", {timeout:60000}, async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    await page.goto(origin);
+    await page.locator("#title-new").tap();
+    assert.equal(await page.locator("#refuge").isVisible(),true);
+    assert.equal(await page.locator("#refuge-quick-nav button").count(),4);
+    assert.equal(await page.locator("#veyr-overview .veyr-overview-stat").count(),0);
+    assert.equal(await page.locator(".veyr-overview .veyr-overview-stat").count(),3);
+    const saved=()=>page.evaluate(async()=>{
+      const game=await import("./game.js");
+      return JSON.parse(localStorage.getItem(game.SAVE_KEY));
+    });
+    const baseline=JSON.stringify(await saved());
+    for(const [width,height] of [[320,640],[360,780],[393,704]]){
+      await page.setViewportSize({width,height});
+      const bounds=await page.evaluate(()=>{
+        const start=document.getElementById("start-btn").getBoundingClientRect();
+        return {scroll:document.documentElement.scrollWidth,
+          viewport:document.documentElement.clientWidth,
+          height:innerHeight,buttonTop:start.top,buttonBottom:start.bottom,
+          buttonHeight:start.height,buttonWidth:start.width};
+      });
+      assert.ok(bounds.scroll<=bounds.viewport+1,JSON.stringify(bounds));
+      assert.ok(bounds.buttonTop>=0&&bounds.buttonBottom<=bounds.height+1,
+        "Departure stays inside mobile viewport: "+JSON.stringify(bounds));
+      assert.ok(bounds.buttonHeight>=44&&bounds.buttonWidth>=250);
+      for(const button of await page.locator("#refuge-quick-nav button").all()){
+        assert.ok((await button.boundingBox()).height>=44,"Refuge card touch target");
+      }
+    }
+    await page.setViewportSize({width:360,height:780});
+    await page.locator('[data-refuge-go="forge"]').tap();
+    assert.equal(await page.locator('[data-refuge-go="forge"]').getAttribute("aria-pressed"),"true");
+    assert.equal(await page.locator("#veyr-forge").isVisible(),true);
+    await page.locator('[data-refuge-go="character"]').tap();
+    assert.equal(await page.locator("#actor-stats-sheet").getAttribute("open"),"");
+    await page.locator('[data-refuge-go="echoes"]').tap();
+    assert.equal(await page.locator("#echo-dossier-refuge").getAttribute("open"),"");
+    await page.locator('[data-refuge-go="prepare"]').tap();
+    const available=page.locator('#stash-items input[type="checkbox"]');
+    assert.ok(await available.count()>0,"Original secure stash must remain selectable");
+    await available.first().check();
+    assert.match(await page.locator("#veyr-start-state").textContent(),/1 \/ 8 unités préparées/);
+    assert.equal(await page.locator("#refuge-clear-preparation").isEnabled(),true);
+    await page.locator("#refuge-clear-preparation").tap();
+    assert.equal(await page.locator('#stash-items input[type="checkbox"]:checked').count(),0);
+    assert.equal(await page.locator("#veyr-start-state").textContent(),"Départ sans équipement");
+    assert.equal(JSON.stringify(await saved()),baseline,
+      "Browsing and preparing at the refuge costs no turn and writes no save");
+    await page.locator("#start-btn").tap();
+    assert.equal(await page.locator("#expedition").isVisible(),true);
+    assert.equal((await saved()).run!==null,true,"Original departure handler stays live");
+    assert.deepEqual(errors,[],"No new JavaScript failures on Android-sized viewports");
+  }finally{await context.close();}
+});

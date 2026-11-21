@@ -62,6 +62,7 @@ test("GAME-101B: clues only describe actually visible doors, not fog content",()
   delete old.run.scoutingPlanVersion; // GAME-101C is absent from historical runs.
   delete old.run.encounterPlanVersion;delete old.run.encounters; // GAME-101D absent.
   delete old.run.combatOpeningVersion; // GAME-101E not present in simulated older saves.
+  delete old.run.pursuitPlanVersion; // GAME-101F is absent from historical runs.
   assert.ok(validateSave(old));
   assert.equal(branchOverview(old.run),null);
   assert.equal(branchClue(old.run,doors[0].x,doors[0].y),null);
@@ -103,6 +104,7 @@ test("GAME-101B: guarded reward is exclusive, consumes 1 turn / 3 END",()=>{
   delete old.run.scoutingPlanVersion; // GAME-101C is absent from historical runs.
   delete old.run.encounterPlanVersion;delete old.run.encounters; // GAME-101D absent.
   delete old.run.combatOpeningVersion; // GAME-101E not present in simulated older saves.
+  delete old.run.pursuitPlanVersion; // GAME-101F is absent from historical runs.
   assert.ok(validateSave(old));
   assert.equal(resolveRoomSite(old,cache.id,"buckler").changed,false);
   const forged=structuredClone(result.state);delete forged.run.branchPlanVersion;

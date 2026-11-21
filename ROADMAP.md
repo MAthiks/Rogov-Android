@@ -1,4 +1,8 @@
-## GAME-101E — Frappe de brèche, fenêtres de combat et positionnement (WIP)
+## QA-101E — Fiabilisation de la reprise WebView après fermeture de l'application (en validation)
+
+GAME-101E est **fusionné** via PR #65, `f581082` ; les quatre CI de la PR étaient vertes. Sur `main`, le test d'APK WebView a néanmoins expiré au moment d'un `Runtime.evaluate` qui déclenchait *synchroniquement* le rendu de la partie restaurée ; la sauvegarde était bien présente et la page prête. Correction de la recette : déclencher le clic au prochain événement du navigateur, puis vérifier effectivement l'ouverture, les 121 tuiles, la sauvegarde, le mode hors ligne et les captures. **Aucun changement du moteur ou de la sauvegarde.** [Diagnostic et limites](docs/QA101E_WEBVIEW_RESTART.md).
+
+## GAME-101E — Frappe de brèche, fenêtres de combat et positionnement (fusionné · PR #65)
 
 Nouvelle action facultative : une frappe plus coûteuse (**3 END, 1 tour**) mais renforcée contre un Charognard en récupération, un Gardien préparant son coup lourd, ou un ennemi acculé à une paroi déjà visible. Même RNG et jets que l'attaque normale, prime XP uniquement sur la victoire risquée contre un Gardien, et aucune modification rétroactive des sauvegardes. Le bouton Android et la touche V sont prévus ; CI Web/Android et QA physique à confirmer. [Contrat et recette](docs/GAME101E_TACTICAL_OPENINGS.md).
 

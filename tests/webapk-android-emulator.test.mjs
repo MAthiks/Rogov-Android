@@ -225,8 +225,20 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
       saveInfo:document.querySelector("#title-save-info")?.textContent
     })`);
     console.log("APK098A AFTER PROCESS RESTART:",JSON.stringify(beforeResume));
-    await dev.evaluate('document.querySelector("#title-continue").click();true');
-    await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
+    // A cold Android WebView can still be compositing while the resumed
+    // title handler runs. A direct synchronous Runtime.evaluate(click)
+    // blocks its CDP response until the full Nhal scene finishes rendering,
+    // causing a false 3.5 s command timeout despite a valid persisted run.
+    // Dispatch on the next browser task, then assert the REAL resumed UI.
+    // A missing/disabled button, JS exception or stuck render still fails.
+    const scheduled=await dev.evaluate(`(()=>{
+      const resume=document.querySelector("#title-continue");
+      if(!resume||resume.disabled)throw Error("Resume button unavailable");
+      setTimeout(()=>resume.click(),0);
+      return true;
+    })()`);
+    assert.equal(scheduled,true);
+    await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue,25000);
     const afterResume=await dev.evaluate(`({
       tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
       expeditionHidden:document.querySelector("#expedition").hidden,

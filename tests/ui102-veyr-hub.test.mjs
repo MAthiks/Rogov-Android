@@ -60,6 +60,7 @@ test("UI-102: offline Android assets, safe viewport, reduced motion and no exter
   assert.match(css,/\.veyr-hero/);
   assert.match(css,/min-height:6[0-9]px/);
   assert.match(css,/env\(safe-area-inset-bottom\)/);
+  assert.match(css,/background-color:#d9b17b/,"Solid fallback preserves launch contrast");
   assert.match(css,/@media\(max-width:350px\)/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
   assert.doesNotMatch(css,/@import|https?:\/\/|position:sticky.*#start-btn/);

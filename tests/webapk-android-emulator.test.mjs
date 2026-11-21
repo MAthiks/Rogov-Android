@@ -151,16 +151,22 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     assert.equal(tutorial.hero,1);
     assert.ok(tutorial.run);
 
-    // Next, test the actual 11x11 procedural Nhal camera independently.
-    await dev.evaluate(`(async()=>{
-      const game=await import("./game.js");
-      const newHero=game.newGame();
-      newHero.meta.descents=1;
-      const deep=game.beginRun(newHero).state;
-      if(!game.validateSave(deep))throw Error("Invalid deep expedition fixture");
-      localStorage.setItem(game.SAVE_KEY,JSON.stringify(deep));
-      return true;
+    // Produce the fixture with the SAME real, shared game engine in Node.
+    // Generating the full 44x32 deep dungeon *inside* a Debug WebView CDP
+    // Runtime.evaluate can stall compositing >10s and kill the Android emulator.
+    // Keep all WebView validation real: its restored save must still be parsed,
+    // validated, rendered, interacted with, resumed and loaded offline.
+    const game=await import("../docs/game.js");
+    const newHero=game.newGame();
+    newHero.meta.descents=1;
+    const deep=game.beginRun(newHero).state;
+    assert.equal(game.validateSave(deep),true,"Shared engine fixture must validate");
+    const stored=JSON.stringify(deep);
+    const mapRows=await dev.evaluate(`(()=>{
+      localStorage.setItem("rogov-web-v1",${JSON.stringify(stored)});
+      return JSON.parse(localStorage.getItem("rogov-web-v1"))?.run?.map?.length;
     })()`);
+    assert.equal(mapRows,deep.run.map.length,"Real Android WebView must persist the fixture");
     await dev.call("Page.reload",{ignoreCache:true});
     // Merely finding a button in parsed HTML is not enough: it must be
     // initialized by app.js with the restored-run description before click.

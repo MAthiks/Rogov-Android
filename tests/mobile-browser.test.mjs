@@ -4173,7 +4173,7 @@ test("UI-099 mobile: map first, no duplicate long document, original Menu knowle
       assert.equal(await page.locator("#ui099-info-slot #route-hint").count(),1);
       assert.equal(await page.locator("#ui099-info-slot #inspect-panel").count(),1);
       assert.equal(await page.locator("#ui099-info-slot #exploration-map-panel").count(),1);
-      await page.locator("#actor-stats-sheet summary").tap();
+      await page.locator("#actor-stats-sheet > summary").tap();
       assert.equal(await page.locator("#actor-stat-values").isVisible(),true);
       await page.locator("#map-legend-details summary").tap();
       assert.equal(await page.locator("#graphic-legend").isVisible(),true);
@@ -4661,7 +4661,7 @@ test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics a
           portraitWidth:img.width,portraitHeight:img.height,
           sheetLeft:sheet.left,sheetRight:sheet.right,
           widths:grid.map(n=>n.width),
-          summaryHeight:document.querySelector("#actor-stats-sheet summary").getBoundingClientRect().height
+          summaryHeight:document.querySelector("#actor-stats-sheet > summary").getBoundingClientRect().height
         };
       });
       assert.ok(geo.scroll<=geo.viewport+1,"No horizontal overflow: "+JSON.stringify(geo));

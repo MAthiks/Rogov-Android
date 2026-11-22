@@ -8,6 +8,7 @@ import { readFile, mkdir } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import {newGame,beginRun,validateSave} from "../docs/game.js";
 
 const ROOT = resolve(fileURLToPath(new URL("../docs/", import.meta.url)));
 const TYPES = {
@@ -4896,6 +4897,32 @@ test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved re
         noUnknownBackground:true,noHiddenSconces:true
       },"ART-106C real tile atlas must be visible and FOV-safe");
       await page.screenshot({path:"qa096-screenshots/qa106c-nhal-"+width+".png"});
+      // ART-106D: inspect the shipped LIVE atlas. All assets and actor IDs
+      // remain the engine's real classes; no additional entity tiles appear.
+      const spriteQA=await page.evaluate(async(expectedTiles)=>{
+        const [{TILE_SPRITES},{HERO_SVGS},{ENEMY_SVGS},{INTERACTIVE_SVGS}]=
+          await Promise.all([import("./tiles.js"),import("./hero-art.js"),
+            import("./enemy-art.js"),import("./interaction-art.js")]);
+        const hero=document.querySelector('#tile-map .pixel-tile[data-knowledge="visible"].tile-hero img');
+        const unknown=[...document.querySelectorAll('#tile-map .pixel-tile[data-knowledge="unknown"]')];
+        return {
+          hood:Object.values(HERO_SVGS).every(svg=>svg.includes("art106d-hooded-")),
+          enemies:Object.values(ENEMY_SVGS).every(svg=>svg.includes("art106d-")),
+          guardianEyes:ENEMY_SVGS.guardian.includes("art106d-guardian-red-eyes"),
+          toxicRift:INTERACTIVE_SVGS.hazard.includes("art106d-sickly-green-rift"),
+          cyanArch:INTERACTIVE_SVGS.exit.includes("art106d-arch-cyan-keystone"),
+          goldChest:INTERACTIVE_SVGS.loot.includes("art106d-sealed-gold-chest"),
+          liveHero:hero?.src===TILE_SPRITES.hero,
+          noUnknownSprites:unknown.every(cell=>!cell.querySelector("img")),
+          unchangedTileCount:document.querySelectorAll("#tile-map .pixel-tile").length===expectedTiles
+        };
+      },camera.expected);
+      assert.deepEqual(spriteQA,{
+        hood:true,enemies:true,guardianEyes:true,toxicRift:true,
+        cyanArch:true,goldChest:true,liveHero:true,noUnknownSprites:true,
+        unchangedTileCount:true
+      },"ART-106D sprites must remain live 24px assets and fog-safe");
+      await page.screenshot({path:"qa096-screenshots/qa106d-nhal-"+width+".png"});
       await page.locator("#nhal106-actions").tap();
       assert.equal(await page.locator("#nhal106-action-menu").isVisible(),true);
       await page.locator('[data-nhal106-proxy="jump-menu"]').tap();
@@ -4932,5 +4959,58 @@ test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved re
     assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),expeditionSave,
       "Android resume must restore the exact save including turns and inventory");
     assert.deepEqual(errors,[],"No runtime errors during the physical-phone recipe");
+  }finally{await context.close();}
+});
+
+
+test("ART-106D reference: ACTUAL deep Nhal 11×11 screenshots at screenshot-target ratios", {timeout:80000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    // Build a legitimate depth run using the existing real engine (like the
+    // Android WebView resume QA). No screenshot overlay, false actor or forced
+    // unexplored room disclosure is permitted in this reference capture.
+    const previous=newGame();
+    previous.meta.descents=1;
+    const deep=beginRun(previous,[],null,{multiFloor:true}).state;
+    assert.equal(validateSave(deep),true);
+    assert.equal(deep.run.floorDepth,1,"Multi-floor option must generate a real floor-depth HUD");
+    const saved=JSON.stringify(deep);
+    await mkdir("qa096-screenshots",{recursive:true});
+    await page.goto(origin);
+    await page.evaluate(value=>localStorage.setItem("rogov-web-v1",value),saved);
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    await page.locator("#expedition").waitFor({state:"visible"});
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),121,
+      "Target screenshot comparison MUST use an actual 11x11 Nhal floor");
+    assert.equal(await page.locator("#nhal106-depth").textContent(),"1 / 3");
+    assert.equal(await page.locator("#nhal106-turn").textContent(),"0");
+    for(const [width,height] of [[360,800],[393,704],[412,915]]){
+      await page.setViewportSize({width,height});
+      const facts=await page.evaluate(()=>{
+        const cells=[...document.querySelectorAll("#tile-map .pixel-tile")];
+        return {
+          count:cells.length,
+          visible:cells.filter(c=>c.dataset.knowledge==="visible").length,
+          unknownSafe:cells.filter(c=>c.dataset.knowledge==="unknown")
+            .every(c=>!c.querySelector("img")),
+          horizontalOverflow:document.documentElement.scrollWidth>innerWidth+1,
+          turn:document.getElementById("nhal106-turn")?.textContent
+        };
+      });
+      assert.equal(facts.count,121);
+      assert.ok(facts.visible>0);
+      assert.equal(facts.unknownSafe,true);
+      assert.equal(facts.horizontalOverflow,false);
+      assert.equal(facts.turn,"0");
+      await page.screenshot({
+        path:"qa096-screenshots/qa106d-deep-11x11-"+width+"x"+height+".png"
+      });
+    }
+    assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),saved,
+      "Visual audit cannot alter the run nor the fog knowledge");
+    assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });

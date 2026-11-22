@@ -1,5 +1,6 @@
 // DEV-089B / ART-106C — Original, offline-first terrain atlas for Nhal.
 import {floorMasonry106C,wallMasonry106C} from "./art106c-masonry.js";
+import {floorRelief107A,wallRelief107A} from "./art107a-finishes.js";
 // Terrain styling cannot change collisions, doors, visibility or combat RNG.
 // All terrain sprites are 24x24 SVGs; no external image requests.
 export const TERRAIN_PALETTE=Object.freeze({
@@ -65,7 +66,7 @@ function floorSvg(variant){
     '<g data-detail="ui099-quiet-floor" opacity=".32">'+floorDetails[variant]+'</g>'+
     '<g data-detail="ui099-soft-patina" opacity=".45">'+floorPatina[variant]+'</g>'+
     '<g data-detail="ui100-floor-broad-relief" opacity=".48">'+floorRelief[variant]+'</g>'+
-    '<path data-detail="ui100-floor-recess" d="M1 9h11M14 9h9M9 20h14" stroke="#0c1920" stroke-width="1" opacity=".4"/>'+floorMasonry106C(variant)
+    '<path data-detail="ui100-floor-recess" d="M1 9h11M14 9h9M9 20h14" stroke="#0c1920" stroke-width="1" opacity=".4"/>'+floorMasonry106C(variant)+floorRelief107A(variant)
   );
 }
 
@@ -108,7 +109,7 @@ function wallSvg(mask,variant){
     '<g data-detail="ui099-wall-subtle-patina" opacity=".62">'+accents[variant]+'</g>'+
     '<path data-detail="ui100-wall-deep-overhang" d="M1 10h22v2H1Z" fill="#09161d" opacity=".9"/>'+
     '<path data-detail="ui100-wall-upper-plane" d="M2 2h20v1H2ZM2 7h20v1H2Z" fill="#c3c7b5" opacity=".62"/>'+
-    '<path data-detail="ui100-wall-front-shadow" d="M3 22h7M14 22h7M11 14v9" stroke="#09151d" stroke-width="1" opacity=".82"/>'+wallMasonry106C(mask,variant)+rim
+    '<path data-detail="ui100-wall-front-shadow" d="M3 22h7M14 22h7M11 14v9" stroke="#09151d" stroke-width="1" opacity=".82"/>'+wallMasonry106C(mask,variant)+wallRelief107A(mask,variant)+rim
   );
 }
 export const TERRAIN_SVGS=Object.freeze({

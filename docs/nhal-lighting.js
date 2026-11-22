@@ -14,6 +14,19 @@ export const SCONCE_SVG=svg(
   '<path d="M12 5l2 4-2 3-2-3Z" fill="#f3c477"/>'+
   '<rect x="12" y="8" width="1" height="3" fill="#fbe3aa"/>'+
   '<path d="M8 15h8M10 19h4" stroke="#302b2c" stroke-width="1"/>'+
+  // ART-106C: bright ember core, iron cage, orange face reflections.
+  // All artwork is displayed ONLY after the original visible-only check.
+  '<g data-detail="art106c-forged-sconce">'+
+  '<path d="M7 15h10v2H7ZM9 17h2v5H9ZM13 17h2v5h-2Z" fill="#19242c"/>'+
+  '<path d="M8 15h8v1H8ZM9 19h6v1H9Z" fill="#ccad77"/>'+
+  '<path d="M8 13h2v2H8ZM14 13h2v2h-2Z" fill="#7f735d"/>'+
+  '<path d="M8 11v3M16 11v3" stroke="#28333b" stroke-width="1"/>'+
+  '<path d="M9 6h2v3H9ZM14 7h2v2h-2Z" fill="#c66a32"/>'+
+  '<path d="M11 4h2v6h-2Z" fill="#ffd079"/>'+
+  '<path d="M12 6v4" stroke="#fff1b1" stroke-width="1"/>'+
+  '<path d="M10 2h2v2h-2Z" fill="#d27b3c"/>'+
+  '<path d="M10 20h4v1h-4Z" fill="#78634c"/>'+
+  '</g>'+
   '</g>'
 );
 export const SCONCE_SPRITE="data:image/svg+xml;charset=UTF-8,"+

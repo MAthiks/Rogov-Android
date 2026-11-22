@@ -69,6 +69,8 @@ test("ART-106D: chest/door/arch/hazard states are genuinely different",()=>{
   assert.match(INTERACTIVE_SVGS.chest_open,/art106d-open-chest/);
   assert.match(INTERACTIVE_SVGS.exit,/art106d-arch-cyan-keystone/);
   assert.match(INTERACTIVE_SVGS.hazard,/art106d-sickly-green-rift/);
+  assert.match(INTERACTIVE_SVGS.hazard,/#64b93c/,"The REAL fissure is now acid green");
+  assert.doesNotMatch(INTERACTIVE_SVGS.hazard,/#b65e69/,"No old pink fissure fill");
   assert.match(INTERACTIVE_SVGS.trap_clue,/data-feature="subtle-floor-scratches"/);
   assert.doesNotMatch(INTERACTIVE_SVGS.trap_clue,/exposed-spikes|art106d-/);
   assert.doesNotMatch(INTERACTIVE_SVGS.door_open,/door-ring-pull/);

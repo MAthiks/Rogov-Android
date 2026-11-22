@@ -64,7 +64,7 @@
     font-size:clamp(10px,2.65vw,13px);
   }
   /* Give the map the vertical space recovered from the smaller header.
-     The 11x11 arena stays square and the original aspect-ratio:1 tiles
+     The 11x11 arena stays square and the original square tile geometry
      stay perfectly undistorted; the 15x9 tutorial remains 15x9. */
   .frame.is-expedition #expedition .nhal106-vitals{
     margin-top:2px;margin-bottom:7px;

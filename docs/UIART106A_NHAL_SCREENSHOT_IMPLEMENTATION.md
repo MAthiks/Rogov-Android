@@ -31,6 +31,10 @@ Ce lot traite surtout l'**architecture des panneaux et leur matériau**. La fid�
 6. Le changement d'onglet, l'ouverture d'Actions et les consultations n'augmentent pas le compteur de tours et ne modifient pas `rogov-web-v1`.
 7. Web/Chromium, Chrome Android 13, APK classique et WebView doivent tous réussir. Contrôle final sur **téléphone Android physique** : comparaison côte à côte des captures réelles avec le screenshot utilisateur, écarts notés.
 
+## Correctif de revue
+
+Le cadre visuel n'applique plus de rognage à `.dungeon-wrap` : `#field-controls` est un descendant fixe et l'interface tactique doit rester affichée hors du rectangle de la carte. Le bouton Menu conserve au moins 44 px de hauteur.
+
 ## Limitations honnêtes / suite
 
 - Les vrais carreaux 24×24, Sprite C, ennemis, portes, coffres et éclairages ne sont pas redessinés dans 106A.

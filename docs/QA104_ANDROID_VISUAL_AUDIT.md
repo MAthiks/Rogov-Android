@@ -19,15 +19,16 @@ Dans `tests/mobile-browser.test.mjs` :
 
 1. Après l'action « Égaré », vérifier que la destination se trouve bien dans la fenêtre Android (l'ouverture du panneau seule ne suffit pas).
 2. Avant chaque capture `art103d-character-{320,360,393}.png`, replacer le défilement au niveau de la fiche, attendre un rendu stable et tester que le centre de son portrait n'est pas masqué par le CTA fixe.
-3. Produire également `qa104-character-full-{320,360,393}.png` via une capture de l'élément réel, pour voir attributs, aptitudes et le message honnête sur la santé mentale non simulée.
+3. Produire également `qa104-character-stats-{320,360,393}.png` depuis un **vrai défilement** jusqu'aux aptitudes calculées. Une capture de l'élément entier était trompeuse : le bouton de descente fixe apparaissait artificiellement au milieu de l'image.
 4. Laisser disparaître toute surbrillance tactile temporaire avant `art103c-bag-{320,360,393}.png`.
-5. Maintenir toutes les anciennes assertions : sauvegarde `rogov-web-v1` inchangée, 0 tour consommé pour parcourir les panneaux, zones de touche ≥44 px, nombre d'objets et emplacements existants uniquement.
+5. Replacer la longue phrase de calcul des caractéristiques et les valeurs déjà affichées en cartes dans un accordéon natif **« Détails et équipement »**, fermé par défaut. L'arme et les explications restent consultables au doigt et au clavier, sans nouveau champ sauvegardé. Les six attributs, les six aptitudes et la note de santé mentale restent visibles.
+6. Maintenir toutes les anciennes assertions : sauvegarde `rogov-web-v1` inchangée, 0 tour consommé pour parcourir les panneaux, zones de touche ≥44 px, nombre d'objets et emplacements existants uniquement.
 
 ## Conditions de validation
 
-- **Tests Web / Chromium** : nouveau cadrage accompagné de vraies assertions de visibilité. Récupérer le nouvel artefact et examiner les six images.
+- **Tests Web / Chromium** : nouveau cadrage accompagné de vraies assertions de visibilité. Récupérer le nouvel artefact et examiner les nouvelles captures du haut de la fiche et des aptitudes calculées.
 - **Android 13 Chrome, APK classique et WebView moderne** : les pipelines existants doivent rester verts.
 - **Téléphone Android physique :** contrôle utilisateur encore à réaliser, notamment lisibilité en lumière extérieure, gestes, animation des transitions, poids des assets et bouton de retour. Une CI verte ne permet pas de déclarer cette étape matérielle acquise.
 - **Écart esthétique restant :** la maquette marketing possède de grands décors peints et des personnages plus détaillés que les assets actuels. Ne pas proclamer un « rendu identique » sans comparaison réelle.
 
-**Nature du lot :** tests et preuves visuelles. Aucun changement de `docs/game.js`, `docs/app.js`, des sprites, du brouillard, de la direction artistique CSS, des actions, ou des sauvegardes.
+**Nature du lot :** tests, preuves visuelles et petit ajustement **présentation uniquement** de la fiche (`docs/index.html`, `docs/art103d.css`, cache `docs/sw.js`). Aucun changement de `docs/game.js`, `docs/app.js`, des sprites, du brouillard, des actions, ou des sauvegardes.

@@ -30,7 +30,7 @@ function fixture(){
     "endurance-meter":make("endurance-meter",{value:10,max:20})
   };
   for(const id of ["nhal106-hp","nhal106-end","nhal106-bag","nhal106-turn",
-    "nhal106-depth","nhal106-hp-meter","nhal106-end-meter"])make(id);
+    "nhal106-depth"])make(id);
   let run=true;
   const targetIds=["jump-combat","jump-action","listen-btn","jump-menu"];
   const proxies=targetIds.map(id=>{
@@ -54,10 +54,12 @@ test("UI/ART-106A: screenshot-like layout is wired to the real expedition",()=>{
   const sw=read("docs/sw.js"),app=read("docs/app.js");
   for(const id of ["nhal106-depth","nhal106-turn","nhal106-hp","nhal106-end",
     "nhal106-bag","nhal106-actions","nhal106-action-menu",
-    "nhal106-hp-meter","nhal106-end-meter"])
+    "health-meter","endurance-meter"])
     assert.match(html,new RegExp('id="'+id+'"'));
   assert.ok(html.indexOf('href="./uiart106a.css?v=1"')>
     html.indexOf('href="./art103d.css?v=1"'));
+  assert.equal((html.match(/id="health-meter"/g)||[]).length,1);
+  assert.equal((html.match(/id="endurance-meter"/g)||[]).length,1);
   assert.match(app,/setupUi106A/);
   assert.match(app,/ui106a\.sync\(\)/);
   assert.match(sw,/\.\/uiart106a.css\?v=1/);
@@ -78,10 +80,10 @@ test("UI/ART-106A: decorative HUD exactly mirrors existing state after each rend
     ["nhal106-hp","9 / 12"],["nhal106-end","10 / 20"],
     ["nhal106-bag","5 / 8"],["nhal106-turn","48"],["nhal106-depth","2 / 3"]
   ])assert.equal(f.nodes.get(dst).textContent,expected);
-  assert.equal(f.nodes.get("nhal106-hp-meter").value,9);
-  assert.equal(f.nodes.get("nhal106-hp-meter").max,12);
-  assert.equal(f.nodes.get("nhal106-end-meter").value,10);
-  assert.equal(f.nodes.get("nhal106-end-meter").max,20);
+  assert.equal(f.nodes.get("health-meter").value,9);
+  assert.equal(f.nodes.get("health-meter").max,12);
+  assert.equal(f.nodes.get("endurance-meter").value,10);
+  assert.equal(f.nodes.get("endurance-meter").max,20);
   f.original["floor-hud"].hidden=true;
   f.ui.sync();
   assert.equal(f.nodes.get("nhal106-depth").textContent,"—");
@@ -89,7 +91,7 @@ test("UI/ART-106A: decorative HUD exactly mirrors existing state after each rend
   f.original["health-meter"].value=2;
   f.ui.sync();
   assert.equal(f.nodes.get("nhal106-hp").textContent,"2 / 12");
-  assert.equal(f.nodes.get("nhal106-hp-meter").value,2);
+  assert.equal(f.nodes.get("health-meter").value,2);
 });
 
 test("UI/ART-106A: Actions uses existing buttons, respects disabled and closes without game turns",()=>{

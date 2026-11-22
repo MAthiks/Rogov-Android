@@ -76,6 +76,22 @@ test("UI/ART-106E: geometry-only reflow, resize and teardown are reversible",()=
   assert.equal(f.flags.isDisconnected(),true);
 });
 
+test("UI/ART-106F: compact 320x640 viewport reserves extra real footer clearance",()=>{
+  const f=mockFixture();
+  f.win.innerWidth=320;
+  f.win.innerHeight=640;
+  const ui=setupUi106E(f);
+  ui.sync();
+  assert.equal(f.section.dataset.nhal106eCamera,"square");
+  assert.equal(f.vars.get("--nhal106e-map-width"),"323px");
+  // On a taller 360px portrait the map can occupy more space.
+  f.win.innerWidth=360;
+  f.win.innerHeight=800;
+  ui.sync();
+  assert.equal(f.vars.get("--nhal106e-map-width"),"347px");
+  ui.dispose();
+});
+
 test("UI/ART-106E: stylesheet and offline bridge cannot change engine tiles",()=>{
   const html=read("docs/index.html"),css=read("docs/uiart106e.css");
   const app=read("docs/app.js"),sw=read("docs/sw.js");

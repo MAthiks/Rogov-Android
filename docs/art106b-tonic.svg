@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" shape-rendering="crispEdges">
+<!-- Original 106B amber tonic: cork, glass and reflected firelight. -->
+<path d="M18 3h12v3h3v9h-3v6l5 4 5 9v6l-6 5H14l-6-5v-6l5-9 5-4v-6h-3V6h3Z" fill="#11191e"/>
+<path d="M19 5h10v8H19Z" fill="#825333"/>
+<path d="M21 5h6v2h-6ZM20 10h8v2h-8Z" fill="#d1a475"/>
+<path d="M18 14h12v4H18Z" fill="#b4a38c"/>
+<path d="M20 18h8v5l6 5 4 8v3l-5 4H15l-5-4v-3l4-8 6-5Z" fill="#557277"/>
+<path d="M20 23h8v3l5 4 4 6v3l-5 3H16l-5-3v-3l4-6 5-4Z" fill="#d78924"/>
+<path d="M15 32h19l2 5-4 3H16l-4-3Z" fill="#edaa2f"/>
+<path d="M21 25h2v12h-2ZM17 30h2v8h-2Z" fill="#ffdf80"/>
+<path d="M14 38h20v2H14Z" fill="#925222"/>
+<path d="M20 14h8v2h-8Z" fill="#e5cfa9"/>
+<path d="M27 27h3v2h-3ZM30 31h2v2h-2Z" fill="#fff1bb"/>
+</svg>

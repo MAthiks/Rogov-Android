@@ -196,7 +196,7 @@
     font-size:18px;color:#e7c58d;line-height:19px;
   }
   .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button.is-active,
-  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts #jump-map[aria-expanded="false"]{
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts:not(:has(button.is-active)) #jump-map{
     border-color:#f4bf69;
     background:linear-gradient(150deg,#614022,#2f241b 62%,#161b22);
     box-shadow:inset 0 1px #fff0bd9a,0 0 11px #f3a84755,0 3px 5px #0009;

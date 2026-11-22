@@ -5035,7 +5035,7 @@ test("ART-106D reference: ACTUAL deep Nhal 11×11 screenshots at screenshot-targ
       assert.ok(ui106e.navBottom<=ui106e.dockTop+2,
         "Six navigation shortcuts must stay above fixed controls: "+JSON.stringify(ui106e));
       assert.equal(ui106e.mapSquares,true,"Cell geometry may not distort");
-      assert.match(ui106e.wallpaper,/art103b-nhal-ruins\\.svg/);
+      assert.ok(ui106e.wallpaper.includes("art103b-nhal-ruins.svg"));
       await page.screenshot({
         path:"qa096-screenshots/qa106e-deep-11x11-"+width+"x"+height+".png"
       });

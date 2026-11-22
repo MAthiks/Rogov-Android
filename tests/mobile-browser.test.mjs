@@ -4756,3 +4756,125 @@ test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics a
     assert.deepEqual(errors,[],"No runtime errors in either shared character location");
   }finally{await context.close();}
 });
+
+test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved return", {timeout:90000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.locator("#title-new").tap();
+    assert.equal(await page.locator("#refuge").isVisible(),true);
+    const refugeSave=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+    assert.ok(refugeSave,"New game creates a persistent refuge save");
+    await mkdir("qa096-screenshots",{recursive:true});
+
+    // QA-105 adds the practical 360x800 and modern 412x915 Android sizes
+    // to the previous 320/360/393 portrait screenshots.
+    for(const [width,height] of [[360,800],[412,915]]){
+      await page.setViewportSize({width,height});
+      const field=await page.evaluate(()=>{
+        const start=document.getElementById("start-btn");
+        const r=start.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+        const hit=document.elementFromPoint(x,y);
+        return {viewport:innerWidth,document:document.documentElement.scrollWidth,
+          bottomGap:innerHeight-r.bottom,top:r.top,height:r.height,
+          tappable:hit===start||start.contains(hit),
+          nav:document.querySelectorAll("#refuge-quick-nav button").length};
+      });
+      assert.ok(field.document<=field.viewport+1,
+        "Veyr must not scroll horizontally on a real phone: "+JSON.stringify(field));
+      assert.equal(field.nav,4);
+      assert.ok(field.height>=44&&field.top>=0&&field.bottomGap>=0&&field.bottomGap<=40,
+        "The departure CTA stays fully within the phone's viewport: "+JSON.stringify(field));
+      assert.equal(field.tappable,true,"The CTA must not be intercepted by a decorative overlay");
+      await page.screenshot({path:"qa096-screenshots/qa105-veyr-"+width+".png"});
+
+      await page.locator('[data-refuge-go="character"]').tap();
+      assert.equal(await page.locator("#actor-stats-sheet").evaluate(x=>x.open),true);
+      await page.waitForFunction(()=>{
+        const r=document.getElementById("actor103d-portrait").getBoundingClientRect();
+        return r.top>=0&&r.bottom<innerHeight-40;
+      },null,{timeout:8000});
+      assert.equal(await page.locator("#actor-stat-values .actor-stat-chip").count(),6);
+      assert.equal(await page.locator("#actor103d-derived-grid .actor103d-derived-tile").count(),6);
+      const details=page.locator("#actor103d-explain");
+      assert.equal(await details.evaluate(n=>n.open),false);
+      await details.locator("summary").tap();
+      assert.equal(await details.evaluate(n=>n.open),true);
+      await details.locator("summary").tap();
+      assert.equal(await details.evaluate(n=>n.open),false);
+      assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),refugeSave,
+        "Looking at character attributes never changes a saved run");
+    }
+
+    await page.locator("#start-btn").tap();
+    assert.equal(await page.locator("#expedition").isVisible(),true);
+    const camera=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const bounds=game.cameraBounds(state.run);
+      const tiles=[...document.querySelectorAll("#tile-map .pixel-tile")];
+      return {expected:bounds.width*bounds.height,
+        actual:tiles.length,
+        unique:new Set(tiles.map(tile=>tile.dataset.x+","+tile.dataset.y)).size,
+        columns:bounds.width,rows:bounds.height};
+    });
+    assert.ok(camera.columns>=9&&camera.rows>=9,
+      "The camera must render a usable number of dungeon cells");
+    assert.equal(camera.actual,camera.expected,
+      "The renderer must fill its actual engine camera, without missing cells");
+    assert.equal(camera.unique,camera.expected,
+      "Each rendered tile must map to a distinct real dungeon coordinate");
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    const expeditionSave=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+    assert.ok(expeditionSave&&expeditionSave!==refugeSave);
+
+    for(const [width,height] of [[360,800],[412,915]]){
+      await page.setViewportSize({width,height});
+      const geometry=await page.evaluate(()=>{
+        const map=document.getElementById("tile-map").getBoundingClientRect();
+        const dock=document.getElementById("field-controls").getBoundingClientRect();
+        const wait=document.getElementById("wait-btn").getBoundingClientRect();
+        return {viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+          mapBottom:map.bottom,dockTop:dock.top,dockBottom:dock.bottom,
+          screenHeight:innerHeight,waitHeight:wait.height,waitWidth:wait.width};
+      });
+      assert.ok(geometry.scrollWidth<=geometry.viewport+1,
+        "Nhal must not overflow horizontally: "+JSON.stringify(geometry));
+      assert.ok(geometry.mapBottom<=geometry.dockTop+2,
+        "The dungeon map may never be covered by the D-pad: "+JSON.stringify(geometry));
+      assert.ok(Math.abs(geometry.dockBottom-geometry.screenHeight)<=3,
+        "The D-pad remains anchored to Android bottom: "+JSON.stringify(geometry));
+      assert.ok(geometry.waitHeight>=44&&geometry.waitWidth>=44,
+        "The turn-consuming wait button must stay finger-sized");
+      await page.screenshot({path:"qa096-screenshots/qa105-nhal-"+width+".png"});
+
+      await page.locator("#jump-bag").tap();
+      assert.equal(await page.locator("#ui092-sheet").isVisible(),true);
+      const drawer=await page.evaluate(()=>{
+        const panel=document.getElementById("ui092-sheet").getBoundingClientRect();
+        const dock=document.getElementById("field-controls").getBoundingClientRect();
+        const close=document.getElementById("ui092-sheet-close").getBoundingClientRect();
+        return {panelBottom:panel.bottom,dockTop:dock.top,closeHeight:close.height};
+      });
+      assert.ok(drawer.panelBottom<=drawer.dockTop+2,
+        "The Sac never covers the real movement controls: "+JSON.stringify(drawer));
+      assert.ok(drawer.closeHeight>=44,"The Sac close button stays touch accessible");
+      await page.locator("#ui092-sheet-close").tap();
+      assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+      assert.equal(await page.locator("#turns").textContent(),"0");
+      assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),expeditionSave,
+        "Inspecting the Sac is not a gameplay action");
+    }
+
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#expedition").isVisible(),true);
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),camera.expected,
+      "Reload preserves the actual camera dimensions rather than a legacy fixed grid");
+    assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),expeditionSave,
+      "Android resume must restore the exact save including turns and inventory");
+    assert.deepEqual(errors,[],"No runtime errors during the physical-phone recipe");
+  }finally{await context.close();}
+});

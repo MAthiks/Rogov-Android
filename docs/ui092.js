@@ -40,6 +40,7 @@ export function setupUi092({get,isRun,isAscii}){
     }
     placeholder=null;activeNode=null;activeId=null;
     sheet.hidden=true;
+    delete sheet.dataset.panel; // UI/ART-106F — presentation-only material tint
     for(const button of [...navigation.querySelectorAll("button"),get("jump-menu")]){
       button.setAttribute("aria-expanded","false");
       button.classList.remove("is-active");
@@ -74,6 +75,7 @@ export function setupUi092({get,isRun,isAscii}){
     node.before(placeholder);
     mount.append(node);
     activeNode=node;activeId=id;title.textContent=LABELS[id];
+    sheet.dataset.panel=id; // Existing UI092 panel ID, never a game-state field.
     sheet.hidden=false;
     measure(); // Reconcile the actual fixed dock edge before exposing content.
     const button=get(id);

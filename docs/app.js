@@ -3,6 +3,7 @@ import { drawTileMap, TILE_SPRITES, LEGEND_ITEMS } from "./tiles.js";
 import { setupUi092 } from "./ui092.js";
 import { setupUi097A2 } from "./ui097a2.js";
 import { setupUi099 } from "./ui099.js";
+import { setupUi106A } from "./uiart106a.js";
 import { syncUi096Threat } from "./ui096.js";
 import { setupUi096C } from "./ui096c.js";
 import {refugeDashboard} from "./refuge-dashboard.js";
@@ -914,6 +915,7 @@ function render() {
   syncUi096Threat({get:$,isRun:Boolean(run)});
   ui092.sync();
   ui099.sync();
+  ui106a.sync();
 }
 function act(result) {
   if (result.changed) {
@@ -1036,6 +1038,7 @@ const ui092=setupUi092({get:$,isRun:()=>Boolean(state.run),
 const ui097a2=setupUi097A2({get:$});
 const ui096c=setupUi096C({get:$,isRun:()=>Boolean(state.run)});
 const ui099=setupUi099({get:$,isRun:()=>Boolean(state.run)});
+const ui106a=setupUi106A({get:$,isRun:()=>Boolean(state.run)});
 $("floor-extract").addEventListener("click",()=>act(resolveFloorExit(state,"extract")));
 $("floor-descend").addEventListener("click",()=>{
   if(window.confirm("Descendre vers l'étage suivant ? Tes blessures et ton sac "+

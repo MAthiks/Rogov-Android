@@ -1,3 +1,4 @@
+import {finishInteractive106D} from "./art106d-finishes.js";
 // ART-091C — original 24 × 24 Sprite C assets for Nhal interactions.
 // Pure presentation; no randomness, browser APIs, remote images or game state.
 const svg=parts=>'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">'+parts+"</svg>";
@@ -232,11 +233,15 @@ export const INTERACTIVE_IDS=Object.freeze([
   "exit","hazard","secret_open",
   "site_atelier","site_echo","site_cache","site_camp","site_signal","site_reliquary","site_resolved"
 ]);
-export const INTERACTIVE_SVGS=Object.freeze({
+const BASE_INTERACTIVE_SVGS={
   door_open,door_closed,loot,chest_open,
   trap_clue,trap_revealed,trap_disabled,trap_triggered,
   exit,hazard,secret_open,site_atelier,site_echo,site_cache,site_camp,site_signal,site_reliquary,site_resolved
-});
+};
+export const INTERACTIVE_SVGS=Object.freeze(Object.fromEntries(
+  Object.entries(BASE_INTERACTIVE_SVGS).map(([id,source])=>
+    [id,finishInteractive106D(id,source)]))
+);
 export const INTERACTIVE_SPRITES=Object.freeze(Object.fromEntries(
   INTERACTIVE_IDS.map(id=>[id,URI+encodeURIComponent(INTERACTIVE_SVGS[id])])
 ));

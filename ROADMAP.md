@@ -1,3 +1,7 @@
+## UI/ART-106 — Refonte graphique haute fidélité Nhal (cadrage validé · 22/11/2026)
+
+**Objectif studio :** faire converger le **jeu réel** vers le screenshot utilisateur du 22/11/2026, sans simple maquette ni interface figée. Après QA-105 fusionné (PR #75), priorité à **UI/ART-106A — composition de Nhal** : bannière, ressources, cadre de la carte, alerte, onglets, D-pad, raccourcis et bouton Actions. Puis 106B matériaux, 106C carte/tiles, 106D sprites, 106E Veyr, 106F écrans secondaires, QA-106G Android. Sauvegardes, moteur, brouillard, PWA et APK inchangés. **Plan enregistré, code de la refonte non encore intégré.** [Plan directeur et critères de recette](docs/UIART106_VISUAL_TARGET_PLAN.md).
+
 ## UI-102 — Refuge de Veyr : nouveau tableau de bord (PR en validation)
 
 **Après GAME-101G fusionné (PR #68, `28a6937`) :** gros lot graphique/ergonomique concentré sur le refuge. Panorama existant revalorisé, résumé dynamique du coffre sécurisé, des Fragments et de la profondeur record, quatre grandes destinations tactiles, sélection d'équipement 0–8 unités avec remise à zéro purement locale, forge en cartes, fiche originale du personnage et Échos conservés, bouton de départ fixe et annoté sur Android. **Moteur, comportement du Rappel, ressources, 24×24 Sprite C, sauvegardes `rogov-web-v1` schéma 1, PWA hors ligne et gameplay Nhal inchangés.** Quatre CI Web/Android/APK à valider avant fusion, puis contrôle sur téléphone physique et QA esthétique. [Contrat et recette UI-102](docs/UI102_VEYR_REFUGE_HUB.md).

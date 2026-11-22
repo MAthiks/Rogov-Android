@@ -1,6 +1,6 @@
 /* UI/ART-106B — original, fully offline forged bronze / carved stone skin.
    Decoration is scoped to the playable Nhal cockpit; NO overlays on
-   #tile-map or .pixel-tile, no fake threats, no input changes or save writes. */
+   rendered dungeon cells, no fake threats, no input changes or save writes. */
 :root{
   --nhal106b-rim:#d7ae74;
   --nhal106b-rim-light:#f5ce91;

@@ -313,7 +313,7 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
       // the app itself is still alive. Forward the CURRENT PID, exactly as
       // we already do after the earlier intentional process restart.
       const currentPid=adb("shell","pidof","com.rogov.webapk");
-      assert.match(currentPid,/^\\d+$/,"Native WebView must remain alive offline");
+      assert.match(currentPid,/^[0-9]+$/,"Native WebView must remain alive offline");
       try{adb("forward","--remove","tcp:9223");}catch{/* Old tunnel closed. */}
       adb("forward","tcp:9223","localabstract:webview_devtools_remote_"+currentPid);
       dev=await connect();

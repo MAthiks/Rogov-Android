@@ -46,15 +46,8 @@ export function setupUi106A({get,doc=document,isRun}){
     // without a floorDepth deliberately says '—', never invents a level.
     get("nhal106-depth").textContent=get("floor-hud").hidden
       ?"—":get("floor-depth").textContent.trim();
-    for(const [source,dest] of [
-      ["health-meter","nhal106-hp-meter"],
-      ["endurance-meter","nhal106-end-meter"]
-    ]){
-      const original=get(source),display=get(dest);
-      display.max=original.max;
-      display.value=original.value;
-      display.setAttribute("aria-valuetext",original.value+" / "+original.max);
-    }
+    // The 106A resource plates now contain the ORIGINAL #health-meter and
+    // #endurance-meter updated by app.js. No duplicate progress controls.
     for(const button of proxies){
       const target=get(button.dataset.nhal106Proxy);
       button.disabled=Boolean(target.disabled);

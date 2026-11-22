@@ -79,8 +79,8 @@
   }
   .frame.is-expedition #nhal106-turn{font-variant-numeric:tabular-nums}
   .frame.is-expedition #jump-menu{
-    position:absolute;top:42px;left:12px;z-index:2;
-    min-width:73px;min-height:39px;padding:4px 6px;
+    position:absolute;top:36px;left:12px;z-index:2;
+    min-width:73px;min-height:44px;padding:4px 6px;
     background:linear-gradient(#2d3440,#101823);border:1px solid #b28a57;
     box-shadow:inset 0 1px #f5d5a744;color:#efddba;
     font:700 10px/1.15 Georgia,serif;
@@ -129,13 +129,14 @@
   /* 03 — The actual 11x11 map gets an architectural frame, not a screenshot
    * on top of the true dungeon or decorative content in hidden fog cells. */
   .frame.is-expedition #expedition .dungeon-wrap{
-    position:relative;isolation:isolate;
+    position:relative;
     padding:6px 5px 6px;margin:0 1px;
     border:2px ridge #bc955e;border-radius:8px;
     background:linear-gradient(125deg,#25303b,#0a1018 16%,#060a11 85%,#23252c);
     box-shadow:inset 0 0 0 2px #0a111a,inset 0 0 0 3px #d6a76a36,
       0 0 0 2px #04080c,0 8px 22px #000d;
-    overflow:hidden;
+    /* The real fixed D-pad and UI092 sheet are descendants: never clip. */
+    overflow:visible;
   }
   .frame.is-expedition #expedition .dungeon-wrap::before{
     content:"";position:absolute;inset:2px;pointer-events:none;

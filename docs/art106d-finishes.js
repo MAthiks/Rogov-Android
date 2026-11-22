@@ -122,8 +122,22 @@ export function finishEnemy106D(kind,source){
   if(!layer)throw new RangeError("Unknown enemy kind: "+kind);
   return add(source,layer);
 }
+// The screenshot's lethal fissure is green against charcoal stone. Recolor
+// ONLY the already-existing hazard artwork (no new hazard type or location).
+// This preserves every existing fracture path and revealed-state contract.
+const RIFT_PALETTE_106D=Object.freeze({
+  "#452532":"#173222","#c17b7c":"#568b39","#b65e69":"#64b93c",
+  "#f7b7aa":"#d7ff7e","#e58d84":"#99cb53","#cc817b":"#86bd48",
+  "#ffd0b5":"#e6ff9a","#f5a58f":"#b9e66a","#74404a":"#24442e"
+});
 export function finishInteractive106D(kind,source){
   // No new fictitious sprite: all non-polished types retain their exact art.
   const layer=OBJECT[kind];
-  return layer?add(source,layer):source;
+  if(!layer)return source;
+  let finishedSource=source;
+  if(kind==="hazard"){
+    for(const [from,to] of Object.entries(RIFT_PALETTE_106D))
+      finishedSource=finishedSource.split(from).join(to);
+  }
+  return add(finishedSource,layer);
 }

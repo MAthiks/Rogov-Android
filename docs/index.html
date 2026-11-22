@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="./art103b.css?v=1">
   <link rel="stylesheet" href="./art103c.css?v=1">
   <link rel="stylesheet" href="./art103d.css?v=1">
+  <link rel="stylesheet" href="./uiart106a.css?v=1">
   <!-- Critical responsive shell: renders correctly even if Chrome serves an older PWA stylesheet. -->
   <style id="title-critical-style">
     html,body{max-width:100%;overflow-x:hidden}
@@ -192,14 +193,35 @@
       </section>
 
       <section id="expedition" class="panel" hidden aria-labelledby="exp-title">
-        <div class="section-head"><span class="ui097-brand" aria-hidden="true">ROGOV</span><span class="eyebrow">02 — Territoire hostile</span><h2 id="exp-title">Profondeurs de Nhal</h2><button type="button" id="jump-menu" class="ui092-menu-toggle" aria-controls="options-panel" aria-expanded="false">☰ Menu</button></div>
+        <div class="section-head">
+          <span class="ui097-brand" aria-hidden="true">ROGOV</span>
+          <span class="eyebrow">02 — Territoire hostile</span>
+          <h2 id="exp-title">Profondeurs de Nhal</h2>
+          <span class="nhal106-location" aria-label="Étage actuel de Nhal">NHAL <span>· PROFONDEUR <strong id="nhal106-depth">1 / 3</strong></span></span>
+          <span class="nhal106-turn">TOUR <strong id="nhal106-turn">0</strong></span>
+          <button type="button" id="jump-menu" class="ui092-menu-toggle" aria-controls="options-panel" aria-expanded="false">☰ Menu</button>
+        </div>
+        <div class="nhal106-vitals" aria-label="Ressources de la descente">
+          <div class="nhal106-vital nhal106-health">
+            <span class="nhal106-glyph" aria-hidden="true"><svg viewBox="0 0 32 32"><path fill="#e84242" stroke="#792222" stroke-width="1.5" d="M16 29 3.8 17.2C-4 7.8 8.2-1.2 16 7.8c7.8-9 20-0 12.2 9.4z"/><path fill="#ff9b89" d="M5 12c0-5 6-7 9-4-5-1-7 1-9 4z"/></svg></span>
+            <div class="nhal106-vital-body"><span class="nhal106-vital-label">PV <strong id="nhal106-hp">12 / 12</strong></span><progress id="nhal106-hp-meter" max="12" value="12" aria-label="Points de vie"></progress></div>
+          </div>
+          <div class="nhal106-vital nhal106-endurance">
+            <span class="nhal106-glyph" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M19 1 5 17h9l-2 14 16-19H18z" fill="#f7b34e" stroke="#8d511d" stroke-width="1.4"/><path d="m19 4-9 11h7l-2 11 9-12h-9z" fill="#ffdf8c"/></svg></span>
+            <div class="nhal106-vital-body"><span class="nhal106-vital-label">END <strong id="nhal106-end">15 / 15</strong></span><progress id="nhal106-end-meter" max="15" value="15" aria-label="Endurance"></progress></div>
+          </div>
+          <div class="nhal106-vital nhal106-bag">
+            <span class="nhal106-glyph" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M11 6h10l2 5 5 4-2 14H6L4 15l5-4z" fill="#ad702c" stroke="#533518" stroke-width="1.4"/><path d="m10 12 2-4h8l2 4-6 6z" fill="#e0ab59"/><path d="M12 17h8v6h-8z" fill="#8d5727" stroke="#5e391b"/><path d="M14 18h4v3h-4z" fill="#f6d087"/></svg></span>
+            <span class="nhal106-vital-label"><strong id="nhal106-bag">0 / 8</strong></span>
+          </div>
+        </div>
         <div class="run-bar"><span>VIE <strong id="hp">12 / 12</strong></span><span>TOURS <strong id="turns">0</strong></span><span>SAC <strong id="bag-count">0 / 8</strong></span><span id="floor-hud" hidden>ÉTAGE <strong id="floor-depth">1 / 3</strong></span></div>
         <nav id="expedition-shortcuts" class="expedition-shortcuts" aria-label="Accès rapide aux éléments de l'expédition">
           <button type="button" id="jump-map" aria-controls="tile-map">Carte</button>
           <button type="button" id="jump-combat" aria-controls="combat-dock">Combat</button>
           <button type="button" id="jump-action" aria-controls="interaction-dock">À portée</button>
-          <button type="button" id="jump-report" aria-controls="expedition-report">Rapport</button>
           <button type="button" id="jump-bag" aria-controls="bag-panel">Sac</button>
+          <button type="button" id="jump-report" aria-controls="expedition-report">Rapport</button>
           <button type="button" id="jump-journal" aria-controls="history-details">Journal</button>
         </nav>
         <div class="survival-hud" aria-label="État de santé et danger">
@@ -240,7 +262,7 @@
               <button type="button" data-direction="up" class="up" aria-label="Monter">↑</button>
               <button type="button" id="listen-btn" class="listen" aria-label="Écouter les galeries : 2 points d’Endurance et un tour" title="Écouter · 2 END · 1 tour" disabled>◌<small>ÉCOUTER</small></button>
               <button type="button" data-direction="left" class="left" aria-label="Aller à gauche">←</button>
-              <button type="button" id="wait-btn" class="wait" aria-label="Attendre un tour">·<small>ATT.</small></button>
+              <button type="button" id="wait-btn" class="wait" aria-label="Attendre un tour"><span aria-hidden="true">⌛</span><small>Attendre</small></button>
               <button type="button" data-direction="right" class="right" aria-label="Aller à droite">→</button>
               <button type="button" data-direction="down" class="down" aria-label="Descendre">↓</button>
             </div>
@@ -249,6 +271,13 @@
               <button id="use-bandage" type="button" class="survival-action" disabled>Bandage +4 PV (0)</button>
               <button id="use-tonic" type="button" class="survival-action" disabled>Tonique +6 PV (0)</button>
               <small>Soigner ou attendre consomme 1 tour.</small>
+              <button id="nhal106-actions" class="nhal106-actions" type="button" aria-expanded="false" aria-controls="nhal106-action-menu"><span class="nhal106-gear" aria-hidden="true">⚙</span>Actions</button>
+              <div id="nhal106-action-menu" class="nhal106-action-menu" role="group" aria-label="Actions disponibles" hidden>
+                <button type="button" data-nhal106-proxy="jump-combat">⚔ Combat</button>
+                <button type="button" data-nhal106-proxy="jump-action">◎ À portée</button>
+                <button type="button" data-nhal106-proxy="listen-btn">◌ Écouter</button>
+                <button type="button" data-nhal106-proxy="jump-menu">☰ Options</button>
+              </div>
             </div>
           </div>
         </section>

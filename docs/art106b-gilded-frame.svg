@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" shape-rendering="crispEdges">
+<!-- UI/ART-106B original 24px nine-slice bronze and iron frame; transparent center. -->
+<path d="M1 24V1H24M72 1H95V24M95 72V95H72M24 95H1V72" fill="none" stroke="#1a1719" stroke-width="2"/>
+<path d="M3 24V3H24M72 3H93V24M93 72V93H72M24 93H3V72" fill="none" stroke="#cba16b" stroke-width="3"/>
+<path d="M8 24V8H24M72 8H88V24M88 72V88H72M24 88H8V72" fill="none" stroke="#382e2c" stroke-width="3"/>
+<path d="M1 27V69M95 27V69M27 1H69M27 95H69" stroke="#a78256" stroke-width="3"/>
+<path d="M5 27V69M91 27V69M27 5H69M27 91H69" stroke="#e0b479" stroke-width="1"/>
+<path d="M9 27V69M87 27V69M27 9H69M27 87H69" stroke="#323a43" stroke-width="2"/>
+<path d="M1 20 20 1l9 9-19 19ZM95 20 76 1l-9 9 19 19ZM1 76l19 19 9-9-19-19ZM95 76 76 95l-9-9 19-19Z" fill="#161c22" stroke="#a87b4f" stroke-width="2"/>
+<path d="M4 20 20 4l6 6-16 16ZM92 20 76 4l-6 6 16 16ZM4 76l16 16 6-6-16-16ZM92 76 76 92l-6-6 16-16Z" fill="#816044"/>
+<path d="M10 20 20 10l5 5-10 10ZM86 20 76 10l-5 5 10 10ZM10 76l10 10 5-5-10-10ZM86 76 76 86l-5-5 10-10Z" fill="#d0a878"/>
+<path d="M16 16h8v8h-8ZM72 16h8v8h-8ZM16 72h8v8h-8ZM72 72h8v8h-8Z" fill="#e9c58b"/>
+<path d="M18 18h4v4h-4ZM74 18h4v4h-4ZM18 74h4v4h-4ZM74 74h4v4h-4Z" fill="#4b3930"/>
+<path d="M43 1h10v4H43ZM43 91h10v4H43ZM1 43h4v10H1ZM91 43h4v10h-4Z" fill="#8e653f"/>
+<path d="M48 3 55 9 48 15 41 9ZM48 81l7 6-7 6-7-6ZM3 48l6-7 6 7-6 7ZM81 48l6-7 6 7-6 7Z" fill="#c69a63"/>
+<path d="m48 7 3 2-3 2-3-2Zm0 78 3 2-3 2-3-2ZM7 48l2-3 2 3-2 3Zm78 0 2-3 2 3-2 3Z" fill="#f3cf8f"/>
+</svg>

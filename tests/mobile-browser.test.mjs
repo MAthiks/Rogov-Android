@@ -5014,3 +5014,90 @@ test("ART-106D reference: ACTUAL deep Nhal 11×11 screenshots at screenshot-targ
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("UI/ART-106E: real deep Nhal camera fills Android view without covering controls", {timeout:95000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    const previous=newGame();
+    previous.meta.descents=1;
+    const deep=beginRun(previous,[],null,{multiFloor:true}).state;
+    assert.equal(validateSave(deep),true);
+    const saved=JSON.stringify(deep);
+    await mkdir("qa096-screenshots",{recursive:true});
+    await page.goto(origin);
+    await page.evaluate(value=>localStorage.setItem("rogov-web-v1",value),saved);
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    await page.locator("#expedition").waitFor({state:"visible"});
+    for(const [width,height] of [[320,640],[360,800],[393,704],[412,915]]){
+      await page.setViewportSize({width,height});
+      const audit=await page.evaluate(()=>{
+        const rect=id=>document.getElementById(id).getBoundingClientRect();
+        const tiles=[...document.querySelectorAll("#tile-map .pixel-tile")];
+        const tile=tiles[0].getBoundingClientRect();
+        const map=rect("tile-map"),dock=rect("field-controls"),actions=rect("nhal106-actions");
+        const wait=rect("wait-btn"),menu=rect("jump-menu");
+        return {
+          count:tiles.length,camera:document.getElementById("expedition").dataset.nhal106eCamera,
+          mapWidth:map.width,mapHeight:map.height,mapBottom:map.bottom,
+          dockTop:dock.top,dockBottom:dock.bottom,viewport:innerWidth,
+          scrollWidth:document.documentElement.scrollWidth,screenHeight:innerHeight,
+          tileSquare:Math.abs(tile.width-tile.height)<1.2,
+          actionTarget:actions.width>=44&&actions.height>=44,
+          waitTarget:wait.width>=44&&wait.height>=44,
+          menuTarget:menu.width>=44&&menu.height>=44,
+          css:getComputedStyle(document.getElementById("expedition")).backgroundImage.includes("art106e-cavern-bridge.svg"),
+          widthAssigned:document.getElementById("tile-map").style.getPropertyValue("--nhal106e-map-width")
+        };
+      });
+      assert.equal(audit.count,121);
+      assert.equal(audit.camera,"square");
+      assert.equal(audit.tileSquare,true,"No stretched 24px terrain "+JSON.stringify(audit));
+      assert.equal(audit.css,true,"Cavern backdrop must stay a non-interactive background");
+      assert.ok(audit.mapWidth>=170,"Map remains legible on narrow screens "+JSON.stringify(audit));
+      assert.ok(audit.mapWidth<=width+1,"Camera fits the handset width");
+      assert.ok(audit.scrollWidth<=audit.viewport+1,"No sideways scrolling "+JSON.stringify(audit));
+      assert.ok(Math.abs(audit.dockBottom-audit.screenHeight)<4,"Dock remains visible "+JSON.stringify(audit));
+      assert.equal(audit.actionTarget,true);
+      assert.equal(audit.waitTarget,true);
+      assert.equal(audit.menuTarget,true);
+      // The map itself must never be obscured by the fixed D-pad.
+      // Its bottom narration may remain scrollable on very short screens.
+      assert.ok(audit.mapBottom<=audit.dockTop+2,"Live tiles must not go below the dock "+JSON.stringify(audit));
+      await page.screenshot({path:"qa096-screenshots/qa106e-deep-11x11-"+width+"x"+height+".png"});
+    }
+    assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),saved);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("UI/ART-106E: wide tutorial camera stays 15x9 and never becomes distorted 11x11", {timeout:45000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage();
+    const tutorial=beginRun(newGame()).state;
+    assert.equal(validateSave(tutorial),true);
+    const saved=JSON.stringify(tutorial);
+    await page.goto(origin);
+    await page.evaluate(value=>localStorage.setItem("rogov-web-v1",value),saved);
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    for(const [width,height] of [[360,800],[412,915]]){
+      await page.setViewportSize({width,height});
+      const audit=await page.evaluate(()=>{
+        const map=document.getElementById("tile-map");
+        const cell=map.querySelector(".pixel-tile").getBoundingClientRect();
+        return {cells:map.children.length,camera:document.getElementById("expedition").dataset.nhal106eCamera,
+          width:map.getBoundingClientRect().width,square:Math.abs(cell.width-cell.height)<1.2,
+          overflow:document.documentElement.scrollWidth>innerWidth+1};
+      });
+      assert.deepEqual({cells:audit.cells,camera:audit.camera,square:audit.square,overflow:audit.overflow},
+        {cells:135,camera:"wide",square:true,overflow:false});
+      await page.screenshot({path:"qa096-screenshots/qa106e-tutorial-"+width+"x"+height+".png"});
+    }
+    assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),saved);
+  }finally{await context.close();}
+});

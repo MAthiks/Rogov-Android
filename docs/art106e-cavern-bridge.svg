@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="170" viewBox="0 0 400 170" shape-rendering="crispEdges">
+<!-- UI/ART-106E: atmospheric bridge below the live camera, never on cells. -->
+<defs><linearGradient id="fade" x2="0" y2="1"><stop stop-color="#070f18" stop-opacity="0"/><stop offset=".38" stop-color="#142635" stop-opacity=".45"/><stop offset="1" stop-color="#08111b"/></linearGradient></defs>
+<rect width="400" height="170" fill="url(#fade)"/>
+<path d="M0 143V116h9v-10h7V94h11v9h8v16h8v-11h12v-9h13v22h10v-14h11v-11h7v-7h11v17h14v14h9V96h12v-14h11v11h13v22h10v-8h14V90h11v-13h10v7h9v21h12v15h10V96h11v-9h13v17h10v-9h13V80h10v10h14v19h9v-13h12v-9h13v15h14v-8h10v17h7v-9h10v-7h8v17h10v-8h9v-11h12v-6h10v21h10v32z" fill="#142331" opacity=".72"/>
+<path d="M0 157V144h13v-9h9v-7h12v13h15v-7h14v15h11v-19h18v12h16v-14h12v-10h10v13h15v16h10v-11h13v-12h11v21h10v-11h14v-15h8v-11h9v8h14v17h12v-11h16v-13h12v-9h10v15h12v13h10v-10h11v-11h17v11h12v-5h11v-13h10v16h11v12h15v-14h11v-8h8v18h11v13z" fill="#0c1722"/>
+<path d="M27 104h1v12h-1ZM88 99h1v13h-1ZM182 85h1v18h-1ZM265 106h1v12h-1ZM348 90h1v14h-1Z" stroke="#aa865b" opacity=".34"/>
+<path d="M0 153h400M0 163h400" stroke="#755d40" stroke-width="1" opacity=".22"/>
+<path d="M150 162h100M165 159h70" stroke="#d8ab6a" opacity=".26"/>
+</svg>

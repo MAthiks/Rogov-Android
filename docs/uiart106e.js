@@ -47,7 +47,7 @@ export function setupUi106E({get,isRun,win=window}){
     const footer=Math.max(0,wrapRect.bottom-mapRect.bottom);
     const width=fitNhalMap106E({
       availableWidth:horizontal,mapTop:mapRect.top,dockTop:dockRect.top,
-      footerHeight:footer,columns,rows,safety:8
+      footerHeight:footer,columns,rows,safety:4
     });
     // On extremely short screens leave scrolling available rather than
     // shrinking real 44px controls or making the dungeon illegible.

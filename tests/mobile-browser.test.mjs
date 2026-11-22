@@ -5005,6 +5005,40 @@ test("ART-106D reference: ACTUAL deep Nhal 11×11 screenshots at screenshot-targ
       assert.equal(facts.unknownSafe,true);
       assert.equal(facts.horizontalOverflow,false);
       assert.equal(facts.turn,"0");
+      // UI/ART-106E: compare the REAL 11x11 layout, never the shorter 15x9
+      // tutorial, with the screenshot's 393x704 portrait ratio.
+      const ui106e=await page.evaluate(()=>{
+        const rect=id=>document.getElementById(id).getBoundingClientRect();
+        const menu=rect("jump-menu"),map=rect("tile-map");
+        const nav=rect("expedition-shortcuts"),dock=rect("field-controls");
+        const button=document.getElementById("jump-menu");
+        return {
+          stylesheet:[...document.styleSheets].some(sheet=>sheet.href?.includes("uiart106e.css?v=1")),
+          menuSize:[menu.width,menu.height],
+          menuGlyph:getComputedStyle(button,"::before").content,
+          mapSize:[map.width,map.height],
+          mapBottom:map.bottom,
+          navBottom:nav.bottom,dockTop:dock.top,
+          wallpaper:getComputedStyle(document.getElementById("expedition")).backgroundImage,
+          mapSquares:[...document.querySelectorAll("#tile-map .pixel-tile")].every(tile=>{
+            const r=tile.getBoundingClientRect();
+            return Math.abs(r.width-r.height)<=1.2;
+          })
+        };
+      });
+      assert.equal(ui106e.stylesheet,true);
+      assert.ok(ui106e.menuSize[0]>=44&&ui106e.menuSize[1]>=44);
+      assert.match(ui106e.menuGlyph,/☰/);
+      assert.ok(ui106e.mapSize[0]>=215);
+      assert.ok(ui106e.mapBottom<=ui106e.dockTop+2,
+        "Playable map must not be covered by the touch dock: "+JSON.stringify(ui106e));
+      assert.ok(ui106e.navBottom<=ui106e.dockTop+2,
+        "Six navigation shortcuts must stay above fixed controls: "+JSON.stringify(ui106e));
+      assert.equal(ui106e.mapSquares,true,"Cell geometry may not distort");
+      assert.match(ui106e.wallpaper,/art103b-nhal-ruins\\.svg/);
+      await page.screenshot({
+        path:"qa096-screenshots/qa106e-deep-11x11-"+width+"x"+height+".png"
+      });
       await page.screenshot({
         path:"qa096-screenshots/qa106d-deep-11x11-"+width+"x"+height+".png"
       });

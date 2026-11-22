@@ -1,0 +1,348 @@
+/* UI/ART-106A — Screenshot-faithful Nhal cockpit, LIVE gameplay only.
+ * Layout/material pass: not a raster screenshot overlaid on interactive tiles.
+ * The source 11×11 renderer, fog, commands and save state remain untouched. */
+:root{
+  --nhal106-void:#070b12;--nhal106-iron:#18212d;--nhal106-slate:#293542;
+  --nhal106-brass:#b88d53;--nhal106-gold:#efc783;--nhal106-ivory:#f4e6ca;
+  --nhal106-danger:#e65b53;--nhal106-amber:#e4a735;
+}
+.nhal106-location,.nhal106-turn,.nhal106-vitals,.nhal106-actions,.nhal106-action-menu{display:none}
+@media(max-width:730px){
+  .frame.is-expedition{background:var(--nhal106-void);color:var(--nhal106-ivory)}
+  .frame.is-expedition #expedition{
+    padding:4px 7px calc(var(--ui092-dock-height) + 30px);
+    background:
+      radial-gradient(ellipse at 50% 0%,#23404d65 0%,transparent 42%),
+      linear-gradient(180deg,#0b1520,#070d15 72%);
+  }
+  /* 01 — Midnight ruins / title / dynamically mirrored depth & turn. */
+  .frame.is-expedition #expedition>.section-head{
+    position:relative;display:grid;
+    grid-template-columns:minmax(72px,1fr) minmax(0,1.65fr) minmax(73px,.86fr);
+    align-items:start;gap:5px;min-height:83px;margin:0 0 7px;padding:10px 6px 5px 9px;
+    border:0;border-bottom:2px solid #b98d53;border-radius:0;
+    background:
+      linear-gradient(90deg,#060e18e8 0%,#0a17248a 42%,#09111b9c 100%),
+      url("./art103b-nhal-ruins.svg") center 35%/cover no-repeat;
+    box-shadow:inset 0 -1px #f3ce8e8a,0 4px 12px #000a;
+  }
+  .frame.is-expedition #expedition>.section-head::before{
+    content:"◆";position:absolute;top:0;left:0;
+    width:12px;height:47px;padding-top:7px;
+    color:#e8b474;text-align:center;font-size:11px;
+    background:linear-gradient(90deg,#521c20,#922e2d 55%,#431a20);
+    border:1px solid #bc6945;border-top:0;
+    clip-path:polygon(0 0,100% 0,100% 100%,50% 85%,0 100%);
+    pointer-events:none;
+  }
+  .frame.is-expedition #expedition>.section-head::after{
+    content:"◇";position:absolute;inset:auto auto -12px calc(50% - 9px);
+    width:18px;height:19px;display:grid;place-items:center;
+    border:0;color:#f3c47d;background:#0b1520;
+    font-size:19px;line-height:19px;text-shadow:0 1px #000;
+    pointer-events:none;
+  }
+  .frame.is-expedition .ui097-brand{
+    grid-column:1;grid-row:1;display:flex;align-items:center;gap:3px;
+    margin-left:9px;margin-top:2px;font:700 clamp(18px,5.8vw,28px)/1 Georgia,serif;
+    letter-spacing:-.02em;color:#fff0d5;white-space:nowrap;
+    text-shadow:0 2px 2px #000,0 0 12px #deb26948;
+  }
+  .frame.is-expedition .ui097-brand::before{
+    content:"❖";font:800 clamp(13px,4vw,21px)/1 Georgia,serif;
+    color:#c94437;text-shadow:0 1px #19070a;
+  }
+  /* Retain the original accessible H2; the LIVE floor label is in the
+   * screenshot-positioned location plate rather than fake static text. */
+  .frame.is-expedition #exp-title{
+    position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+  }
+  .frame.is-expedition .nhal106-location{
+    display:block;grid-column:2;grid-row:1;text-align:center;
+    align-self:center;min-width:0;margin-top:1px;color:#f3e4c8;
+    font:700 clamp(11px,3.18vw,16px)/1.22 Georgia,serif;
+    text-shadow:0 2px 3px #000;letter-spacing:.015em;
+  }
+  .frame.is-expedition .nhal106-location span{
+    display:block;color:#efbc75;font-size:clamp(11px,3.1vw,15px);
+  }
+  .frame.is-expedition .nhal106-turn{
+    display:flex;grid-column:3;grid-row:1;
+    flex-wrap:wrap;align-content:center;justify-content:center;
+    gap:2px;min-width:0;min-height:43px;margin-top:1px;padding:4px 3px;
+    border:2px ridge #e0b16d;border-radius:5px;
+    color:#fbe9ca;background:linear-gradient(165deg,#31313b,#0a1019 68%);
+    box-shadow:inset 0 0 0 1px #513e2c,0 3px 8px #000b;
+    font:700 clamp(10px,2.8vw,13px)/1.25 Georgia,serif;
+    text-shadow:0 2px #000;
+  }
+  .frame.is-expedition #nhal106-turn{font-variant-numeric:tabular-nums}
+  .frame.is-expedition #jump-menu{
+    position:absolute;top:36px;left:12px;z-index:2;
+    min-width:73px;min-height:44px;padding:4px 6px;
+    background:linear-gradient(#2d3440,#101823);border:1px solid #b28a57;
+    box-shadow:inset 0 1px #f5d5a744;color:#efddba;
+    font:700 10px/1.15 Georgia,serif;
+  }
+  /* 02 — Three independent engraved resource plates, all live values. */
+  .frame.is-expedition #expedition .run-bar,
+  .frame.is-expedition #expedition .survival-hud{display:none!important}
+  .frame.is-expedition .nhal106-vitals{
+    display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.1fr) minmax(0,.68fr);
+    gap:5px;margin:3px 1px 10px;
+  }
+  .frame.is-expedition .nhal106-vital{
+    min-width:0;display:flex;align-items:center;gap:5px;
+    min-height:52px;padding:5px 6px;
+    border:2px ridge #c49c65;border-radius:6px;
+    background:linear-gradient(154deg,#2b3540 0%,#141c26 47%,#090f16 100%);
+    box-shadow:inset 0 1px #f3d1977d,inset 0 -2px #05080c,0 4px 8px #0009;
+    color:var(--nhal106-ivory);
+  }
+  .frame.is-expedition .nhal106-glyph{
+    width:25px;min-width:25px;height:28px;display:grid;place-items:center;
+  }
+  .frame.is-expedition .nhal106-glyph svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 2px 1px #000)}
+  .frame.is-expedition .nhal106-vital-body{flex:1;min-width:0}
+  .frame.is-expedition .nhal106-vital-label{
+    display:flex;flex-wrap:wrap;align-items:baseline;gap:3px;
+    white-space:nowrap;color:#f7ead2;
+    font:700 clamp(10px,3.1vw,15px)/1.15 Georgia,serif;
+  }
+  .frame.is-expedition .nhal106-vital-label strong{font:inherit;font-variant-numeric:tabular-nums}
+  .frame.is-expedition .nhal106-vital progress{
+    appearance:none;display:block;width:100%;height:8px;min-height:8px;
+    margin:6px 0 0;overflow:hidden;background:#080d13;
+    border:1px solid #7c7265;border-radius:3px;
+  }
+  /* The original engine-managed progress elements live in these plates.
+   * Override the older #health-meter/#endurance-meter row selectors. */
+  .frame.is-expedition #expedition .nhal106-vital #health-meter,
+  .frame.is-expedition #expedition .nhal106-vital #endurance-meter{
+    display:block;width:100%;height:8px;min-height:8px;
+    grid-column:auto;grid-row:auto;margin:6px 0 0;
+  }
+  .frame.is-expedition .nhal106-vital progress::-webkit-progress-bar{background:#080d13}
+  .frame.is-expedition .nhal106-health progress::-webkit-progress-value{background:linear-gradient(90deg,#9a171f,#f14d47)}
+  .frame.is-expedition .nhal106-endurance progress::-webkit-progress-value{background:linear-gradient(90deg,#ad6a18,#f8bb4e)}
+  .frame.is-expedition .nhal106-health progress::-moz-progress-bar{background:#d73534}
+  .frame.is-expedition .nhal106-endurance progress::-moz-progress-bar{background:#e9a237}
+  .frame.is-expedition .nhal106-bag{
+    justify-content:center;gap:2px;
+  }
+  .frame.is-expedition .nhal106-bag .nhal106-glyph{width:23px;min-width:23px}
+  .frame.is-expedition .nhal106-bag .nhal106-vital-label{justify-content:center}
+  /* 03 — The actual 11x11 map gets an architectural frame, not a screenshot
+   * on top of the true dungeon or decorative content in hidden fog cells. */
+  .frame.is-expedition #expedition .dungeon-wrap{
+    position:relative;
+    padding:6px 5px 6px;margin:0 1px;
+    border:2px ridge #bc955e;border-radius:8px;
+    background:linear-gradient(125deg,#25303b,#0a1018 16%,#060a11 85%,#23252c);
+    box-shadow:inset 0 0 0 2px #0a111a,inset 0 0 0 3px #d6a76a36,
+      0 0 0 2px #04080c,0 8px 22px #000d;
+    /* The real fixed D-pad and UI092 sheet are descendants: never clip. */
+    overflow:visible;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap::before{
+    content:"";position:absolute;inset:2px;pointer-events:none;
+    border:1px solid #d9af7555;border-radius:4px;z-index:0;
+  }
+  /* Never set position on direct children: #field-controls is viewport-fixed. */
+  .frame.is-expedition #expedition .render-controls{
+    display:flex;align-items:center;gap:6px;
+    min-height:24px;max-width:540px;margin:0 auto;padding:0 4px 4px;
+  }
+  .frame.is-expedition #expedition .render-controls #mission-compact{
+    color:#d9bf8e;font:700 9px/1.2 system-ui,sans-serif;
+  }
+  .frame.is-expedition #expedition #renderer-toggle{
+    min-height:29px;padding:4px 6px;
+    background:#172331;color:#d8c5a0;
+    border-color:#847050;font:700 10px/1.1 system-ui,sans-serif;
+  }
+  .frame.is-expedition #expedition .pixel-map{
+    width:min(100%,calc(100dvh - 388px),540px);
+    max-width:100%;border:1px solid #a88958;
+    border-radius:2px;background:#0b1119;
+    box-shadow:0 0 0 3px #060a10,0 0 0 4px #a683536b,0 5px 15px #000a;
+    image-rendering:pixelated;
+  }
+  .frame.is-expedition #expedition #dungeon-map{
+    max-width:100%;margin-inline:auto;color:#d0d0c8;
+  }
+  /* 04 — On-screen warning only if the existing visible forecast requires it. */
+  .frame.is-expedition #expedition .dungeon-wrap>#ui096-threat-banner{
+    display:flex;align-items:center;gap:6px;
+    min-height:37px;margin:8px 3px 5px;padding:5px 8px;
+    border:1px solid #9e5550;border-left:3px solid #e26b5c;border-radius:5px;
+    background:linear-gradient(90deg,#491f24,#2d1d23 65%,#261519);
+    color:#ffe8d4;font:700 clamp(10px,2.7vw,13px)/1.3 Georgia,serif;
+    box-shadow:inset 0 1px #e6856550,0 3px 6px #0009;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>#ui096-threat-banner::before{
+    content:"⚠";font:900 21px/1 system-ui,sans-serif;color:#ff7665;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>#ui096-threat-banner[hidden]{display:none!important}
+  /* 05 — Engraved six-button navigation; the exact existing buttons retain
+   * their UI092 handlers and accessibility attributes. */
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts{
+    display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
+    gap:3px;max-width:100%;margin:6px 1px 3px;padding:2px;
+    border:0;background:transparent;box-shadow:none;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button{
+    min-height:53px;min-width:0;max-width:100%;gap:2px;padding:5px 1px 3px;
+    border:2px ridge #9e8868;border-radius:6px;
+    background:linear-gradient(147deg,#384350,#1b2734 62%,#101722);
+    box-shadow:inset 0 1px #ffe4ae55,inset 0 -2px #050b13,0 3px 5px #0009;
+    color:#f2e5cd;font:700 clamp(9px,2.55vw,12px)/1.1 Georgia,serif;
+    text-shadow:0 1px #000;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button::before{
+    font-size:18px;color:#e7c58d;line-height:19px;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button.is-active,
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts:not(:has(button.is-active)) #jump-map{
+    border-color:#f4bf69;
+    background:linear-gradient(150deg,#614022,#2f241b 62%,#161b22);
+    box-shadow:inset 0 1px #fff0bd9a,0 0 11px #f3a84755,0 3px 5px #0009;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button:disabled{
+    opacity:.59;filter:none;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>.ui099-feedback{
+    min-height:24px;margin:3px 2px 1px;padding:4px 7px;
+    background:#111c29;border:1px solid #665842;color:#ead7b5;
+  }
+  /* 06 — Playable, raised stone D-pad + actual healing shortcuts + Actions.
+   * The dock remains fixed in Android, and the existing bottom sheet is still
+   * measured against its REAL rendered height by UI092. */
+  .frame.is-expedition #field-controls{
+    z-index:75;width:min(100%,480px);
+    padding:8px 7px calc(7px + env(safe-area-inset-bottom));
+    border:1px solid #ba925d;border-bottom:0;border-radius:9px 9px 0 0;
+    background:
+      radial-gradient(ellipse at 45% 0%,#283c46 0%,transparent 62%),
+      linear-gradient(140deg,#0d1722,#080f1a);
+    box-shadow:inset 0 2px #d5a86c73,0 -5px 18px #000e;
+  }
+  .frame.is-expedition #field-controls .field-controls-row{
+    grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
+    gap:8px;align-items:stretch;
+  }
+  .frame.is-expedition #field-controls .dpad{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-rows:repeat(3,44px);gap:2px;
+    width:100%;max-width:188px;margin:auto;
+    padding:0;
+  }
+  .frame.is-expedition #field-controls .dpad button{
+    min-width:0;min-height:44px;padding:0;border:2px ridge #af926c;border-radius:6px;
+    background:linear-gradient(145deg,#45505f,#222d3b 62%,#151e2b);
+    color:#f4dfbc;font:800 21px/1 Georgia,serif;
+    box-shadow:inset 0 1px #eed3a65c,0 3px 5px #0009;
+    text-shadow:0 1px 1px #000;
+    touch-action:manipulation;
+  }
+  .frame.is-expedition #field-controls .dpad .listen{
+    grid-column:3;grid-row:1;font-size:17px;
+    background:linear-gradient(#34403e,#171e28);
+  }
+  .frame.is-expedition #field-controls .dpad .listen small{
+    font:700 7px/1.1 system-ui,sans-serif;color:#ebd2a8;
+  }
+  .frame.is-expedition #field-controls .dpad .wait{
+    border-radius:50%;border-color:#e4b973;
+    background:radial-gradient(circle at 35% 24%,#3c3c3a,#1b2530 68%);
+    box-shadow:inset 0 0 0 2px #7c6035,0 2px 6px #000a;
+    color:#f7dfae;font-size:15px;
+  }
+  .frame.is-expedition #field-controls .dpad .wait small{
+    font:800 8px/1.05 Georgia,serif;letter-spacing:0;
+  }
+  .frame.is-expedition #field-controls .field-quick-actions{
+    position:relative;display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:minmax(55px,auto) minmax(58px,auto);
+    align-items:stretch;gap:6px;
+    min-width:0;
+  }
+  .frame.is-expedition #field-controls .field-quick-label,
+  .frame.is-expedition #field-controls .field-quick-actions>small{display:none}
+  .frame.is-expedition #field-controls .field-quick-actions>button{
+    min-height:55px;min-width:0;min-height:44px;margin:0;padding:5px 2px;
+    border:2px ridge #a78e6b;border-radius:6px;
+    background:linear-gradient(150deg,#35404a,#141f2b);
+    color:#f4e4c9;font:700 clamp(9px,2.6vw,12px)/1.22 Georgia,serif;
+    box-shadow:inset 0 1px #f8d7a756,0 4px 5px #0009;
+  }
+  .frame.is-expedition #field-controls #use-bandage::before{
+    content:"✚";display:block;margin-bottom:2px;
+    color:#e3bbaa;font:900 21px/1 Georgia,serif;
+    text-shadow:0 1px #000;
+  }
+  .frame.is-expedition #field-controls #use-tonic::before{
+    content:"⚗";display:block;margin-bottom:2px;
+    color:#f4af48;font:900 21px/1 Georgia,serif;
+  }
+  .frame.is-expedition #field-controls #nhal106-actions{
+    display:flex;grid-column:1/-1;grid-row:2;
+    align-items:center;justify-content:center;gap:10px;
+    min-height:58px;border:2px ridge #f6bc63;border-radius:7px;
+    color:#fff1d3;background:linear-gradient(160deg,#664524,#352718 60%,#251c16);
+    font:700 clamp(19px,5vw,26px)/1 Georgia,serif;
+    box-shadow:inset 0 1px #ffe3aa8a,0 0 14px #e7a03b55,0 4px 7px #0009;
+    text-shadow:0 2px 2px #000d;
+  }
+  .frame.is-expedition #nhal106-actions .nhal106-gear{font-size:27px;color:#f9ca79}
+  .frame.is-expedition #nhal106-actions[aria-expanded="true"]{
+    background:linear-gradient(#8b5a2d,#39281b);border-color:#ffdb94;
+  }
+  .frame.is-expedition #field-controls .nhal106-action-menu{
+    position:absolute;z-index:86;right:0;bottom:calc(100% + 7px);
+    display:grid;grid-template-columns:1fr 1fr;gap:6px;
+    width:min(315px,calc(100vw - 26px));padding:9px;
+    border:2px ridge #deb172;border-radius:9px;
+    background:linear-gradient(165deg,#303b48,#0b1420);
+    box-shadow:0 6px 26px #000e,inset 0 1px #efc78d66;
+  }
+  .frame.is-expedition #field-controls .nhal106-action-menu[hidden]{display:none!important}
+  /* A hidden parent alone leaves CSS display=block on its children.
+   * QA hit-target enumeration must not count invisible proxy buttons. */
+  .frame.is-expedition #field-controls .nhal106-action-menu[hidden] button{display:none!important}
+  .frame.is-expedition #field-controls .nhal106-action-menu button{
+    min-height:48px;border:1px solid #a78a60;border-radius:5px;
+    background:#1c2b39;color:#f4e5c7;font:700 12px/1.25 Georgia,serif;
+  }
+  .frame.is-expedition #field-controls .nhal106-action-menu button:disabled{opacity:.52}
+  .frame.is-expedition #field-controls button:focus-visible,
+  .frame.is-expedition #expedition .expedition-shortcuts button:focus-visible{
+    outline:2px solid #fff1c5;outline-offset:2px;
+  }
+}
+/* Do not sacrifice touch targets on 320px screens. Keep the map as large as
+ * possible without putting it behind the fixed controller on short phones. */
+@media(max-width:350px){
+  .frame.is-expedition #expedition{padding-inline:5px}
+  .frame.is-expedition #expedition>.section-head{grid-template-columns:69px minmax(0,1.3fr) 70px}
+  .frame.is-expedition .nhal106-vitals{gap:3px}
+  .frame.is-expedition .nhal106-vital{gap:2px;padding:4px 3px}
+  .frame.is-expedition .nhal106-glyph{width:18px;min-width:18px}
+  .frame.is-expedition .nhal106-vital-label{font-size:10px}
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button{font-size:9px}
+  .frame.is-expedition #field-controls .field-controls-row{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:4px}
+  .frame.is-expedition #field-controls .dpad{grid-template-rows:repeat(3,44px);gap:1px}
+  .frame.is-expedition #field-controls #nhal106-actions{font-size:19px}
+}
+@media(max-width:730px) and (max-height:760px){
+  .frame.is-expedition #expedition>.section-head{min-height:72px;padding-top:7px}
+  .frame.is-expedition #expedition .pixel-map{width:min(100%,calc(100dvh - 395px),540px)}
+  .frame.is-expedition .nhal106-vitals{margin-bottom:7px}
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button{min-height:47px}
+}
+@media(prefers-reduced-motion:reduce){
+  .frame.is-expedition #field-controls button,
+  .frame.is-expedition #expedition .expedition-shortcuts button{transition:none;animation:none}
+}

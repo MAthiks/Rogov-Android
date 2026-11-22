@@ -3862,7 +3862,7 @@ test("QA-097 Android acceptance: actual hit centers, fog-safe redraw budget and 
       assert.equal(outcome.enemyLeak,0,"No hostile/intent leak at "+label);
       assert.equal(outcome.saveUnchanged,true,"No writes to saved game at "+label);
       assert.equal(outcome.turnsUnchanged,true,"Rendering spends no turns at "+label);
-      assert.ok(outcome.controls.length===14,"Six shortcuts, five movement controls + listening, two quick items: "+label);
+      assert.ok(outcome.controls.length===15,"Six shortcuts, six D-pad controls, two quick items and the new Actions button: "+label);
       assert.ok(outcome.controls.every(x=>x.w>=44&&x.h>=44),
         "All existing targets remain >=44x44 CSS px at "+label+": "+JSON.stringify(outcome.controls));
       assert.ok(outcome.controls.every(x=>x.inViewport&&x.hit),
@@ -4849,6 +4849,29 @@ test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved re
       assert.ok(geometry.waitHeight>=44&&geometry.waitWidth>=44,
         "The turn-consuming wait button must stay finger-sized");
       await page.screenshot({path:"qa096-screenshots/qa105-nhal-"+width+".png"});
+
+      // UI/ART-106A: the screenshot-targeted cockpit must show REAL values,
+      // not static numbers from the artwork; opening Actions is turn-free.
+      assert.equal(await page.locator("#nhal106-hp").textContent(),
+        await page.locator("#hp").textContent());
+      assert.equal(await page.locator("#nhal106-end").textContent(),
+        await page.locator("#endurance-state").textContent());
+      assert.equal(await page.locator("#nhal106-bag").textContent(),
+        await page.locator("#bag-count").textContent());
+      assert.equal(await page.locator("#nhal106-turn").textContent(),"0");
+      const actionPlate=await page.locator("#nhal106-actions").boundingBox();
+      assert.ok(actionPlate&&actionPlate.height>=44&&actionPlate.width>=44,
+        "The screenshot Actions plaque must remain a true touch target");
+      await page.screenshot({path:"qa096-screenshots/qa106a-nhal-"+width+".png"});
+      await page.locator("#nhal106-actions").tap();
+      assert.equal(await page.locator("#nhal106-action-menu").isVisible(),true);
+      await page.locator('[data-nhal106-proxy="jump-menu"]').tap();
+      assert.equal(await page.locator("#ui092-sheet").isVisible(),true,
+        "Actions must open the existing options sheet, not a fake menu");
+      await page.locator("#ui092-sheet-close").tap();
+      assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+      assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),expeditionSave,
+        "Nhal cockpit navigation must never consume a turn or alter the save");
 
       await page.locator("#jump-bag").tap();
       assert.equal(await page.locator("#ui092-sheet").isVisible(),true);

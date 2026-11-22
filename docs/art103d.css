@@ -316,12 +316,12 @@
   display:none;
 }
 .frame #actor-stats-sheet .actor103d-explain>summary::after{
-  content:"＋";
+  content:"+";
   font:700 17px/1 ui-monospace,monospace;
   color:#f0cf98;
 }
 .frame #actor-stats-sheet .actor103d-explain[open]>summary::after{
-  content:"−";
+  content:"-";
 }
 .frame #actor-stats-sheet .actor103d-explain>summary:focus-visible{
   outline:2px solid #ffe1a6;

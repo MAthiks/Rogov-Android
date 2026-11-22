@@ -5101,3 +5101,122 @@ test("UI/ART-106E: wide tutorial camera stays 15x9 and never becomes distorted 1
     assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),saved);
   }finally{await context.close();}
 });
+
+
+test("UI/ART-106F mobile: actual bag, Journal and one original character sheet stay usable above D-pad", {timeout:95000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    const hero=newGame();
+    hero.meta.descents=1;
+    const expedition=beginRun(hero,[],null,{multiFloor:true}).state;
+    assert.equal(validateSave(expedition),true);
+    const saved=JSON.stringify(expedition);
+    await mkdir("qa096-screenshots",{recursive:true});
+    await page.goto(origin);
+    await page.evaluate(s=>localStorage.setItem("rogov-web-v1",s),saved);
+    await page.reload();
+    await page.locator("#title-continue").tap();
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
+    for(const [width,height] of [[320,640],[360,800],[393,704],[412,915]]){
+      await page.setViewportSize({width,height});
+      for(const [action,panel,file] of [
+        ["jump-bag","bag-panel","bag"],
+        ["jump-journal","history-details","journal"],
+        ["jump-menu","options-panel","character"]
+      ]){
+        await page.locator("#"+action).tap();
+        const ui=await page.evaluate(({action,panel})=>{
+          const rect=id=>document.getElementById(id).getBoundingClientRect();
+          const sheet=document.getElementById("ui092-sheet");
+          const panelNode=document.getElementById(panel);
+          const header=rect("ui092-sheet-title"),close=rect("ui092-sheet-close");
+          const sheetRect=rect("ui092-sheet"),dock=rect("field-controls");
+          return {open:!sheet.hidden,kind:sheet.dataset.panel,
+            mounted:panelNode.parentElement.id==="ui092-sheet-body",
+            panelVisible:!!panelNode.getClientRects().length,
+            headerVisible:header.width>70&&header.height>13,
+            closeTouch:close.width>=44&&close.height>=44,
+            separated:sheetRect.bottom<=dock.top+2,
+            withinView:sheetRect.top>=0,
+            narrow:document.documentElement.scrollWidth<=innerWidth+1,
+            bg:getComputedStyle(sheet).backgroundImage.includes("gradient"),
+            actionExpanded:document.getElementById(action).getAttribute("aria-expanded")==="true"
+          };
+        },{action,panel});
+        assert.equal(ui.open,true,JSON.stringify(ui));
+        assert.equal(ui.kind,action);
+        for(const field of ["mounted","panelVisible","headerVisible","closeTouch",
+          "separated","withinView","narrow","bg","actionExpanded"])
+          assert.equal(ui[field],true,field+" for "+action+" "+width+"x"+height+" "+JSON.stringify(ui));
+        if(action==="jump-bag"){
+          assert.equal(await page.locator("#ui092-sheet-body #bag-equipped .art103c-slot").count(),4);
+          assert.equal(await page.locator("#ui092-sheet-body #bag-meter").count(),1);
+        }
+        if(action==="jump-journal"){
+          assert.equal(await page.locator("#ui092-sheet-body #journal").count(),1);
+        }
+        if(action==="jump-menu"){
+          assert.equal(await page.locator("#ui092-sheet-body #actor-stats-sheet").count(),1);
+          await page.locator("#actor-stats-sheet > summary").tap();
+          assert.equal(await page.locator("#actor103d-portrait").isVisible(),true);
+          assert.equal(await page.locator("#actor-stat-values").isVisible(),true);
+        }
+        await page.screenshot({path:"qa096-screenshots/qa106f-"+file+"-"+width+"x"+height+".png"});
+        await page.locator("#ui092-sheet-close").tap();
+        assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
+        assert.equal(await page.locator("#ui092-sheet").getAttribute("data-panel"),null);
+      }
+    }
+    const after=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+    assert.equal(after,saved,"Viewing and closing real panels must not cost turns or mutate save");
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});
+
+test("UI/ART-106F mobile: authentic tactical target remains actionable in forged combat sheet", {timeout:65000},async()=>{
+  const context=await mobileContext();
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    await page.goto(origin);
+    await page.evaluate(async()=>{
+      const game=await import("./game.js"),fog=await import("./exploration-visibility.js");
+      const base=game.newGame();base.meta.descents=1;
+      const state=game.beginRun(base).state,foe=state.run.enemies[0];
+      const adjacent=[[1,0],[-1,0],[0,1],[0,-1]]
+        .map(([dx,dy])=>({x:foe.x+dx,y:foe.y+dy}))
+        .find(p=>state.run.map[p.y]?.[p.x]==="." &&
+          !state.run.enemies.some(e=>e.x===p.x&&e.y===p.y));
+      if(!adjacent)throw Error("No legal tactical start");
+      state.run.x=adjacent.x;state.run.y=adjacent.y;
+      state.run.enemies=[foe];fog.revealAround(state.run);
+      if(!game.validateSave(state))throw Error("Invalid tactical fixture");
+      localStorage.setItem(game.SAVE_KEY,JSON.stringify(state));
+    });
+    await page.reload();await page.locator("#title-continue").tap();
+    await page.locator("#jump-combat").tap();
+    assert.equal(await page.locator("#ui092-sheet").getAttribute("data-panel"),"jump-combat");
+    assert.equal(await page.locator("#ui092-sheet-body #combat-dock").count(),1);
+    await page.locator("#target-choices button").first().tap();
+    assert.equal(await page.locator("#combat-panel").isVisible(),true);
+    const audit=await page.evaluate(()=>{
+      const c=document.getElementById("combat-attack").getBoundingClientRect();
+      const dodge=document.getElementById("combat-dodge").getBoundingClientRect();
+      const close=document.getElementById("ui092-sheet-close").getBoundingClientRect();
+      return {attack:c.height>=44,dodge:dodge.height>=44,close:close.height>=44,
+        intent:document.getElementById("combat-intent").textContent.trim().length>0,
+        target:document.getElementById("combat-target-name").textContent.trim().length>0};
+    });
+    assert.deepEqual(audit,{attack:true,dodge:true,close:true,intent:true,target:true});
+    await page.screenshot({path:"qa096-screenshots/qa106f-combat-360x780.png"});
+    assert.equal(await page.locator("#turns").textContent(),"0");
+    await page.locator("#combat-dodge").tap();
+    assert.equal(await page.locator("#turns").textContent(),"1");
+    await page.locator("#ui092-sheet-close").tap();
+    assert.equal(await page.locator("#combat-dock").count(),1);
+    assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+});

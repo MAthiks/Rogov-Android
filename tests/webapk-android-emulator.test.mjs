@@ -309,6 +309,13 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
       if(!/CDP startup or command timed out|CDP WebSocket closed/i.test(String(error)))
         throw error;
       try{dev.close();}catch{/* Stale debugger target already closed. */}
+      // Native reloads may recreate WebView's devtools Unix socket even if
+      // the app itself is still alive. Forward the CURRENT PID, exactly as
+      // we already do after the earlier intentional process restart.
+      const currentPid=adb("shell","pidof","com.rogov.webapk");
+      assert.match(currentPid,/^\\d+$/,"Native WebView must remain alive offline");
+      try{adb("forward","--remove","tcp:9223");}catch{/* Old tunnel closed. */}
+      adb("forward","tcp:9223","localabstract:webview_devtools_remote_"+currentPid);
       dev=await connect();
       await until(dev,offlineReady,isTrue,30000);
     }

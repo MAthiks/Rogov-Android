@@ -4973,8 +4973,9 @@ test("ART-106D reference: ACTUAL deep Nhal 11×11 screenshots at screenshot-targ
     // unexplored room disclosure is permitted in this reference capture.
     const previous=newGame();
     previous.meta.descents=1;
-    const deep=beginRun(previous).state;
+    const deep=beginRun(previous,[],null,{multiFloor:true}).state;
     assert.equal(validateSave(deep),true);
+    assert.equal(deep.run.floorDepth,1,"Multi-floor option must generate a real floor-depth HUD");
     const saved=JSON.stringify(deep);
     await mkdir("qa096-screenshots",{recursive:true});
     await page.goto(origin);

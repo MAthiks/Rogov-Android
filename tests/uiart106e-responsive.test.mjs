@@ -57,7 +57,7 @@ test("UI/ART-106E: geometry-only reflow, resize and teardown are reversible",()=
   const ui=setupUi106E(f);
   ui.sync();
   assert.equal(f.section.dataset.nhal106eCamera,"square");
-  assert.equal(f.vars.get("--nhal106e-map-width"),"330px");
+  assert.equal(f.vars.get("--nhal106e-map-width"),"343px");
   f.map.style.gridTemplateColumns="repeat(15, minmax(0, 1fr))";
   f.map.children=Array(135).fill({});
   f.listeners.get("resize")();

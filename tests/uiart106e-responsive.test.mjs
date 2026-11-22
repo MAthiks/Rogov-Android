@@ -92,6 +92,28 @@ test("UI/ART-106F: compact 320x640 viewport reserves extra real footer clearance
   ui.dispose();
 });
 
+test("QA-106F: real six-button nav outranks unrelated in-flow secondary panels",()=>{
+  const f=mockFixture();
+  f.win.innerWidth=320;
+  f.win.innerHeight=640;
+  // On narrow Android the dungeon-wrap contains the report, combat and
+  // inventory nodes after the shortcuts. Its bottom is NOT their usable
+  // camera footer; all six buttons must remain visible above the fixed dock.
+  f.map.closest=()=>({getBoundingClientRect:()=>({
+    left:4,right:389,width:385,bottom:950
+  })});
+  const originalGet=f.get;
+  f.get=id=>id==="expedition-shortcuts"?{
+    getBoundingClientRect:()=>({top:508,bottom:554,width:300,height:46})
+  }:originalGet(id);
+  const ui=setupUi106E(f);
+  ui.sync();
+  assert.equal(f.section.dataset.nhal106eCamera,"square");
+  assert.equal(f.vars.get("--nhal106e-map-width"),"322px",
+    "Camera must account for the real 46px nav, not the deep document footer");
+  ui.dispose();
+});
+
 test("UI/ART-106E: stylesheet and offline bridge cannot change engine tiles",()=>{
   const html=read("docs/index.html"),css=read("docs/uiart106e.css");
   const app=read("docs/app.js"),sw=read("docs/sw.js");

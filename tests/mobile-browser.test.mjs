@@ -4896,6 +4896,32 @@ test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved re
         noUnknownBackground:true,noHiddenSconces:true
       },"ART-106C real tile atlas must be visible and FOV-safe");
       await page.screenshot({path:"qa096-screenshots/qa106c-nhal-"+width+".png"});
+      // ART-106D: inspect the shipped LIVE atlas. All assets and actor IDs
+      // remain the engine's real classes; no additional entity tiles appear.
+      const spriteQA=await page.evaluate(async()=>{
+        const [{TILE_SPRITES},{HERO_SVGS},{ENEMY_SVGS},{INTERACTIVE_SVGS}]=
+          await Promise.all([import("./tiles.js"),import("./hero-art.js"),
+            import("./enemy-art.js"),import("./interaction-art.js")]);
+        const hero=document.querySelector('#tile-map .pixel-tile[data-knowledge="visible"].tile-hero img');
+        const unknown=[...document.querySelectorAll('#tile-map .pixel-tile[data-knowledge="unknown"]')];
+        return {
+          hood:Object.values(HERO_SVGS).every(svg=>svg.includes("art106d-hooded-")),
+          enemies:Object.values(ENEMY_SVGS).every(svg=>svg.includes("art106d-")),
+          guardianEyes:ENEMY_SVGS.guardian.includes("art106d-guardian-red-eyes"),
+          toxicRift:INTERACTIVE_SVGS.hazard.includes("art106d-sickly-green-rift"),
+          cyanArch:INTERACTIVE_SVGS.exit.includes("art106d-arch-cyan-keystone"),
+          goldChest:INTERACTIVE_SVGS.loot.includes("art106d-sealed-gold-chest"),
+          liveHero:hero?.src===TILE_SPRITES.hero,
+          noUnknownSprites:unknown.every(cell=>!cell.querySelector("img")),
+          unchangedTileCount:document.querySelectorAll("#tile-map .pixel-tile").length===121
+        };
+      });
+      assert.deepEqual(spriteQA,{
+        hood:true,enemies:true,guardianEyes:true,toxicRift:true,
+        cyanArch:true,goldChest:true,liveHero:true,noUnknownSprites:true,
+        unchangedTileCount:true
+      },"ART-106D sprites must remain live 24px assets and fog-safe");
+      await page.screenshot({path:"qa096-screenshots/qa106d-nhal-"+width+".png"});
       await page.locator("#nhal106-actions").tap();
       assert.equal(await page.locator("#nhal106-action-menu").isVisible(),true);
       await page.locator('[data-nhal106-proxy="jump-menu"]').tap();

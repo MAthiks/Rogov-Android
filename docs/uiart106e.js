@@ -10,7 +10,7 @@ export function fitNhalMap106E({availableWidth,mapTop,dockTop,footerHeight,colum
   // the phone, while 11x11 Nhal can use the whole available square area.
   return Math.max(0,Math.floor(Math.min(availableWidth,540,vertical*columns/rows)));
 }
-export function setupUi106E({get,isRun,win=window,doc=document}){
+export function setupUi106E({get,isRun,win=window}){
   const map=get("tile-map"),controls=get("field-controls"),
     section=get("expedition");
   if(!map||!controls||!section)throw new Error("UI/ART-106E: missing existing cockpit");

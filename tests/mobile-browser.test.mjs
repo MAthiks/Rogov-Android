@@ -4899,7 +4899,7 @@ test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved re
       await page.screenshot({path:"qa096-screenshots/qa106c-nhal-"+width+".png"});
       // ART-106D: inspect the shipped LIVE atlas. All assets and actor IDs
       // remain the engine's real classes; no additional entity tiles appear.
-      const spriteQA=await page.evaluate(async()=>{
+      const spriteQA=await page.evaluate(async(expectedTiles)=>{
         const [{TILE_SPRITES},{HERO_SVGS},{ENEMY_SVGS},{INTERACTIVE_SVGS}]=
           await Promise.all([import("./tiles.js"),import("./hero-art.js"),
             import("./enemy-art.js"),import("./interaction-art.js")]);
@@ -4914,9 +4914,9 @@ test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved re
           goldChest:INTERACTIVE_SVGS.loot.includes("art106d-sealed-gold-chest"),
           liveHero:hero?.src===TILE_SPRITES.hero,
           noUnknownSprites:unknown.every(cell=>!cell.querySelector("img")),
-          unchangedTileCount:document.querySelectorAll("#tile-map .pixel-tile").length===121
+          unchangedTileCount:document.querySelectorAll("#tile-map .pixel-tile").length===expectedTiles
         };
-      });
+      },camera.expected);
       assert.deepEqual(spriteQA,{
         hood:true,enemies:true,guardianEyes:true,toxicRift:true,
         cyanArch:true,goldChest:true,liveHero:true,noUnknownSprites:true,

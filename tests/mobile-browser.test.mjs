@@ -4810,7 +4810,22 @@ test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved re
 
     await page.locator("#start-btn").tap();
     assert.equal(await page.locator("#expedition").isVisible(),true);
-    assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
+    const camera=await page.evaluate(async()=>{
+      const game=await import("./game.js");
+      const state=JSON.parse(localStorage.getItem(game.SAVE_KEY));
+      const bounds=game.cameraBounds(state.run);
+      const tiles=[...document.querySelectorAll("#tile-map .pixel-tile")];
+      return {expected:bounds.width*bounds.height,
+        actual:tiles.length,
+        unique:new Set(tiles.map(tile=>tile.dataset.x+","+tile.dataset.y)).size,
+        columns:bounds.width,rows:bounds.height};
+    });
+    assert.ok(camera.columns>=9&&camera.rows>=9,
+      "The camera must render a usable number of dungeon cells");
+    assert.equal(camera.actual,camera.expected,
+      "The renderer must fill its actual engine camera, without missing cells");
+    assert.equal(camera.unique,camera.expected,
+      "Each rendered tile must map to a distinct real dungeon coordinate");
     assert.equal(await page.locator("#turns").textContent(),"0");
     const expeditionSave=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
     assert.ok(expeditionSave&&expeditionSave!==refugeSave);
@@ -4856,7 +4871,8 @@ test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved re
     await page.reload();
     await page.locator("#title-continue").tap();
     assert.equal(await page.locator("#expedition").isVisible(),true);
-    assert.equal(await page.locator("#tile-map .pixel-tile").count(),121);
+    assert.equal(await page.locator("#tile-map .pixel-tile").count(),camera.expected,
+      "Reload preserves the actual camera dimensions rather than a legacy fixed grid");
     assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),expeditionSave,
       "Android resume must restore the exact save including turns and inventory");
     assert.deepEqual(errors,[],"No runtime errors during the physical-phone recipe");

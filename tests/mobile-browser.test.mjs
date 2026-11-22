@@ -4874,6 +4874,28 @@ test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved re
       assert.match(finishing.bandage,/art106b-bandage\.svg/);
       assert.match(finishing.tonic,/art106b-tonic\.svg/);
       await page.screenshot({path:"qa096-screenshots/qa106b-nhal-"+width+".png"});
+      // ART-106C: the ACTUAL visible 24px cells render carved masonry.
+      // This is not an overlay screenshot or a fake map.
+      const stoneQA=await page.evaluate(async()=>{
+        const {TERRAIN_SVGS}=await import("./terrain-art.js");
+        const visible=[...document.querySelectorAll('#tile-map .pixel-tile[data-knowledge="visible"]')];
+        const remembered=[...document.querySelectorAll('#tile-map .pixel-tile[data-knowledge="remembered"]')];
+        const unknown=[...document.querySelectorAll('#tile-map .pixel-tile[data-knowledge="unknown"]')];
+        return {
+          css:[...document.styleSheets].some(s=>s.href?.includes("art106c-terrain.css?v=1")),
+          floors:TERRAIN_SVGS.floor.every(svg=>svg.includes("art106c-floor-masonry")),
+          walls:TERRAIN_SVGS.wall.every(row=>row.every(svg=>svg.includes("art106c-wall-masonry"))),
+          pillar:TERRAIN_SVGS.wall[15][0].includes("art106c-isolated-pillar"),
+          liveBackground:visible.some(cell=>getComputedStyle(cell).backgroundImage.includes("art106c-")),
+          noUnknownBackground:unknown.every(cell=>getComputedStyle(cell).backgroundImage==="none"),
+          noHiddenSconces:[...remembered,...unknown].every(cell=>!cell.querySelector(".art097c-wall-sconce"))
+        };
+      });
+      assert.deepEqual(stoneQA,{
+        css:true,floors:true,walls:true,pillar:true,liveBackground:true,
+        noUnknownBackground:true,noHiddenSconces:true
+      },"ART-106C real tile atlas must be visible and FOV-safe");
+      await page.screenshot({path:"qa096-screenshots/qa106c-nhal-"+width+".png"});
       await page.locator("#nhal106-actions").tap();
       assert.equal(await page.locator("#nhal106-action-menu").isVisible(),true);
       await page.locator('[data-nhal106-proxy="jump-menu"]').tap();

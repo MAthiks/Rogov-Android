@@ -141,7 +141,7 @@
     content:"";position:absolute;inset:2px;pointer-events:none;
     border:1px solid #d9af7555;border-radius:4px;z-index:0;
   }
-  .frame.is-expedition #expedition .dungeon-wrap>*{position:relative}
+  /* Never set position on direct children: #field-controls is viewport-fixed. */
   .frame.is-expedition #expedition .render-controls{
     display:flex;align-items:center;gap:6px;
     min-height:24px;max-width:540px;margin:0 auto;padding:0 4px 4px;

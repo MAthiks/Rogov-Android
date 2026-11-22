@@ -289,3 +289,60 @@
     transition:none;
   }
 }
+
+/* QA-104 — a single genuine set of six derived stat cards is visible.
+   The detailed formulas and equipped weapon remain available on demand,
+   instead of repeating all six values below the cards on narrow phones. */
+.frame #actor-stats-sheet .actor103d-explain{
+  margin:11px 12px 8px;
+  border:1px solid #816d52;
+  border-radius:5px;
+  background:#18252f;
+  box-shadow:inset 0 1px #eed5a322;
+}
+.frame #actor-stats-sheet .actor103d-explain>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 11px;
+  min-height:44px;
+  color:#edd4ae;
+  font:750 11px/1.4 system-ui,sans-serif;
+  list-style:none;
+  cursor:pointer;
+}
+.frame #actor-stats-sheet .actor103d-explain>summary::-webkit-details-marker{
+  display:none;
+}
+.frame #actor-stats-sheet .actor103d-explain>summary::after{
+  content:"＋";
+  font:700 17px/1 ui-monospace,monospace;
+  color:#f0cf98;
+}
+.frame #actor-stats-sheet .actor103d-explain[open]>summary::after{
+  content:"−";
+}
+.frame #actor-stats-sheet .actor103d-explain>summary:focus-visible{
+  outline:2px solid #ffe1a6;
+  outline-offset:2px;
+}
+.frame #actor-stats-sheet .actor103d-explain .actor-stats-caption{
+  margin:0 10px 9px;
+  padding:8px 0 0;
+  border-top:1px solid #766b57;
+  color:#d1d5ca;
+  font-size:11px;
+  line-height:1.45;
+}
+.frame #actor-stats-sheet .actor103d-explain .actor-derived-values{
+  margin:0 10px 10px;
+  padding:8px;
+  font-size:11px;
+  line-height:1.55;
+}
+@media(max-width:350px){
+  .frame #actor-stats-sheet .actor103d-explain{
+    margin-inline:9px;
+  }
+}

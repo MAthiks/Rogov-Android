@@ -37,7 +37,7 @@ Pour un bug, noter simplement : écran, geste effectué, résultat attendu, rés
 
 ## Contrôles automatiques QA-105
 
-Le test Playwright du navigateur couvre désormais les formats **360×800** et **412×915** (en plus des formats 320×640, 360×780 et 393×704 déjà testés) : clic réel sur Veyr et Égaré, visibilité des panneaux, carte 11×11, zone tactile du bouton d'attente et de fermeture du Sac, absence de débordement horizontal, reprise du jeu sans modification du nombre de tours.
+Le test Playwright du navigateur couvre désormais les formats **360×800** et **412×915** (en plus des formats 320×640, 360×780 et 393×704 déjà testés) : clic réel sur Veyr et Égaré, visibilité des panneaux, grille de caméra conforme aux dimensions réelles fournies par le moteur (sans imposer 11×11), zone tactile du bouton d'attente et de fermeture du Sac, absence de débordement horizontal, reprise du jeu sans modification du nombre de tours.
 
 Ces tests **imitent des dimensions Android**, mais ne peuvent pas certifier la luminosité de l'écran, les gestes sur une dalle tactile réelle, le comportement du bouton Retour système, l'accès aux fichiers, les performances de la batterie ou les réglages d'accessibilité propres au téléphone.
 

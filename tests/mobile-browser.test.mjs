@@ -4602,6 +4602,9 @@ test("ART-103C mobile: eleven-item visual atlas, true equipped slots, touch draw
       assert.ok(geo.closeHeight>=44,"Close remains a large touch target: "+JSON.stringify(geo));
       assert.ok(geo.slotWidths.every(n=>n>=90),"Actual equipment names remain readable: "+JSON.stringify(geo));
       assert.ok(geo.iconWidths.every(n=>n>=28),"All pictograms visible: "+JSON.stringify(geo));
+      // QA-104: Android can briefly keep a rectangular tap highlight after
+      // opening the drawer. Snapshot only the settled, actual inventory UI.
+      await page.waitForTimeout(250);
       await page.screenshot({path:"qa096-screenshots/art103c-bag-"+width+".png"});
       await page.locator("#ui092-sheet-close").tap();
       assert.equal(await page.locator("#ui092-sheet").isHidden(),true);

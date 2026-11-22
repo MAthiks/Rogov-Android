@@ -3862,7 +3862,7 @@ test("QA-097 Android acceptance: actual hit centers, fog-safe redraw budget and 
       assert.equal(outcome.enemyLeak,0,"No hostile/intent leak at "+label);
       assert.equal(outcome.saveUnchanged,true,"No writes to saved game at "+label);
       assert.equal(outcome.turnsUnchanged,true,"Rendering spends no turns at "+label);
-      assert.ok(outcome.controls.length===14,"Six shortcuts, five movement controls + listening, two quick items: "+label);
+      assert.ok(outcome.controls.length===15,"Six shortcuts, six D-pad controls, two quick items and the new Actions button: "+label);
       assert.ok(outcome.controls.every(x=>x.w>=44&&x.h>=44),
         "All existing targets remain >=44x44 CSS px at "+label+": "+JSON.stringify(outcome.controls));
       assert.ok(outcome.controls.every(x=>x.inViewport&&x.hit),

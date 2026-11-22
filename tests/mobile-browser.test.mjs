@@ -4627,6 +4627,12 @@ test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics a
     const original=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
     await page.locator('[data-refuge-go="character"]').tap();
     assert.equal(await page.locator("#actor-stats-sheet").evaluate(n=>n.open),true);
+    // QA-104: clicking Égaré must actually reveal the dossier, not merely
+    // toggle a navigation highlight at the top of the tall refuge page.
+    await page.waitForFunction(()=>{
+      const target=document.getElementById("refuge-character-slot")?.getBoundingClientRect();
+      return Boolean(target&&target.top<innerHeight-82&&target.bottom>0);
+    },null,{timeout:7500});
     assert.equal(await page.locator("#actor103d-name").textContent(),"L'Égaré");
     assert.equal(await page.locator("#actor103d-level").textContent(),"Niv. 1");
     assert.equal(await page.locator("#actor103d-location").textContent(),"Veyr · refuge");
@@ -4663,7 +4669,35 @@ test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics a
       assert.ok(geo.widths.every(w=>w>=80),
         "Calculated combat stats remain readable: "+JSON.stringify(geo));
       assert.ok(geo.summaryHeight>=44,"Opening sheet remains a touch target");
+      // QA-104: changing the Android viewport may reset document scrolling.
+      // The earlier screenshots accidentally showed Veyr's hero instead of
+      // the character portrait, despite their 'character' filenames.
+      // Align the *real* shared sheet above the fixed departure CTA.
+      await page.evaluate(()=>{
+        const sheet=document.getElementById("actor-stats-sheet");
+        const top=sheet.getBoundingClientRect().top+scrollY-14;
+        window.scrollTo({top,behavior:"instant"});
+      });
+      await page.waitForTimeout(120);
+      const sight=await page.evaluate(()=>{
+        const portrait=document.getElementById("actor103d-portrait");
+        const sheet=document.getElementById("actor-stats-sheet");
+        const r=portrait.getBoundingClientRect(), sr=sheet.getBoundingClientRect();
+        const overlay=document.getElementById("start-btn").getBoundingClientRect();
+        const x=r.left+r.width/2,y=r.top+r.height/2;
+        const at=document.elementFromPoint(x,y);
+        return {viewportHeight:innerHeight,portraitTop:r.top,portraitBottom:r.bottom,
+          sheetTop:sr.top,portraitHit:at===portrait||portrait.contains(at),
+          ctaTop:overlay.top,sheetWidth:sr.width,viewportWidth:innerWidth};
+      });
+      assert.ok(sight.portraitTop>=-1&&sight.portraitBottom<sight.viewportHeight-45,
+        "QA capture must include the actual Sprite C portrait: "+JSON.stringify(sight));
+      assert.equal(sight.portraitHit,true,
+        "No decorative or fixed overlay may cover the character portrait: "+JSON.stringify(sight));
       await page.screenshot({path:"qa096-screenshots/art103d-character-"+width+".png"});
+      await page.locator("#actor-stats-sheet").screenshot({
+        path:"qa096-screenshots/qa104-character-full-"+width+".png"
+      });
       assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),original,
         "Browsing portrait or changing Android viewport must never save a turn");
     }

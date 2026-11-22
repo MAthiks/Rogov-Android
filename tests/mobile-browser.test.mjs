@@ -5159,7 +5159,8 @@ test("UI/ART-106F mobile: actual bag, Journal and one original character sheet s
         }
         if(action==="jump-menu"){
           assert.equal(await page.locator("#ui092-sheet-body #actor-stats-sheet").count(),1);
-          await page.locator("#actor-stats-sheet > summary").tap();
+          if(!await page.locator("#actor-stats-sheet").evaluate(el=>el.open))
+            await page.locator("#actor-stats-sheet > summary").tap();
           assert.equal(await page.locator("#actor103d-portrait").isVisible(),true);
           assert.equal(await page.locator("#actor-stat-values").isVisible(),true);
         }

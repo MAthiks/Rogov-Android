@@ -297,8 +297,21 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     // No remote connection: local appassets works with Wi-Fi and data off.
     adb("shell","svc","wifi","disable");
     adb("shell","svc","data","disable");
-    await dev.call("Page.reload",{ignoreCache:true});
-    await until(dev,'document.querySelector("#title-save-info")?.textContent.includes("Descente en cours")',isTrue,25000);
+    // A WebView CDP target can replace its debugger socket on an offline
+    // reload, especially after Android toggles Wi-Fi/data in the emulator.
+    // Reattach only if the *transport* times out; then perform the exact
+    // same save, screen and 11x11 offline assertions. Never skip QA.
+    const offlineReady='document.querySelector("#title-save-info")?.textContent.includes("Descente en cours")';
+    try{
+      await dev.call("Page.reload",{ignoreCache:true});
+      await until(dev,offlineReady,isTrue,25000);
+    }catch(error){
+      if(!/CDP startup or command timed out|CDP WebSocket closed/i.test(String(error)))
+        throw error;
+      try{dev.close();}catch{/* Stale debugger target already closed. */}
+      dev=await connect();
+      await until(dev,offlineReady,isTrue,30000);
+    }
     await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
     // QA-104: DOM scene readiness is insufficient if the opaque title layer

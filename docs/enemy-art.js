@@ -1,4 +1,5 @@
 import {finishEnemy106D} from "./art106d-finishes.js";
+import {polishEnemy107A} from "./art107a-finishes.js";
 // ART-091B — Sprite C enemy silhouettes (original transparent 24 × 24 SVG).
 // Visual replacement ONLY: combat state, hostility, fog, labels and HP stay in
 // their existing game / tile / HUD contracts. No external assets or RNG.
@@ -101,9 +102,9 @@ const rift_larva=svg(
 
 export const ENEMY_ART_IDS=Object.freeze(["charognard","guardian","rift_larva"]);
 export const ENEMY_SVGS=Object.freeze({
-  charognard:finishEnemy106D("charognard",charognard),
-  guardian:finishEnemy106D("guardian",guardian),
-  rift_larva:finishEnemy106D("rift_larva",rift_larva)
+  charognard:polishEnemy107A("charognard",finishEnemy106D("charognard",charognard)),
+  guardian:polishEnemy107A("guardian",finishEnemy106D("guardian",guardian)),
+  rift_larva:polishEnemy107A("rift_larva",finishEnemy106D("rift_larva",rift_larva))
 });
 export const ENEMY_SPRITES=Object.freeze(Object.fromEntries(
   ENEMY_ART_IDS.map(id=>[id,"data:image/svg+xml;charset=UTF-8,"+

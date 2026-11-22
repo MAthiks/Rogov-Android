@@ -1,5 +1,14 @@
 # ROGOV — Roguelike d'extraction tactique
 
+## État jouable — 22 novembre 2026
+
+**Version actuelle :** les quatre écrans graphiques de Nhal, Veyr, Sac et Personnage ont été intégrés via **UI-102 / ART-103D (PR #69–#73)** et vérifiés par **QA-104 (PR #74)**. Les workflows Web, APK Android classique et WebView Android 13 sont verts au commit `72eb028`. La version active est un prototype / alpha en développement, non une version commerciale terminée.
+
+**Jouer sur Chrome Android :** [Ouvrir ROGOV, version PWA](https://mathiks.github.io/Rogov-Android/). Pour évaluer l'ergonomie sur un vrai téléphone : [recette QA-105 — refuge, descente, sac, personnage et sauvegarde](docs/QA105_ANDROID_FIELD_RECIPE.md). Les anciens paragraphes ci-dessous conservent l'historique des lots et peuvent évoquer des étapes qui ont depuis été livrées.
+
+**À savoir :** l'APK graphique WebView est un paquet debug de test, distinct de l'APK historique de compatibilité. Les sauvegardes PWA/Chrome et APK ne se transfèrent pas automatiquement ; ne pas effacer les données ou désinstaller une application contenant une partie à préserver.
+
+
 ## APK-098A — Version graphique Android (test)
 
 Après l'audit QA-097, le projet distingue **deux APK** :

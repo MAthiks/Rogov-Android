@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" shape-rendering="crispEdges">
+<!-- Original 106B medical roll: transparent pixel-art item icon. -->
+<path d="M5 24h4v-5h4v-4h23v4h4v6h3v12h-4v3H11v-3H7v-5H5Z" fill="#14191e"/>
+<path d="M7 24h5v-4h24v4h4v12h-4v2H11v-4H7Z" fill="#85745d"/>
+<path d="M14 18h19v3h4v14h-4v2H15Z" fill="#e6d0ad"/>
+<path d="M15 20h19v3H15ZM18 34h18v2H18Z" fill="#f6e6ca"/>
+<path d="M9 23h6v2h2v8h-2v3H9v-3H7v-8h2Z" fill="#b1a088"/>
+<path d="M10 24h5v3h2v6h-2v2h-5v-2H8v-6h2Z" fill="#f0dec0"/>
+<path d="M11 27h3v6h-3Z" fill="#bba68c"/>
+<path d="M25 23h7v3h3v6h-3v3h-7v-3h-3v-6h3Z" fill="#9c3830"/>
+<path d="M27 22h4v4h4v4h-4v4h-4v-4h-4v-4h4Z" fill="#d44636"/>
+<path d="M28 23h2v5h4v1h-5v4h-1v-5h-4v-1h4Z" fill="#f1795f"/>
+<path d="M16 19h4v18h-4ZM36 23h2v10h-2Z" fill="#bca98c" opacity=".55"/>
+<path d="M10 39h27" stroke="#050b12" stroke-width="2"/>
+</svg>

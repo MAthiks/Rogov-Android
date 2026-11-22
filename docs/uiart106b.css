@@ -1,0 +1,242 @@
+/* UI/ART-106B — original, fully offline forged bronze / carved stone skin.
+   Decoration is scoped to the playable Nhal cockpit; NO overlays on
+   rendered dungeon cells, no fake threats, no input changes or save writes. */
+:root{
+  --nhal106b-rim:#d7ae74;
+  --nhal106b-rim-light:#f5ce91;
+  --nhal106b-iron:#1d2833;
+  --nhal106b-edge:#554536;
+  --nhal106b-ivory:#f6e7cc;
+}
+@media(max-width:730px){
+  /* Long gallery reliefs on the header: light catches the old metal edge. */
+  .frame.is-expedition #expedition>.section-head{
+    background-image:
+      radial-gradient(ellipse at 51% 20%,#92afc023 0%,transparent 45%),
+      linear-gradient(90deg,#050c16ed 0%,#081321a6 45%,#0a1321c0 100%),
+      url("./art103b-nhal-ruins.svg");
+    background-position:center,center,center 36%;
+    background-size:cover,cover,cover;
+    border-bottom-color:var(--nhal106b-rim);
+    box-shadow:inset 0 -2px #493727,0 2px #f6d19645,0 5px 16px #000d;
+  }
+  .frame.is-expedition .ui097-brand{
+    color:#f6edd7;
+    text-shadow:0 2px 2px #010306,1px 0 #4d331e,0 0 8px #ebb56965;
+  }
+  .frame.is-expedition .nhal106-location{
+    color:#efe6d7;text-shadow:0 2px 3px #000,0 0 7px #162536;
+  }
+  .frame.is-expedition #expedition .nhal106-turn{
+    border-style:solid;
+    border-image-source:url("./art106b-gilded-frame.svg");
+    border-image-slice:24;
+    border-image-width:7px;
+    border-image-repeat:stretch;
+    background:
+      radial-gradient(ellipse at 50% 2%,#6c5a403f,transparent 70%),
+      linear-gradient(165deg,#31333c,#0d131c 74%);
+    box-shadow:inset 0 2px #e9c18c44,inset 0 -2px #06080e,0 4px 8px #000b;
+    color:var(--nhal106b-ivory);
+  }
+  /* Material stack: forged rim, carved iron core, hairline gold highlight. */
+  .frame.is-expedition #expedition .nhal106-vital{
+    border-style:solid;
+    border-image-source:url("./art106b-gilded-frame.svg");
+    border-image-slice:24;
+    border-image-width:6px;
+    border-image-repeat:stretch;
+    background:
+      repeating-linear-gradient(135deg,#d4b78c09 0px,#d4b78c09 1px,transparent 1px,transparent 5px),
+      radial-gradient(ellipse at 40% 0%,#4653667a 0%,transparent 73%),
+      linear-gradient(180deg,#2a3541,#111923 60%,#080d14);
+    box-shadow:inset 0 1px #f7d89f66,inset 0 -3px #090f18,0 4px 9px #000c;
+  }
+  .frame.is-expedition .nhal106-vital-label{
+    color:#f6e9d4;text-shadow:0 1px 2px #000b;
+  }
+  .frame.is-expedition .nhal106-vital progress{
+    border:1px solid #9c8570;
+    box-shadow:inset 0 1px 3px #000a,0 1px #ebbd7d29;
+  }
+  .frame.is-expedition .nhal106-health #health-meter::-webkit-progress-value{
+    background:linear-gradient(180deg,#f77866,#ca302b 48%,#7c171b);
+    box-shadow:inset 0 1px #ffc1a063;
+  }
+  .frame.is-expedition .nhal106-endurance #endurance-meter::-webkit-progress-value{
+    background:linear-gradient(180deg,#ffd578,#dc9c2b 48%,#85501b);
+    box-shadow:inset 0 1px #fff0b476;
+  }
+  .frame.is-expedition .nhal106-health #health-meter::-moz-progress-bar{
+    background:linear-gradient(180deg,#f57867,#bb2c27);
+  }
+  .frame.is-expedition .nhal106-endurance #endurance-meter::-moz-progress-bar{
+    background:linear-gradient(180deg,#f6c35f,#ac6d22);
+  }
+  /* The map remains the unchanged live renderer; only its enclosure gets
+     hand-drawn nine-slice corners, metal polish and inward shadow. */
+  .frame.is-expedition #expedition .dungeon-wrap{
+    border-style:solid;
+    border-image-source:url("./art106b-gilded-frame.svg");
+    border-image-slice:24;
+    border-image-width:10px;
+    border-image-repeat:stretch;
+    background:
+      radial-gradient(ellipse at 50% 18%,#2733403e,transparent 75%),
+      linear-gradient(145deg,#202c38 0%,#0c131e 12%,#060b12 85%,#25313b);
+    box-shadow:inset 0 0 0 2px #070d15,
+      inset 0 0 0 3px #dcb27a66,
+      0 0 0 2px #070c12,0 9px 23px #000e;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap::before{
+    border:1px solid #d7ad6a77;
+    box-shadow:inset 0 0 0 1px #070d16;
+  }
+  .frame.is-expedition #expedition .pixel-map{
+    border-color:#ac8c61;
+    box-shadow:0 0 0 2px #060b12,0 0 0 3px #d8ab7152,0 7px 16px #000a;
+  }
+  /* The alert is ONLY visible with a genuine engine forecast. */
+  .frame.is-expedition #expedition #ui096-threat-banner[data-urgent="true"]{
+    border:1px solid #d56b5c;border-left:4px solid #ff7d65;
+    color:#ffe2d5;
+    background:
+      repeating-linear-gradient(135deg,#ca5d5010 0px,#ca5d5010 2px,transparent 2px,transparent 7px),
+      linear-gradient(90deg,#4d1d21,#271b23 85%);
+    box-shadow:inset 0 1px #e49a8666,inset 0 -1px #100c12,0 3px 8px #000c;
+  }
+  /* Tactile nav remains six REAL buttons, each with engraved corner jewelry. */
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button{
+    border-style:solid;
+    border-image-source:url("./art106b-gilded-frame.svg");
+    border-image-slice:24;
+    border-image-width:6px;
+    border-image-repeat:stretch;
+    background:
+      radial-gradient(ellipse at 50% 0%,#6473883d,transparent 80%),
+      linear-gradient(180deg,#364251,#1b2734 53%,#0e1722);
+    box-shadow:inset 0 1px #d5b88a61,inset 0 -2px #03070c,0 4px 7px #000b;
+    color:var(--nhal106b-ivory);
+    text-shadow:0 1px 2px #000;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button::before{
+    color:#f2d09b;text-shadow:0 1px #05090f,0 0 6px #e9b76f48;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button.is-active,
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts:not(:has(button.is-active)) #jump-map{
+    background:
+      radial-gradient(ellipse at 50% 100%,#bb7b323d,transparent 76%),
+      linear-gradient(175deg,#6c4d2f,#30271f 65%,#191a1d);
+    box-shadow:inset 0 1px #ffe5b597,inset 0 -2px #1b110e,
+      0 0 0 1px #cda262,0 0 13px #efad4b68,0 4px 6px #000b;
+    color:#fff0d2;
+  }
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button:active:not(:disabled){
+    background:linear-gradient(#27241f,#6e4a2b);
+    box-shadow:inset 0 3px 7px #000b,0 0 6px #bd8139;
+  }
+  /* Carved limestone cap + iron body instead of flat digital D-pad tiles. */
+  .frame.is-expedition #field-controls{
+    border-color:#b98f55;
+    background:
+      repeating-linear-gradient(140deg,#bba78d0a 0px,#bba78d0a 1px,transparent 1px,transparent 6px),
+      radial-gradient(ellipse at 40% 0%,#34414a91,transparent 76%),
+      linear-gradient(180deg,#17232f,#09121b 76%,#060b11);
+    box-shadow:inset 0 2px #ddba7a50,0 -6px 18px #000e;
+  }
+  .frame.is-expedition #field-controls .dpad button:not(.wait){
+    border:2px solid #8e7f6a;
+    border-radius:6px;
+    background:
+      linear-gradient(134deg,#8291a12b,transparent 34%),
+      linear-gradient(160deg,#465161,#222f3d 60%,#141d2a);
+    box-shadow:inset 0 2px #e5c7a65b,inset 0 -3px #10141c,0 3px 6px #000b;
+    color:#f6dab0;text-shadow:0 2px 2px #000d;
+  }
+  .frame.is-expedition #field-controls .dpad .wait{
+    border:2px solid #d5ad6e;
+    box-shadow:inset 0 0 0 2px #6f5231,inset 0 0 0 4px #161b23,
+      0 1px 0 #ecd29e65,0 4px 7px #000b;
+    background:radial-gradient(circle at 42% 18%,#3d4a56,#101e2b 65%,#0a1119);
+    color:#f7e2c0;
+  }
+  .frame.is-expedition #field-controls .dpad button:active:not(:disabled){
+    filter:brightness(1.2);
+    box-shadow:inset 0 3px 9px #05070b,0 0 0 1px #e0b571;
+  }
+  /* Original 48px pixel-art item icons; CSS cannot create or consume any
+     item. The underlying real buttons and their quantities stay unchanged. */
+  .frame.is-expedition #field-controls #use-bandage,
+  .frame.is-expedition #field-controls #use-tonic{
+    border:2px solid #a58b67;
+    background:
+      radial-gradient(ellipse at 50% 0%,#47566772,transparent 85%),
+      linear-gradient(180deg,#2b3744,#121b28);
+    box-shadow:inset 0 1px #e9c38d65,inset 0 -2px #050b11,0 4px 6px #000b;
+    color:#f3e5cd;
+  }
+  .frame.is-expedition #field-controls #use-bandage::before,
+  .frame.is-expedition #field-controls #use-tonic::before{
+    content:"";display:block;width:36px;height:34px;margin:0 auto 1px;
+    background-position:center;background-size:contain;background-repeat:no-repeat;
+    image-rendering:pixelated;filter:drop-shadow(0 2px 2px #000a);
+    pointer-events:none;
+  }
+  .frame.is-expedition #field-controls #use-bandage::before{
+    background-image:url("./art106b-bandage.svg");
+  }
+  .frame.is-expedition #field-controls #use-tonic::before{
+    background-image:url("./art106b-tonic.svg");
+  }
+  .frame.is-expedition #field-controls #nhal106-actions{
+    border:2px solid #d1a061;border-radius:7px;
+    border-image-source:url("./art106b-gilded-frame.svg");
+    border-image-slice:24;border-image-width:9px;border-image-repeat:stretch;
+    background:
+      radial-gradient(ellipse at 48% 100%,#e6a34253,transparent 75%),
+      repeating-linear-gradient(130deg,#ab773419 0px,#ab773419 1px,transparent 1px,transparent 6px),
+      linear-gradient(165deg,#77512a,#35261c 58%,#1b1718);
+    box-shadow:inset 0 1px #f6dcaa82,inset 0 -2px #110e11,
+      0 0 0 1px #d2a162,0 0 15px #e3a34f6b,0 5px 10px #000c;
+    color:#f6e7cd;text-shadow:0 2px 2px #000;
+  }
+  .frame.is-expedition #field-controls #nhal106-actions .nhal106-gear{
+    color:#f4c880;text-shadow:0 2px #483019,0 0 9px #daa76452;
+  }
+  .frame.is-expedition #field-controls #nhal106-actions[aria-expanded="true"]{
+    background:linear-gradient(170deg,#9b713f,#402a1e);border-color:#ffd49c;
+  }
+  .frame.is-expedition #field-controls .nhal106-action-menu{
+    border-image-source:url("./art106b-gilded-frame.svg");
+    border-image-slice:24;border-image-width:9px;border-image-repeat:stretch;
+    background:linear-gradient(145deg,#38434f,#121e2a 60%,#0b111a);
+    box-shadow:inset 0 2px #ecd29b65,0 6px 24px #000e;
+  }
+  .frame.is-expedition #field-controls .nhal106-action-menu button{
+    background:linear-gradient(#3b4653,#1a2633);
+    box-shadow:inset 0 1px #f2d5a43d,0 2px 4px #000a;
+  }
+  .frame.is-expedition #field-controls button:focus-visible,
+  .frame.is-expedition #expedition .expedition-shortcuts button:focus-visible{
+    outline:2px solid #ffe5ab;outline-offset:2px;
+  }
+}
+@media(max-width:730px) and (max-height:760px){
+  .frame.is-expedition #field-controls #use-bandage::before,
+  .frame.is-expedition #field-controls #use-tonic::before{
+    width:30px;height:28px;margin-bottom:0;
+  }
+}
+@media(prefers-contrast:more){
+  .frame.is-expedition .nhal106-vital-label,
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button{
+    color:#fff8e9;text-shadow:0 1px #000;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .frame.is-expedition #field-controls #nhal106-actions,
+  .frame.is-expedition #field-controls .dpad button,
+  .frame.is-expedition #expedition .dungeon-wrap>.expedition-shortcuts button{
+    transition:none;animation:none;
+  }
+}

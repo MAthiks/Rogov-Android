@@ -4863,6 +4863,17 @@ test("QA-105 mobile: phone-sized field route from Veyr to Nhal, sac and saved re
       assert.ok(actionPlate&&actionPlate.height>=44&&actionPlate.width>=44,
         "The screenshot Actions plaque must remain a true touch target");
       await page.screenshot({path:"qa096-screenshots/qa106a-nhal-"+width+".png"});
+      // UI/ART-106B: real item shortcuts have original local pixel-art
+      // visuals. Their existing click handlers and disabled states are intact.
+      const finishing=await page.evaluate(()=>({
+        bandage:getComputedStyle(document.getElementById("use-bandage"),"::before").backgroundImage,
+        tonic:getComputedStyle(document.getElementById("use-tonic"),"::before").backgroundImage,
+        gilded:[...document.styleSheets].some(s=>s.href?.includes("uiart106b.css?v=1"))
+      }));
+      assert.equal(finishing.gilded,true);
+      assert.match(finishing.bandage,/art106b-bandage\.svg/);
+      assert.match(finishing.tonic,/art106b-tonic\.svg/);
+      await page.screenshot({path:"qa096-screenshots/qa106b-nhal-"+width+".png"});
       await page.locator("#nhal106-actions").tap();
       assert.equal(await page.locator("#nhal106-action-menu").isVisible(),true);
       await page.locator('[data-nhal106-proxy="jump-menu"]').tap();

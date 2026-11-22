@@ -4698,12 +4698,40 @@ test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics a
       assert.equal(sight.portraitHit,true,
         "No decorative or fixed overlay may cover the character portrait: "+JSON.stringify(sight));
       await page.screenshot({path:"qa096-screenshots/art103d-character-"+width+".png"});
-      await page.locator("#actor-stats-sheet").screenshot({
-        path:"qa096-screenshots/qa104-character-full-"+width+".png"
+      // A full-element capture composits the fixed departure button across
+      // the MIDDLE of a tall image: that is not a real phone viewport. Capture
+      // the lower combat-stat section with normal Android scrolling instead.
+      await page.evaluate(()=>{
+        const stats=document.getElementById("actor103d-derived-grid");
+        const top=stats.getBoundingClientRect().top+scrollY-64;
+        window.scrollTo({top,behavior:"instant"});
       });
+      await page.waitForTimeout(120);
+      const lower=await page.evaluate(()=>{
+        const r=document.getElementById("actor103d-derived-grid").getBoundingClientRect();
+        const c=document.getElementById("start-btn").getBoundingClientRect();
+        const details=document.querySelector("#actor103d-explain>summary").getBoundingClientRect();
+        return {statsTop:r.top,statsBottom:r.bottom,ctaTop:c.top,
+          detailsTapHeight:details.height,screen:innerHeight};
+      });
+      assert.ok(lower.statsTop>=0&&lower.statsBottom<lower.ctaTop,
+        "Combat values must fit above the real fixed CTA: "+JSON.stringify(lower));
+      assert.ok(lower.detailsTapHeight>=44,
+        "Detailed character calculations must remain touch accessible");
+      await page.screenshot({path:"qa096-screenshots/qa104-character-stats-"+width+".png"});
       assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),original,
         "Browsing portrait or changing Android viewport must never save a turn");
     }
+    // The extra calculations and equipped weapon are an optional native
+    // details section. Opening it is informational, never a game turn.
+    const explanation=page.locator("#actor103d-explain");
+    assert.equal(await explanation.evaluate(n=>n.open),false);
+    await explanation.locator("summary").tap();
+    assert.equal(await explanation.evaluate(n=>n.open),true);
+    assert.match(await page.locator("#actor-derived-values").textContent(),/Endurance maximale/);
+    assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),original);
+    await explanation.locator("summary").tap();
+    assert.equal(await explanation.evaluate(n=>n.open),false);
     await page.locator("#start-btn").tap();
     assert.equal(await page.locator("#expedition").isVisible(),true);
     const actual=await page.evaluate(async()=>{

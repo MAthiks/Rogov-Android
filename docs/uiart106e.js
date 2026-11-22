@@ -12,7 +12,7 @@ export function fitNhalMap106E({availableWidth,mapTop,dockTop,footerHeight,colum
 }
 export function setupUi106E({get,isRun,win=window}){
   const map=get("tile-map"),controls=get("field-controls"),
-    section=get("expedition");
+    navigation=get("expedition-shortcuts"),section=get("expedition");
   if(!map||!controls||!section)throw new Error("UI/ART-106E: missing existing cockpit");
   let disposed=false;
   const mobile=()=>win.matchMedia("(max-width: 730px)").matches;
@@ -42,9 +42,14 @@ export function setupUi106E({get,isRun,win=window}){
       parseFloat(css.paddingRight||"0")-parseFloat(css.borderLeftWidth||"0")-
       parseFloat(css.borderRightWidth||"0");
     if(!Number.isFinite(horizontal)||mapRect.top>=dockRect.top)return;
-    // The live status line, any known branch hint and the real six-button
-    // nav remain in document flow. Their CURRENT height is reserved first.
-    const footer=Math.max(0,wrapRect.bottom-mapRect.bottom);
+    // Reserve the actual SIX navigation buttons and their live gap. The
+    // dungeon-wrap also contains contextual panels after the navigation;
+    // measuring its bottom can count those in-flow panels, produce an
+    // impossible footer and leave the 320x640 map unshrunk under the dock.
+    const navRect=navigation?.getBoundingClientRect();
+    const navOffset=navRect&&navRect.width>0&&navRect.bottom>=mapRect.bottom?
+      navRect.bottom-mapRect.bottom:null;
+    const footer=Math.max(0,navOffset??(wrapRect.bottom-mapRect.bottom));
     const width=fitNhalMap106E({
       availableWidth:horizontal,mapTop:mapRect.top,dockTop:dockRect.top,
       // On 320x640 devices the mobile browser may reflow the 6-button footer

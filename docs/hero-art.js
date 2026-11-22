@@ -1,4 +1,5 @@
 import {finishHero106D} from "./art106d-finishes.js";
+import {polishHero107A} from "./art107a-finishes.js";
 // ART-091A — L'Égaré, Sprite C: four original 24x24 hood-up idle views.
 // Render-only assets: no save field, animation timer, RNG or external request.
 const svg=parts=>'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">'+parts+
@@ -100,8 +101,8 @@ const left=svg(leftBody);
 const right=svg('<g transform="translate(24 0) scale(-1 1)">'+leftBody+'</g>');
 export const HERO_FACINGS=Object.freeze(["down","up","left","right"]);
 export const HERO_SVGS=Object.freeze({
-  down:finishHero106D("down",down),up:finishHero106D("up",up),
-  left:finishHero106D("left",left),right:finishHero106D("right",right)
+  down:polishHero107A("down",finishHero106D("down",down)),up:polishHero107A("up",finishHero106D("up",up)),
+  left:polishHero107A("left",finishHero106D("left",left)),right:polishHero107A("right",finishHero106D("right",right))
 });
 export const HERO_SPRITES=Object.freeze(Object.fromEntries(
   HERO_FACINGS.map(facing=>[facing,"data:image/svg+xml;charset=UTF-8,"+

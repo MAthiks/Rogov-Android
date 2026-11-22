@@ -47,7 +47,11 @@ export function setupUi106E({get,isRun,win=window}){
     const footer=Math.max(0,wrapRect.bottom-mapRect.bottom);
     const width=fitNhalMap106E({
       availableWidth:horizontal,mapTop:mapRect.top,dockTop:dockRect.top,
-      footerHeight:footer,columns,rows,safety:4
+      // On 320x640 devices the mobile browser may reflow the 6-button footer
+      // by up to ~12px while loading fonts. Reserve a physical 28px gutter
+      // instead of allowing buttons to slip under the fixed controls.
+      footerHeight:footer,columns,rows,
+      safety:(win.innerWidth<=350||win.innerHeight<=700)?28:4
     });
     // On extremely short screens leave scrolling available rather than
     // shrinking real 44px controls or making the dungeon illegible.

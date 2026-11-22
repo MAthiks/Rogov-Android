@@ -116,6 +116,13 @@
     margin:6px 0 0;overflow:hidden;background:#080d13;
     border:1px solid #7c7265;border-radius:3px;
   }
+  /* The original engine-managed progress elements live in these plates.
+   * Override the older #health-meter/#endurance-meter row selectors. */
+  .frame.is-expedition #expedition .nhal106-vital #health-meter,
+  .frame.is-expedition #expedition .nhal106-vital #endurance-meter{
+    display:block;width:100%;height:8px;min-height:8px;
+    grid-column:auto;grid-row:auto;margin:6px 0 0;
+  }
   .frame.is-expedition .nhal106-vital progress::-webkit-progress-bar{background:#080d13}
   .frame.is-expedition .nhal106-health progress::-webkit-progress-value{background:linear-gradient(90deg,#9a171f,#f14d47)}
   .frame.is-expedition .nhal106-endurance progress::-webkit-progress-value{background:linear-gradient(90deg,#ad6a18,#f8bb4e)}
@@ -302,6 +309,9 @@
     box-shadow:0 6px 26px #000e,inset 0 1px #efc78d66;
   }
   .frame.is-expedition #field-controls .nhal106-action-menu[hidden]{display:none!important}
+  /* A hidden parent alone leaves CSS display=block on its children.
+   * QA hit-target enumeration must not count invisible proxy buttons. */
+  .frame.is-expedition #field-controls .nhal106-action-menu[hidden] button{display:none!important}
   .frame.is-expedition #field-controls .nhal106-action-menu button{
     min-height:48px;border:1px solid #a78a60;border-radius:5px;
     background:#1c2b39;color:#f4e5c7;font:700 12px/1.25 Georgia,serif;

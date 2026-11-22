@@ -139,6 +139,9 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     assert.equal(shell.bypass,true);
     await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#refuge").hidden',isTrue);
+    // QA-104: DOM scene readiness is insufficient if the opaque title layer
+    // still paints over the game after Android WebView's first frame.
+    await until(dev,'document.querySelector("#title-screen").hidden',isTrue);
     await queueClick(dev,"#start-btn");
     // Actual first run is the *legacy tutorial* 15x9 = 135 tiles.
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===135',isTrue);
@@ -173,6 +176,9 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     await until(dev,'document.querySelector("#title-save-info")?.textContent.includes("Descente en cours")',isTrue,25000);
     await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
+    // QA-104: DOM scene readiness is insufficient if the opaque title layer
+    // still paints over the game after Android WebView's first frame.
+    await until(dev,'document.querySelector("#title-screen").hidden',isTrue);
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
     // Return a compact snapshot. Passing the complete deep map and inventory
     // through CDP returnByValue needlessly blocks constrained Android emulators.
@@ -228,6 +234,9 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     assert.equal(drawer.emptyFullyVisible,true,"Real empty-bag message must not be clipped");
     assert.match(drawer.emptyText,/Ton sac est vide/);
     assert.equal(drawer.horizontalOverflow,false);
+    // Android SurfaceFlinger can still show the PREVIOUS composited frame
+    // after DOM assertions pass. Let the opened drawer actually paint.
+    await pause(1100);
     adb("shell","screencap","-p","/sdcard/rogov-webapk-ui098b1-bag.png");
     execFileSync("adb",["pull","/sdcard/rogov-webapk-ui098b1-bag.png",
       "rogov-webapk-ui098b1-bag.png"],{stdio:"pipe",timeout:30000});
@@ -264,6 +273,9 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     // leave a stale button in the DOM. Queue the click and check real pixels.
     await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue,25000);
+    // QA-104: DOM scene readiness is insufficient if the opaque title layer
+    // still paints over the game after Android WebView's first frame.
+    await until(dev,'document.querySelector("#title-screen").hidden',isTrue);
     const afterResume=await dev.evaluate(`({
       tiles:document.querySelectorAll("#tile-map .pixel-tile").length,
       expeditionHidden:document.querySelector("#expedition").hidden,
@@ -289,6 +301,9 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     await until(dev,'document.querySelector("#title-save-info")?.textContent.includes("Descente en cours")',isTrue,25000);
     await queueClick(dev,"#title-continue");
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue);
+    // QA-104: DOM scene readiness is insufficient if the opaque title layer
+    // still paints over the game after Android WebView's first frame.
+    await until(dev,'document.querySelector("#title-screen").hidden',isTrue);
     await until(dev,'document.querySelectorAll("#tile-map .pixel-tile").length===121',isTrue);
     const offline=await dev.evaluate(`(()=>{
       const s=JSON.parse(localStorage.getItem("rogov-web-v1")||"null");
@@ -306,6 +321,9 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     assert.equal(offline.descents,resumed.descents);
     assert.equal(offline.turns,resumed.turns);
     // Android-native screenshot confirms what an installed user would see.
+    // The offline resume and scene have already passed every functional
+    // assertion. Let the native screen draw it before taking evidence.
+    await pause(1100);
     adb("shell","screencap","-p","/sdcard/rogov-webapk-qa098a-nhal.png");
     execFileSync("adb",["pull","/sdcard/rogov-webapk-qa098a-nhal.png","rogov-webapk-qa098a-nhal.png"],{stdio:"pipe",timeout:30000});
   }finally{

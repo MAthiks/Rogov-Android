@@ -4173,7 +4173,7 @@ test("UI-099 mobile: map first, no duplicate long document, original Menu knowle
       assert.equal(await page.locator("#ui099-info-slot #route-hint").count(),1);
       assert.equal(await page.locator("#ui099-info-slot #inspect-panel").count(),1);
       assert.equal(await page.locator("#ui099-info-slot #exploration-map-panel").count(),1);
-      await page.locator("#actor-stats-sheet summary").tap();
+      await page.locator("#actor-stats-sheet > summary").tap();
       assert.equal(await page.locator("#actor-stat-values").isVisible(),true);
       await page.locator("#map-legend-details summary").tap();
       assert.equal(await page.locator("#graphic-legend").isVisible(),true);
@@ -4602,6 +4602,9 @@ test("ART-103C mobile: eleven-item visual atlas, true equipped slots, touch draw
       assert.ok(geo.closeHeight>=44,"Close remains a large touch target: "+JSON.stringify(geo));
       assert.ok(geo.slotWidths.every(n=>n>=90),"Actual equipment names remain readable: "+JSON.stringify(geo));
       assert.ok(geo.iconWidths.every(n=>n>=28),"All pictograms visible: "+JSON.stringify(geo));
+      // QA-104: Android can briefly keep a rectangular tap highlight after
+      // opening the drawer. Snapshot only the settled, actual inventory UI.
+      await page.waitForTimeout(250);
       await page.screenshot({path:"qa096-screenshots/art103c-bag-"+width+".png"});
       await page.locator("#ui092-sheet-close").tap();
       assert.equal(await page.locator("#ui092-sheet").isHidden(),true);
@@ -4627,6 +4630,12 @@ test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics a
     const original=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
     await page.locator('[data-refuge-go="character"]').tap();
     assert.equal(await page.locator("#actor-stats-sheet").evaluate(n=>n.open),true);
+    // QA-104: clicking Égaré must actually reveal the dossier, not merely
+    // toggle a navigation highlight at the top of the tall refuge page.
+    await page.waitForFunction(()=>{
+      const target=document.getElementById("refuge-character-slot")?.getBoundingClientRect();
+      return Boolean(target&&target.top<innerHeight-82&&target.bottom>0);
+    },null,{timeout:7500});
     assert.equal(await page.locator("#actor103d-name").textContent(),"L'Égaré");
     assert.equal(await page.locator("#actor103d-level").textContent(),"Niv. 1");
     assert.equal(await page.locator("#actor103d-location").textContent(),"Veyr · refuge");
@@ -4652,7 +4661,7 @@ test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics a
           portraitWidth:img.width,portraitHeight:img.height,
           sheetLeft:sheet.left,sheetRight:sheet.right,
           widths:grid.map(n=>n.width),
-          summaryHeight:document.querySelector("#actor-stats-sheet summary").getBoundingClientRect().height
+          summaryHeight:document.querySelector("#actor-stats-sheet > summary").getBoundingClientRect().height
         };
       });
       assert.ok(geo.scroll<=geo.viewport+1,"No horizontal overflow: "+JSON.stringify(geo));
@@ -4663,10 +4672,66 @@ test("ART-103D mobile: hooded Sprite C sheet, real progression, combat metrics a
       assert.ok(geo.widths.every(w=>w>=80),
         "Calculated combat stats remain readable: "+JSON.stringify(geo));
       assert.ok(geo.summaryHeight>=44,"Opening sheet remains a touch target");
+      // QA-104: changing the Android viewport may reset document scrolling.
+      // The earlier screenshots accidentally showed Veyr's hero instead of
+      // the character portrait, despite their 'character' filenames.
+      // Align the *real* shared sheet above the fixed departure CTA.
+      await page.evaluate(()=>{
+        const sheet=document.getElementById("actor-stats-sheet");
+        const top=sheet.getBoundingClientRect().top+scrollY-14;
+        window.scrollTo({top,behavior:"instant"});
+      });
+      await page.waitForTimeout(120);
+      const sight=await page.evaluate(()=>{
+        const portrait=document.getElementById("actor103d-portrait");
+        const sheet=document.getElementById("actor-stats-sheet");
+        const r=portrait.getBoundingClientRect(), sr=sheet.getBoundingClientRect();
+        const overlay=document.getElementById("start-btn").getBoundingClientRect();
+        const x=r.left+r.width/2,y=r.top+r.height/2;
+        const at=document.elementFromPoint(x,y);
+        return {viewportHeight:innerHeight,portraitTop:r.top,portraitBottom:r.bottom,
+          sheetTop:sr.top,portraitHit:at===portrait||portrait.contains(at),
+          ctaTop:overlay.top,sheetWidth:sr.width,viewportWidth:innerWidth};
+      });
+      assert.ok(sight.portraitTop>=-1&&sight.portraitBottom<sight.viewportHeight-45,
+        "QA capture must include the actual Sprite C portrait: "+JSON.stringify(sight));
+      assert.equal(sight.portraitHit,true,
+        "No decorative or fixed overlay may cover the character portrait: "+JSON.stringify(sight));
       await page.screenshot({path:"qa096-screenshots/art103d-character-"+width+".png"});
+      // A full-element capture composits the fixed departure button across
+      // the MIDDLE of a tall image: that is not a real phone viewport. Capture
+      // the lower combat-stat section with normal Android scrolling instead.
+      await page.evaluate(()=>{
+        const stats=document.getElementById("actor103d-derived-grid");
+        const top=stats.getBoundingClientRect().top+scrollY-64;
+        window.scrollTo({top,behavior:"instant"});
+      });
+      await page.waitForTimeout(120);
+      const lower=await page.evaluate(()=>{
+        const r=document.getElementById("actor103d-derived-grid").getBoundingClientRect();
+        const c=document.getElementById("start-btn").getBoundingClientRect();
+        const details=document.querySelector("#actor103d-explain>summary").getBoundingClientRect();
+        return {statsTop:r.top,statsBottom:r.bottom,ctaTop:c.top,
+          detailsTapHeight:details.height,screen:innerHeight};
+      });
+      assert.ok(lower.statsTop>=0&&lower.statsBottom<lower.ctaTop,
+        "Combat values must fit above the real fixed CTA: "+JSON.stringify(lower));
+      assert.ok(lower.detailsTapHeight>=44,
+        "Detailed character calculations must remain touch accessible");
+      await page.screenshot({path:"qa096-screenshots/qa104-character-stats-"+width+".png"});
       assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),original,
         "Browsing portrait or changing Android viewport must never save a turn");
     }
+    // The extra calculations and equipped weapon are an optional native
+    // details section. Opening it is informational, never a game turn.
+    const explanation=page.locator("#actor103d-explain");
+    assert.equal(await explanation.evaluate(n=>n.open),false);
+    await explanation.locator("summary").tap();
+    assert.equal(await explanation.evaluate(n=>n.open),true);
+    assert.match(await page.locator("#actor-derived-values").textContent(),/Endurance maximale/);
+    assert.equal(await page.evaluate(()=>localStorage.getItem("rogov-web-v1")),original);
+    await explanation.locator("summary").tap();
+    assert.equal(await explanation.evaluate(n=>n.open),false);
     await page.locator("#start-btn").tap();
     assert.equal(await page.locator("#expedition").isVisible(),true);
     const actual=await page.evaluate(async()=>{

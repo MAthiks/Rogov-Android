@@ -55,3 +55,17 @@ La CI `DEV-080 — PR validation` exécute ce contrôle et stocke le résultat c
 - **B4 :** cartographier les SVG, sprites et textures consommés par CSS/ES modules/PWA/APK ; ne supprimer aucun actif sans preuve complète des dépendances.
 
 L'incident WebView intermittent continue d'être suivi dans [issue #91](https://github.com/MAthiks/Rogov-Android/issues/91), à diagnostiquer en TECH-108D. La recette physique Android reste obligatoire avant le GO final TECH-108.
+
+
+## Répétition d'un incident du runner WebView (tentatives CI du 23 novembre 2026)
+
+Le premier passage de la PR #92 a obtenu trois workflows verts (Web/Chromium, Chrome Android 13, APK classique). Le quatrième a échoué **après restauration de la sauvegarde** : `savePresent=true` et `tiles=121`, suivis de `CDP WebSocket closed before response`.
+
+La relance *du même code* a reproduit une fermeture du processus avec la même signature système :
+`ActivityManager: Killing ... com.rogov.webapk ... depends on provider com.google.android.gms/.fonts.provider.FontsProvider in dying proc com.google.android.gms.persistent`.
+
+Cette indication est plus spécifique qu'un défaut CDP générique : le runner Android 13 `google_apis` a fait mourir le processus de l'application lorsque son fournisseur Google Play Services est tombé, ce qui a interrompu l'inspection WebView. Le comportement du jeu est distinct et n'est pas reconnu comme fautif sans preuve.
+
+**Isolement du runner, uniquement CI :** le workflow `.github/workflows/webapk-qa.yml` utilise désormais `target: default` (image Android AOSP, sans Google Play Services) pour contrôler la WebView intégrée. Il conserve l'API 33, l'architecture x86_64, les scénarios JS natifs, la signature APK, les tests d'interface, la sauvegarde et le hors-ligne. La QA Google Chrome sur Android 13 reste assurée par `dev080-android-qa.yml` et n'est pas modifiée. Cette séparation écarte la dépendance de l'émulateur WebView à Google FontsProvider sans amoindrir les assertions.
+
+Le changement reste **candidat** : si l'image AOSP ou l'une des assertions échoue, la PR #92 reste bloquée ; les **quatre workflows verts sur le dernier SHA** sont indispensables. L'issue [#91](https://github.com/MAthiks/Rogov-Android/issues/91) reste ouverte pour la recette physique et les éventuelles intermittences résiduelles.

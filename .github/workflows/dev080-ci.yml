@@ -10,6 +10,7 @@ on:
       - "tools/pressure-audit.mjs"
       - "tools/tech108-audit.mjs"
       - "tools/tech108b-inventory.mjs"
+      - "tools/tech108b4-assets.mjs"
       - ".github/workflows/dev080-ci.yml"
   workflow_dispatch:
 permissions:
@@ -51,6 +52,20 @@ jobs:
         with:
           name: tech108b1-entrypoints
           path: tech108b1-entrypoints.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: TECH-108B4 — Read-only visual files, generated icons and sprite providers
+        shell: bash
+        run: |
+          node tools/make-icons.mjs
+          set -o pipefail
+          node tools/tech108b4-assets.mjs --check | tee tech108b4-assets.json
+      - name: Archive TECH-108B4 visual asset evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tech108b4-assets
+          path: tech108b4-assets.json
           if-no-files-found: warn
           retention-days: 30
       - name: GAME-095D1 — 100 seeded three-floor expedition surveys and isolated duels

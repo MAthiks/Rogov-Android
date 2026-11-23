@@ -2166,6 +2166,11 @@ test("QA-092 mobile: 320/360/393px cockpit, no covered controls, options and con
     await preloadDeepRun(page);
     for(const [width,height] of [[320,640],[360,780],[393,704]]){
       await page.setViewportSize({width,height});
+      // The viewport dimensions change before resize / ResizeObserver has
+      // settled the camera. Measure after two actual frames, as QA-106G does;
+      // keep every overlap and minimum touch-target assertion unchanged.
+      await page.evaluate(()=>new Promise(resolve=>
+        requestAnimationFrame(()=>requestAnimationFrame(resolve))));
       const geometry=await page.evaluate(()=>{
         const get=id=>document.getElementById(id).getBoundingClientRect();
         const map=get("tile-map"),dock=get("field-controls"),nav=get("expedition-shortcuts");

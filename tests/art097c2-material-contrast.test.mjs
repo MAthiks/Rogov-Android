@@ -12,13 +12,13 @@ const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
 const noExternal=/<(?:script|image|filter|animate|foreignObject|text)\b|(?:xlink:)?href\s*=/i;
 const inline=src=>decodeURIComponent(src.slice("data:image/svg+xml;charset=UTF-8,".length));
 
-test("ART-097C2: quiet floors and raised wall faces retain all 54 deterministic 24px tiles",()=>{
-  assert.equal(TERRAIN_SVGS.floor.length,6);
+test("ART-097C2: quiet floors and raised wall faces retain all 56 deterministic 24px tiles",()=>{
+  assert.equal(TERRAIN_SVGS.floor.length,8);
   assert.equal(TERRAIN_SVGS.wall.length,16);
   assert.ok(TERRAIN_SVGS.wall.every(a=>a.length===3));
   const art=[...TERRAIN_SVGS.floor,...TERRAIN_SVGS.wall.flat()];
-  assert.equal(art.length,54);
-  assert.equal(new Set(art).size,54);
+  assert.equal(art.length,56);
+  assert.equal(new Set(art).size,56);
   for(const floor of TERRAIN_SVGS.floor){
     assert.match(floor,/data-material="worn-floor-slabs"/);
     assert.match(floor,/data-detail="art097c2-floor-joint-hierarchy"/);

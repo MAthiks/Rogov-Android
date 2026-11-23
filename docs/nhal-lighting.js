@@ -2,6 +2,7 @@
 // Decorative torches are not map entities, do not alter pathing, turns,
 // triggers, loot, traps, encounters or any serialized game state.
 import {terrainHash} from "./terrain-art.js";
+import {sconceFinish107B} from "./art107b-tileset.js";
 
 const svg=parts=>'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">'+parts+"</svg>";
 export const SCONCE_SVG=svg(
@@ -27,6 +28,7 @@ export const SCONCE_SVG=svg(
   '<path d="M10 2h2v2h-2Z" fill="#d27b3c"/>'+
   '<path d="M10 20h4v1h-4Z" fill="#78634c"/>'+
   '</g>'+
+  sconceFinish107B()+
   '</g>'
 );
 export const SCONCE_SPRITE="data:image/svg+xml;charset=UTF-8,"+

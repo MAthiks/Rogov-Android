@@ -10,12 +10,12 @@ import {newGame,beginRun,validateSave,SAVE_KEY,SCHEMA_VERSION} from "../docs/gam
 const uriPrefix="data:image/svg+xml;charset=UTF-8,";
 const decode=src=>decodeURIComponent(src.slice(uriPrefix.length));
 
-test("ART-097A1: all 54 original 24x24 textures have legible structural relief",()=>{
+test("ART-097A1: all 56 original 24x24 textures have legible structural relief",()=>{
   const floors=TERRAIN_SVGS.floor;
   const walls=TERRAIN_SVGS.wall.flat();
-  assert.equal(floors.length,6);
+  assert.equal(floors.length,8);
   assert.equal(walls.length,48);
-  assert.equal(new Set([...floors,...walls]).size,54);
+  assert.equal(new Set([...floors,...walls]).size,56);
   for(const xml of floors){
     assert.match(xml,/data-material="worn-floor-slabs"/);
     assert.match(xml,/data-detail="floor-beveled-masonry"/);

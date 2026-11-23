@@ -4053,7 +4053,7 @@ test("UI-098B1 mobile: Combat actions scroll and Fermer restores the map", {time
 });
 
 
-test("ART-097C2 mobile: inspect 54-material family and seven Sprite C portraits without touching a run", {timeout:45000},async()=>{
+test("ART-097C2 mobile: inspect 56-material family and seven Sprite C portraits without touching a run", {timeout:45000},async()=>{
   const context=await mobileContext();
   try{
     const page=await context.newPage(),errors=[];
@@ -4091,7 +4091,7 @@ test("ART-097C2 mobile: inspect 54-material family and seven Sprite C portraits 
         group.append(grid);
       };
       addSection("PERSONNAGES — 4 directions et 3 adversaires",hero.concat(foes));
-      addSection("MATIÈRES — 6 dalles et 3 parements",floors.concat(walls));
+      addSection("MATIÈRES — 8 dalles et 3 parements",floors.concat(walls));
       document.body.append(group);
       await Promise.all([...group.querySelectorAll("img")].map(img=>img.decode()));
       return {
@@ -4103,7 +4103,7 @@ test("ART-097C2 mobile: inspect 54-material family and seven Sprite C portraits 
         mapCells:document.querySelectorAll("#tile-map .pixel-tile").length
       };
     });
-    assert.equal(evidence.images,16);
+    assert.equal(evidence.images,18);
     assert.equal(evidence.size24,true);
     assert.equal(evidence.noHorizontalOverflow,true);
     assert.equal(evidence.fogSafe,true);

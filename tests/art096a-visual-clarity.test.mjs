@@ -13,13 +13,13 @@ const xmlOf=uri=>decodeURIComponent(uri.slice(prefix.length));
 const all=[...TERRAIN_SVGS.floor,...TERRAIN_SVGS.wall.flat(),
   ...Object.values(INTERACTIVE_SVGS),...Object.values(ENEMY_SVGS)];
 
-test("ART-096A: stone floor is quieter than raised wall geometry across 54 deterministic variants",()=>{
-  assert.equal(TERRAIN_SVGS.floor.length,6);
+test("ART-096A: stone floor is quieter than raised wall geometry across 56 deterministic variants",()=>{
+  assert.equal(TERRAIN_SVGS.floor.length,8);
   assert.equal(TERRAIN_SVGS.wall.length,16);
   assert.ok(TERRAIN_SVGS.wall.every(x=>x.length===3));
   for(const x of TERRAIN_SVGS.floor)assert.match(x,/data-material="worn-floor-slabs"/);
   for(const x of TERRAIN_SVGS.wall.flat())assert.match(x,/data-material="raised-stone-ledge"/);
-  assert.equal(new Set(TERRAIN_SVGS.floor).size,6);
+  assert.equal(new Set(TERRAIN_SVGS.floor).size,8);
   assert.equal(new Set(TERRAIN_SVGS.wall.flat()).size,48);
   const map=["#####","#...#","#####"];
   const before=JSON.stringify(map);

@@ -53,10 +53,10 @@ test("UI-099: portrait-only CSS reduces the long document and preserves native a
   assert.match(sw,/const CACHE_NAME = "rogov-v0\.7f-uiart099-[a-z0-9-]+"/);
 });
 
-test("ART-099: six quieter slabs, 48 real walls, 54 offline 24px SVGs unchanged",()=>{
+test("ART-099: original six quiet slab materials preserved across eight surfaces and 48 walls",()=>{
   const floors=TERRAIN_SVGS.floor,walls=TERRAIN_SVGS.wall.flat();
-  assert.equal(floors.length,6);assert.equal(walls.length,48);
-  assert.equal(new Set([...floors,...walls]).size,54);
+  assert.equal(floors.length,8);assert.equal(walls.length,48);
+  assert.equal(new Set([...floors,...walls]).size,56);
   for(const src of floors){
     assert.match(src,/data-detail="ui099-quiet-floor" opacity=".32"/);
     assert.match(src,/data-detail="ui099-soft-patina" opacity=".45"/);

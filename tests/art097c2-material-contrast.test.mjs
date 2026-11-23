@@ -22,7 +22,9 @@ test("ART-097C2: quiet floors and raised wall faces retain all 56 deterministic 
   for(const floor of TERRAIN_SVGS.floor){
     assert.match(floor,/data-material="worn-floor-slabs"/);
     assert.match(floor,/data-detail="art097c2-floor-joint-hierarchy"/);
-    assert.match(floor,/fill="#2e3c42" opacity=".38"/);
+    assert.match(floor,/data-art="art107c-flagstone"/);
+    assert.match(floor,/data-detail="floor-mortar-depth"/);
+    assert.match(floor,/data-detail="floor-beveled-masonry"/);
     assert.doesNotMatch(floor,/data-(?:detail|material)="(?:secret|door|trap|enemy|chest)/);
   }
   for(const wall of TERRAIN_SVGS.wall.flat()){

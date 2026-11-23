@@ -3,6 +3,7 @@ import {floorMasonry106C,wallMasonry106C} from "./art106c-masonry.js";
 import {floorRelief107A,wallRelief107A} from "./art107a-finishes.js";
 import {floorFinish107B,wallFinish107B} from "./art107b-tileset.js";
 import {floorRhythm107B3,floorRhythmIndex107B3,FLOOR_RHYTHMS_107B3} from "./art107b34-finishes.js";
+import {flagstoneGeometry107C} from "./art107c-flagstones.js";
 // Terrain styling cannot change collisions, doors, visibility or combat RNG.
 // All terrain sprites are 24x24 SVGs; no external image requests.
 export const TERRAIN_PALETTE=Object.freeze({
@@ -48,29 +49,22 @@ const floorRelief=Object.freeze([
   '<path d="M3 3v5M4 4h6M17 16h4v3" fill="none" stroke="#647278" stroke-width="1"/>'
 ]);
 function floorSvg(variant,rhythm=0){
-  // Historical six surfaces remain intact; B1 adds two independent finish variants.
   const base=variant%floorDetails.length;
+  // ART-107C: a genuinely different stone layout, not another scratch
+  // painted over the same old joints. Every tile is still a single 24px SVG.
   return svg(
-    '<rect width="24" height="24" fill="#202d33"/>'+
-    '<path data-material="worn-floor-slabs" d="M1 1h11v7H1ZM15 11h8v8h-8ZM1 12h7v7H1Z" fill="#2e3c42" opacity=".38"/>'+
-    '<path d="M2 2h8M16 12h5M2 13h4" stroke="#526068" stroke-width="1" opacity=".45"/>'+
-    '<path d="M0 9h12M14 9h10M14 0v9M9 9v15M0 20h9M10 20h14" stroke="#151f25" stroke-width="1" opacity=".54"/>'+
-    '<path d="M0 10h12M14 10h10M15 0v9M10 10v14M0 21h9M11 21h13" stroke="#37454b" stroke-width="1" opacity=".42"/>'+
-    '<rect x="2" y="12" width="1" height="1" fill="#435257"/>'+
-    '<rect x="18" y="3" width="2" height="1" fill="#334449"/>'+
-    // One-pixel edge lighting adds volume without making the quiet floor
-    // compete with the hero, a visible trap or the extraction portal.
-    '<path data-detail="floor-beveled-masonry" d="M2 2h9M2 3v5M16 12h6M16 13v5M2 13h5M2 14v4" stroke="#637179" stroke-width="1" opacity=".32"/>'+
-    '<path data-detail="floor-mortar-depth" d="M0 8h12M14 8h10M13 0v10M8 11v13M0 19h9M10 19h14" stroke="#0e181f" stroke-width="1" opacity=".75"/>'+
-    // ART-097C2: rest the center of each slab; concentrate visual contrast
-    // on masonry joints so foes and the hooded hero stand out at 24px.
-    '<path data-detail="art097c2-floor-joint-hierarchy" d="M1 11h7M15 20h7M2 4h3" stroke="#516267" stroke-width="1" opacity=".52"/>'+
-    // UI/ART-099: reduce high-frequency scratches and moss at real phone
-    // scale; stable hash/number of variants and masonry landmarks unchanged.
-    '<g data-detail="ui099-quiet-floor" opacity=".32">'+floorDetails[base]+'</g>'+
-    '<g data-detail="ui099-soft-patina" opacity=".45">'+floorPatina[base]+'</g>'+
-    '<g data-detail="ui100-floor-broad-relief" opacity=".48">'+floorRelief[base]+'</g>'+
-    '<path data-detail="ui100-floor-recess" d="M1 9h11M14 9h9M9 20h14" stroke="#0c1920" stroke-width="1" opacity=".4"/>'+floorMasonry106C(base)+floorRelief107A(base)+floorFinish107B(variant)+floorRhythm107B3(rhythm)
+    flagstoneGeometry107C(rhythm)+
+    // Retain historical material wear as faint cosmetic patina, but old joint
+    // paths can no longer dictate the shape of every slab.
+    '<g data-detail="art107c-inherited-wear" opacity=".21">'+
+      '<g data-detail="ui099-quiet-floor" opacity=".32">'+floorDetails[base]+'</g>'+
+      '<g data-detail="ui099-soft-patina" opacity=".45">'+floorPatina[base]+'</g>'+
+      '<g data-detail="ui100-floor-broad-relief" opacity=".48">'+floorRelief[base]+'</g>'+
+      '<path data-detail="art097c2-floor-joint-hierarchy" d="M2 4h3M17 20h5" stroke="#516267" stroke-width="1"/>'+
+      '<path data-detail="ui100-floor-recess" d="M2 18h7M15 6h7" stroke="#0c1920" stroke-width="1"/>'+
+      floorMasonry106C(base)+floorRelief107A(base)+
+      floorFinish107B(variant)+floorRhythm107B3(rhythm)+
+    '</g>'
   );
 }
 

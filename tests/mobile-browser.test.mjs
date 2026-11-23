@@ -4093,7 +4093,7 @@ test("ART-097C2 mobile: inspect 56-material family, four paving rhythms and seve
       };
       addSection("PERSONNAGES — 4 directions et 3 adversaires",hero.concat(foes));
       addSection("MATIÈRES — 8 dalles et 3 parements",floors.concat(walls));
-      addSection("ART-107B3 — 4 rythmes de dallage",rhythms);
+      addSection("ART-107C — 4 géométries de dallage",rhythms);
       document.body.append(group);
       await Promise.all([...group.querySelectorAll("img")].map(img=>img.decode()));
       return {

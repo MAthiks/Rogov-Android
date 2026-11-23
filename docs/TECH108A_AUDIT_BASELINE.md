@@ -81,3 +81,19 @@ Commande locale après checkout : `node tools/make-icons.mjs && node tools/tech1
 | GO technique final | quatre workflows verts, sauvegardes, PWA offline, Android physique | **Non accordé** |
 
 **Recette physique obligatoire après la CI :** Android Chrome et PWA, APK classique et WebView moderne ; trois cycles de sauvegarde → fermeture forcée → reprise → mode avion, avec comparaison exacte du tour, de la carte, du sac, du brouillard et des commandes. QA-106G reste ouverte sur cette partie. Ne pas reprendre les changements de gameplay avant clôture TECH-108.
+
+
+## 7. Résultats initiaux et correctifs de stabilisation (23 novembre 2026)
+
+Premier passage CI de PR #90 :
+- **419/419 tests moteur** et inventaire de ressources TECH-108A : succès.
+- Chrome Android 13 et APK classique : succès.
+- Chromium/Playwright : 80/81 sous-tests réussis ; un chevauchement tactile réel à 320×640 (raccourcis jusqu'à y=503,16 ; D-pad à y=492).
+- APK WebView moderne : échec au démarrage du débogage CDP, cibles `[]`, puis processus absent lors de la relance. Aucune preuve de perte de sauvegarde à ce stade.
+
+Mesures de stabilisation dans la même PR, en amont du nettoyage B :
+1. `docs/uiart106e.js` : sur écran court uniquement (largeur ≤350, hauteur ≤700), le minimum de caméra passe de 200 à 160 px pour que la vraie carte puisse se placer au-dessus des commandes ; **topologie 11×11, règles, brouillard, sprites et cibles tactiles inchangés**.
+2. `tests/uiart106e-responsive.test.mjs` : garde-fou pour 320×640, six raccourcis et 121 cases ; l'assertion Chromium existante reste inchangée.
+3. `tools/smoke-webapk.sh` : diagnostic du PID, port ADB/CDP, processus et logs ; ne pas laisser `pipefail` interrompre la collecte lors d'un `pidof` absent. Une seule relance n'est permise que sur perte de transport CDP au démarrage, **jamais** sur un échec fonctionnel de jeu, de sauvegarde ou de mode hors ligne.
+
+Les quatre workflows doivent être à nouveau verts **sur le dernier commit de la PR #90** avant toute fusion. Le risque WebView reste ouvert dans [issue #91](https://github.com/MAthiks/Rogov-Android/issues/91) et la recette Android physique demeure obligatoire.

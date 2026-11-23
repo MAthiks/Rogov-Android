@@ -97,3 +97,10 @@ Mesures de stabilisation dans la même PR, en amont du nettoyage B :
 3. `tools/smoke-webapk.sh` : diagnostic du PID, port ADB/CDP, processus et logs ; ne pas laisser `pipefail` interrompre la collecte lors d'un `pidof` absent. Une seule relance n'est permise que sur perte de transport CDP au démarrage, **jamais** sur un échec fonctionnel de jeu, de sauvegarde ou de mode hors ligne.
 
 Les quatre workflows doivent être à nouveau verts **sur le dernier commit de la PR #90** avant toute fusion. Le risque WebView reste ouvert dans [issue #91](https://github.com/MAthiks/Rogov-Android/issues/91) et la recette Android physique demeure obligatoire.
+
+
+### QA sur la synchronisation de la caméra après un changement de viewport
+
+Le deuxième passage CI de PR #90 a confirmé **3/4 workflows verts** (Chrome Android, APK classique, WebView moderne), mais le dernier test Chromium a donné exactement les mêmes coordonnées de chevauchement au **premier instant** après `page.setViewportSize`. Ce test lisait la géométrie sans laisser la boucle graphique exécuter les callbacks `resize` / `ResizeObserver` de la caméra. Un contrôle supplémentaire attend désormais **deux vraies frames d'affichage** avant l'assertion **inchangée** de non-chevauchement et relève explicitement la largeur réelle de la caméra et la fin des raccourcis.
+
+Aucun délai arbitraire n'a été ajouté et aucun seuil tactile ou assertion de brouillard/sauvegarde n'a été relâché. Si la disposition persiste après stabilisation, l'échec bloquera toujours la fusion. Les quatre workflows devront être réexécutés sur le nouveau SHA.

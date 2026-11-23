@@ -3,7 +3,7 @@
 **Date :** 23 novembre 2026  
 **Branche :** `feature/art-107c-nhal-flagstone-geometry`  
 **Base :** `main` après ART-107B3/B4 — PR #86, commit `1128ad2`.  
-**État initial :** code implémenté sur branche, PR et CI à valider avant fusion.
+**Statut :** PR #87 fusionnée dans `main` après 4/4 CI réussies ; recette sur Android physique QA-106G toujours ouverte.
 
 ## Problème corrigé
 
@@ -41,12 +41,18 @@ Les 4 familles de géométrie changent les grandes masses (et pas seulement les 
 
 QA-106G reste ouverte sur téléphone physique, surtout le cycle sauvegarde → redémarrage → mode avion → reprise WebView. Le problème intermittent de débogage WebView sur PR #86 n'a pas de cause définitivement confirmée.
 
-## Validation GitHub
+## Validation GitHub — clôture technique du 23 novembre 2026
 
-- PR : à confirmer.
-- SHA vérifié : à renseigner.
-- Web/Chromium : en attente.
-- Chrome Android 13 : en attente.
-- APK classique : en attente.
-- WebView moderne : en attente.
-- Recette physique : non réalisée.
+- **PR #87 fusionnée :** https://github.com/MAthiks/Rogov-Android/pull/87
+- **Dernier SHA de branche validé :** `f2cbaf9e1166f430f34ce17beb5ef90cb1231c83`.
+- **Commit squash de fusion :** `317b0ae751e42caca775cd0a6f3e01b6f57f9837`.
+- **Web / Chromium : succès** — https://github.com/MAthiks/Rogov-Android/actions/runs/45190585067 — 80/80 interactions Chromium réussies, tests moteur et audits verts.
+- **Chrome Android 13 : succès** — https://github.com/MAthiks/Rogov-Android/actions/runs/45190585301
+- **APK Android classique : succès** — https://github.com/MAthiks/Rogov-Android/actions/runs/45190585196
+- **WebView moderne : succès** — https://github.com/MAthiks/Rogov-Android/actions/runs/45190584988, y compris sauvegarde, redémarrage et hors ligne.
+- **Correctifs de CI :** l'assertion historique ART-097C2 exigeant l'ancien aplat `#2e3c42` a été remplacée par un contrôle des nouveaux joints et reliefs. Le test WebView a reçu un diagnostic Android explicite si le processus natif disparaît après un rechargement hors ligne ; aucune assertion de reprise n'a été supprimée.
+- **Historique WebView à garder :** la première série de ART-107C a de nouveau perdu le PID natif lors d'un rechargement hors ligne, puis la seconde est passée entièrement. Cette instabilité, déjà observée dans ART-107B, n'est **pas démontrée résolue** sur appareil physique.
+- **Captures inspectées :** artefact Chromium `qa096-chromium-portraits` ID `14826043439` ; galerie de 22 aperçus avec 4 géométries distinctes et vues du vrai Nhal 11×11 à 320×640, 360×800, 393×704 et 412×915.
+- **Mesures Chromium :** au 320×640, carte 264px, navigation 2px sous la carte, dock 27,9px sous navigation ; pas de débordement horizontal. Dans les 3 tailles du rapport QA-097 (320×640, 360×780, 393×704) : 121 cases, `lightLeak=0`, `enemyLeak=0`, sauvegarde et tours inchangés. Ceci est une recette émulée, pas un FPS réel de téléphone.
+- **Appréciation graphique :** les quatre lignes de maçonnerie sont réellement différentes et plus lisibles en galerie ; le jeu reste un pixel art sobre, encore moins riche que la capture ambitieuse de référence. Ne pas confondre validation technique et reproduction artistique complète.
+- **Statut final :** chantier ART-107C fusionné techniquement ; **QA-106G sur téléphone Android physique et GO graphique final restent ouverts**.

@@ -78,3 +78,12 @@ Le [run WebView #45232509632](https://github.com/MAthiks/Rogov-Android/actions/r
 Correctif d'outillage candidat : image `aosp_atd` Android 13/x86_64 allégée (2 cœurs, 3 Gio RAM et heap de 512 Mio), scénario de recette limité à 240 s pour éviter les exécutions infinies et commandes **diagnostiques ADB** limitées à 7 s. Les assertions de gameplay, de brouillard, de sauvegarde, de rendu et de mode hors ligne restent inchangées, une panne ADB reste un échec. Les autres workflows maintiennent leurs propres validations Android et Web ; aucune ressource ni moteur de jeu n'a été changé.
 
 Cette hypothèse doit être vérifiée dans une **nouvelle CI de 4/4** sur le dernier commit de PR #92. L'issue [#91](https://github.com/MAthiks/Rogov-Android/issues/91) reste ouverte pour les tests multi-cycles et appareil physique.
+
+
+### Retrait de la variante expérimentale ATD
+
+L'image `aosp_atd` a été testée sur [run #45239174357](https://github.com/MAthiks/Rogov-Android/actions/runs/45239174357) : émulateur démarré et APK installé, mais la connexion ADB est à nouveau passée à `offline` lors d'une commande CDP `Runtime.evaluate`. Le test a échoué normalement ; les diagnostics bornés ont cette fois terminé en quelques secondes, sans blocage de 35 minutes. L'hypothèse « AOSP allégé corrige l'incident » est donc **invalidée par ce run**.
+
+Le workflow revient à `google_apis` Android 13, 4 cœurs, 4096M RAM et heap 768M, paramètres qui avaient déjà permis 4/4 verts sur TECH-108A/PR #90. Les nouvelles sécurités (`timeout` de 240 s, diagnostics ADB de 7 s et log du fournisseur WebView) restent en place. Le risque d'intermittence Google Play Services demeure documenté dans l'issue #91, sans suppression des tests et sans GO physique.
+
+La PR #92 ne peut toujours pas être fusionnée sans quatre succès sur le dernier SHA après ce retour à la configuration éprouvée.

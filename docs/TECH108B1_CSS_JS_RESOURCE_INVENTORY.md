@@ -69,3 +69,12 @@ Cette indication est plus spécifique qu'un défaut CDP générique : le runner 
 **Isolement du runner, uniquement CI :** le workflow `.github/workflows/webapk-qa.yml` utilise désormais `target: default` (image Android AOSP, sans Google Play Services) pour contrôler la WebView intégrée. Il conserve l'API 33, l'architecture x86_64, les scénarios JS natifs, la signature APK, les tests d'interface, la sauvegarde et le hors-ligne. La QA Google Chrome sur Android 13 reste assurée par `dev080-android-qa.yml` et n'est pas modifiée. Cette séparation écarte la dépendance de l'émulateur WebView à Google FontsProvider sans amoindrir les assertions.
 
 Le changement reste **candidat** : si l'image AOSP ou l'une des assertions échoue, la PR #92 reste bloquée ; les **quatre workflows verts sur le dernier SHA** sont indispensables. L'issue [#91](https://github.com/MAthiks/Rogov-Android/issues/91) reste ouverte pour la recette physique et les éventuelles intermittences résiduelles.
+
+
+### Résultat de l'essai AOSP complet et encadrement des diagnostics
+
+Le [run WebView #45232509632](https://github.com/MAthiks/Rogov-Android/actions/runs/45232509632) sur l'image Android 13 `default` a **démarré l'émulateur et installé l'APK**. L'étape a ensuite échoué : ADB est passé hors ligne pendant une commande CDP de lancement de la partie (`Runtime.evaluate`), puis `adb logcat` s'est bloqué sur un appareil hors ligne. Le job a été annulé par sa limite de 35 minutes ; ce n'est **pas** une validation WebView.
+
+Correctif d'outillage candidat : image `aosp_atd` Android 13/x86_64 allégée (2 cœurs, 3 Gio RAM et heap de 512 Mio), scénario de recette limité à 240 s pour éviter les exécutions infinies et commandes **diagnostiques ADB** limitées à 7 s. Les assertions de gameplay, de brouillard, de sauvegarde, de rendu et de mode hors ligne restent inchangées, une panne ADB reste un échec. Les autres workflows maintiennent leurs propres validations Android et Web ; aucune ressource ni moteur de jeu n'a été changé.
+
+Cette hypothèse doit être vérifiée dans une **nouvelle CI de 4/4** sur le dernier commit de PR #92. L'issue [#91](https://github.com/MAthiks/Rogov-Android/issues/91) reste ouverte pour les tests multi-cycles et appareil physique.

@@ -4053,7 +4053,7 @@ test("UI-098B1 mobile: Combat actions scroll and Fermer restores the map", {time
 });
 
 
-test("ART-097C2 mobile: inspect 56-material family and seven Sprite C portraits without touching a run", {timeout:45000},async()=>{
+test("ART-097C2 mobile: inspect 56-material family, four paving rhythms and seven Sprite C portraits without touching a run", {timeout:45000},async()=>{
   const context=await mobileContext();
   try{
     const page=await context.newPage(),errors=[];
@@ -4064,10 +4064,11 @@ test("ART-097C2 mobile: inspect 56-material family and seven Sprite C portraits 
     const evidence=await page.evaluate(async()=>{
       const {HERO_SPRITES}=await import("./hero-art.js");
       const {ENEMY_SPRITES}=await import("./enemy-art.js");
-      const {TERRAIN_SPRITES}=await import("./terrain-art.js");
+      const {TERRAIN_SPRITES,TERRAIN_FLOOR_RHYTHM_SPRITES}=await import("./terrain-art.js");
       const hero=Object.entries(HERO_SPRITES).map(([name,src])=>["Égaré "+name,src]);
       const foes=Object.entries(ENEMY_SPRITES).map(([name,src])=>[name,src]);
       const floors=TERRAIN_SPRITES.floor.map((src,i)=>["Sol "+(i+1),src]);
+      const rhythms=TERRAIN_FLOOR_RHYTHM_SPRITES[0].map((src,i)=>["Rythme "+(i+1),src]);
       const walls=[0,1,2].map(i=>["Mur "+(i+1),TERRAIN_SPRITES.wall[5][i]]);
       const group=document.createElement("section");group.id="art097c2-qa-gallery";
       group.style.cssText="position:fixed;inset:0;z-index:1000;overflow:auto;background:#0b151a;color:#e2e0ce;padding:12px;box-sizing:border-box;font:12px/1.3 system-ui,sans-serif";
@@ -4092,6 +4093,7 @@ test("ART-097C2 mobile: inspect 56-material family and seven Sprite C portraits 
       };
       addSection("PERSONNAGES — 4 directions et 3 adversaires",hero.concat(foes));
       addSection("MATIÈRES — 8 dalles et 3 parements",floors.concat(walls));
+      addSection("ART-107B3 — 4 rythmes de dallage",rhythms);
       document.body.append(group);
       await Promise.all([...group.querySelectorAll("img")].map(img=>img.decode()));
       return {
@@ -4103,7 +4105,7 @@ test("ART-097C2 mobile: inspect 56-material family and seven Sprite C portraits 
         mapCells:document.querySelectorAll("#tile-map .pixel-tile").length
       };
     });
-    assert.equal(evidence.images,18);
+    assert.equal(evidence.images,22);
     assert.equal(evidence.size24,true);
     assert.equal(evidence.noHorizontalOverflow,true);
     assert.equal(evidence.fogSafe,true);

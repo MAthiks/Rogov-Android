@@ -5223,3 +5223,83 @@ test("UI/ART-106F mobile: authentic tactical target remains actionable in forged
     assert.deepEqual(errors,[]);
   }finally{await context.close();}
 });
+
+
+test("QA-106G mobile: three offline PWA reloads keep the real 11x11 run and controls", {timeout:140000},async()=>{
+  // Playwright Android-sized browser evidence, NOT a physical-device signoff.
+  // Unlike the native WebView test, this checks cached PWA lifecycle only.
+  const context=await mobileContext("allow");
+  try{
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",e=>errors.push(e.message));
+    await page.goto(origin);
+    await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller),
+      null,{timeout:25000});
+    await preloadDeepRun(page);
+    const baseline=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+    assert.ok(baseline&&JSON.parse(baseline).run);
+    await mkdir("qa096-screenshots",{recursive:true});
+    await context.setOffline(true);
+    for(let cycle=1;cycle<=3;cycle++){
+      await page.reload({waitUntil:"load"});
+      await page.locator("#title-continue").tap();
+      await page.locator("#expedition").waitFor({state:"visible"});
+      assert.equal(await page.locator("#tile-map .pixel-tile").count(),121,
+        "Nhal must stay 11x11 offline at cycle "+cycle);
+      for(const [width,height] of [[320,640],[360,800],[393,704],[412,915]]){
+        await page.setViewportSize({width,height});
+        const audit=await page.evaluate(()=>{
+          const all=[...document.querySelectorAll("#tile-map .pixel-tile")];
+          const unknown=all.filter(c=>c.dataset.knowledge==="unknown");
+          const visible=all.filter(c=>c.dataset.knowledge==="visible");
+          const map=document.getElementById("tile-map").getBoundingClientRect();
+          const pad=document.getElementById("field-controls").getBoundingClientRect();
+          const shortcuts=[...document.querySelectorAll("#expedition-shortcuts button")];
+          const touches=shortcuts.map(b=>{
+            const r=b.getBoundingClientRect();
+            return {id:b.id,width:r.width,height:r.height,bottom:r.bottom};
+          });
+          const hero=document.querySelector("#tile-map .tile-hero img");
+          return {
+            tiles:all.length,visible:visible.length,unknown:unknown.length,
+            unknownSafe:unknown.every(c=>!c.querySelector("img")&&
+              !c.style.backgroundImage&&!c.dataset.enemyId&&!c.dataset.intent),
+            enemiesFogSafe:all.every(c=>c.dataset.knowledge==="visible"||
+              !c.classList.contains("hostile-tile")),
+            heroCount:all.filter(c=>c.classList.contains("tile-hero")).length,
+            heroLoaded:!!hero&&hero.complete&&hero.naturalWidth===24,
+            shortcutCount:shortcuts.length,touches,
+            screen:innerWidth,scroll:document.documentElement.scrollWidth,
+            mapBottom:map.bottom,padTop:pad.top,
+            turns:document.getElementById("turns").textContent
+          };
+        });
+        assert.equal(audit.tiles,121);
+        assert.ok(audit.visible>0,JSON.stringify(audit));
+        assert.equal(audit.unknownSafe,true,"Fog contains no revealed art");
+        assert.equal(audit.enemiesFogSafe,true,"Fog contains no enemy cues");
+        assert.equal(audit.heroCount,1);
+        assert.equal(audit.heroLoaded,true,"Sprite C must decode offline");
+        assert.equal(audit.shortcutCount,6);
+        assert.ok(audit.touches.every(b=>b.width>=44&&b.height>=44),
+          "All six touch targets remain accessible "+JSON.stringify(audit));
+        assert.ok(audit.touches.every(b=>b.bottom<=audit.padTop+2),
+          "Shortcuts must not collide with D-pad "+JSON.stringify(audit));
+        assert.ok(audit.mapBottom<=audit.padTop+2);
+        assert.ok(audit.scroll<=audit.screen+1,
+          "No horizontal overflow "+JSON.stringify(audit));
+        assert.equal(audit.turns,"0","Reload/resize must not advance turns");
+      }
+      const saved=await page.evaluate(()=>localStorage.getItem("rogov-web-v1"));
+      assert.equal(saved,baseline,
+        "Offline reload must not mutate serialized save at cycle "+cycle);
+      await page.setViewportSize({width:360,height:800});
+      await page.screenshot({path:
+        "qa096-screenshots/qa106g-pwa-offline-cycle-"+cycle+"-360x800.png"});
+    }
+    assert.deepEqual(errors,[],"No browser errors over three offline cycles");
+  }finally{
+    await context.setOffline(false);
+    await context.close();
+  }
+});

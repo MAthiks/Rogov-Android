@@ -5248,6 +5248,11 @@ test("QA-106G mobile: three offline PWA reloads keep the real 11x11 run and cont
         "Nhal must stay 11x11 offline at cycle "+cycle);
       for(const [width,height] of [[320,640],[360,800],[393,704],[412,915]]){
         await page.setViewportSize({width,height});
+        // setViewportSize updates the outer dimensions before the actual
+        // window.resize / ResizeObserver camera fitting callback has painted.
+        // Wait for two real browser frames; do NOT waive overlap assertions.
+        await page.evaluate(()=>new Promise(resolve=>
+          requestAnimationFrame(()=>requestAnimationFrame(resolve))));
         const audit=await page.evaluate(()=>{
           const all=[...document.querySelectorAll("#tile-map .pixel-tile")];
           const unknown=all.filter(c=>c.dataset.knowledge==="unknown");
@@ -5272,7 +5277,10 @@ test("QA-106G mobile: three offline PWA reloads keep the real 11x11 run and cont
             heroLoaded:!!hero&&hero.complete&&hero.naturalWidth===24,
             shortcutCount:shortcuts.length,touches,
             screen:innerWidth,scroll:document.documentElement.scrollWidth,
-            mapBottom:map.bottom,padTop:pad.top,
+            mapTop:map.top,mapBottom:map.bottom,mapWidth:map.width,
+            cameraWidth:document.getElementById("tile-map").style.getPropertyValue("--nhal106e-map-width"),
+            navBottom:document.getElementById("expedition-shortcuts").getBoundingClientRect().bottom,
+            padTop:pad.top,
             interactiveControlsTop:Math.min(dpad.top,quick.top),
             turns:document.getElementById("turns").textContent
           };

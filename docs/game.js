@@ -1,7 +1,7 @@
 // ROGOV Web — deterministic, offline-first gameplay core. No DOM dependencies.
-import { DEFAULT_HERO_STATS, ENEMY_STATS, migrateHero, migrateEnemy, migrateRunStats,
+import { DEFAULT_HERO_STATS, migrateHero, migrateRunStats,
   validAttributes, validClassId, validLoadout, playerLoadout, EMPTY_LOADOUT, GEAR_SLOTS,
-  heroDerivedStats, enemyDerivedStats } from "./stats.js";
+  heroDerivedStats, enemyDerivedStats, EQUIPMENT_CATALOG } from "./stats.js";
 import { TACTICAL_COSTS, descentSeed, validSeed, resolveStrike, resolveActiveDefense,
   regenEndurance,roll } from "./combat-rules.js";
 import {validEnemyTactic,guardianDecision,guardianTactic,GUARDIAN_HEAVY_BONUS,
@@ -26,7 +26,6 @@ import {branchClue} from "./branch-intel.js";
 import {surveyRetreatSketch} from "./route-survey.js";
 import {RECIPES,canCraft} from "./economy.js";
 import {validEchoFindings,discoverEcho} from "./echo-investigation.js";
-import {EQUIPMENT_CATALOG} from "./stats.js";
 export const SAVE_KEY = "rogov-web-v1";
 export const SCHEMA_VERSION = 1;
 export const INVENTORY_LIMIT = 8;

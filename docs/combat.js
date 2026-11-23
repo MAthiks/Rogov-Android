@@ -1,6 +1,6 @@
 // ROGOV v0.7 DEV-070 — pure combat contract; no UI or change to v0.6 gameplay.
 // Future combat actions will use this contract, while v0.6 remains playable.
-import { MAP, ENEMY_TYPES, enemyAt } from "./game.js";
+import { MAP, ENEMY_TYPES } from "./game.js";
 import {guardianIntent,charognardIntent} from "./enemy-ai.js";
 import {chamberPursuitStep} from "./chamber-pursuit.js";
 

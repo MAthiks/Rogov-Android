@@ -60,6 +60,11 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 33
+          # The original Android 13 Google APIs image passed the full
+          # WebView/save/offline suite on TECH-108A. Both full AOSP and AOSP
+          # ATD later lost ADB mid-WebView: keep the known-good test matrix
+          # while retaining the strict watchdog and bounded diagnostics.
+          # Flaky emulator/GMS deaths remain tracked in issue #91.
           target: google_apis
           arch: x86_64
           profile: pixel_3a
@@ -68,7 +73,9 @@ jobs:
           heap-size: 768M
           emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: bash tools/smoke-webapk.sh
+          # Hard deadline also covers a disconnected ADB session. A timeout is
+          # an explicit failure, never an implicit pass.
+          script: timeout --signal=TERM --kill-after=10s 240s bash tools/smoke-webapk.sh
       - name: Archive independent modern debug APK and actual Android screenshot
         if: success()
         uses: actions/upload-artifact@v4

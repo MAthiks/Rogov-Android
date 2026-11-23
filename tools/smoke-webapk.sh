@@ -3,25 +3,30 @@ set -euo pipefail
 APK="webapp/build/outputs/apk/debug/webapp-debug.apk"
 PACKAGE="com.rogov.webapk"
 
-# Preserve evidence even when adb pidof returns nonzero under pipefail.
+# A disconnected emulator must never hang logcat or PID collection until the
+# GitHub job's 35-minute deadline. A missing PID remains a hard failure.
+adb_diagnostic() {
+  timeout --signal=TERM --kill-after=2s 7s adb "$@" || true
+}
 pid_of_app() {
-  local found
-  found="$(adb shell pidof "$PACKAGE" 2>/dev/null || true)"
-  printf '%s' "${found//$'\r'/}"
+  timeout --signal=TERM --kill-after=2s 7s adb shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r' || true
 }
 diagnose_webview() {
-  echo "::group::TECH-108A WebView failure evidence"
+  echo "::group::TECH-108B1 WebView failure evidence"
   echo "Package: $PACKAGE"
   echo "pidof: $(pid_of_app)"
-  adb forward --list || true
-  adb shell ps -A | grep -E 'rogov|webview|chromium' | tail -n 30 || true
-  adb shell dumpsys activity activities | grep -E -i 'rogov|resumed|crash' | tail -n 40 || true
+  adb_diagnostic devices -l
+  adb_diagnostic forward --list
+  adb_diagnostic shell ps -A | grep -E 'rogov|webview|chromium' | tail -n 30 || true
+  adb_diagnostic shell dumpsys activity activities | grep -E -i 'rogov|resumed|crash' | tail -n 40 || true
   curl --max-time 4 --silent --show-error http://127.0.0.1:9223/json/list || true
-  adb logcat -d -t 1200 | grep -E -i 'AndroidRuntime|FATAL EXCEPTION|com\.rogov\.webapk|crash|chromium' | tail -n 100 || true
+  adb_diagnostic logcat -d -t 1200 | grep -E -i 'AndroidRuntime|FATAL EXCEPTION|com\.rogov\.webapk|crash|chromium' | tail -n 100 || true
   echo "::endgroup::"
 }
 
 echo "APK-098A: install isolated Web/PWA APK on Android 13"
+echo "Android WebView provider:"
+adb_diagnostic shell cmd webviewupdate get-current-webview-package
 adb install "$APK"
 adb logcat -c
 adb shell am start -W -n "$PACKAGE/.MainActivity"
@@ -34,12 +39,12 @@ if [[ -z "$pid" ]]; then
 fi
 adb forward "tcp:9223" "localabstract:webview_devtools_remote_$pid"
 
-# Retry once ONLY for a CDP-target/transport failure while the APK is running.
-# Failed gameplay, save, offline, layout and DOM assertions stay HARD FAILURES.
+# Retry exactly once for a CDP-target/transport cold-start failure while the
+# APK process still exists. Functional, save, fog and offline failures never retry.
 if node --test tests/webapk-android-emulator.test.mjs 2>&1 | tee /tmp/rogov-webview-first.log; then
   echo "APK-098A: first WebView pass"
 elif grep -Eq "Android WebView JS inspection failed: (ROGOV's real WebView target not yet available|fetch failed)" /tmp/rogov-webview-first.log; then
-  echo "::warning::Android 13 WebView CDP unavailable on cold start; checking live process before one clean retry"
+  echo "::warning::Android 13 WebView CDP unavailable on cold start; verifying live process before one retry"
   if [[ -z "$(pid_of_app)" ]]; then
     echo "::error::WebView process ended before permitted CDP retry"
     diagnose_webview
@@ -62,7 +67,7 @@ elif grep -Eq "Android WebView JS inspection failed: (ROGOV's real WebView targe
     exit 1
   fi
 else
-  echo "::error::WebView failed a real assertion, not a permitted cold-start CDP error"
+  echo "::error::WebView failed a real assertion or non-permitted CDP disconnection"
   diagnose_webview
   exit 1
 fi

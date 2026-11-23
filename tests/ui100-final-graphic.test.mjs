@@ -9,12 +9,12 @@ import {INTERACTIVE_IDS,INTERACTIVE_SVGS} from "../docs/interaction-art.js";
 import {newGame,beginRun,validateSave,SAVE_KEY,SCHEMA_VERSION} from "../docs/game.js";
 const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
 
-test("UI/ART-100: 54 unique 24px deterministic masonry tiles gain broad stone depth",()=>{
+test("UI/ART-100: 56 unique 24px deterministic masonry tiles gain broad stone depth",()=>{
   const floors=TERRAIN_SVGS.floor,walls=TERRAIN_SVGS.wall.flat();
-  assert.equal(floors.length,6);
+  assert.equal(floors.length,8);
   assert.equal(walls.length,48);
-  assert.equal(new Set([...floors,...walls]).size,54);
-  assert.equal(TERRAIN_SPRITES.floor.length,6);
+  assert.equal(new Set([...floors,...walls]).size,56);
+  assert.equal(TERRAIN_SPRITES.floor.length,8);
   for(const xml of floors){
     assert.ok(xml.includes('data-detail="ui100-floor-broad-relief"'));
     assert.ok(xml.includes('data-detail="ui099-quiet-floor"'));

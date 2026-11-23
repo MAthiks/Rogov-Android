@@ -11,13 +11,13 @@ const view=(map,x,y,predicate=known,seed="dev-089b")=>
 const decode=data=>decodeURIComponent(data.slice("data:image/svg+xml;charset=UTF-8,".length));
 
 test("DEV-089B: original 24px SVG atlas has readable floors and 16 framed wall states",()=>{
-  assert.equal(TERRAIN_SVGS.floor.length,6);
+  assert.equal(TERRAIN_SVGS.floor.length,8);
   assert.equal(TERRAIN_SVGS.wall.length,16);
   assert.ok(TERRAIN_SVGS.wall.every(row=>row.length===3));
-  assert.equal(TERRAIN_SPRITES.floor.length,6);
+  assert.equal(TERRAIN_SPRITES.floor.length,8);
   assert.ok(TERRAIN_SPRITES.wall.every(row=>row.length===3));
   const all=[...TERRAIN_SPRITES.floor,...TERRAIN_SPRITES.wall.flat()];
-  assert.equal(new Set(all).size,54,"all 54 terrain variants must be distinct");
+  assert.equal(new Set(all).size,56,"all 56 terrain variants must be distinct");
   for(const src of all){
     assert.match(src,/^data:image\/svg\+xml;charset=UTF-8,/);
     const xml=decode(src);
@@ -37,19 +37,19 @@ test("DEV-089B: materials are deterministic and independent from dungeon RNG",()
     assert.equal(terrainHash(seed,x,y),terrainHash(seed,x,y));
     assert.equal(floorVariantAt(seed,x,y),floorVariantAt(seed,x,y));
     assert.equal(wallVariantAt(seed,x,y),wallVariantAt(seed,x,y));
-    assert.ok(floorVariantAt(seed,x,y)<6);
+    assert.ok(floorVariantAt(seed,x,y)<8);
     assert.ok(wallVariantAt(seed,x,y)<3);
     hashes.add(terrainHash(seed,x,y));
     floors.add(floorVariantAt(seed,x,y));
     walls.add(wallVariantAt(seed,x,y));
   }
   assert.ok(hashes.size>1300);
-  assert.equal(floors.size,6);
+  assert.equal(floors.size,8);
   assert.equal(walls.size,3);
   const map=["#####","#...#","#...#","#...#","#####"];
   const before=JSON.stringify(map);
   assert.equal(view(map,2,2),view(map,2,2));
-  assert.notEqual(view(map,2,2,known,seed),view(map,2,2,known,"other-layout"));
+  assert.notEqual(view(map,2,2,known,seed),view(map,2,2,known,"other-layout-v2"));
   assert.equal(JSON.stringify(map),before,"visual selection never mutates the saved map");
 });
 

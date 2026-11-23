@@ -1,6 +1,7 @@
 import {finishInteractive106D} from "./art106d-finishes.js";
 import {polishInteractive107A} from "./art107a-finishes.js";
 import {finishStructure107B} from "./art107b-tileset.js";
+import {finishSite107B3} from "./art107b34-finishes.js";
 // ART-091C — original 24 × 24 Sprite C assets for Nhal interactions.
 // Pure presentation; no randomness, browser APIs, remote images or game state.
 const svg=parts=>'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges">'+parts+"</svg>";
@@ -242,7 +243,7 @@ const BASE_INTERACTIVE_SVGS={
 };
 export const INTERACTIVE_SVGS=Object.freeze(Object.fromEntries(
   Object.entries(BASE_INTERACTIVE_SVGS).map(([id,source])=>
-    [id,finishStructure107B(id,polishInteractive107A(id,finishInteractive106D(id,source)))]))
+    [id,finishSite107B3(id,finishStructure107B(id,polishInteractive107A(id,finishInteractive106D(id,source))))]))
 );
 export const INTERACTIVE_SPRITES=Object.freeze(Object.fromEntries(
   INTERACTIVE_IDS.map(id=>[id,URI+encodeURIComponent(INTERACTIVE_SVGS[id])])

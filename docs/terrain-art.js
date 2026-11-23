@@ -2,6 +2,7 @@
 import {floorMasonry106C,wallMasonry106C} from "./art106c-masonry.js";
 import {floorRelief107A,wallRelief107A} from "./art107a-finishes.js";
 import {floorFinish107B,wallFinish107B} from "./art107b-tileset.js";
+import {floorRhythm107B3,floorRhythmIndex107B3,FLOOR_RHYTHMS_107B3} from "./art107b34-finishes.js";
 // Terrain styling cannot change collisions, doors, visibility or combat RNG.
 // All terrain sprites are 24x24 SVGs; no external image requests.
 export const TERRAIN_PALETTE=Object.freeze({
@@ -46,7 +47,7 @@ const floorRelief=Object.freeze([
   '<path d="M2 17h5M16 4h6M19 5v3" fill="none" stroke="#667b70" stroke-width="1"/>',
   '<path d="M3 3v5M4 4h6M17 16h4v3" fill="none" stroke="#647278" stroke-width="1"/>'
 ]);
-function floorSvg(variant){
+function floorSvg(variant,rhythm=0){
   // Historical six surfaces remain intact; B1 adds two independent finish variants.
   const base=variant%floorDetails.length;
   return svg(
@@ -69,7 +70,7 @@ function floorSvg(variant){
     '<g data-detail="ui099-quiet-floor" opacity=".32">'+floorDetails[base]+'</g>'+
     '<g data-detail="ui099-soft-patina" opacity=".45">'+floorPatina[base]+'</g>'+
     '<g data-detail="ui100-floor-broad-relief" opacity=".48">'+floorRelief[base]+'</g>'+
-    '<path data-detail="ui100-floor-recess" d="M1 9h11M14 9h9M9 20h14" stroke="#0c1920" stroke-width="1" opacity=".4"/>'+floorMasonry106C(base)+floorRelief107A(base)+floorFinish107B(variant)
+    '<path data-detail="ui100-floor-recess" d="M1 9h11M14 9h9M9 20h14" stroke="#0c1920" stroke-width="1" opacity=".4"/>'+floorMasonry106C(base)+floorRelief107A(base)+floorFinish107B(variant)+floorRhythm107B3(rhythm)
   );
 }
 
@@ -120,6 +121,15 @@ export const TERRAIN_SVGS=Object.freeze({
   wall:Object.freeze(Array.from({length:16},(_,mask)=>
     Object.freeze(Array.from({length:3},(_,v)=>wallSvg(mask,v)))))
 });
+// B3: four low-contrast paving rhythms per original material. The public
+// eight-material atlas above remains stable for legends and legacy callers.
+// The runtime only selects among prebuilt, offline 24x24 data URIs.
+export const TERRAIN_FLOOR_RHYTHM_SVGS=Object.freeze(
+  Array.from({length:TERRAIN_SVGS.floor.length},(_,material)=>
+    Object.freeze(Array.from({length:FLOOR_RHYTHMS_107B3.length},(_,rhythm)=>
+      floorSvg(material,rhythm)))));
+export const TERRAIN_FLOOR_RHYTHM_SPRITES=Object.freeze(
+  TERRAIN_FLOOR_RHYTHM_SVGS.map(row=>Object.freeze(row.map(uri))));
 export const TERRAIN_SPRITES=Object.freeze({
   floor:Object.freeze(TERRAIN_SVGS.floor.map(uri)),
   wall:Object.freeze(TERRAIN_SVGS.wall.map(row=>Object.freeze(row.map(uri))))
@@ -138,6 +148,9 @@ export function terrainHash(seed,x,y){
 }
 export function floorVariantAt(seed,x,y){
   return terrainHash(seed,x,y)%TERRAIN_SPRITES.floor.length;
+}
+export function floorRhythmAt(seed,x,y){
+  return floorRhythmIndex107B3(terrainHash(seed,x,y));
 }
 export function wallVariantAt(seed,x,y){
   return terrainHash(seed,x,y)%TERRAIN_SPRITES.wall[0].length;
@@ -167,5 +180,6 @@ export function terrainSpriteAt(map,x,y,isKnown,seed="nhal"){
   if(map[y]?.[x]==="#")
     return TERRAIN_SPRITES.wall[wallEdgeMask(map,x,y,isKnown)]
       [wallVariantAt(seed,x,y)];
-  return TERRAIN_SPRITES.floor[floorVariantAt(seed,x,y)];
+  return TERRAIN_FLOOR_RHYTHM_SPRITES[floorVariantAt(seed,x,y)]
+    [floorRhythmAt(seed,x,y)];
 }

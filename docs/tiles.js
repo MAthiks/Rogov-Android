@@ -1,6 +1,6 @@
 // ROGOV ORIGINAL ART v0.4 — functional pixel readability before decorative detail.
 // All sprites are written for ROGOV in inline SVG; no external images or licenses.
-import { MAP, ENEMY_TYPES, enemyAt, cameraBounds } from "./game.js";
+import { MAP, enemyAt, cameraBounds } from "./game.js";
 import { hasFog,visibleCells,visionKey } from "./exploration-visibility.js";
 import {trapAppearance} from "./traps.js";
 import {roomSiteAppearance} from "./room-events.js";

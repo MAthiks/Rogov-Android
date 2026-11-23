@@ -8,6 +8,7 @@ on:
       - "tools/balance-lab.mjs"
       - "tools/expedition-audit.mjs"
       - "tools/pressure-audit.mjs"
+      - "tools/tech108-audit.mjs"
       - ".github/workflows/dev080-ci.yml"
   workflow_dispatch:
 permissions:
@@ -24,6 +25,20 @@ jobs:
         run: |
           npm run check:web
           npm run test:web
+      - name: TECH-108A — Read-only source and resource reference audit
+        shell: bash
+        run: |
+          node tools/make-icons.mjs
+          set -o pipefail
+          node tools/tech108-audit.mjs --check | tee tech108a-baseline.json
+      - name: Archive TECH-108A baseline evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tech108a-baseline
+          path: tech108a-baseline.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: GAME-095D1 — 100 seeded three-floor expedition surveys and isolated duels
         run: |
           set -euo pipefail

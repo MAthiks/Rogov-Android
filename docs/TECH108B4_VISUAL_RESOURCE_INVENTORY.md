@@ -1,6 +1,6 @@
 # TECH-108B4 — Inventaire non destructif des ressources graphiques de ROGOV
 
-**Base :** chantier empilé sur TECH-108 / correction de cache PWA [PR #95](https://github.com/MAthiks/Rogov-Android/pull/95), branche issue de `ff1d67bbaccbb16d7b1fc051b9fdade486b2a6b0`. La PR #95 doit être fusionnée **avant** B4. `main` était `1d2a8fc1f97d0a9f77e0854157a01e9f5f225f68` lors de l'inventaire.
+**Base :** `main@5f19d72d06034d09a5c279cb82a4061fc590be1e` — protection PWA [PR #95](https://github.com/MAthiks/Rogov-Android/pull/95) fusionnée. B4 a été réancrée sur ce commit et ne contient **que ses cinq fichiers propres**.
 
 ## Mesure initiale et catégories (index Git)
 

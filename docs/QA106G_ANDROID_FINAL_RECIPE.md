@@ -106,3 +106,17 @@ Les captures Chromium du run Web PR #84 (artefact `qa096-chromium-portraits`, ID
 6. **Ergonomie** : contrôler l'absence de chevauchement des six raccourcis et du D-pad à 320×640, puis l'intégralité de l'interaction en 360×800, 393×704 et 412×915.
 
 **Statut :** CI verte 4/4 sur le code fusionné, captures Chromium du véritable jeu examinées, **recette physique et GO graphique toujours non réalisés**.
+
+## 9. Actualisation après ART-107B3/B4 — 23 novembre 2026
+
+**PR #86 fusionnée** (commit `1128ad2796446f3d7b7e359bf4ebcb8ae0233c07`), avec **4/4 workflows GitHub verts** sur `94878a3b0af9faaaedc396f16fc3ea0823894a31`. Voir [checkpoint ART-107B3/B4](ART107B34_FLOOR_RHYTHM_CHECKPOINT.md).
+
+### Scénarios de recette restants
+
+- **Répétition du terrain** : inspecter des salles ouvertes et des couloirs pendant deux descentes, avec les 8 matériaux et leurs quatre rythmes. Les captures Chromium de la PR #86 confirment un changement subtil ; les mêmes grandes lignes de maçonnerie reviennent souvent. Noter l'intérêt d'un futur changement **structurel des formes de dalles**.
+- **Acteurs et sites** : vérifier que Sprite C est identifiable en quatre directions sans cadre ajouté, ainsi que Gardien, Charognard et Larve ; ouvrir réellement les huit sites/passages connus et vérifier qu'aucun élément caché ou piège non révélé ne reçoit un sprite.
+- **Navigateur/PWA** : 320×640, 360×800, 393×704 et 412×915 : écran Nhal 11×11, commandes utilisables, aucun recouvrement ou dépassement horizontal ; vérifier aussi le tutoriel 15×9.
+- **WebView moderne — P1** : effectuer **trois cycles sur téléphone physique** : démarrer Nhal, laisser la sauvegarde s'écrire, fermer/relancer l'APK, reprendre la descente, activer le mode avion puis recharger/revenir. Contrôler les 121 cases et le même tour / contenu de sac, les menus et l'absence d'écran noir. Pendant CI PR #86, deux tentatives WebView ont perdu la connexion CDP après relance ; le dernier commit est vert. La cause n'a pas été démontrée et le problème n'est **pas considéré résolu sur matériel**.
+- **Décision artistique** : comparer une capture du vrai téléphone avec la référence dark fantasy ; différencier la fidélité de composition (qui reste à améliorer) de la fonctionnalité (CI verte). N'accorder le GO graphique que sur observation réelle des scènes et bonne lisibilité.
+
+**Statut :** volet technique ART-107B3/B4 terminé ; **QA-106G et GO graphique Android restent ouverts.**

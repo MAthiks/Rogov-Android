@@ -4,7 +4,7 @@ import {descentSeed,nextRandom} from "./combat-rules.js";
 import {planDeepChestLoot,EQUIPMENT_LOOT_POOL,CONSUMABLE_LOOT_POOL} from "./loot.js";
 import {placeOptionalSecret} from "./secrets.js";
 import {placeOptionalTraps,validTraps} from "./traps.js";
-import {specialRoomPlan,placeRoomSites,validRoomSites} from "./room-events.js";
+import {placeRoomSites,validRoomSites} from "./room-events.js";
 import {placeRoomEncounters,validRoomEncounters} from "./room-encounters.js";
 import {placeReliquary,validReliquary} from "./reliquary.js";
 import {GRAPH_VERSION,CORE_SLOTS,topologyEdges,planDeepTopology} from "./deep-topology.js";

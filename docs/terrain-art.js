@@ -1,6 +1,7 @@
 // DEV-089B / ART-106C — Original, offline-first terrain atlas for Nhal.
 import {floorMasonry106C,wallMasonry106C} from "./art106c-masonry.js";
 import {floorRelief107A,wallRelief107A} from "./art107a-finishes.js";
+import {floorFinish107B,wallFinish107B} from "./art107b-tileset.js";
 // Terrain styling cannot change collisions, doors, visibility or combat RNG.
 // All terrain sprites are 24x24 SVGs; no external image requests.
 export const TERRAIN_PALETTE=Object.freeze({
@@ -46,6 +47,8 @@ const floorRelief=Object.freeze([
   '<path d="M3 3v5M4 4h6M17 16h4v3" fill="none" stroke="#647278" stroke-width="1"/>'
 ]);
 function floorSvg(variant){
+  // Historical six surfaces remain intact; B1 adds two independent finish variants.
+  const base=variant%floorDetails.length;
   return svg(
     '<rect width="24" height="24" fill="#202d33"/>'+
     '<path data-material="worn-floor-slabs" d="M1 1h11v7H1ZM15 11h8v8h-8ZM1 12h7v7H1Z" fill="#2e3c42" opacity=".38"/>'+
@@ -63,10 +66,10 @@ function floorSvg(variant){
     '<path data-detail="art097c2-floor-joint-hierarchy" d="M1 11h7M15 20h7M2 4h3" stroke="#516267" stroke-width="1" opacity=".52"/>'+
     // UI/ART-099: reduce high-frequency scratches and moss at real phone
     // scale; stable hash/number of variants and masonry landmarks unchanged.
-    '<g data-detail="ui099-quiet-floor" opacity=".32">'+floorDetails[variant]+'</g>'+
-    '<g data-detail="ui099-soft-patina" opacity=".45">'+floorPatina[variant]+'</g>'+
-    '<g data-detail="ui100-floor-broad-relief" opacity=".48">'+floorRelief[variant]+'</g>'+
-    '<path data-detail="ui100-floor-recess" d="M1 9h11M14 9h9M9 20h14" stroke="#0c1920" stroke-width="1" opacity=".4"/>'+floorMasonry106C(variant)+floorRelief107A(variant)
+    '<g data-detail="ui099-quiet-floor" opacity=".32">'+floorDetails[base]+'</g>'+
+    '<g data-detail="ui099-soft-patina" opacity=".45">'+floorPatina[base]+'</g>'+
+    '<g data-detail="ui100-floor-broad-relief" opacity=".48">'+floorRelief[base]+'</g>'+
+    '<path data-detail="ui100-floor-recess" d="M1 9h11M14 9h9M9 20h14" stroke="#0c1920" stroke-width="1" opacity=".4"/>'+floorMasonry106C(base)+floorRelief107A(base)+floorFinish107B(variant)
   );
 }
 
@@ -109,11 +112,11 @@ function wallSvg(mask,variant){
     '<g data-detail="ui099-wall-subtle-patina" opacity=".62">'+accents[variant]+'</g>'+
     '<path data-detail="ui100-wall-deep-overhang" d="M1 10h22v2H1Z" fill="#09161d" opacity=".9"/>'+
     '<path data-detail="ui100-wall-upper-plane" d="M2 2h20v1H2ZM2 7h20v1H2Z" fill="#c3c7b5" opacity=".62"/>'+
-    '<path data-detail="ui100-wall-front-shadow" d="M3 22h7M14 22h7M11 14v9" stroke="#09151d" stroke-width="1" opacity=".82"/>'+wallMasonry106C(mask,variant)+wallRelief107A(mask,variant)+rim
+    '<path data-detail="ui100-wall-front-shadow" d="M3 22h7M14 22h7M11 14v9" stroke="#09151d" stroke-width="1" opacity=".82"/>'+wallMasonry106C(mask,variant)+wallRelief107A(mask,variant)+wallFinish107B(mask,variant)+rim
   );
 }
 export const TERRAIN_SVGS=Object.freeze({
-  floor:Object.freeze(Array.from({length:floorDetails.length},(_,v)=>floorSvg(v))),
+  floor:Object.freeze(Array.from({length:8},(_,v)=>floorSvg(v))),
   wall:Object.freeze(Array.from({length:16},(_,mask)=>
     Object.freeze(Array.from({length:3},(_,v)=>wallSvg(mask,v)))))
 });

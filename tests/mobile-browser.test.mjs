@@ -5254,6 +5254,8 @@ test("QA-106G mobile: three offline PWA reloads keep the real 11x11 run and cont
           const visible=all.filter(c=>c.dataset.knowledge==="visible");
           const map=document.getElementById("tile-map").getBoundingClientRect();
           const pad=document.getElementById("field-controls").getBoundingClientRect();
+          const dpad=document.querySelector(".dpad").getBoundingClientRect();
+          const quick=document.querySelector(".field-quick-actions").getBoundingClientRect();
           const shortcuts=[...document.querySelectorAll("#expedition-shortcuts button")];
           const touches=shortcuts.map(b=>{
             const r=b.getBoundingClientRect();
@@ -5271,6 +5273,7 @@ test("QA-106G mobile: three offline PWA reloads keep the real 11x11 run and cont
             shortcutCount:shortcuts.length,touches,
             screen:innerWidth,scroll:document.documentElement.scrollWidth,
             mapBottom:map.bottom,padTop:pad.top,
+            interactiveControlsTop:Math.min(dpad.top,quick.top),
             turns:document.getElementById("turns").textContent
           };
         });
@@ -5283,8 +5286,8 @@ test("QA-106G mobile: three offline PWA reloads keep the real 11x11 run and cont
         assert.equal(audit.shortcutCount,6);
         assert.ok(audit.touches.every(b=>b.width>=44&&b.height>=44),
           "All six touch targets remain accessible "+JSON.stringify(audit));
-        assert.ok(audit.touches.every(b=>b.bottom<=audit.padTop+2),
-          "Shortcuts must not collide with D-pad "+JSON.stringify(audit));
+        assert.ok(audit.touches.every(b=>b.bottom<=audit.interactiveControlsTop+2),
+          "Shortcuts must not overlap actual D-pad or quick actions "+JSON.stringify(audit));
         assert.ok(audit.mapBottom<=audit.padTop+2);
         assert.ok(audit.scroll<=audit.screen+1,
           "No horizontal overflow "+JSON.stringify(audit));

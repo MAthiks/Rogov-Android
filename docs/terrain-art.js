@@ -180,5 +180,6 @@ export function terrainSpriteAt(map,x,y,isKnown,seed="nhal"){
   if(map[y]?.[x]==="#")
     return TERRAIN_SPRITES.wall[wallEdgeMask(map,x,y,isKnown)]
       [wallVariantAt(seed,x,y)];
-  return TERRAIN_FLOOR_RHYTHM_SPRITES[floorVariantAt(seed,x,y)]\n    [floorRhythmAt(seed,x,y)];
+  return TERRAIN_FLOOR_RHYTHM_SPRITES[floorVariantAt(seed,x,y)]
+    [floorRhythmAt(seed,x,y)];
 }

@@ -26,7 +26,7 @@ import {reliquaryWardenAlive} from "./reliquary.js";
 import {LISTEN_ENDURANCE_COST} from "./acoustics.js";
 import {branchOverview,branchClue} from "./branch-intel.js";
 import {expeditionReport} from "./expedition-report.js";
-import { hasFog,explorationState,visibleCells,minimapText } from "./exploration-visibility.js";
+import { hasFog,explorationState,minimapText } from "./exploration-visibility.js";
 import {RESOURCE_ID,RECIPES,canCraft} from "./economy.js";
 import { STAT_KEYS, STAT_LABELS, ARCHETYPES, EQUIPMENT_CATALOG,
   heroDerivedStats, enemyDerivedStats, playerLoadout, EMPTY_LOADOUT } from "./stats.js";

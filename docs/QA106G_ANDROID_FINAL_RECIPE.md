@@ -90,3 +90,19 @@ La **PR #84** a été fusionnée dans `main`, commit `751cac1609d6f7be5862f1335c
 - Capturer un vrai écran Nhal en jeu, comparer à la référence graphique du projet et consigner les écarts de volume, d'échelle et de contraste.
 
 Les captures Chromium du run Web PR #84 (artefact `qa096-chromium-portraits`, ID 14777849662) montrent le jeu complet, **pas** un protocole de comparaison avant/après de chacun des nouveaux sprites. Les tests automatiques et une première revue des captures sont rassurants, mais ne justifient pas un GO graphique. **Statut inchangé : recette Android physique et essai joueurs encore à faire.**
+
+
+## 8. Actualisation après ART-107B — 23 novembre 2026
+
+**PR #85 fusionnée** : `0e4f3beac0c63f89cb4343c7f505821f4cbb3b10`. Les quatre validations sont réussies sur le dernier SHA de branche `13db08ec3d9bbd4a98c299776ea03e26a40402b7`. Voir [checkpoint ART-107B](ART107B_NHAL_TILESET_CHECKPOINT.md).
+
+### Points de recette physique supplémentaires
+
+1. **Huit dalles de sol** : vérifier qu'elles se distinguent sans transformer des fissures naturelles en faux indices de piège. Comparer à la référence : la répétition de motifs demeure visible sur les captures automatiques.
+2. **48 combinaisons de murs** : tester angles, couloirs et pilier isolé ; ne pas déduire de passages non découverts du raccord des murs.
+3. **Objets et torches** : distinguer portes, coffres ouverts/fermés, Arche cyan, Faille verte, pièges révélés et appliques visibles en déplacement, brouillard partiel et éclairage.
+4. **Personnages** : mesurer la lisibilité à taille Android du Sprite C encapuchonné quatre directions et des trois ennemis, sans cadres artificiels.
+5. **WebView moderne hors ligne — P1 à surveiller** : répéter plusieurs cycles jeu → sauvegarde → fermeture forcée → reprise → mode avion → rechargement. Un premier essai automatisé du run PR #85 a perdu le processus WebView au moment du rechargement hors ligne (échec de `adb shell pidof`). La relance GitHub a réussi, mais la cause n'a pas été démontrée ni corrigée dans le moteur. Tout échec reproductible doit bloquer le GO QA-106G.
+6. **Ergonomie** : contrôler l'absence de chevauchement des six raccourcis et du D-pad à 320×640, puis l'intégralité de l'interaction en 360×800, 393×704 et 412×915.
+
+**Statut :** CI verte 4/4 sur le code fusionné, captures Chromium du véritable jeu examinées, **recette physique et GO graphique toujours non réalisés**.

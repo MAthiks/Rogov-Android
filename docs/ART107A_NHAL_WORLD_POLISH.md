@@ -26,6 +26,19 @@ Screenshot ROGOV transmis par l'utilisateur : bannière sombre, donjon en dalles
 - 24×24 SVG originaux, pas d'image distante, de filtre SVG coûteux ou de mutation du DOM par les fonctions d'illustration.
 - Ne pas confondre succès des tests automatisés et approbation graphique humaine.
 
-## État du chantier
+## Clôture technique — 23 novembre 2026
 
-Chantier ouvert sur branche dédiée. À compléter avec les commits, la PR, la matrice CI et les captures.
+- **PR #84 : fusionnée dans `main`** : https://github.com/MAthiks/Rogov-Android/pull/84
+- **Dernier commit de la branche testé :** `ddf717cd2ca3ae611313924db9418cb626e5b74f`
+- **Commit squash de fusion :** `751cac1609d6f7be5862f1335c677e5858e25d19`
+- **Quatre workflows réussis sur le dernier commit :**
+  - Web / Chromium : https://github.com/MAthiks/Rogov-Android/actions/runs/45084245944
+  - Chrome Android 13 : https://github.com/MAthiks/Rogov-Android/actions/runs/45084245872
+  - APK classique : https://github.com/MAthiks/Rogov-Android/actions/runs/45084245852
+  - APK moderne WebView : https://github.com/MAthiks/Rogov-Android/actions/runs/45084245876
+- **Livraison :** `docs/art107a-finishes.js` et branchements sur `terrain-art.js`, `hero-art.js`, `enemy-art.js`, `interaction-art.js` ; couverture de tests `tests/art107a-world-polish.test.mjs` ; cache PWA actualisé.
+- **Atlas :** six sols, 16 masques connus × trois variantes de murs et pilier, héros quatre orientations, trois ennemis, coffres, portes, Arche, Faille et pièges reconnus ; aucun nouveau type d'entité.
+- **Revue des captures automatisées :** artefact `qa096-chromium-portraits` (ID 14777849662), dont `qa106e-deep-11x11-320x640.png`, `qa106e-deep-11x11-360x800.png`, `qa106e-deep-11x11-393x704.png` et `qa106e-deep-11x11-412x915.png`. Contrôle d'ensemble de l'écran vivant ; aucun défaut majeur évident sur les captures contrôlées, mais ce n'est ni un comparatif pixel à pixel ni une recette de tous les sprites en situation.
+- **Mesures automatiques jointes :** 121 cellules pour le Nhal profond, largeur carte 264 px sur 320×640, six raccourcis de 44 CSS px dans ce format, aucun débordement horizontal ; le rapport QA-097 indique `lightLeak=0`, `enemyLeak=0`, `saveUnchanged=true`, `turnsUnchanged=true`. Ces mesures proviennent de Chromium émulé, pas d'un téléphone physique.
+- **Limite artistique actuelle :** le traitement 24×24 reste moins volumétrique et spectaculaire que la grande référence illustrée ; le contraste des créatures et l'échelle perçue doivent être évalués sur un téléphone.
+- **Décision : ART-107A fusionné techniquement. GO graphique final non accordé.** Continuer [QA-106G](QA106G_ANDROID_FINAL_RECIPE.md), puis arbitrer des ajustements artistiques supplémentaires uniquement à partir de captures/retours concrets.

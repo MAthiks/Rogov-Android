@@ -58,9 +58,15 @@ export function setupUi106E({get,isRun,win=window}){
       footerHeight:footer,columns,rows,
       safety:(win.innerWidth<=350||win.innerHeight<=700)?28:4
     });
-    // On extremely short screens leave scrolling available rather than
-    // shrinking real 44px controls or making the dungeon illegible.
-    if(width>=200)map.style.setProperty("--nhal106e-map-width",width+"px");
+    // On compact 320x640 devices, the previous universal 200px floor
+    // prevented any fitting when only ~170-190px could remain above the
+    // fixed controls. That let the SIX navigation buttons overlap the D-pad.
+    // Preserve 44px buttons and actual 11x11 / 15x9 geometry instead:
+    // permit a smaller square *camera* only on these short, narrow screens.
+    // Other screens retain the 200px readability floor.
+    const compact=win.innerWidth<=350&&win.innerHeight<=700;
+    const minCamera=compact?160:200;
+    if(width>=minCamera)map.style.setProperty("--nhal106e-map-width",width+"px");
   }
   win.addEventListener("resize",sync);
   win.visualViewport?.addEventListener("resize",sync);

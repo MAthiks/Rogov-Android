@@ -114,6 +114,36 @@ test("QA-106F: real six-button nav outranks unrelated in-flow secondary panels",
   ui.dispose();
 });
 
+test("TECH-108A: 320x640 keeps six navigation buttons clear of fixed touch controls",()=>{
+  const f=mockFixture();
+  f.win.innerWidth=320;
+  f.win.innerHeight=640;
+  f.map.getBoundingClientRect=()=>{
+    const width=Number.parseFloat(f.vars.get("--nhal106e-map-width")||"300");
+    return {top:249,bottom:249+width,width,height:width};
+  };
+  f.map.closest=()=>({getBoundingClientRect:()=>({
+    left:4,right:314,width:310,bottom:700
+  })});
+  const oldGet=f.get;
+  f.get=id=>id==="expedition-shortcuts"?{
+    getBoundingClientRect:()=>{
+      const map=f.map.getBoundingClientRect();
+      return {width:300,top:map.bottom+1,bottom:map.bottom+47};
+    }
+  }:oldGet(id);
+  f.get("field-controls").getBoundingClientRect=()=>({top:492,bottom:640});
+  const ui=setupUi106E(f);
+  ui.sync();
+  const camera=Number.parseFloat(f.vars.get("--nhal106e-map-width"));
+  assert.equal(camera,168,
+    "Compact layout must shrink only the camera, not the 44px D-pad buttons");
+  assert.ok(f.get("expedition-shortcuts").getBoundingClientRect().bottom<=492-2,
+    "Six real navigation shortcuts must clear the fixed controls");
+  assert.equal(f.map.children.length,121,"Real 11x11 tile topology is unchanged");
+  ui.dispose();
+});
+
 test("UI/ART-106E: stylesheet and offline bridge cannot change engine tiles",()=>{
   const html=read("docs/index.html"),css=read("docs/uiart106e.css");
   const app=read("docs/app.js"),sw=read("docs/sw.js");

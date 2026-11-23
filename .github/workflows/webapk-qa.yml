@@ -60,7 +60,11 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 33
-          target: google_apis
+          # AOSP WebView avoids emulator-only Google Play Services
+          # FontsProvider process deaths that kill this application's PID
+          # during the saved-run resume test. Chrome Android is checked
+          # separately by dev080-android-qa.yml using Google APIs.
+          target: default
           arch: x86_64
           profile: pixel_3a
           cores: 4

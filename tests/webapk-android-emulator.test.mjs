@@ -271,7 +271,40 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
     console.log("APK098A AFTER PROCESS RESTART:",JSON.stringify(beforeResume));
     // A previous successful restore must reopen the actual scene, not only
     // leave a stale button in the DOM. Queue the click and check real pixels.
-    await queueClick(dev,"#title-continue");
+    // Android may replace a debug WebView target while processing the click.
+    // If transport closes, verify the native PID is still alive and reattach
+    // to that SAME app; never skip the save, scene, map or offline assertions.
+    try{
+      await queueClick(dev,"#title-continue");
+    }catch(error){
+      if(!/CDP WebSocket closed before response|CDP startup or command timed out/i.test(String(error)))
+        throw error;
+      let currentPid;
+      try{currentPid=adb("shell","pidof","com.rogov.webapk");}
+      catch{
+        try{console.error("APK098A PROCESS LOGCAT:",adb("logcat","-d","-s","AndroidRuntime:E").slice(-3000));}
+        catch{/* Keep the original missing-process diagnosis. */}
+        throw Error("APK098A native application died while resuming a saved run: "+error.message);
+      }
+      assert.match(currentPid,/^[0-9]+$/,"WebView native process must remain alive");
+      console.warn("APK098A transport replaced during resume; native PID still alive:",currentPid);
+      try{dev.close();}catch{/* Debug socket already closed. */}
+      try{adb("forward","--remove","tcp:9223");}catch{/* Old debug forward already gone. */}
+      adb("forward","tcp:9223","localabstract:webview_devtools_remote_"+currentPid);
+      dev=await connect();
+      const reattached=await dev.evaluate(`(()=>{
+        const saved=JSON.parse(localStorage.getItem("rogov-web-v1")||"null");
+        return {hasSave:Boolean(saved?.run),schema:saved?.schemaVersion,
+          runTurns:saved?.run?.turns,
+          sceneVisible:!document.querySelector("#game-shell").hidden &&
+            !document.querySelector("#expedition").hidden};
+      })()`);
+      assert.equal(reattached.hasSave,true,"Save must survive WebView debug reattachment");
+      assert.equal(reattached.schema,1);
+      assert.equal(reattached.runTurns,scene.runTurns);
+      if(!reattached.sceneVisible)
+        await queueClick(dev,"#title-continue");
+    }
     await until(dev,'!document.querySelector("#game-shell").hidden && !document.querySelector("#expedition").hidden',isTrue,25000);
     // QA-104: DOM scene readiness is insufficient if the opaque title layer
     // still paints over the game after Android WebView's first frame.

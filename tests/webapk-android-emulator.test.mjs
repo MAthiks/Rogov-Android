@@ -345,7 +345,16 @@ test("APK-098A: actual Android WebView loads 11x11 modern game, retains save and
       // Native reloads may recreate WebView's devtools Unix socket even if
       // the app itself is still alive. Forward the CURRENT PID, exactly as
       // we already do after the earlier intentional process restart.
-      const currentPid=adb("shell","pidof","com.rogov.webapk");
+      let currentPid;
+      try{currentPid=adb("shell","pidof","com.rogov.webapk");}
+      catch(error){
+        // A native process disappearance is a genuine QA failure; capture
+        // Android evidence instead of silently retrying or masking it.
+        try{console.error("APK098A OFFLINE RELOAD AndroidRuntime:",
+          adb("logcat","-d","-s","AndroidRuntime:E","ActivityManager:E","chromium:E").slice(-5500));}
+        catch(diagnosticError){console.warn("APK098A logcat unavailable:",String(diagnosticError));}
+        throw Error("APK098A WebView native process missing after offline reload: "+error.message);
+      }
       assert.match(currentPid,/^[0-9]+$/,"Native WebView must remain alive offline");
       try{adb("forward","--remove","tcp:9223");}catch{/* Old tunnel closed. */}
       adb("forward","tcp:9223","localabstract:webview_devtools_remote_"+currentPid);

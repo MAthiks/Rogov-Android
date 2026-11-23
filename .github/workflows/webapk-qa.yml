@@ -60,19 +60,21 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 33
-          # AOSP WebView avoids emulator-only Google Play Services
-          # FontsProvider process deaths that kill this application's PID
-          # during the saved-run resume test. Chrome Android is checked
-          # separately by dev080-android-qa.yml using Google APIs.
-          target: default
+          # Android 13 automated-test AOSP image: no unstable GMS FontsProvider.
+          # It is lighter than the full AOSP image, which lost its ADB session
+          # during WebView rendering on the GitHub runner. Chrome's Google APIs
+          # emulator remains independently validated in dev080-android-qa.yml.
+          target: aosp_atd
           arch: x86_64
           profile: pixel_3a
-          cores: 4
-          ram-size: 4096M
-          heap-size: 768M
+          cores: 2
+          ram-size: 3072M
+          heap-size: 512M
           emulator-boot-timeout: 600
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: bash tools/smoke-webapk.sh
+          # Hard deadline also covers a disconnected ADB session. A timeout is
+          # an explicit failure, never an implicit pass.
+          script: timeout --signal=TERM --kill-after=10s 240s bash tools/smoke-webapk.sh
       - name: Archive independent modern debug APK and actual Android screenshot
         if: success()
         uses: actions/upload-artifact@v4

@@ -150,3 +150,21 @@ Les captures Chromium du run Web PR #84 (artefact `qa096-chromium-portraits`, ID
 **Limites importantes :** ces trois rechargements contrôlent **la PWA dans Chromium**, pas trois arrêts forcés d'une application Android sur un appareil réel. Le test WebView natif distinct reste inchangé et contrôle un cycle avec reprise et hors ligne sur émulateur Android 13. La perte intermittente antérieure du processus WebView natif reste un risque à reproduire sur téléphone physique : le nouveau test PWA ne la résout pas. Le GO graphique ne peut pas être accordé sur les seules CI.
 
 **Sortie attendue :** quatre workflows réussis sur le dernier SHA de la PR QA-106G et examen des trois nouvelles captures ; puis essai guidé sur **Android physique** avec les trois cycles de fermeture forcée, reprise et mode avion précédemment définis. Documenter toute anomalie P0/P1 avant de revenir au gameplay.
+
+
+## 12. Clôture du renforcement automatisé QA-106G — 23 novembre 2026
+
+**PR #88 fusionnée dans `main` :** https://github.com/MAthiks/Rogov-Android/pull/88
+
+- **SHA du dernier commit de branche testé :** `46cce8d76baeda0ecae9dff81228e6d9dfae40cb`.
+- **Commit squash de fusion :** `ee8c4fe4e7b87e221e09867a093dc6aa5aeffcab`.
+- **Web / Chromium : succès** — https://github.com/MAthiks/Rogov-Android/actions/runs/45204880074
+- **Chrome Android 13 : succès** — https://github.com/MAthiks/Rogov-Android/actions/runs/45204880277
+- **APK Android classique : succès** — https://github.com/MAthiks/Rogov-Android/actions/runs/45204880173
+- **APK WebView moderne : succès lors de la relance du job en échec** — https://github.com/MAthiks/Rogov-Android/actions/runs/45204880067
+- **Corrections de tests avant fusion :** la nouvelle assertion 320×640 comparait initialement les raccourcis à l'en-tête du panneau de commandes, ce qui entraînait un faux chevauchement de 11 px. Elle mesure désormais les positions du vrai D-pad et des actions rapides, tout en gardant la règle de non-recouvrement.
+- **Risque WebView persistant :** la première tentative sur ce dernier SHA a échoué avec `adb shell pidof com.rogov.webapk` après une fermeture/reprise native. Le job relancé a réussi. La cause native n'est pas identifiée, ni corrigée par la PR de tests : une récidive sur téléphone physique doit bloquer le GO.
+- **Preuve visuelle :** artefact `qa096-chromium-portraits`, ID `14832884772`, run Web réussi, comprenant `qa106g-pwa-offline-cycle-1-360x800.png`, `cycle-2`, `cycle-3`. Les trois captures ont exactement le même SHA-256 `3d4e137f4de7cc4ab898234a265f5ea1b492d5a13fa0031ec9edbc169449ea06` : le même vrai donjon et les commandes sont conservés visuellement. Les résultats automatisés sont verts, sans anomalie bloquante de disposition détectée.
+- **Limites :** Chromium sous émulation tactile n'est pas un test de téléphone physique ; trois rechargements PWA ne sont pas trois fermetures forcées d'APK. Le niveau d'immersion du jeu et la fidélité à la grande référence graphique demeurent des jugements humains non validés.
+
+**Décision : renforcement automatique QA-106G terminé et fusionné. QA-106G Android physique toujours ouverte. GO graphique final non accordé.** Priorité avant nouvelle fonctionnalité : réaliser les trois cycles sur téléphone réel et noter tout échec WebView ou défaut de lisibilité.

@@ -12,12 +12,12 @@ const read=p=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 
 test("ART-106C: actual atlas holds 6 carved floors, 16x3 walls and isolated pillars",()=>{
   assert.equal(ART106C_FLOOR_DETAILS.length,6);
-  assert.equal(TERRAIN_SVGS.floor.length,6);
+  assert.equal(TERRAIN_SVGS.floor.length,8);
   assert.equal(TERRAIN_SVGS.wall.length,16);
   assert.ok(TERRAIN_SVGS.wall.every(row=>row.length===3));
   const sources=[...TERRAIN_SPRITES.floor,...TERRAIN_SPRITES.wall.flat()];
-  assert.equal(sources.length,54);
-  assert.equal(new Set(sources).size,54);
+  assert.equal(sources.length,56);
+  assert.equal(new Set(sources).size,56);
   for(let i=0;i<6;i++){
     assert.match(floorMasonry106C(i),/data-decoration="art106c-floor-masonry"/);
     assert.match(TERRAIN_SVGS.floor[i],/data-decoration="art106c-floor-masonry"/);

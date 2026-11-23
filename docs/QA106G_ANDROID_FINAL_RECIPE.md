@@ -77,3 +77,16 @@ Comparer les captures réelles à l'image de référence transmise le 22/11/2026
 | Validation comparative screenshot référence | à faire |
 | Tests 5 joueurs × 2 descentes | à faire |
 | GO graphique Android | **non accordé** |
+
+## 7. Actualisation après ART-107A — 23 novembre 2026
+
+La **PR #84** a été fusionnée dans `main`, commit `751cac1609d6f7be5862f1335c677e5858e25d19`, après **4/4 CI réussies** sur `ddf717cd2ca3ae611313924db9418cb626e5b74f` (Web/Chromium, Chrome Android 13, APK classique, WebView moderne). [Checkpoint technique](ART107A_NHAL_WORLD_POLISH.md).
+
+**Contrôles complémentaires requis sur téléphone physique :**
+- Comparer la lisibilité des six sols, des différents murs et du pilier isolé en déplacement réel, avec lumière ambre et obscurité.
+- Vérifier Sprite C dans les **quatre directions** à taille native sur 320×640 et 360×800, sans contour ajouté ; identifier les trois espèces ennemies sans lire leur nom.
+- Identifier sans hésiter coffre fermé/ouvert, porte, Arche cyan et Faille verte ; comparer la visibilité des pièges *révélés* à celle des indices encore cachés.
+- Contrôler que les nouveaux détails ne réduisent ni la perception des menaces, ni la lecture du brouillard et des salles mémorisées.
+- Capturer un vrai écran Nhal en jeu, comparer à la référence graphique du projet et consigner les écarts de volume, d'échelle et de contraste.
+
+Les captures Chromium du run Web PR #84 (artefact `qa096-chromium-portraits`, ID 14777849662) montrent le jeu complet, **pas** un protocole de comparaison avant/après de chacun des nouveaux sprites. Les tests automatiques et une première revue des captures sont rassurants, mais ne justifient pas un GO graphique. **Statut inchangé : recette Android physique et essai joueurs encore à faire.**

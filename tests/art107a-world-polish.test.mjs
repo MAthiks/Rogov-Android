@@ -24,7 +24,7 @@ test("ART-107A1: real floor/wall atlas remains 6+16x3 original 24px assets",()=>
   assert.equal(ART107A_ENHANCED.floorVariants,6);
   assert.equal(ART107A_ENHANCED.wallMasks,16);
   assert.equal(ART107A_ENHANCED.wallVariants,3);
-  assert.equal(TERRAIN_SVGS.floor.length,6);
+  assert.equal(TERRAIN_SVGS.floor.length,8);
   assert.equal(TERRAIN_SVGS.wall.length,16);
   assert.ok(TERRAIN_SVGS.wall.every(row=>row.length===3));
   for(let i=0;i<6;i++){
@@ -39,7 +39,7 @@ test("ART-107A1: real floor/wall atlas remains 6+16x3 original 24px assets",()=>
     assert.ok(TERRAIN_SVGS.wall[mask][variant].includes(mark));
     safe(TERRAIN_SVGS.wall[mask][variant]);
   }
-  assert.equal(new Set([...TERRAIN_SPRITES.floor,...TERRAIN_SPRITES.wall.flat()]).size,54);
+  assert.equal(new Set([...TERRAIN_SPRITES.floor,...TERRAIN_SPRITES.wall.flat()]).size,56);
   for(const bad of [-1,6,1.5,NaN])assert.throws(()=>floorRelief107A(bad),RangeError);
   for(const pair of [[-1,0],[16,0],[0,3],[0,-1],[1.5,0]])
     assert.throws(()=>wallRelief107A(...pair),RangeError);

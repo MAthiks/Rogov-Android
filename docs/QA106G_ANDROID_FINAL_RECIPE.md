@@ -120,3 +120,17 @@ Les captures Chromium du run Web PR #84 (artefact `qa096-chromium-portraits`, ID
 - **Décision artistique** : comparer une capture du vrai téléphone avec la référence dark fantasy ; différencier la fidélité de composition (qui reste à améliorer) de la fonctionnalité (CI verte). N'accorder le GO graphique que sur observation réelle des scènes et bonne lisibilité.
 
 **Statut :** volet technique ART-107B3/B4 terminé ; **QA-106G et GO graphique Android restent ouverts.**
+
+
+## 10. Actualisation après ART-107C — 23 novembre 2026
+
+**PR #87 fusionnée** : `317b0ae751e42caca775cd0a6f3e01b6f57f9837` ; **4/4 CI réussies** sur `f2cbaf9e1166f430f34ce17beb5ef90cb1231c83`. [Checkpoint de livraison](ART107C_NHAL_FLAGSTONE_GEOMETRY.md).
+
+### Vérifications physiques supplémentaires
+
+- **Quatre véritables géométries de pierre** : comparer les grands blocs, assises décalées, pierres allongées et maçonnerie cassée, de nuit en jeu. Vérifier que les jointures n'évoquent pas artificiellement un piège ou une Faille ; confirmer que l'Égaré et les trois ennemis restent lisibles sur les contrastes les plus clairs et sombres.
+- **Écrans / appareils** : reproduire Nhal 11×11 à 320×640, 360×800, 393×704 et 412×915, ainsi que tutoriel 15×9 ; tester vraie pression sur six raccourcis, Attendre, déplacement, Actions, Bandage et Tonique. La QA Chromium de PR #87 montre 121 cases, aucune fuite d'ennemi ou de lumière, aucun overflow horizontal aux tailles mesurées, mais ne remplace pas un téléphone.
+- **WebView hors ligne — P1 toujours ouverte** : répéter au minimum trois cycles sauvegarde → fermeture forcée → réouverture → reprise → mode avion → rechargement. Une première exécution ART-107C a échoué à retrouver le PID de l'application après rechargement hors ligne ; le run suivant est vert. Les journaux de diagnostic ont été ajoutés au test pour les prochaines récurrences, sans contourner une défaillance native réelle.
+- **Fidélité artistique** : le nouveau motif réduit la monotonie des dalles, mais les grandes masses et l'échelle des personnages restent moins élaborées que la référence illustrée. Valider le contraste et la perception des chemins sur écran physique avant de décider s'il faut encore poursuivre la DA ou revenir au gameplay.
+
+**Statut : ART-107C techniquement fusionné, recette graphique Android physique et GO final toujours non accordés.**

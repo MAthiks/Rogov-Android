@@ -34,3 +34,9 @@ Une référence textuelle ne garantit pas une utilisation en jeu ; son absence n
 La CI doit conserver quatre validations réussies sur le même HEAD : Web/Chromium, Chrome Android 13, APK classique et WebView moderne. La recette Android physique et les redémarrages hors ligne de TECH-108D ainsi que le suivi d'incident [#91](https://github.com/MAthiks/Rogov-Android/issues/91) restent ouverts.
 
 **Invariants absolus :** sauvegarde `rogov-web-v1`, compatibilité PWA/APK, gameplay et RNG, visibilité/brouillard, Sprite C et visuels déjà approuvés.
+
+## Incident CI portrait QA-092 (PR #96)
+
+Le premier contrôle Web/Chromium du HEAD `1cfaa36f` a réussi 419/419 tests Node et 80/81 tests Chromium, mais a mesuré immédiatement après `page.setViewportSize` un chevauchement de 12,16 px entre les six raccourcis et le dock à 320×640 (nav.bottom = 504,16 ; dock.top = 492). Le test QA-106G, plus récent dans le même fichier, attend déjà deux frames navigateur réelles après redimensionnement, pour laisser les callbacks `resize` et `ResizeObserver` adapter la caméra.
+
+Le test QA-092 est aligné sur cette méthode : deux `requestAnimationFrame` imbriqués précèdent la lecture géométrique, **sans changer aucune assertion ni aucun seuil**. Il s'agit d'une stabilisation de l'instant d'observation, non d'une preuve de correction de l'interface. Si un chevauchement subsiste après deux frames, le contrôle bloque toujours la PR ; ne pas fusionner sans quatre workflows verts sur le dernier SHA. Aucun fichier runtime modifié, aucune ressource supprimée et aucune altération du gameplay, Sprite C, FOV ou des sauvegardes.

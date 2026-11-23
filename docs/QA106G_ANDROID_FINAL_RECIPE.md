@@ -134,3 +134,19 @@ Les captures Chromium du run Web PR #84 (artefact `qa096-chromium-portraits`, ID
 - **Fidélité artistique** : le nouveau motif réduit la monotonie des dalles, mais les grandes masses et l'échelle des personnages restent moins élaborées que la référence illustrée. Valider le contraste et la perception des chemins sur écran physique avant de décider s'il faut encore poursuivre la DA ou revenir au gameplay.
 
 **Statut : ART-107C techniquement fusionné, recette graphique Android physique et GO final toujours non accordés.**
+
+
+## 11. QA-106G — Renforcement de la recette PWA automatisée (23 novembre 2026)
+
+**Chantier de vérification** : `feature/qa-106g-android-resume-matrix`. Une recette Chromium/Playwright supplémentaire a été ajoutée dans `tests/mobile-browser.test.mjs`. Elle utilise une **vraie descente Nhal 11×11 construite par le moteur**, une vraie PWA contrôlée par son service worker, puis exécute **trois rechargements successifs en mode hors ligne**.
+
+À chaque cycle, les quatre formats 320×640, 360×800, 393×704 et 412×915 sont contrôlés :
+- 121 cases et exactement un personnage jouable avec son SVG 24×24 réellement décodé ;
+- cases inconnues sans image, texture, donnée d'ennemi ou intention ; aucune menace connue derrière le brouillard ;
+- six boutons de navigation présents, zones tactiles de 44 px minimum, aucun recouvrement de la zone de commandes ;
+- absence de débordement horizontal, conservation du tour 0 et **égalité exacte de la sauvegarde `rogov-web-v1`** après chaque rechargement ;
+- capture Chromium du vrai Nhal pour les cycles 1, 2 et 3 en 360×800, stockée dans l'artefact `qa096-chromium-portraits`.
+
+**Limites importantes :** ces trois rechargements contrôlent **la PWA dans Chromium**, pas trois arrêts forcés d'une application Android sur un appareil réel. Le test WebView natif distinct reste inchangé et contrôle un cycle avec reprise et hors ligne sur émulateur Android 13. La perte intermittente antérieure du processus WebView natif reste un risque à reproduire sur téléphone physique : le nouveau test PWA ne la résout pas. Le GO graphique ne peut pas être accordé sur les seules CI.
+
+**Sortie attendue :** quatre workflows réussis sur le dernier SHA de la PR QA-106G et examen des trois nouvelles captures ; puis essai guidé sur **Android physique** avec les trois cycles de fermeture forcée, reprise et mode avion précédemment définis. Documenter toute anomalie P0/P1 avant de revenir au gameplay.
